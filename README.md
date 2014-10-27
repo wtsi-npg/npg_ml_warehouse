@@ -1,4 +1,4 @@
 npg_ml_warehouse
 ================
 
-Loading analysis results into teh multi-lims warehouse, see ml_warehouse project for the warehouse details.
+Loading analysis results into the multi-lims warehouse, see ml_warehouse project for the warehouse details.
