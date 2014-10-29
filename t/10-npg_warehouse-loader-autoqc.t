@@ -1,34 +1,35 @@
-#########
-# Author:        Marina Gourtovaia
-# Maintainer:    $Author: mg8 $
-# Created:       4 August 2010
-# Last Modified: $Date: 2010-08-03 18:04:59 +0100 (Tue, 03 Aug 2010) $
-# Id:            $Id: 20-npg_warehouse-loader.t 10401 2010-08-03 17:04:59Z mg8 $
-# $HeadURL: svn+ssh://svn.internal.sanger.ac.uk/repos/svn/new-pipeline-dev/data_handling/branches/prerelease-24.0/t/20-npg_warehouse-loader.t $
-#
-
 use strict;
 use warnings;
-use Test::More tests => 92;
+use Test::More tests => 98;
 use Test::Exception;
-use t::npg_warehouse::util;
+use Moose::Meta::Class;
 
+use npg_testing::db;
 use npg_qc::autoqc::qc_store;
 use npg_qc::autoqc::results::qX_yield;
 
-# set up the location of the test staging area
-my $test_dir = q[t/data/archive];
-local $ENV{TEST_DIR} = $test_dir;
-
 use_ok('npg_warehouse::loader::autoqc');
-
+my $store = npg_qc::autoqc::qc_store->new(use_db => 0);
 my $plex_key = q[plexes];
+my $util = Moose::Meta::Class->create_anon_class(
+    roles => [qw/npg_testing::db/])->new_object({});
+my $schema_npg;
+eval { $schema_npg  = $util->create_test_db(q[npg_tracking::Schema], q[t/data/fixtures/npg]); 1 }
+  or die 'failed to create npg test db - test prerequisite';
+my $folder_glob = q[t/data/runfolders/];
+my $user_id = 7;
+
+local $ENV{TEST_DIR} = q[t];
 
 {
+  throws_ok {npg_warehouse::loader::autoqc->new(autoqc_store => $store)}
+    qr/Attribute \(plex_key\) is required/,
+    'error in constructor when plex key attr is not defined';
+
   my $autoqc;
   lives_ok {
-      $autoqc = npg_warehouse::loader::autoqc->new( 
-                    autoqc_store => npg_qc::autoqc::qc_store->new(use_db => 0),
+    $autoqc = npg_warehouse::loader::autoqc->new( 
+                    autoqc_store => $store,
                     plex_key => $plex_key
                 )
   } 'autoqc retriever object instantiated by passing schema objects to the constructor';
@@ -37,32 +38,24 @@ my $plex_key = q[plexes];
   is ($autoqc->plex_key, $plex_key, 'plex_key attr set');
 }
 
-
-{
-  throws_ok {npg_warehouse::loader::autoqc->new( 
-                    autoqc_store => npg_qc::autoqc::qc_store->new(use_db => 0)
-  )} qr/Attribute \(plex_key\) is required/, 'error in constructor when plex key attr is not defined';
-}
-
-
 {
   my $autoqc  = npg_warehouse::loader::autoqc->new( 
                     autoqc_store => npg_qc::autoqc::qc_store->new(use_db => 0,verbose => 0,),
-                    plex_key => $plex_key,
-                );
-  throws_ok {$autoqc->retrieve()} qr/Attribute \(id_run\) does not pass the type constraint/, 'error when id_run is missing';
-  lives_ok {$autoqc->retrieve(1)} 'lives when id_run is one';
+                    plex_key => $plex_key,);
+  throws_ok {$autoqc->retrieve()}
+    qr/Attribute \(id_run\) does not pass the type constraint/,
+    'error when id_run is missing';
 }
-
 
 {
    my $autoqc  = npg_warehouse::loader::autoqc->new( 
-                    autoqc_store => npg_qc::autoqc::qc_store->new(use_db => 0),
+                    autoqc_store => $store,
                     plex_key => $plex_key
                  );
-   my $result = npg_qc::autoqc::results::qX_yield->new(path => q[dodo], id_run=>22, position=>1,
-                                                     threshold_quality => 30,);
-   throws_ok {$autoqc->_qX_yield($result, {})} qr/Need Q20 quality, got 30/, 'error when quality is not 20';
+   my $result = npg_qc::autoqc::results::qX_yield->new(
+     path => q[dodo], id_run=>22, position=>1, threshold_quality => 30,);
+   throws_ok {$autoqc->_qX_yield($result, {})}
+     qr/Need Q20 quality, got 30/, 'error when quality is not 20';
    $result->threshold_quality(20);
    lives_ok {$autoqc->_qX_yield($result, {})} 'lives with quality 20';
    $result->yield1(200);
@@ -83,15 +76,20 @@ my $plex_key = q[plexes];
    is ($h->{1}->{$plex_key}->{0}->{q20_yield_kb_reverse_read}, 300, 'zero tag reverse slot filled');
 }
 
-
 {
-  my $autoqc  = npg_warehouse::loader::autoqc->new( 
-                    autoqc_store => npg_qc::autoqc::qc_store->new(use_db => 0),
-                    plex_key => $plex_key
-                );
-
   my $id_run = 4799;
-  my $auto = $autoqc->retrieve($id_run);
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+    'staging tag is set - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')
+    ->update_or_create({folder_path_glob => $folder_glob, folder_name => '100330_HS21_4799', id_run => $id_run, })}
+    'forder glob reset lives - test prerequisite';
+
+  my $auto;
+  lives_ok { $auto = npg_warehouse::loader::autoqc->new( 
+             autoqc_store => $store,
+             plex_key => $plex_key )->retrieve($id_run, $schema_npg)}
+    'data for run 4799 retrieved';
+
   is ($auto->{1}->{q20_yield_kb_forward_read}, 46671, 'qx forward lane 1');
   is ($auto->{1}->{q20_yield_kb_reverse_read}, 39877, 'qx reverse lane 1');
 
@@ -114,14 +112,18 @@ my $plex_key = q[plexes];
   is ($auto->{3}->{$plex_key}->{3}->{q20_yield_kb_reverse_read}, 1393269, 'qx reverse tag 3');
 }
 
-
 {
-  my $autoqc  = npg_warehouse::loader::autoqc->new( 
-                    autoqc_store => npg_qc::autoqc::qc_store->new(use_db => 0),
-                    plex_key => $plex_key
-                );
   my $id_run = 4333;
-  my $auto = $autoqc->retrieve($id_run);
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+    'staging tag is set - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')
+    ->update_or_create({folder_path_glob => $folder_glob, folder_name => '100330_IL21_4333', id_run => $id_run, })}
+    'forder glob reset lives - test prerequisite';
+  my $auto;
+  lives_ok {$auto = npg_warehouse::loader::autoqc->new( 
+                    autoqc_store => $store,
+                    plex_key => $plex_key
+  )->retrieve($id_run, $schema_npg)} 'data for run 4333 retrieved';
 
   ok (exists  $auto->{4}, 'control lane present in an autoqc hash');
   ok (!exists  $auto->{4}->{$plex_key}, 'control lane not present in an autoqc plex hash');
@@ -142,12 +144,18 @@ my $plex_key = q[plexes];
 }
 
 {
-  my $autoqc  = npg_warehouse::loader::autoqc->new(
-                    autoqc_store => npg_qc::autoqc::qc_store->new(use_db => 0),
-                    plex_key => $plex_key
-                );
   my $id_run = 6624;
-  my $auto = $autoqc->retrieve($id_run);
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+    'staging tag is set - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')
+    ->update_or_create({folder_path_glob => $folder_glob, folder_name => '110731_HS17_06624_A_B00T5ACXX', id_run => $id_run, })}
+    'forder glob reset lives - test prerequisite';
+
+  my $auto;
+  lives_ok {$auto = npg_warehouse::loader::autoqc->new(
+                    autoqc_store => $store,
+                    plex_key => $plex_key
+  )->retrieve($id_run, $schema_npg);} 'data for run 6624 retrieved';
 
   cmp_ok(sprintf('%.2f', $auto->{3}->{split_phix_percent}), q(==), 0.44, 'split phiX percent');
   cmp_ok(sprintf('%.2f', $auto->{3}->{$plex_key}->{4}->{bam_num_reads}), q(==), 33605036, 'bam number of reads');
@@ -182,27 +190,13 @@ my $plex_key = q[plexes];
 }
 
 {
-  my $autoqc  = npg_warehouse::loader::autoqc->new(
-                    autoqc_store => npg_qc::autoqc::qc_store->new(use_db => 0),
-                    plex_key => $plex_key
-                );
   my $id_run = 6642;
-  my $schema_npg;
-  my $util = t::npg_warehouse::util->new();
-  eval { $schema_npg  = $util->create_test_db(q[npg_tracking::Schema], q[t/data/fixtures/npg]); 1 } or die 'failed to create npg test db - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })}
+    'forder glob reset lives - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+    'staging tag is set - test prerequisite';
 
-  # edit the stored glob prepending the location of my test staging area
-  my $folder_glob =  $schema_npg->resultset('Run')->find({id_run => $id_run, })->folder_path_glob;
-  is($folder_glob, q[/{export,nfs}/sf39/ILorHSany_sf39/*/], 'folder glob retrieved OK - test prerequisite');
-  $folder_glob = $test_dir . $folder_glob;
-  lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })} 'forder glob reset lives - test prerequisite';
-  $folder_glob =  $schema_npg->resultset('Run')->find({id_run => $id_run, })->folder_path_glob;
-  is($folder_glob, q[t/data/archive/{export,nfs}/sf39/ILorHSany_sf39/*/], 'new folder glob retrieved OK - test prerequisite');
-  
-  my $user_id = 1;
-  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')} 'staging tag is set - test prerequisite';
-
-  my $auto = $autoqc->retrieve($id_run, $schema_npg);
+  my $auto = npg_warehouse::loader::autoqc->new(autoqc_store => $store,plex_key => $plex_key)->retrieve($id_run, $schema_npg);
 
   cmp_ok(sprintf('%.2f',$auto->{3}->{bam_percent_mapped}), q(==), 98.19, 'bam mapped percent');
   cmp_ok(sprintf('%.2f',$auto->{3}->{bam_percent_duplicate}), q(==), 24.63, 'bam duplicate percent');
