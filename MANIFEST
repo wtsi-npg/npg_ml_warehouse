@@ -1,0 +1,11 @@
+Build.PL
+Changes
+MANIFEST
+README.md
+lib/npg_warehouse/loader/autoqc.pm
+lib/npg_warehouse/loader/npg.pm
+lib/npg_warehouse/loader/qc.pm
+lib/npg_warehouse/loader/run_status.pm
+lib/npg_warehouse/loader/run.pm
+
+

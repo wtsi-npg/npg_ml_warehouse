@@ -1,0 +1,19 @@
+---
+- id_user: 7
+  rfid: ~
+  username: pipeline
+- id_user: 8
+  rfid: ~
+  username: first
+- id_user: 9
+  rfid: ~
+  username: second
+- id_user: 10
+  rfid: ~
+  username: third
+- id_user: 12
+  rfid: ~
+  username: fourth
+- id_user: 13
+  rfid: ~
+  username: fifth
