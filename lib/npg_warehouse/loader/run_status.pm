@@ -1,8 +1,6 @@
 package npg_warehouse::loader::run_status;
 
-use Carp;
 use Moose;
-use Try::Tiny;
 use DBIx::Class::ResultClass::HashRefInflator;
 use Readonly;
 
@@ -110,13 +108,9 @@ __END__
 
 =over
 
-=item Carp
-
 =item Readonly
 
 =item Moose
-
-=item Try::Tiny
 
 =item DBIx::Class::ResultClass::HashRefInflator;
 

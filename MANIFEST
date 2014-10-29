@@ -19,6 +19,9 @@ t/data/fixtures/npg/300-Run.yml
 t/data/fixtures/npg/400-RunLane.yml
 t/data/fixtures/npg/400-RunStatus.yml
 t/data/fixtures/npg/400-TagRun.yml
+t/data/fixtures/npgqc/CacheQuery.yml
+t/data/fixtures/npgqc/ClusterDensity.yml
+t/data/fixtures/npgqc/Fastqcheck.yml
 t/10-npg_warehouse-loader-npg.t
 t/10-npg_warehouse-loader-qc.t
 t/10-npg_warehouse-loader-run_status.t

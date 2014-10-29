@@ -1,19 +1,10 @@
-#########
-# Author:        Marina Gourtovaia
-# Maintainer:    $Author: mg8 $
-# Created:       5 August 2010
-# Last Modified: $Date: 2012-08-09 14:37:15 +0100 (Thu, 09 Aug 2012) $
-# Id:            $Id: 10-npg_warehouse-loader-qc.t 15986 2012-08-09 13:37:15Z mg8 $
-# $HeadURL: svn+ssh://svn.internal.sanger.ac.uk/repos/svn/new-pipeline-dev/data_handling/trunk/t/10-npg_warehouse-loader-qc.t $
-#
-
 use strict;
 use warnings;
 use Test::More tests => 20;
 use Test::Exception;
 use Test::Deep;
-
-use t::npg_warehouse::util;
+use Moose::Meta::Class;
+use npg_testing::db;
 
 use_ok('npg_warehouse::loader::qc');
 
@@ -34,17 +25,20 @@ use_ok('npg_warehouse::loader::qc');
           #  4779   # 
 ################################################################
 
-my $util = t::npg_warehouse::util->new();
+my $util = Moose::Meta::Class->create_anon_class(
+  roles => [qw/npg_testing::db/])->new_object({});
+
 my $schema_qc;
 my $index = 2;
 
-{
-  my $fixtures_path = q[t/data/fixtures/npgqc];
-  lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema], $fixtures_path) } 'qc test db created';
-}
-
+lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
+  q[t/data/fixtures/npgqc]) } 'qc test db created';
 
 {
+  throws_ok {npg_warehouse::loader::qc->new(schema_qc => $schema_qc, plex_key => 'plex') }
+    qr/Attribute \(reverse_end_index\) is required /,
+    'error if reverse index is not set';
+
   my $q;
   lives_ok {
        $q  = npg_warehouse::loader::qc->new( 
@@ -58,13 +52,6 @@ my $index = 2;
   is ($q->verbose, 0, 'verbose mode is off by default');
 }
 
-
-{
-  throws_ok {npg_warehouse::loader::qc->new(schema_qc => $schema_qc, plex_key => 'plex') } qr/Attribute \(reverse_end_index\) is required /,
-    'error if reverse index is not set';
-}
-
-
 {
   my $q =  npg_warehouse::loader::qc->new( schema_qc => $schema_qc, 
                                            reverse_end_index => $index,
@@ -75,7 +62,6 @@ my $index = 2;
   throws_ok {$q->retrieve_summary(22,1)} qr/Two run folders flag argument should be set/, 'error if two run folders flag arg not set';
   throws_ok {$q->retrieve_yields()} qr/Run id argument should be set/, 'error if id_run arg not set';
 }
-
 
 {
   my $q =  npg_warehouse::loader::qc->new( schema_qc => $schema_qc, 
@@ -95,14 +81,12 @@ my $index = 2;
   cmp_deeply( \@a, $rows_ref, 'qc summary for run 3622 end 1');
 }
 
-
 {
   my $q =  npg_warehouse::loader::qc->new( schema_qc => $schema_qc, 
                                          reverse_end_index => $index,
                                          plex_key => 'plex');
   is (scalar keys %{$q->retrieve_cluster_density(3323)}, 0, 'no cluster densities for run 3622');  
 }
-
 
 {
   my $expected = {

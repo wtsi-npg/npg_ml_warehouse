@@ -1,3 +1,4 @@
+package npg_warehouse::loader::qc;
 
 use Carp;
 use Moose;
@@ -17,21 +18,13 @@ Readonly::Scalar  my $THOUSAND  => 1000;
 
 npg_warehouse::loader::qc
 
-=head1 VERSION
-
-$LastChangedRevision: 15986 $
-
 =head1 SYNOPSIS
-
 
 =head1 DESCRIPTION
 
-A retriever for NPG QC data to be loaded to the npg_information warehouse table
+A retriever for NPG QC data to be loaded to the warehouse table
 
 =head1 SUBROUTINES/METHODS
-
-=cut
-
 
 =head2 verbose
 
