@@ -1,19 +1,10 @@
-#########
-# Author:        Marina Gourtovaia
-# Maintainer:    $Author: dj3 $
-# Created:       4 November 2010
-# Last Modified: $Date: 2011-08-24 17:07:21 +0100 (Wed, 24 Aug 2011) $
-# Id:            $Id: 10-npg_warehouse-loader-npg.t 14039 2011-08-24 16:07:21Z dj3 $
-# $HeadURL: svn+ssh://svn.internal.sanger.ac.uk/repos/svn/new-pipeline-dev/data_handling/trunk/t/10-npg_warehouse-loader-npg.t $
-#
-
 use strict;
 use warnings;
 use Test::More tests => 14;
 use Test::Exception;
 use Test::Deep;
-
-use t::npg_warehouse::util;
+use Moose::Meta::Class;
+use npg_testing::db;
 
 use_ok('npg_warehouse::loader::npg');
 
@@ -34,14 +25,11 @@ use_ok('npg_warehouse::loader::npg');
           #  4779   # 
 ################################################################
 
-my $util = t::npg_warehouse::util->new();
+my $util = Moose::Meta::Class->create_anon_class(
+  roles => [qw/npg_testing::db/])->new_object({});
 my $schema_npg;
-my $index = 2;
-
-{
-  my $fixtures_path = q[t/data/fixtures/npg];
-  lives_ok{ $schema_npg  = $util->create_test_db(q[npg_tracking::Schema], $fixtures_path) } 'npg test db created';
-}
+lives_ok{ $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
+  q[t/data/fixtures/npg]) } 'npg test db created';
 
 {
   my $npg;
@@ -49,7 +37,7 @@ my $index = 2;
        $npg  = npg_warehouse::loader::npg->new( 
                                              schema_npg => $schema_npg, 
                                              id_run => 1272,
-                                           )
+                                              )
   } 'object instantiated by passing schema objects to the constructor';
   isa_ok ($npg, 'npg_warehouse::loader::npg');
   is ($npg->id_run, 1272, 'id run set correctly');
@@ -67,7 +55,7 @@ my $index = 2;
   is(npg_warehouse::loader::npg->new(schema_npg => $schema_npg, id_run => 3500)->run_is_paired_read(),
                                     1, 'run 3500 is paired read');
   is(npg_warehouse::loader::npg->new(schema_npg => $schema_npg, id_run => 3622)->run_is_paired_read(),
-                                    0, 'run 3622 is paired read');
+                                    0, 'run 3622 is not paired read');
 }
 
 {

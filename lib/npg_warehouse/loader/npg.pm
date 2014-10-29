@@ -42,12 +42,7 @@ has 'schema_npg' =>  ( isa        => 'npg_tracking::Schema',
                        lazy_build => 1,
                      );
 sub _build_schema_npg {
-    my $self = shift;
-    my $schema = npg_tracking::Schema->connect();
-    if($self->verbose) {
-        carp q[Connected to the npg db, schema object ] . $schema;
-    }
-    return $schema;
+    return npg_tracking::Schema->connect();
 }
 
 
