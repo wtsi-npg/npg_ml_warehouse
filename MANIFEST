@@ -1,7 +1,7 @@
 Build.PL
 Changes
 MANIFEST
-README.md
+README
 lib/npg_warehouse/loader/autoqc.pm
 lib/npg_warehouse/loader/npg.pm
 lib/npg_warehouse/loader/qc.pm
