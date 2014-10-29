@@ -149,6 +149,7 @@ sub retrieve_summary {
         if ($result) {
             my $rows_ref;
             my $semi_colon_count = $result =~ tr/;/;/;
+            ##no critic (ProhibitEscapedMetacharacters)
             if ($semi_colon_count == 1 && $result =~ /[$]rows_ref[ ]=[ ]\[\{.*?\}\];\z/xms) {
                 eval $result; ## no critic (ProhibitStringyEval,RequireCheckingReturnValueOfEval)
             } else {

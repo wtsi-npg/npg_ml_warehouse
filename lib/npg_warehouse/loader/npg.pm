@@ -99,7 +99,7 @@ sub dates {
            order_by => [{-desc => q[me.date]}],
        },
     )->next;
-    
+
     if ($rs) {
         $dates->{qc_complete} =  $rs->date;
     }
@@ -115,7 +115,7 @@ sub dates {
     if ($rs) {
         $dates->{run_complete} =  $rs->date;
     }
-   
+
     return $dates;
 }
 
@@ -126,6 +126,7 @@ Returns one if the arg run is cancelled, 0 otherwise
 =cut
 sub run_is_cancelled {
     my $self = shift;
+    ##no critic (ProhibitNoisyQuotes)
     my $count = $self->schema_npg->resultset('RunStatus')->search(
        { 'me.id_run' => $self->id_run, 'me.iscurrent' => 1, 'run_status_dict.description' => {'=', ['run cancelled', 'data discarded']}, },
        { prefetch => 'run_status_dict',},

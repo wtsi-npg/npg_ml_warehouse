@@ -100,7 +100,7 @@ sub _build__flowcell_table_fks {
     }
   } else {
     if ($self->verbose) {
-      warn q[Tracking database has no lims information for run ] . $self->id_run . qq[\n]; 
+      warn q[Tracking database has no lims information for run ] . $self->id_run . qq[\n];
     }
   }
 
@@ -119,7 +119,7 @@ has '_have_flowcell_table_fks' => ( isa        => 'Bool',
 sub _build_have_flowcell_table_fks => {
   my $self = shift;
   return scalar keys %{$self->_flowcell_table_fks};
-} 
+}
 
 =head2 _schema_npg
 
@@ -433,7 +433,7 @@ sub _add_lims_fk {
 
   if ($table eq 'IseqRunLaneMetric' || !$values->{'tag_index'} ) {
 
-    @types = grep { $_ =~ /^library|pool|library_control$/ } @types;
+    @types = grep { $_ =~ /^library|pool|library_control$/xms } @types;
     if (scalar @types > 1) {
       croak q[Lane cannot be all at once: ] . join q[, ], @types;
     }
@@ -449,7 +449,7 @@ sub _add_lims_fk {
 
   } else {
 
-    my $pk = $self->_flowcell_table_fks->{$position}->{'library_indexed'}->{$pt_key};
+    $pk = $self->_flowcell_table_fks->{$position}->{'library_indexed'}->{$pt_key};
     if (!$index) {
       $pk = $self->_flowcell_table_fks->{$position}->{'library_indexed_spiked'}->{$pt_key};
       if (!$pk && $tag_index == 888) {
@@ -592,7 +592,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2014 GRL Genome Research Limited
+Copyright (C) 2014 Genome Research Limited
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

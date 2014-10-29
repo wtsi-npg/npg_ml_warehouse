@@ -10,10 +10,9 @@ use npg_qc::autoqc::qc_store::query;
 
 our $VERSION = '0';
 
-## no critic (Capitalization ProhibitMixedCaseSubs)
+## no critic (ProhibitUnusedPrivateSubroutines)
 
 Readonly::Scalar our $INSERT_SIZE_QUARTILE_MAX_VALUE => 65_535; #max for MYSQL smallint unsigned
-
 Readonly::Array  our @CLUSTER_DENSITY_COLUMNS => qw/
                                                      raw_cluster_density 
                                                      pf_cluster_density
@@ -43,7 +42,14 @@ Readonly::Hash   our %AUTOQC_MAPPING  => {
                          },
                                          };
 
-Readonly::Hash   our %CHECKS_WITH_METHOD => {contamination => 1, ref_match => 1, tag_decode_stats => 1, tag_metrics => 1, qX_yield => 1, split_stats => 1, bam_flagstats => 1, genotype => 1 };
+Readonly::Hash   our %CHECKS_WITH_METHOD => {contamination => 1,
+                                             ref_match => 1,
+                                             tag_decode_stats => 1,
+                                             tag_metrics => 1,
+                                             qX_yield => 1,
+                                             split_stats => 1,
+                                             bam_flagstats => 1,
+                                             genotype => 1 };
 
 Readonly::Scalar our $Q_TWENTY => 20;
 Readonly::Scalar our $HUNDRED  => 100;
@@ -105,7 +111,7 @@ has 'plex_key' =>   ( isa             => 'Str',
 
 =head2 _tag_metrics_rpt_keys
 
-Signatures of available tag metrics objects (as rpt keys)
+Signatures of available tag metrics objects (as run:position:tag keys)
 
 =cut
 has '_tag_metrics_rpt_keys' => ( isa     => 'HashRef',
@@ -115,6 +121,7 @@ has '_tag_metrics_rpt_keys' => ( isa     => 'HashRef',
 
 sub _truncate_float {
     my ($self, $value) = @_;
+    ##no critic (ProhibitEscapedMetacharacters ProhibitEnumeratedClasses)
     if ($value && $value =~ /[0-9]*\.[0-9]+/smx) {
         $value = sprintf '%.2f', $value;
     }
@@ -303,12 +310,12 @@ sub _genotype {
     my $sample_name_match = $result->sample_name_match;
     if (defined $sample_name_match) {
         # Probably, the data can be fixed instead of setting to 0 if false
-        $data->{genotype_sample_name_match} = join '/', $sample_name_match->{match_count} || 0, $sample_name_match->{common_snp_count} || 0;
+        $data->{genotype_sample_name_match} = join q[/], $sample_name_match->{match_count} || 0, $sample_name_match->{common_snp_count} || 0;
     }
 
     my $sample_name_relaxed_match = $result->sample_name_relaxed_match;
     if (defined $sample_name_relaxed_match) {
-        $data->{genotype_sample_name_relaxed_match} = join '/', $sample_name_relaxed_match->{match_count}, $sample_name_relaxed_match->{common_snp_count};
+        $data->{genotype_sample_name_relaxed_match} = join q[/], $sample_name_relaxed_match->{match_count}, $sample_name_relaxed_match->{common_snp_count};
     }
 
     my $bam_gt_depths_string = $result->bam_gt_depths_string;
@@ -320,7 +327,7 @@ sub _genotype {
                 $c++;
         }
 
-        my $mean_depth = sprintf "%.02f", ($tot / $c);
+        my $mean_depth = sprintf '%.02f', ($tot / $c);
 
         $data->{genotype_mean_depth} = $mean_depth;
     }

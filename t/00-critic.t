@@ -20,7 +20,8 @@ if($EVAL_ERROR) {
         -profile  => 't/perlcriticrc',
         -verbose => "%m at %f line %l, policy %p\n",
 	-exclude  => [ 'tidy',
-                       'Documentation::RequirePodAtEnd'
+                       'Documentation::RequirePodAtEnd',
+                       'NamingConventions::Capitalization',
                      ],
   );
 
