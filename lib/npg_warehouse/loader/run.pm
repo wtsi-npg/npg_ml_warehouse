@@ -20,7 +20,9 @@ with 'npg_tracking::glossary::run';
 
 our $VERSION  = '0';
 
-Readonly::Scalar our $FLOWCELL_LIMS_RESULT_CLASS_NAME => q[IseqFlowcell];
+Readonly::Scalar our $FLOWCELL_LIMS_TABLE_NAME => q[IseqFlowcell];
+Readonly::Scalar our $RUN_LANE_TABLE_NAME      => q[IseqRunLaneMetric];
+Readonly::Scalar our $PRODUCT_TABLE_NAME       => q[IseqProductMetric];
 
 Readonly::Scalar our $FORWARD_END_INDEX   => 1;
 Readonly::Scalar our $REVERSE_END_INDEX   => 2;
@@ -53,12 +55,23 @@ has 'verbose'      => ( isa        => 'Bool',
                         default    => 0,
 );
 
+=head2 reload_product_data
+
+Boolean flag
+
+=cut
+has 'reload_product_data' => ( isa        => 'Bool',
+                               is         => 'ro',
+                               required   => 0,
+                               default    => 0,
+);
+
 =head2 _schema_wh
 
 DBIx schema object for the warehouse database
 
 =cut
-has '_schema_wh'  =>  ( isa        => 'WTSI:DNAP::Warehouse::Schema',
+has '_schema_wh'  =>  ( isa        => 'WTSI::DNAP::Warehouse::Schema',
                         is         => 'ro',
                         required   => 0,
                         lazy_build => 1,
@@ -80,10 +93,10 @@ has '_flowcell_table_fks' => ( isa        => 'HashRef',
 sub _build__flowcell_table_fks {
   my $self = shift;
   my $lane = $self->_run_lane_rs->[0];
-  my $lims_id = $lane->batch_id;
+  my $lims_id = $lane->run->batch_id;
   my $query = {};
   if (!$lims_id) {
-    $lims_id = $lane->flowcell_id;
+    $lims_id = $lane->run->flowcell_id;
     $query = {'flowcell_barcode' => $lims_id,};
   } else {
     $query = {'id_flowcell_lims' => $lims_id,};
@@ -91,7 +104,7 @@ sub _build__flowcell_table_fks {
 
   my $fks = {};
   if ($lims_id) {
-    my $rs = $self->_schema_wh->resultset($FLOWCELL_LIMS_RESULT_CLASS_NAME)->search($query);
+    my $rs = $self->_schema_wh->resultset($FLOWCELL_LIMS_TABLE_NAME)->search($query);
     while (my $row = $rs->next()) {
       my $entity_type = $row->entity_type;
       my $position    = $row->position;
@@ -119,9 +132,9 @@ has '_have_flowcell_table_fks' => ( isa        => 'Bool',
                                     required   => 0,
                                     lazy_build => 1,
 );
-sub _build_have_flowcell_table_fks {
+sub _build__have_flowcell_table_fks {
   my $self = shift;
-  return scalar keys %{$self->_flowcell_table_fks};
+  return scalar keys %{$self->_flowcell_table_fks} ? 1 : 0;
 }
 
 =head2 _schema_npg
@@ -186,7 +199,7 @@ sub _build__autoqc_store {
 Result set object for run lanes that have to be loaded
 
 =cut
-has '_run_lane_rs' =>     ( isa        => 'DBIx::Class::ResultSet',
+has '_run_lane_rs' =>     ( isa        => 'ArrayRef',
                             is         => 'ro',
                             required   => 0,
                             lazy_build => 1,
@@ -208,7 +221,7 @@ has '_autoqc_data'   =>   ( isa        => 'HashRef',
                             required   => 0,
                             lazy_build => 1,
 );
-sub _build_autoqc_data {
+sub _build__autoqc_data {
   my $self = shift;
   if (!$self->_run_is_cancelled) {
     return npg_warehouse::loader::autoqc->new(
@@ -296,13 +309,12 @@ sub _build__cluster_density {
   return $self->_npgqc_data_retriever->retrieve_cluster_density($self->id_run);
 }
 
-=head2 npg_data
-
-Retrieves data for one run. Returns per-table hashes of key-value pairs that
-are suitable for use in updating/creating rows with DBIx.
-
-=cut
-sub npg_data {
+has '_data'              =>    ( isa        => 'HashRef',
+                                 is         => 'ro',
+                                 required   => 0,
+                                 lazy_build => 1,
+);
+sub _build__data {
   my ($self) = @_;
 
   my $array              = [];
@@ -385,13 +397,13 @@ sub npg_data {
     }
   }
 
-  return {'run_lane' => $array, 'product' => $product_array,};
+  return {$RUN_LANE_TABLE_NAME => $array, $PRODUCT_TABLE_NAME => $product_array,};
 }
 
 sub _lane_is_indexed {
   my ($self, $position) = @_;
-  my $is_indexed = exists $self->_autoqc->{$position}->{'tags_decode_percent'};
-  if (!$is_indexed && scalar keys %{$self->_autoqc->{$position}->{$PLEXES_KEY}}) {
+  my $is_indexed = exists $self->_autoqc_data->{$position}->{'tags_decode_percent'};
+  if (!$is_indexed && scalar keys %{$self->_autoqc_data->{$position}->{$PLEXES_KEY}}) {
     croak qq[Plex autoqc data present for lane $position, but not tag decoding data];
   }
   return $is_indexed;
@@ -473,17 +485,20 @@ sub _add_lims_fk {
 }
 
 sub _load_table {
-  my ($self, $rows, $table) = @_;
+  my ($self, $table) = @_;
 
-  if (!defined $rows || !@{$rows}) {return;}
+  if (scalar keys $self->_data->{$table} == 0) {
+    return 0;
+  }
 
   my $rs = $self->_schema_wh->resultset($table);
 
-  if ($self->products_from_scratch && $table eq 'IseqProductMetric') {
+  if ($self->reload_product_data && $table eq $PRODUCT_TABLE_NAME) {
     $rs->search({'id_run' => $self->id_run,})->delete();
   }
 
-  foreach my $row (@{$rows}) {
+  my $count = 0;
+  foreach my $row (@{$self->_data->{$table}}) {
     if($self->verbose) {
       my $message = defined $row->{'tag_index'} ? q[tag_index ] . $row->{'tag_index'} : q[];
       $message = sprintf 'Creating record in table %s for run %i position %i %s',
@@ -499,9 +514,10 @@ sub _load_table {
       }
     }
     $rs->update_or_create($row);
+    $count++;
   }
 
-  return;
+  return $count;
 }
 
 =head2 load
@@ -522,8 +538,12 @@ sub load {
   if ($data) {
 
     my $transaction = sub {
-      $self->_load_table($data->{'run_lane'}, 'IseqRunLaneMetric');
-      $self->_load_table($data->{'product'},  'IseqProductMetric');
+      foreach my $table (($RUN_LANE_TABLE_NAME, $PRODUCT_TABLE_NAME)) {
+        my $count = $self->_load_table($table);
+        if ($self->verbose) {
+          warn q[Tried to load $count rows to table $table for run ] . $self->id_run;
+	}
+      }
     };
 
     try {
@@ -533,7 +553,7 @@ sub load {
       if ($err =~ /Rollback failed/sxm) {
         croak $err;
       }
-      warn q[Failed to load ] . $self->id_run . qq[\n];
+      warn q[Failed to load ] . $self->id_run . qq[: $err\n];
     };
   }
 
