@@ -7,7 +7,7 @@ use List::MoreUtils qw/ any /;
 use Readonly;
 use Carp;
 
-use WTSI:DNAP::Warehouse::Schema;
+use WTSI::DNAP::Warehouse::Schema;
 use npg_tracking::Schema;
 use npg_qc::Schema;
 use npg_qc::autoqc::qc_store;
@@ -20,9 +20,11 @@ with 'npg_tracking::glossary::run';
 
 our $VERSION  = '0';
 
+Readonly::Scalar our $FLOWCELL_LIMS_RESULT_CLASS_NAME => q[IseqFlowcell];
+
 Readonly::Scalar our $FORWARD_END_INDEX   => 1;
 Readonly::Scalar our $REVERSE_END_INDEX   => 2;
-Readonly::Scalar our $PLEXES_KEY         => q[plexes];
+Readonly::Scalar our $PLEXES_KEY          => q[plexes];
 
 =head1 NAME
 
@@ -63,7 +65,7 @@ has '_schema_wh'  =>  ( isa        => 'WTSI:DNAP::Warehouse::Schema',
 );
 sub _build__schema_wh {
   my $self = shift;
-  my $schema = WTSI:DNAP::Warehouse::Schema->connect();
+  my $schema = WTSI::DNAP::Warehouse::Schema->connect();
   if($self->verbose) {
     carp q[Connected to the warehouse db, schema object ] . $schema;
   }
@@ -89,14 +91,15 @@ sub _build__flowcell_table_fks {
 
   my $fks = {};
   if ($lims_id) {
-    my $rs = $self->_schema_wh->resultset($table)->search($query);
+    my $rs = $self->_schema_wh->resultset($FLOWCELL_LIMS_RESULT_CLASS_NAME)->search($query);
     while (my $row = $rs->next()) {
       my $entity_type = $row->entity_type;
-      my $position    =  $row->position;
-      if (exists $fks->{$position}->{$entity_type}->{_pt_key($position, $row->tag_index)}) {
-        croak qq[Entry for $entity_type, $rpt_key already exists];
+      my $position    = $row->position;
+      my $pt_key = _pt_key($position, $row->tag_index);
+      if (exists $fks->{$position}->{$entity_type}->{$pt_key}) {
+        croak qq[Entry for $entity_type, $pt_key already exists];
       }
-      $fks->{$entity_type}->{$rpt_key} = $row->id_iseq_flowcell_tmp;
+      $fks->{$entity_type}->{$pt_key} = $row->id_iseq_flowcell_tmp;
     }
   } else {
     if ($self->verbose) {
@@ -116,7 +119,7 @@ has '_have_flowcell_table_fks' => ( isa        => 'Bool',
                                     required   => 0,
                                     lazy_build => 1,
 );
-sub _build_have_flowcell_table_fks => {
+sub _build_have_flowcell_table_fks {
   my $self = shift;
   return scalar keys %{$self->_flowcell_table_fks};
 }
@@ -211,7 +214,7 @@ sub _build_autoqc_data {
     return npg_warehouse::loader::autoqc->new(
       autoqc_store => $self->_autoqc_store,
       verbose => $self->verbose,
-      plex_key => $PLEXES_KEY)->retrieve($selg->id_run, $self->_schema_npg);
+      plex_key => $PLEXES_KEY)->retrieve($self->id_run, $self->_schema_npg);
   }
   return {};
 }
@@ -330,7 +333,7 @@ sub npg_data {
       $values->{$event_type} = $dates->{$event_type};
     }
 
-    foreach my $column (keys %{ $lane_cluster_density->{$position} || {} }) {
+    foreach my $column (keys %{ $self->_cluster_density->{$position} || {} }) {
       $values->{$column} = $self->_cluster_density->{$position}->{$column};
     }
 
@@ -341,7 +344,7 @@ sub npg_data {
         $self->_run_end_summary->{$position}->{$FORWARD_END_INDEX}->{'clusters_pf'};
       $values->{'pf_bases'}           =
         $self->_run_end_summary->{$position}->{$FORWARD_END_INDEX}->{'lane_yield'};
-      if (exists $run_end_summary->{$position}->{$REVERSE_END_INDEX}) {
+      if (exists $self->_run_end_summary->{$position}->{$REVERSE_END_INDEX}) {
         $values->{'pf_bases'}        +=
         $self->_run_end_summary->{$position}->{$REVERSE_END_INDEX}->{'lane_yield'};
       }
@@ -371,7 +374,7 @@ sub npg_data {
 
     my $plexes = {};
     $plexes = _copy_plex_values($plexes, $self->_autoqc_data, $position);
-    $plexes = _copy_plex_values($plexes, $qyields, $position, 1);
+    $plexes = _copy_plex_values($plexes, $self->_qyields, $position, 1);
 
     foreach my $tag_index (keys %{$plexes}) {
       my $plex_values             = $plexes->{$tag_index};
@@ -450,9 +453,9 @@ sub _add_lims_fk {
   } else {
 
     $pk = $self->_flowcell_table_fks->{$position}->{'library_indexed'}->{$pt_key};
-    if (!$index) {
+    if (!$pk) { # CHECK THIS LOGIC
       $pk = $self->_flowcell_table_fks->{$position}->{'library_indexed_spiked'}->{$pt_key};
-      if (!$pk && $tag_index == 888) {
+      if (!$pk && $values->{'tag_index'} == 888) {
         my @spikes = keys %{$self->_flowcell_table_fks->{$position}->{'library_indexed_spiked'}};
         if (scalar @spikes == 1) {
           $pk = $self->_flowcell_table_fks->{$position}->{'library_indexed_spiked'}->{$spikes[0]};
@@ -530,7 +533,7 @@ sub load {
       if ($err =~ /Rollback failed/sxm) {
         croak $err;
       }
-      warn "Failed to load $id_run to $table: $err\n";
+      warn q[Failed to load ] . $self->id_run . qq[\n];
     };
   }
 
@@ -564,7 +567,7 @@ __END__
 
 =item MooseX::StrictConstructor
 
-=item WTSI:DNAP::Warehouse::Schema
+=item WTSI::DNAP::Warehouse::Schema
 
 =item npg_tracking::Schema
 

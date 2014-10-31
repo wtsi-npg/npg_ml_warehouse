@@ -10,6 +10,7 @@ lib/npg_warehouse/loader/run.pm
 t/10-npg_warehouse-loader-autoqc.t
 t/10-npg_warehouse-loader-npg.t
 t/10-npg_warehouse-loader-qc.t
+t/10-npg_warehouse-loader-run.t
 t/10-npg_warehouse-loader-run_status.t
 t/00-critic.t
 t/00-distribution.t
