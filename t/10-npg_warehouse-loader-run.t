@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 24;
+use Test::More tests => 64;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -124,5 +124,69 @@ my $init = { _autoqc_store => $autoqc_store,
   is ($r->q40_yield_kb_forward_read, 4, 'forward read q40 for the product');
   ok (!$r->$LIMS_FK_COLUMN_NAME, 'lims fk not set');
 }
+
+{
+  my %in = %{$init};
+  $in{'id_run'} = 4138;
+  my $loader  = npg_warehouse::loader::run->new(\%in);
+  $loader->load();
+  my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 4138,},);
+  is ($rs->count, 8,'8 rows for run 4138');
+
+  $in{'id_run'} = 3965;
+  $loader  = npg_warehouse::loader::run->new(\%in);
+  $loader->load();
+  my $r = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 3965,position=>1},)->next;
+  is ($r->raw_cluster_count, 185608, 'clusters_raw as expected');
+  is ($r->pf_bases, 1430265+1430265 ,
+    'pf_bases is summed up for two ends for a paired single folder run');
+  is($r->paired_read, 1, 'paired read flag updated correctly');
+
+  $in{'id_run'} = 3323;
+  $loader  = npg_warehouse::loader::run->new(\%in);
+  $loader->load();
+  $r = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 3323,position=>1},)->next;
+  is($r->raw_cluster_density, undef, 'raw_cluster_density undefined');
+  is($r->pf_cluster_density, undef, 'pf_cluster_density undefined'); 
+}
+
+{
+  my %in = %{$init};
+  $in{'id_run'} = 4333;
+  my $loader  = npg_warehouse::loader::run->new(\%in);
+  $loader->load();
+
+  my $values = {
+          1 => {'raw_cluster_density' => 95465.880,  'pf_cluster_density' => 11496.220, 'q30_yield_kb_reverse_read' => '105906', 'q30_yield_kb_forward_read' => '98073', 'q40_yield_kb_forward_read' => '0'},
+          2 => {'raw_cluster_density' => 325143.800, 'pf_cluster_density' => 82325.490, 'q30_yield_kb_reverse_read' => '1003112','q30_yield_kb_forward_read' => '563558'},
+          3 => {'raw_cluster_density' => 335626.700, 'pf_cluster_density' => 171361.900,'q30_yield_kb_reverse_read' => '1011728','q30_yield_kb_forward_read' => '981688'},
+          4 => {'raw_cluster_density' => 175608.400, 'pf_cluster_density' => 161077.600,'q30_yield_kb_reverse_read' => '714510', 'q30_yield_kb_forward_read' => '745267', 'q40_yield_kb_forward_read' => '56', 'q40_yield_kb_reverse_read' => '37',},
+          5 => {'raw_cluster_density' => 443386.900, 'pf_cluster_density' => 380473.100,'q30_yield_kb_reverse_read' => '1523282','q30_yield_kb_forward_read' => '1670331'},
+          6 => {'raw_cluster_density' => 454826.200, 'pf_cluster_density' => 397424.100,'q30_yield_kb_reverse_read' => '1530965','q30_yield_kb_forward_read' => '1689674'},
+          7 => {'raw_cluster_density' => 611192.000, 'pf_cluster_density' => 465809.300,'q30_yield_kb_reverse_read' => '997068', 'q30_yield_kb_forward_read' => '1668517'},
+          8 => {'raw_cluster_density' => 511924.700, 'pf_cluster_density' => 377133.300, 'q30_yield_kb_forward_read' => '1111015'},
+               };
+
+  my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 4333},);
+  is ($rs->count, 8, '8 rows loaded for run 4333');
+  my $row;
+  while ($row = $rs->next) {
+    my $position = $row->position;
+    foreach my $column (
+        qw/raw_cluster_density pf_cluster_density q30_yield_kb_forward_read q30_yield_kb_reverse_read/) {
+      is($row->$column, $values->{$position}->{$column}, qq[$column value for run 4333 position $position]);
+    }
+  }
+
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => 4333,});
+  is ($rs->count, 8, '8 product rows for run 4333');
+}
+
+#{
+#  my %in = %{$init};
+#  $in{'id_run'} = 4799;
+#  my $loader  = npg_warehouse::loader::run->new(\%in);
+#  $loader->load();
+#}
 
 1;
