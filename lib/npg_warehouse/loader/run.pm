@@ -375,8 +375,13 @@ sub _build__data {
 
     my $lane_is_indexed = $self->_lane_is_indexed($position);
     my $product_values;
+    my $plexes = {};
+
     foreach my $data_hash (($self->_qyields, $self->_autoqc_data)) {
       if ($data_hash->{$position}) {
+
+        _copy_plex_values($plexes, $data_hash, $position);
+
         foreach my $column (keys %{$data_hash->{$position}}) {
           if ( any {$_ eq $column} @rlm_column_names ) {
 	    $values->{$column}          = $data_hash->{$position}->{$column};
@@ -385,6 +390,7 @@ sub _build__data {
             $product_values->{$column}  = $data_hash->{$position}->{$column};
 	  }
 	}
+
       }
     }
 
@@ -394,10 +400,6 @@ sub _build__data {
       $product_values->{'position'}  = $position;
       push @{$product_array}, $product_values;
     }
-
-    my $plexes = {};
-    $plexes = _copy_plex_values($plexes, $self->_autoqc_data, $position);
-    $plexes = _copy_plex_values($plexes, $self->_qyields, $position, 1);
 
     foreach my $tag_index (keys %{$plexes}) {
       my $plex_values             = $plexes->{$tag_index};
@@ -429,23 +431,20 @@ sub _pt_key {
 }
 
 sub _copy_plex_values {
-  my ($destination, $source, $position, $only_existing) = @_;
-  if (exists $source->{$position}->{$PLEXES_KEY}) {
-    if (scalar keys %{$destination}) {
-      foreach my $tag_index (keys %{ $source->{$position}->{$PLEXES_KEY} } ) {
-	if ($only_existing && !exists $destination->{$tag_index}) {
-	  next;
-	}
-        foreach my $column_name (keys %{ $source->{$position}->{$PLEXES_KEY}->{$tag_index} } ) {
-          $destination->{$tag_index}->{$column_name} =
-            $source->{$position}->{$PLEXES_KEY}->{$tag_index}->{$column_name};
-	}
-      }
-    } else {
-      $destination = $source->{$position}->{$PLEXES_KEY};
+  my ($destination, $source, $position) = @_;
+
+  if (!exists $source->{$position}->{$PLEXES_KEY}) {
+    return;
+  }
+
+  foreach my $tag_index (keys %{ $source->{$position}->{$PLEXES_KEY} } ) {
+    foreach my $column_name (keys %{ $source->{$position}->{$PLEXES_KEY}->{$tag_index} } ) {
+      my $name = $column_name eq q[tag_sequence] ? q[tag_sequence4deplexing] : $column_name;
+      $destination->{$tag_index}->{$name} =
+        $source->{$position}->{$PLEXES_KEY}->{$tag_index}->{$column_name};
     }
   }
-  return $destination;
+  return;
 }
 
 sub _add_lims_fk {

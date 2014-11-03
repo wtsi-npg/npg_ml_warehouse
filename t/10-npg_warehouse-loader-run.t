@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 64;
+use Test::More tests => 70;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -46,6 +46,9 @@ lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
   q[t/data/fixtures/npgqc]) } 'npgqc test db created';
 
 my $autoqc_store =  npg_qc::autoqc::qc_store->new(use_db => 0, verbose => 0);
+
+my $folder_glob = q[t/data/runfolders/];
+my $user_id = 7;
 
 my $plex_key = q[plexes];
 
@@ -182,11 +185,59 @@ my $init = { _autoqc_store => $autoqc_store,
   is ($rs->count, 8, '8 product rows for run 4333');
 }
 
-#{
-#  my %in = %{$init};
-#  $in{'id_run'} = 4799;
-#  my $loader  = npg_warehouse::loader::run->new(\%in);
-#  $loader->load();
-#}
+{
+  my $id_run = 4799;
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+    'staging tag is set - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')
+    ->update_or_create({folder_path_glob => $folder_glob, folder_name => '100330_HS21_4799', id_run => $id_run, })}
+    'forder glob reset lives - test prerequisite';
+  my %in = %{$init};
+  $in{'id_run'} = $id_run;
+  my $loader  = npg_warehouse::loader::run->new(\%in);
+  $loader->load();
+
+  my @rows = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search(
+       {id_run => 4799, position => [5-8]},
+  )->all();
+
+  #my %deplexing_stats = map {$_->position => $_->tags_decode_percent } @rows;
+  #my $expected = {5 => 99.88, 6 => 99.48, 7 => 98.93, 8 => 97.08,};
+  #is_deeply (\%deplexing_stats, $expected, 'tag decoding percent');
+  #use Data::Dumper;
+  #diag Dumper \%deplexing_stats;
+  #%deplexing_stats = map {$_->position => $_->tags_decode_cv } @rows;
+  #$expected = {5 => 173.20, 6 => 173.19, 7 => 173.06, 8 => 27.45,};
+  #is_deeply (\%deplexing_stats, $expected, 'tag decoding cv');
+  #diag Dumper \%deplexing_stats;
+
+  my $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+       {id_run => 4799, tag_index => [1,2,3,4]},
+  );
+  is ($rs->count, 20, '20 rows in the plex table for run 4799 for plexes[1-4]');
+
+  my $expected_tag_info =  {
+    1 => {tag_decode_percent=>12.99, tag_sequence=>'ATCACGT',},
+    2 => {tag_decode_percent=>12.80, tag_sequence=>'CGATGTT',},
+    3 => {tag_decode_percent=>4.78,  tag_sequence=>'TTAGGCA',},
+    4 => {tag_decode_percent=>10.12, tag_sequence=>'TGACCAC',},
+  };
+
+  my $tag_info = {};
+  while (my $r = $rs->next) {
+    if ($r->position == 7) {
+      my $index = $r->tag_index;
+      $tag_info->{$index}->{tag_decode_percent} = $r->tag_decode_percent;
+      $tag_info->{$index}->{tag_sequence} = $r->tag_sequence4deplexing;
+    }
+  }
+  cmp_deeply($tag_info, $expected_tag_info, 'tag info for runs 4799 position 7 plexex 1-4');
+
+  my $result = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+       {id_run => 4799, position=>7, tag_index => 5},
+  )->first;
+  ok($result, 'a row for a tag index that is not listed in lims exists');
+  is($result->$LIMS_FK_COLUMN_NAME, undef, 'lims foreign key not defined');
+}
 
 1;
