@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 70;
+use Test::More tests => 73;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -154,8 +154,15 @@ my $init = { _autoqc_store => $autoqc_store,
 }
 
 {
+  my $id_run = 4333;
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+    'staging tag is set - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')
+    ->update_or_create({folder_path_glob => $folder_glob, folder_name => '100330_IL21_4333', id_run => $id_run, })}
+    'forder glob reset lives - test prerequisite';
+
   my %in = %{$init};
-  $in{'id_run'} = 4333;
+  $in{'id_run'} = $id_run;
   my $loader  = npg_warehouse::loader::run->new(\%in);
   $loader->load();
 
@@ -182,7 +189,66 @@ my $init = { _autoqc_store => $autoqc_store,
   }
 
   $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => 4333,});
-  is ($rs->count, 8, '8 product rows for run 4333');
+  is ($rs->count, 68, '68 product rows for run 4333');
+
+  my @positions = qw/1 4 8/;
+  $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search(
+       {id_run => $id_run, position => \@positions},
+  );
+
+  my @columns =               qw (
+     insert_size_quartile1 
+     insert_size_quartile3 
+     insert_size_median
+     gc_percent_forward_read 
+     gc_percent_reverse_read
+     sequence_mismatch_percent_forward_read 
+     sequence_mismatch_percent_reverse_read
+     adapters_percent_forward_read 
+     adapters_percent_reverse_read
+     tags_decode_percent
+     tags_decode_cv
+                                   );
+
+  my $expected = {};
+  foreach my $position (@positions) {
+    foreach my $column (@columns) {
+      $expected->{$id_run}->{$position}->{$column} = undef;
+    }
+  }
+
+  $expected->{4333}->{4}->{insert_size_quartile1} = 172;
+  $expected->{4333}->{4}->{insert_size_quartile3} = 207;
+  $expected->{4333}->{4}->{insert_size_median}    = 189;
+  $expected->{4333}->{4}->{gc_percent_forward_read} = 44.89;
+  $expected->{4333}->{4}->{gc_percent_reverse_read} = 44.88;
+  $expected->{4333}->{4}->{sequence_mismatch_percent_forward_read} = 0.31;
+  $expected->{4333}->{4}->{sequence_mismatch_percent_reverse_read} = 0.50;
+  $expected->{4333}->{4}->{adapters_percent_forward_read} = 0.03;
+  $expected->{4333}->{4}->{adapters_percent_reverse_read} = 0.02;
+  $expected->{4333}->{4}->{tags_decode_percent} = undef;
+  $expected->{4333}->{4}->{tags_decode_cv} = undef;
+
+  $expected->{4333}->{1}->{gc_percent_forward_read} = 45.29;
+  $expected->{4333}->{1}->{gc_percent_reverse_read} = 45.18;
+  $expected->{4333}->{1}->{adapters_percent_forward_read} = 31.99;
+  $expected->{4333}->{1}->{adapters_percent_reverse_read} = 25.93;
+  $expected->{4333}->{1}->{tags_decode_percent} = 99.29;
+  $expected->{4333}->{1}->{tags_decode_cv} = 55.1;
+
+  $expected->{4333}->{8}->{insert_size_quartile3} = 207;
+  $expected->{4333}->{8}->{insert_size_median}    = 189;
+  $expected->{4333}->{8}->{tags_decode_percent} =81.94;
+  $expected->{4333}->{8}->{tags_decode_cv} =122.4;
+  #the third quartile has been skipped - the value is too large
+ 
+  my $autoqc = {};
+  while (my $row = $rs->next) {
+    foreach my $column (@columns) { 
+      $autoqc->{4333}->{$row->position}->{$column} = $row->$column;
+    }
+  }
+  cmp_deeply($autoqc, $expected, 'loaded autoqc results');
 }
 
 {
