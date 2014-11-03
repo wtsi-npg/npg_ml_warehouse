@@ -1,6 +1,7 @@
 package npg_warehouse::loader::run_status;
 
 use Moose;
+use MooseX::StrictConstructor;
 use DBIx::Class::ResultClass::HashRefInflator;
 use Readonly;
 
@@ -111,6 +112,8 @@ __END__
 =item Readonly
 
 =item Moose
+
+=item MooseX::StrictConstructor
 
 =item DBIx::Class::ResultClass::HashRefInflator;
 

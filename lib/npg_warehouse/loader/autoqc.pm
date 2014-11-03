@@ -2,6 +2,7 @@ package npg_warehouse::loader::autoqc;
 
 use Carp;
 use Moose;
+use MooseX::StrictConstructor;
 use Readonly;
 
 use npg_qc::autoqc::qc_store;
@@ -415,6 +416,8 @@ __END__
 =item Readonly
 
 =item Moose
+
+=item MooseX::StrictConstructor
 
 =item npg_qc::autoqc::qc_store
 

@@ -1,5 +1,23 @@
 ---
 - section: 'forward'
+  id_fastqcheck: 1
+  id_run: 1246
+  position: 1
+  file_name: '1246_1_1'
+  forty: 4000
+  thirty: 3090
+  twenty: 274104
+  twentyfive: 50
+- section: 'reverse'
+  id_fastqcheck: 2
+  id_run: 1246
+  position: 1
+  file_name: '1246_1_2'
+  forty: 0
+  thirty: 0
+  twenty: 235566
+  twentyfive: 49
+- section: 'forward'
   id_fastqcheck: 28115
   id_run: 4333
   position: 1

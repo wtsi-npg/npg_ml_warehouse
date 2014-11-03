@@ -2,6 +2,7 @@ package npg_warehouse::loader::qc;
 
 use Carp;
 use Moose;
+use MooseX::StrictConstructor;
 use Math::Round qw / round /;
 use Readonly;
 
@@ -231,6 +232,8 @@ __END__
 =item Readonly
 
 =item Moose
+
+=item MooseX::StrictConstructor
 
 =item Math::Round qw/round/
 

@@ -2,6 +2,7 @@ package npg_warehouse::loader::npg;
 
 use Carp;
 use Moose;
+use MooseX::StrictConstructor;
 use npg_tracking::Schema;
 
 with 'npg_tracking::glossary::run';
@@ -191,6 +192,8 @@ __END__
 =item Carp
 
 =item Moose
+
+=item MooseX::StrictConstructor
 
 =item npg_tracking::Schema
 
