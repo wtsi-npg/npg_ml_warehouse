@@ -417,7 +417,7 @@ sub _lane_is_indexed {
   my ($self, $position) = @_;
   my $is_indexed = exists $self->_autoqc_data->{$position}->{'tags_decode_percent'};
   if (!$is_indexed && scalar keys %{$self->_autoqc_data->{$position}->{$PLEXES_KEY}}) {
-    croak qq[Plex autoqc data present for lane $position, but not tag decoding data];
+    croak qq[Plex autoqc data present for lane $position, but no tag decoding data available];
   }
   return $is_indexed;
 }
@@ -494,6 +494,22 @@ sub _add_lims_fk {
   return;
 }
 
+sub _remap_column_names {
+  my $values = shift;
+
+  my @columns = keys %{$values};
+  foreach my $name (@columns) {
+    my $old_name = $name;
+    my $count = $name =~ s/\Atag_sequence\Z/tag_sequence4deplexing/xms;
+    $count += $name =~ s/\Abam//xms;
+    if ($count) {
+      $values->{$name} = $values->{$old_name};
+      delete $values->{$old_name};
+    }
+  }
+  return;
+}
+
 sub _load_table {
   my ($self, $table) = @_;
 
@@ -515,6 +531,11 @@ sub _load_table {
          $table, $self->id_run,  $row->{'position'}, $message;
       warn "$message\n";
     }
+
+    if ($table eq $PRODUCT_TABLE_NAME) {
+      _remap_column_names($row);
+    }
+
     if ($self->_have_flowcell_table_fks) {
       my $row = $rs->find();
       if (!$row || !$row->$LIMS_FK_COLUMN_NAME) { # If the record does not exist
@@ -532,7 +553,7 @@ sub _load_table {
 
 =head2 load
 
-Loads data for one flowcell to the warehouse
+Loads data for one sequencing run to the warehouse
 
 =cut
 sub load {

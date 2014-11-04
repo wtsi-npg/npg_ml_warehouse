@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 73;
+use Test::More tests => 96;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -26,6 +26,20 @@ my @basic_run_lane_columns = qw/cycles
                                 q30_yield_kb_reverse_read
                                 q40_yield_kb_forward_read
                                 q40_yield_kb_reverse_read/;
+
+ my @columns =               qw/
+     insert_size_quartile1 
+     insert_size_quartile3 
+     insert_size_median
+     gc_percent_forward_read 
+     gc_percent_reverse_read
+     sequence_mismatch_percent_forward_read 
+     sequence_mismatch_percent_reverse_read
+     adapters_percent_forward_read 
+     adapters_percent_reverse_read
+     tags_decode_percent
+     tags_decode_cv
+                                   /;
 
 
 use_ok('npg_warehouse::loader::run');
@@ -143,7 +157,13 @@ my $init = { _autoqc_store => $autoqc_store,
   is ($r->raw_cluster_count, 185608, 'clusters_raw as expected');
   is ($r->pf_bases, 1430265+1430265 ,
     'pf_bases is summed up for two ends for a paired single folder run');
-  is($r->paired_read, 1, 'paired read flag updated correctly');
+  is ($r->paired_read, 1, 'paired read flag updated correctly');
+  is ($r->tags_decode_percent, undef, 'tags_decode_percent NULL where not loaded');
+  is ($r->instrument_name, q[IL36] , 'instr name');
+  is ($r->instrument_model, q[HK] , 'instr model');
+  $r = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 3965,position=>2},)->next;
+  is ($r->instrument_name, q[IL36] , 'instr name');
+  is ($r->instrument_model, q[HK] , 'instr model');
 
   $in{'id_run'} = 3323;
   $loader  = npg_warehouse::loader::run->new(\%in);
@@ -195,20 +215,6 @@ my $init = { _autoqc_store => $autoqc_store,
   $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search(
        {id_run => $id_run, position => \@positions},
   );
-
-  my @columns =               qw (
-     insert_size_quartile1 
-     insert_size_quartile3 
-     insert_size_median
-     gc_percent_forward_read 
-     gc_percent_reverse_read
-     sequence_mismatch_percent_forward_read 
-     sequence_mismatch_percent_reverse_read
-     adapters_percent_forward_read 
-     adapters_percent_reverse_read
-     tags_decode_percent
-     tags_decode_cv
-                                   );
 
   my $expected = {};
   foreach my $position (@positions) {
@@ -263,6 +269,14 @@ my $init = { _autoqc_store => $autoqc_store,
   my $loader  = npg_warehouse::loader::run->new(\%in);
   $loader->load();
 
+  foreach my $pos (qw(1 2 4)) {
+    ok (!$loader->_lane_is_indexed($pos), qq[lane $pos is not indexed]);
+  }
+
+  foreach my $pos (qw(3 5 6 7 8)) {
+    ok ($loader->_lane_is_indexed($pos), qq[lane $pos is indexed]);
+  }
+
   my @rows = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search(
        {id_run => 4799, position => [5-8]},
   )->all();
@@ -293,17 +307,67 @@ my $init = { _autoqc_store => $autoqc_store,
   while (my $r = $rs->next) {
     if ($r->position == 7) {
       my $index = $r->tag_index;
-      $tag_info->{$index}->{tag_decode_percent} = $r->tag_decode_percent;
-      $tag_info->{$index}->{tag_sequence} = $r->tag_sequence4deplexing;
+      if (defined $index) {
+        $tag_info->{$index}->{tag_decode_percent} = $r->tag_decode_percent;
+        $tag_info->{$index}->{tag_sequence} = $r->tag_sequence4deplexing;
+      }
     }
   }
   cmp_deeply($tag_info, $expected_tag_info, 'tag info for runs 4799 position 7 plexex 1-4');
 
-  my $result = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+  my $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
        {id_run => 4799, position=>7, tag_index => 5},
   )->first;
-  ok($result, 'a row for a tag index that is not listed in lims exists');
-  is($result->$LIMS_FK_COLUMN_NAME, undef, 'lims foreign key not defined');
+  ok ($r, 'a row for a tag index that is not listed in lims exists');
+  is ($r->$LIMS_FK_COLUMN_NAME, undef, 'lims foreign key not defined');
+
+  $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+       {id_run => 4799, position => 3, tag_index=>1},)->first;
+  is ($r->tag_decode_percent, 11.4, 'tag decode percent for tag 1');
+
+  $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+       {id_run => 4799, position => 3, tag_index=>4},)->first;
+  is ($r->insert_size_quartile1, undef, 'quartile undefined for tag 4');
+
+  $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+       {id_run => 4799, position => 3, tag_index=>0},)->first;
+  is ($r->tag_decode_percent, undef, 'tag decode percent undefined for tag 0');
+  is ($r->insert_size_quartile3, 207, 'quartile3 correct for tag 0');
+  is ($r->q20_yield_kb_forward_read, 46671, 'qx forward lane 3, tag 0');
+  is ($r->q20_yield_kb_reverse_read, 39877, 'qx reverse lane 3, tag 0');
+
+  $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+       {id_run => 4799, position => 3, tag_index=>2},)->first;
+  is ($r->insert_size_median, 189, 'median correct for tag 2');
+
+  $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+       {id_run => 4799, position => 3, tag_index=>3},)->first;
+  is ($r->q20_yield_kb_forward_read, 1455655, 'qx forward lane 3, tag 3');
+  is ($r->q20_yield_kb_reverse_read, 1393269, 'qx reverse lane 3, tag 3');
+
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+       {id_run => 4799, tag_index => undef,},
+       {order_by => 'position',},
+  );
+  is ($rs->count, 2, '2 product rows');
+  
+  my @acolumns = @columns;
+  pop @acolumns;
+  pop @acolumns;
+
+  foreach my $ycolumn (qw/q20_yield_kb_forward_read q30_yield_kb_forward_read q40_yield_kb_forward_read
+                          q20_yield_kb_reverse_read q30_yield_kb_reverse_read q40_yield_kb_reverse_read
+                         /) {
+    push @acolumns, $ycolumn;
+  }
+   
+  while (my $row = $rs->next) {
+    diag 'POSITION ' . $row->position;
+    foreach my $column (@acolumns) {
+      my $value = defined $row->$column ? $row->$column : 'NULL';
+      diag "$column : $value";
+    }
+  }
 }
 
 1;
