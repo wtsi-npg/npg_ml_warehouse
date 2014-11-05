@@ -20,14 +20,18 @@ with 'npg_tracking::glossary::run';
 
 our $VERSION  = '0';
 
-Readonly::Scalar our $FLOWCELL_LIMS_TABLE_NAME => q[IseqFlowcell];
-Readonly::Scalar our $RUN_LANE_TABLE_NAME      => q[IseqRunLaneMetric];
-Readonly::Scalar our $PRODUCT_TABLE_NAME       => q[IseqProductMetric];
-Readonly::Scalar our $LIMS_FK_COLUMN_NAME      => q[id_iseq_flowcell_tmp];
+Readonly::Scalar my $FLOWCELL_LIMS_TABLE_NAME => q[IseqFlowcell];
+Readonly::Scalar my $RUN_LANE_TABLE_NAME      => q[IseqRunLaneMetric];
+Readonly::Scalar my $PRODUCT_TABLE_NAME       => q[IseqProductMetric];
+Readonly::Scalar my $LIMS_FK_COLUMN_NAME      => q[id_iseq_flowcell_tmp];
 
-Readonly::Scalar our $FORWARD_END_INDEX   => 1;
-Readonly::Scalar our $REVERSE_END_INDEX   => 2;
-Readonly::Scalar our $PLEXES_KEY          => q[plexes];
+Readonly::Scalar my $FORWARD_END_INDEX   => 1;
+Readonly::Scalar my $REVERSE_END_INDEX   => 2;
+Readonly::Scalar my $PLEXES_KEY          => q[plexes];
+
+Readonly::Scalar my $SPIKE_FALLBACK_TAG_INDEX => 888;
+
+##no critic (ErrorHandling::RequireCarping)
 
 =head1 NAME
 
@@ -379,14 +383,15 @@ sub _build__data {
 
     foreach my $data_hash (($self->_qyields, $self->_autoqc_data)) {
       if ($data_hash->{$position}) {
-
         _copy_plex_values($plexes, $data_hash, $position);
 
         foreach my $column (keys %{$data_hash->{$position}}) {
           if ( any {$_ eq $column} @rlm_column_names ) {
 	    $values->{$column}          = $data_hash->{$position}->{$column};
 	  }
-          if ( !$lane_is_indexed && any {$_ eq $column} @pm_column_names ) {
+          # The regexp will work for column name transformations we have now,
+          # see _remap_column_names().
+          if ( !$lane_is_indexed && any { $column =~ /$_/xms || $_ =~ /$column/xms } @pm_column_names ) {
             $product_values->{$column}  = $data_hash->{$position}->{$column};
 	  }
 	}
@@ -439,8 +444,7 @@ sub _copy_plex_values {
 
   foreach my $tag_index (keys %{ $source->{$position}->{$PLEXES_KEY} } ) {
     foreach my $column_name (keys %{ $source->{$position}->{$PLEXES_KEY}->{$tag_index} } ) {
-      my $name = $column_name eq q[tag_sequence] ? q[tag_sequence4deplexing] : $column_name;
-      $destination->{$tag_index}->{$name} =
+      $destination->{$tag_index}->{$column_name} =
         $source->{$position}->{$PLEXES_KEY}->{$tag_index}->{$column_name};
     }
   }
@@ -477,7 +481,7 @@ sub _add_lims_fk {
     $pk = $self->_flowcell_table_fks->{$position}->{'library_indexed'}->{$pt_key};
     if (!$pk) { # CHECK THIS LOGIC
       $pk = $self->_flowcell_table_fks->{$position}->{'library_indexed_spiked'}->{$pt_key};
-      if (!$pk && $values->{'tag_index'} == 888) {
+      if (!$pk && $values->{'tag_index'} == $SPIKE_FALLBACK_TAG_INDEX) {
         my @spikes = keys %{$self->_flowcell_table_fks->{$position}->{'library_indexed_spiked'}};
         if (scalar @spikes == 1) {
           $pk = $self->_flowcell_table_fks->{$position}->{'library_indexed_spiked'}->{$spikes[0]};
@@ -501,7 +505,9 @@ sub _remap_column_names {
   foreach my $name (@columns) {
     my $old_name = $name;
     my $count = $name =~ s/\Atag_sequence\Z/tag_sequence4deplexing/xms;
-    $count += $name =~ s/\Abam//xms;
+    if (!$count) {
+      $count = $name =~ s/\Abam_//xms;
+    }
     if ($count) {
       $values->{$name} = $values->{$old_name};
       delete $values->{$old_name};
@@ -561,7 +567,7 @@ sub load {
 
   if ($self->_old_forward_id_run) {
     warn sprintf 'Run %i is an old reverse run for %i, not loading%s.',
-      $self->id_run, $self->_old_forward_id_run, qq[\n]; 
+      $self->id_run, $self->_old_forward_id_run, qq[\n];
     return;
   }
 

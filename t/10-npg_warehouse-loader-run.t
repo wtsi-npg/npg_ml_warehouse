@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 96;
+use Test::More tests => 143;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -70,7 +70,7 @@ my $init = { _autoqc_store => $autoqc_store,
              _schema_npg   => $schema_npg, 
              _schema_qc    => $schema_qc, 
              _schema_wh    => $schema_wh,
-             verbose       => 1,
+             verbose       => 0,
            };
 
 ################################################################
@@ -264,6 +264,7 @@ my $init = { _autoqc_store => $autoqc_store,
   lives_ok {$schema_npg->resultset('Run')
     ->update_or_create({folder_path_glob => $folder_glob, folder_name => '100330_HS21_4799', id_run => $id_run, })}
     'forder glob reset lives - test prerequisite';
+
   my %in = %{$init};
   $in{'id_run'} = $id_run;
   my $loader  = npg_warehouse::loader::run->new(\%in);
@@ -278,21 +279,11 @@ my $init = { _autoqc_store => $autoqc_store,
   }
 
   my @rows = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search(
-       {id_run => 4799, position => [5-8]},
+       {id_run => $id_run, position => [5-8]},
   )->all();
 
-  #my %deplexing_stats = map {$_->position => $_->tags_decode_percent } @rows;
-  #my $expected = {5 => 99.88, 6 => 99.48, 7 => 98.93, 8 => 97.08,};
-  #is_deeply (\%deplexing_stats, $expected, 'tag decoding percent');
-  #use Data::Dumper;
-  #diag Dumper \%deplexing_stats;
-  #%deplexing_stats = map {$_->position => $_->tags_decode_cv } @rows;
-  #$expected = {5 => 173.20, 6 => 173.19, 7 => 173.06, 8 => 27.45,};
-  #is_deeply (\%deplexing_stats, $expected, 'tag decoding cv');
-  #diag Dumper \%deplexing_stats;
-
   my $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
-       {id_run => 4799, tag_index => [1,2,3,4]},
+       {id_run => $id_run, tag_index => [1,2,3,4]},
   );
   is ($rs->count, 20, '20 rows in the plex table for run 4799 for plexes[1-4]');
 
@@ -313,7 +304,7 @@ my $init = { _autoqc_store => $autoqc_store,
       }
     }
   }
-  cmp_deeply($tag_info, $expected_tag_info, 'tag info for runs 4799 position 7 plexex 1-4');
+  cmp_deeply($tag_info, $expected_tag_info, 'tag info for position 7 plexex 1-4');
 
   my $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
        {id_run => 4799, position=>7, tag_index => 5},
@@ -322,22 +313,22 @@ my $init = { _autoqc_store => $autoqc_store,
   is ($r->$LIMS_FK_COLUMN_NAME, undef, 'lims foreign key not defined');
 
   $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
-       {id_run => 4799, position => 3, tag_index=>1},)->first;
+       {id_run => $id_run, position => 3, tag_index=>1},)->first;
   is ($r->tag_decode_percent, 11.4, 'tag decode percent for tag 1');
 
   $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
-       {id_run => 4799, position => 3, tag_index=>4},)->first;
+       {id_run => $id_run, position => 3, tag_index=>4},)->first;
   is ($r->insert_size_quartile1, undef, 'quartile undefined for tag 4');
 
   $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
-       {id_run => 4799, position => 3, tag_index=>0},)->first;
+       {id_run => $id_run, position => 3, tag_index=>0},)->first;
   is ($r->tag_decode_percent, undef, 'tag decode percent undefined for tag 0');
   is ($r->insert_size_quartile3, 207, 'quartile3 correct for tag 0');
   is ($r->q20_yield_kb_forward_read, 46671, 'qx forward lane 3, tag 0');
   is ($r->q20_yield_kb_reverse_read, 39877, 'qx reverse lane 3, tag 0');
 
   $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
-       {id_run => 4799, position => 3, tag_index=>2},)->first;
+       {id_run => $id_run, position => 3, tag_index=>2},)->first;
   is ($r->insert_size_median, 189, 'median correct for tag 2');
 
   $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
@@ -346,7 +337,7 @@ my $init = { _autoqc_store => $autoqc_store,
   is ($r->q20_yield_kb_reverse_read, 1393269, 'qx reverse lane 3, tag 3');
 
   $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
-       {id_run => 4799, tag_index => undef,},
+       {id_run => $id_run, tag_index => undef,},
        {order_by => 'position',},
   );
   is ($rs->count, 2, '2 product rows');
@@ -355,19 +346,153 @@ my $init = { _autoqc_store => $autoqc_store,
   pop @acolumns;
   pop @acolumns;
 
-  foreach my $ycolumn (qw/q20_yield_kb_forward_read q30_yield_kb_forward_read q40_yield_kb_forward_read
-                          q20_yield_kb_reverse_read q30_yield_kb_reverse_read q40_yield_kb_reverse_read
-                         /) {
+  foreach my $ycolumn (qw/ q20_yield_kb_forward_read q20_yield_kb_reverse_read
+                           ref_match1_name ref_match1_percent
+                           ref_match2_name ref_match2_percent /) {
     push @acolumns, $ycolumn;
   }
-   
+  
+  my $found = {}; 
   while (my $row = $rs->next) {
-    diag 'POSITION ' . $row->position;
     foreach my $column (@acolumns) {
-      my $value = defined $row->$column ? $row->$column : 'NULL';
-      diag "$column : $value";
+      $found->{$row->position}->{$column} = $row->$column;
     }
   }
+  my $e = {};
+  $e->{1}->{insert_size_quartile1} = undef;
+  $e->{1}->{insert_size_quartile3} = undef;
+  $e->{1}->{insert_size_median} = undef;
+  $e->{1}->{gc_percent_forward_read} = 45.29;
+  $e->{1}->{gc_percent_reverse_read} = 45.18;
+  $e->{1}->{sequence_mismatch_percent_forward_read} = undef;
+  $e->{1}->{sequence_mismatch_percent_reverse_read} = undef;
+  $e->{1}->{adapters_percent_forward_read} = 31.99;
+  $e->{1}->{adapters_percent_reverse_read} = 25.93;
+  $e->{1}->{q20_yield_kb_forward_read} = 46671;
+  $e->{1}->{q20_yield_kb_reverse_read} = 39877;
+  $e->{4}->{insert_size_quartile1} = 172;
+  $e->{4}->{insert_size_quartile3} = 207;
+  $e->{4}->{insert_size_median} = 189;
+  $e->{4}->{gc_percent_forward_read} = 44.89;
+  $e->{4}->{gc_percent_reverse_read} = 44.88;
+  $e->{4}->{sequence_mismatch_percent_forward_read} = 0.31;
+  $e->{4}->{sequence_mismatch_percent_reverse_read} = 0.5;
+  $e->{4}->{adapters_percent_forward_read} = 0.03;
+  $e->{4}->{adapters_percent_reverse_read} = 0.02;
+  $e->{4}->{q20_yield_kb_forward_read} = 1455655;
+  $e->{4}->{q20_yield_kb_reverse_read} = 1393269;
+  $e->{1}->{ref_match1_name} = q[Homo sapiens 1000Genomes];
+  $e->{1}->{ref_match1_percent} = 95.7;
+  $e->{1}->{ref_match2_name} = q[Gorilla gorilla gorilla];
+  $e->{1}->{ref_match2_percent} = 85.2;
+  $e->{4}->{ref_match1_name} = q[Homo sapiens 1000Genomes];
+  $e->{4}->{ref_match1_percent} = 97.2;
+  $e->{4}->{ref_match2_name} = q[Gorilla gorilla gorilla];
+  $e->{4}->{ref_match2_percent} = 87.2;
+ 
+  is_deeply ($found, $e, 'lane product autoqc results');  
+}
+
+{
+  my $id_run = 6624;
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+    'staging tag is set - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')
+    ->update_or_create({folder_path_glob => $folder_glob, folder_name => '110731_HS17_06624_A_B00T5ACXX', id_run => $id_run, })}
+    'forder glob reset lives - test prerequisite';
+
+  my %in = %{$init};
+  $in{'id_run'} = $id_run;
+  my $loader  = npg_warehouse::loader::run->new(\%in);
+  $loader->load();
+
+  my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => $id_run},);
+  is($rs->count, 8, '8 rows in run-lane table');
+
+  my $lane = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->find({id_run=>$id_run,position=>2});
+  is($lane->q30_yield_kb_reverse_read, 9820023, 'q30 lane reverse');
+  is($lane->q40_yield_kb_forward_read, 6887095, 'q40 lane forward');
+  cmp_ok(sprintf('%.2f',$lane->tags_decode_percent), q(==), 98.96,
+    'lane 2 tag decode percent from tag metrics in presence of tag decode stats'); 
+  
+  $lane = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->find({id_run=>$id_run,position=>3});
+  cmp_ok(sprintf('%.2f',$lane->tags_decode_percent()), q(==), 99.05,
+    'lane 3 tag decode percent from tag decode stats in absence of tag metrics');
+
+  $lane = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->find({id_run=>$id_run,position=>4});
+  is($lane->q30_yield_kb_reverse_read, 11820778, 'q30 lane reverse');
+  is($lane->q40_yield_kb_forward_read, 8315876,  'q40 lane forward');
+
+  my $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->find({id_run=>6624,position=>1,tag_index=>0});
+  ok(!defined $plex->tag_sequence4deplexing(), 'index zero tag sequence is not defined');
+  is($plex->tag_decode_count(), 1831358, 'lane 1 tag index 0 count');
+
+  ok ($loader->_lane_is_indexed(2), 'lane 2 is indexed');
+  is ($schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>2,tag_index=>undef})->count,
+    0, 'lane 2 is not in product table');
+  $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->find({id_run=>$id_run,position=>2,tag_index=>168});
+  is($plex->q30_yield_kb_reverse_read, 304, 'q30 plex reverse');
+  is($plex->q40_yield_kb_forward_read, 210, 'q40 plex forward');
+  is($plex->tag_sequence4deplexing(), 'ACAACGCA', 'lane 2 tag index 168 tag sequence');
+  is($plex->tag_decode_count(), 1277701, 'lane 2 tag index 168 count');
+  cmp_ok(sprintf('%.2f', $plex->tag_decode_percent()), q(==), 0.73, ,
+    'lane 2 tag index 168 percent');
+
+  $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>3,tag_index=>1})->first;
+  cmp_ok(sprintf('%.2f',$plex->mean_bait_coverage()), q(==), 41.49, 'mean bait coverage');
+  cmp_ok(sprintf('%.2f',$plex->on_bait_percent()), q(==), 68.06, 'on bait percent');
+  cmp_ok(sprintf('%.2f',$plex->on_or_near_bait_percent()), q(==), 88.92, 'on or near bait percent');
+
+  $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>3,tag_index=>4})->first;
+  cmp_ok(sprintf('%.2f',$plex->num_reads()), q(==), 33605036, 'bam number of reads');
+  cmp_ok(sprintf('%.2f',$plex->percent_mapped()), q(==), 96.12, 'bam (nonphix) mapped percent');
+  cmp_ok(sprintf('%.2f',$plex->percent_duplicate()), q(==), 1.04, 'bam (nonphix) duplicate percent');
+
+  ok ($loader->_lane_is_indexed(4), 'lane 4 is indexed');
+  is ($schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>4,tag_index=>undef})->count,
+    0, 'lane 4 is not in product table');
+  $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->find({id_run=>$id_run,position=>4,tag_index=>0});
+  is($plex->q30_yield_kb_reverse_read, 99353, 'q30 plex reverse');
+  is($plex->q40_yield_kb_forward_read, 72788, 'q40 plex forward');
+}
+
+{
+  my $id_run = 6642;
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+    'staging tag is set - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')
+    ->update_or_create({folder_path_glob => $folder_glob, folder_name => '110804_HS22_06642_A_B020JACXX', id_run => $id_run, })}
+    'forder glob reset for run 6642 lives - test prerequisite';
+
+  my %in = %{$init};
+  $in{'id_run'} = $id_run;
+  my $loader  = npg_warehouse::loader::run->new(\%in);
+  $loader->load();
+
+  my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => $id_run},);
+  is($rs->count, 8, '8 rows in run-lane table');
+
+  ok (!$loader->_lane_is_indexed(1), 'lane 1 is not indexed');
+  my $lane = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>1,tag_index=>undef})->first;
+  ok ($lane, 'product row for lane 1 is present');
+  ok ($loader->_lane_is_indexed(2), 'lane 2 is indexed');
+  $lane = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>2,tag_index=>undef})->first;
+  ok (!$lane, 'product row for lane 2 is not present');
+
+  ok (!$loader->_lane_is_indexed(3), 'lane 3 is not indexed');
+  $lane = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run, position=>3,tag_index=>undef},)->first;
+  ok ($lane, 'product row for lane 3 is present');
+  cmp_ok(sprintf('%.2f',$lane->num_reads()), q(==), 308368522, 'bam number of reads');
+  cmp_ok(sprintf('%.2f',$lane->percent_mapped()), q(==), 98.19, 'bam mapped percent');
+  cmp_ok(sprintf('%.2f',$lane->percent_duplicate()), q(==), 24.63, 'bam duplicate percent');
+
+  my $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>2,tag_index=>4})->first;
+  ok ($plex, 'plex row for lane 2 tag ondex 4 is present');
+  cmp_ok(sprintf('%.2f',$plex->human_percent_mapped()), q(==), 55.3, 'bam human mapped percent');
+  cmp_ok(sprintf('%.2f',$plex->human_percent_duplicate()), q(==), 68.09, 'bam human duplicate percent');
+  cmp_ok(sprintf('%.2f',$plex->num_reads()), q(==), 138756624, 'bam (nonhuman) number of reads');
+  cmp_ok(sprintf('%.2f',$plex->percent_mapped()), q(==), 96.3, 'bam (nonhuman) mapped percent');
+  cmp_ok(sprintf('%.2f',$plex->percent_duplicate()), q(==), 6.34, 'bam (nonhuman) duplicate percent');
 }
 
 1;
