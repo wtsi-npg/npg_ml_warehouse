@@ -3,7 +3,7 @@ package npg_warehouse::loader::run;
 use Moose;
 use MooseX::StrictConstructor;
 use Try::Tiny;
-use List::MoreUtils qw/ any /;
+use List::MoreUtils qw/ any none /;
 use Readonly;
 use Carp;
 
@@ -81,6 +81,27 @@ has '_schema_wh'  =>  ( isa        => 'WTSI::DNAP::Warehouse::Schema',
                         required   => 0,
                         lazy_build => 1,
 );
+
+has ['_rlt_column_names', '_pt_column_names'] =>  (
+                           isa        => 'ArrayRef',
+                           is         => 'ro',
+                           required   => 0,
+                           lazy_build => 1,
+);
+sub _column_names {
+  my ($self, $table) = @_;
+  my @columns = $self->_schema_wh->resultset($table)->result_source->columns();
+  return \@columns;
+}
+sub _build__rlt_column_names {
+  my $self = shift;
+  return $self->_column_names($RUN_LANE_TABLE_NAME);
+}
+sub _build__pt_column_names {
+  my $self = shift;
+  return $self->_column_names($PRODUCT_TABLE_NAME);
+}
+  
 sub _build__schema_wh {
   my $self = shift;
   my $schema = WTSI::DNAP::Warehouse::Schema->connect();
@@ -218,6 +239,9 @@ sub _build__run_lane_rs {
       order_by => [q[me.id_run], q[me.position]],
     },
   )->all;
+  if(!@all_rs) {
+    croak q[No lanes for run ] . $self->id_run;
+  }
   return \@all_rs;
 }
 
@@ -338,11 +362,6 @@ sub _build__data {
   my $dates              = $self->_npg_data_retriever()->dates();
   my $instr              = $self->_npg_data_retriever()->instrument_info;
 
-  my @rlm_column_names =
-      $self->_schema_wh->resultset('IseqRunLaneMetric')->result_source->columns();
-  my @pm_column_names  =
-      $self->_schema_wh->resultset('IseqProductMetric')->result_source->columns();
-
   foreach my $rs (@{$self->_run_lane_rs})  {
 
     my $position                    = $rs->position;
@@ -384,18 +403,12 @@ sub _build__data {
     foreach my $data_hash (($self->_qyields, $self->_autoqc_data)) {
       if ($data_hash->{$position}) {
         _copy_plex_values($plexes, $data_hash, $position);
-
         foreach my $column (keys %{$data_hash->{$position}}) {
-          if ( any {$_ eq $column} @rlm_column_names ) {
-	    $values->{$column}          = $data_hash->{$position}->{$column};
-	  }
-          # The regexp will work for column name transformations we have now,
-          # see _remap_column_names().
-          if ( !$lane_is_indexed && any { $column =~ /$_/xms || $_ =~ /$column/xms } @pm_column_names ) {
-            $product_values->{$column}  = $data_hash->{$position}->{$column};
+	  $values->{$column} = $data_hash->{$position}->{$column};
+          if ( !$lane_is_indexed ) {
+            $product_values->{$column} = $data_hash->{$position}->{$column};
 	  }
 	}
-
       }
     }
 
@@ -421,8 +434,18 @@ sub _build__data {
 sub _lane_is_indexed {
   my ($self, $position) = @_;
   my $is_indexed = exists $self->_autoqc_data->{$position}->{'tags_decode_percent'};
-  if (!$is_indexed && scalar keys %{$self->_autoqc_data->{$position}->{$PLEXES_KEY}}) {
-    croak qq[Plex autoqc data present for lane $position, but no tag decoding data available];
+  if (!$is_indexed) {
+    if (scalar keys %{$self->_autoqc_data->{$position}->{$PLEXES_KEY}}) {
+      my $message = qq[Plex autoqc data present for lane $position, but no tag decoding data available];
+      if (length $self->id_run < 5) { #old runs
+        if ($self->verbose) {
+          warn qq[message\n];
+        }
+        $is_indexed = 1;
+      } else {
+        croak $message;
+      }
+    }
   }
   return $is_indexed;
 }
@@ -498,8 +521,8 @@ sub _add_lims_fk {
   return;
 }
 
-sub _remap_column_names {
-  my $values = shift;
+sub _filter_column_names {
+  my ($self, $table, $values) = @_;
 
   my @columns = keys %{$values};
   foreach my $name (@columns) {
@@ -511,6 +534,11 @@ sub _remap_column_names {
     if ($count) {
       $values->{$name} = $values->{$old_name};
       delete $values->{$old_name};
+    }
+    my @available = $table eq $PRODUCT_TABLE_NAME ?
+      @{$self->_pt_column_names} : @{$self->_rlt_column_names};
+    if (none {$name eq $_} @available) {
+      delete $values->{$name};
     }
   }
   return;
@@ -531,6 +559,9 @@ sub _load_table {
 
   my $count = 0;
   foreach my $row (@{$self->_data->{$table}}) {
+
+    $self->_filter_column_names($table, $row);
+
     if($self->verbose) {
       my $message = defined $row->{'tag_index'} ? q[tag_index ] . $row->{'tag_index'} : q[];
       $message = sprintf 'Creating record in table %s for run %i position %i %s',
@@ -538,9 +569,11 @@ sub _load_table {
       warn "$message\n";
     }
 
-    if ($table eq $PRODUCT_TABLE_NAME) {
-      _remap_column_names($row);
-    }
+    my @test = keys %{$row};
+    @test = grep { $_ !~ /\Aid_run|position|tag_index\Z/smx } @test;
+    if (!@test) { # no useful data
+      next;
+    } 
 
     if ($self->_have_flowcell_table_fks) {
       my $row = $rs->find();
