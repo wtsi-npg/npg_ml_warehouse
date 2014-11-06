@@ -62,13 +62,13 @@ has 'verbose'      => ( isa        => 'Bool',
 
 =head2 reload_product_data
 
-Boolean flag
+Boolean flag, true by default. If true, existing product rows are dropped.
 
 =cut
 has 'reload_product_data' => ( isa        => 'Bool',
                                is         => 'ro',
                                required   => 0,
-                               default    => 0,
+                               default    => 1,
 );
 
 =head2 _schema_wh

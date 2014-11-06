@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 143;
+use Test::More tests => 149;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -71,6 +71,7 @@ my $init = { _autoqc_store => $autoqc_store,
              _schema_qc    => $schema_qc, 
              _schema_wh    => $schema_wh,
              verbose       => 0,
+             reload_product_data => 0,
            };
 
 ################################################################
@@ -487,12 +488,36 @@ my $init = { _autoqc_store => $autoqc_store,
   cmp_ok(sprintf('%.2f',$lane->percent_duplicate()), q(==), 24.63, 'bam duplicate percent');
 
   my $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>2,tag_index=>4})->first;
-  ok ($plex, 'plex row for lane 2 tag ondex 4 is present');
+  ok ($plex, 'plex row for lane 2 tag index 4 is present');
   cmp_ok(sprintf('%.2f',$plex->human_percent_mapped()), q(==), 55.3, 'bam human mapped percent');
   cmp_ok(sprintf('%.2f',$plex->human_percent_duplicate()), q(==), 68.09, 'bam human duplicate percent');
   cmp_ok(sprintf('%.2f',$plex->num_reads()), q(==), 138756624, 'bam (nonhuman) number of reads');
   cmp_ok(sprintf('%.2f',$plex->percent_mapped()), q(==), 96.3, 'bam (nonhuman) mapped percent');
   cmp_ok(sprintf('%.2f',$plex->percent_duplicate()), q(==), 6.34, 'bam (nonhuman) duplicate percent');
+
+  my $num_products1 = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run})->count;
+  my $old_value = $loader->_data->{$PRODUCT_TABLE_NAME}->[1]->{tag_decode_percent};
+  $loader->_data->{$PRODUCT_TABLE_NAME}->[1]->{tag_decode_percent} = $old_value + 1;
+  my $tag_index = $loader->_data->{$PRODUCT_TABLE_NAME}->[1]->{tag_index};
+  my $pos = $loader->_data->{$PRODUCT_TABLE_NAME}->[1]->{position};
+  $loader->load();
+  my $num_products2 = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run})->count;
+  is ($num_products2, $num_products1 + 1, 'one row duplicated on reloading');
+  is ($schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>$pos,tag_index=>$tag_index})->count(),
+    2, 'edited row was duplicated'); 
+
+  $in{'reload_product_data'} = 1;
+  $loader  = npg_warehouse::loader::run->new(\%in);
+  $loader->load();
+  $num_products2 = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run})->count;
+  is ($num_products2, $num_products1, 'no duplication');
+  $loader->_data->{$PRODUCT_TABLE_NAME}->[1]->{tag_decode_percent} = $old_value + 1;
+  $loader->load();
+  $num_products2 = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run})->count;
+  is ($num_products2, $num_products1, 'no duplication');
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>$pos,tag_index=>$tag_index});
+  is ($rs->count, 1, 'edited row was not duplicated');
+  is ($rs->next->tag_decode_percent, $old_value + 1, 'value updated');
 }
 
 1;
