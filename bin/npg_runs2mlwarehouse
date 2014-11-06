@@ -1,0 +1,169 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use FindBin qw($Bin);
+use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
+use Getopt::Long;
+use Pod::Usage;
+
+use npg_tracking::Schema;
+use npg_qc::Schema;
+use WTSI::DNAP::Warehouse::Schema;
+use npg_warehouse::loader::run;
+
+our $VERSION = '0';
+
+my $verbose          = 0;
+my $help             = q[];
+my $id_run           = [];
+my $dry_run          = 0;
+
+GetOptions ('verbose!'        => \$verbose,
+            'dry-run!'        => \$dry_run,
+            'help'            => \$help,
+            'id_run=i@'       => \$id_run,
+            );
+if ($help) { pod2usage(0); }
+
+if ($dry_run) {
+  $verbose = 1;
+}
+
+if ($verbose) {
+  warn qq[\nmulti-lims warehouse loader attributes:\n];
+  warn qq[  verbose\t$verbose\n];
+  if (@{$id_run}) {
+    my $runs = join q[ ], sort {$a <=> $b} @{$id_run};
+    warn qq[  id_run\t$runs\n];
+  }
+  if (defined $ENV{dev} && $ENV{dev}) {
+   warn 'Using ' . $ENV{dev} . " databases\n";
+  }
+}
+
+my $npg_schema = npg_tracking::Schema->connect();
+
+if (!@{$id_run}) {
+  my $rs = $npg_schema->resultset('Run')->search({});
+  while (my $run = $rs->next) {
+    push @{$id_run}, $run->id_run;
+  }
+}
+
+my $qc_schema = npg_qc::Schema->connect();
+my $wh_schema = WTSI::DNAP::Warehouse::Schema->connect();
+my $loader;
+
+foreach my $id (@{$id_run}) {
+  if ($verbose) {
+    warn "\n******* Calling loader for run $id *******\n";
+  }
+  $loader = npg_warehouse::loader::run->new(
+      verbose     => $verbose,
+      id_run      => $id,
+      _schema_npg => $npg_schema,
+      _schema_qc  => $qc_schema,
+      _schema_wh  => $wh_schema,
+  );
+  if (!$dry_run) {
+    $loader->load();
+  }
+}
+
+if ($verbose) {
+  warn "\nCompleted loading, exiting...\n";
+}
+exit 0;
+
+
+__END__
+
+=head1 NAME
+
+npg_runs2mlwarehouse
+
+=head1 SYNOPSIS
+
+Script to load sequencing data analysis results to multi-lims warehouse.
+
+npg_runs2mlwarehouse [options]
+
+=head1 DESCRIPTION
+
+=head1 USAGE
+
+  npg_runs2mlwarehouse # to load all runs
+  npg_runs2mlwarehouse --verbose # to switch on verbose mode
+  npg_runs2mlwarehouse --id_run 45 --id_run 78 # to load runs 45 and 78
+
+=head1 REQUIRED ARGUMENTS
+
+None
+
+=head1 OPTIONS
+
+  --help     brief help message
+  --verbose  to switch on verbose mode (disabled by default)
+  --dry-run  switches on verbose mode and reports what is going to de done
+  --id_run   to load particular run,
+             multiple runs can be specified by repeating this option
+
+=head1 EXIT STATUS
+
+0
+
+=head1 CONFIGURATION
+
+=head1 DIAGNOSTICS
+
+=head1 DEPENDENCIES
+
+=over
+
+=item strict
+
+=item warnings
+
+=item lib
+
+=item FindBin
+
+=item Getopt::Long
+
+=item Pod::Usage
+
+=item npg_tracking::Schema
+
+=item npg_qc::Schema
+
+=item WTSI::DNAP::Warehouse::Schema
+
+=item npg_warehouse::loader::run
+
+=back
+
+=head1 INCOMPATIBILITIES
+
+=head1 BUGS AND LIMITATIONS
+
+=head1 AUTHOR
+
+Marina Gourtovaia
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (C) 2014 by Genome Research Limited
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
