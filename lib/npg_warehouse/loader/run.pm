@@ -25,13 +25,12 @@ Readonly::Scalar my $RUN_LANE_TABLE_NAME      => q[IseqRunLaneMetric];
 Readonly::Scalar my $PRODUCT_TABLE_NAME       => q[IseqProductMetric];
 Readonly::Scalar my $LIMS_FK_COLUMN_NAME      => q[id_iseq_flowcell_tmp];
 
-Readonly::Scalar my $FORWARD_END_INDEX   => 1;
-Readonly::Scalar my $REVERSE_END_INDEX   => 2;
-Readonly::Scalar my $PLEXES_KEY          => q[plexes];
+Readonly::Scalar my $FORWARD_END_INDEX        => 1;
+Readonly::Scalar my $REVERSE_END_INDEX        => 2;
+Readonly::Scalar my $PLEXES_KEY               => q[plexes];
 
 Readonly::Scalar my $SPIKE_FALLBACK_TAG_INDEX => 888;
-
-##no critic (ErrorHandling::RequireCarping)
+Readonly::Scalar my $MIN_NEW_RUN              => 10_000;
 
 =head1 NAME
 
@@ -101,7 +100,7 @@ sub _build__pt_column_names {
   my $self = shift;
   return $self->_column_names($PRODUCT_TABLE_NAME);
 }
-  
+
 sub _build__schema_wh {
   my $self = shift;
   my $schema = WTSI::DNAP::Warehouse::Schema->connect();
@@ -147,7 +146,7 @@ sub _build__flowcell_table_fks {
   }
 
   if ($lims_id && (scalar keys %{$fks} == 0) & $self->verbose) {
-    warn qq[No lims information for flowcell $lims_id];
+    warn qq[No lims information for flowcell $lims_id\n];
   }
 
   return $fks;
@@ -239,20 +238,19 @@ sub _build__run_lane_rs {
       order_by => [q[me.id_run], q[me.position]],
     },
   )->all;
-  if(!@all_rs) {
-    croak q[No lanes for run ] . $self->id_run;
-  }
   return \@all_rs;
 }
 
-has '_old_forward_id_run'  => ( isa       => 'Int',
+has '_old_forward_id_run'  => ( isa        => 'Int',
                                 is         => 'ro',
                                 required   => 0,
                                 lazy_build => 1,
 );
 sub _build__old_forward_id_run {
   my $self= shift;
-  return $self->_run_lane_rs->[0]->run->id_run_pair;
+  my $rp = $self->_run_lane_rs->[0]->run->id_run_pair;
+  $rp ||= 0;
+  return $rp;
 }
 
 has '_autoqc_data'   =>   ( isa        => 'HashRef',
@@ -437,7 +435,7 @@ sub _lane_is_indexed {
   if (!$is_indexed) {
     if (scalar keys %{$self->_autoqc_data->{$position}->{$PLEXES_KEY}}) {
       my $message = qq[Plex autoqc data present for lane $position, but no tag decoding data available];
-      if (length $self->id_run < 5) { #old runs
+      if ($self->id_run < $MIN_NEW_RUN) { # This run is "old".
         if ($self->verbose) {
           warn qq[message\n];
         }
@@ -573,7 +571,7 @@ sub _load_table {
     @test = grep { $_ !~ /\Aid_run|position|tag_index\Z/smx } @test;
     if (!@test) { # no useful data
       next;
-    } 
+    }
 
     if ($self->_have_flowcell_table_fks) {
       my $row = $rs->find();
@@ -598,8 +596,15 @@ Loads data for one sequencing run to the warehouse
 sub load {
   my ($self) = @_;
 
+  if (! @{$self->_run_lane_rs}) {
+    if($self->verbose) {
+      warn q[No lanes for run ] . $self->id_run . qq[, not loading\n];
+    }
+    return;
+  }
+
   if ($self->_old_forward_id_run) {
-    warn sprintf 'Run %i is an old reverse run for %i, not loading%s.',
+    warn sprintf 'Run %i is an old reverse run for %i, not loading.%s',
       $self->id_run, $self->_old_forward_id_run, qq[\n];
     return;
   }
@@ -617,7 +622,7 @@ sub load {
       foreach my $table (($RUN_LANE_TABLE_NAME, $PRODUCT_TABLE_NAME)) {
         my $count = $self->_load_table($table);
         if ($self->verbose) {
-          warn qq[Loaded $count rows to table $table for run ] . $self->id_run;
+          warn qq[Loaded $count rows to table $table for run ] . $self->id_run .qq[\n];
 	}
       }
     };

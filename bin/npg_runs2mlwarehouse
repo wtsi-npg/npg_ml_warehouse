@@ -31,14 +31,17 @@ if ($dry_run) {
 }
 
 if ($verbose) {
-  warn qq[\nmulti-lims warehouse loader attributes:\n];
+  if ($dry_run) {
+    warn "DRY RUN\n";
+  }
+  warn qq[\nwarehouse loader is running with the following options:\n];
   warn qq[  verbose\t$verbose\n];
   if (@{$id_run}) {
     my $runs = join q[ ], sort {$a <=> $b} @{$id_run};
     warn qq[  id_run\t$runs\n];
   }
   if (defined $ENV{dev} && $ENV{dev}) {
-   warn 'Using ' . $ENV{dev} . " databases\n";
+    warn 'Using ' . $ENV{dev} . " databases\n";
   }
 }
 
@@ -85,7 +88,7 @@ npg_runs2mlwarehouse
 
 =head1 SYNOPSIS
 
-Script to load sequencing data analysis results to multi-lims warehouse.
+Script to load sequencing data analysis results to the warehouse.
 
 npg_runs2mlwarehouse [options]
 
