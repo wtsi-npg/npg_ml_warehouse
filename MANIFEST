@@ -2,6 +2,8 @@ Build.PL
 Changes
 MANIFEST
 README
+bin/npg_run_statuses2mlwarehouse
+bin/npg_runs2mlwarehouse
 lib/npg_warehouse/loader/autoqc.pm
 lib/npg_warehouse/loader/npg.pm
 lib/npg_warehouse/loader/qc.pm

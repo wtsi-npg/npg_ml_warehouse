@@ -31,7 +31,6 @@ my $builder = npg_tracking::util::build->new(
                     'npg_testing::db'             => 0,
                     'npg_tracking::util::build'   => 0,
                     'npg_qc::autoqc::results::qX_yield' => 0,
-                    'npg_warehouse::Schema'       => 0,
                  },
 
                  'requires'            => {
