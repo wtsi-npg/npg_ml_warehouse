@@ -1,0 +1,10 @@
+---
+- cost_code: S0696
+  id_cost_code: 1
+  id_cost_group: 1
+- cost_code: S0755
+  id_cost_code: 2
+  id_cost_group: 1
+- cost_code: S0700
+  id_cost_code: 3
+  id_cost_group: 1
