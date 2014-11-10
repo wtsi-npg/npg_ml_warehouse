@@ -107,7 +107,7 @@ my $init = { _autoqc_store => $autoqc_store,
   is ($rs->count, 8, '8 run-lane rows for run 1246');
   
   $in{'id_run'} = 1272;
-  $in{'verbose'} = 0;
+  $in{'verbose'} = 1;
   my $loader1 = npg_warehouse::loader::run->new(\%in);
   is ($loader1->_old_forward_id_run, 1246, 'old forward id run is set');
   warning_like { $loader1->load() }

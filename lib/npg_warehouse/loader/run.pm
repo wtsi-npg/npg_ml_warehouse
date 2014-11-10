@@ -604,8 +604,10 @@ sub load {
   }
 
   if ($self->_old_forward_id_run) {
-    warn sprintf 'Run %i is an old reverse run for %i, not loading.%s',
-      $self->id_run, $self->_old_forward_id_run, qq[\n];
+    if ($self->verbose) {
+      warn sprintf 'Run %i is an old reverse run for %i, not loading.%s',
+        $self->id_run, $self->_old_forward_id_run, qq[\n];
+    }
     return;
   }
 
