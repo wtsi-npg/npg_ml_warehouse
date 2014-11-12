@@ -1,0 +1,102 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use FindBin qw($Bin);
+use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
+use Getopt::Long;
+use Pod::Usage;
+
+use WTSI::DNAP::Warehouse::Schema;
+use npg_warehouse::loader::run_status;
+
+our $VERSION = '0';
+
+my $help             = q[];
+GetOptions ('help' => \$help,);
+if ($help) { pod2usage(0); }
+
+npg_warehouse::loader::run_status->new(
+  schema_wh  => WTSI::DNAP::Warehouse::Schema->connect(),
+)->copy_npg_tables();
+
+exit 0;
+
+__END__
+
+=head1 NAME
+
+npg_run_statuses2mlwarehouse
+
+=head1 SYNOPSIS
+
+Script to load sequencing run statuses to the warehouse.
+
+=head1 DESCRIPTION
+
+=head1 USAGE
+
+  npg_run_statuses2mlwarehouse
+
+=head1 REQUIRED ARGUMENTS
+
+None
+
+=head1 OPTIONS
+
+  --help     brief help message
+
+=head1 EXIT STATUS
+
+0
+
+=head1 CONFIGURATION
+
+=head1 DIAGNOSTICS
+
+=head1 DEPENDENCIES
+
+=over
+
+=item strict
+
+=item warnings
+
+=item lib
+
+=item FindBin
+
+=item Getopt::Long
+
+=item Pod::Usage
+
+=item WTSI::DNAP::Warehouse::Schema
+
+=item npg_warehouse::loader::run_status
+
+=back
+
+=head1 INCOMPATIBILITIES
+
+=head1 BUGS AND LIMITATIONS
+
+=head1 AUTHOR
+
+Marina Gourtovaia
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (C) 2014 Genome Research Limited
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.

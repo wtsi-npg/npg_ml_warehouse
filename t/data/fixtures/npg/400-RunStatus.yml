@@ -1,0 +1,1339 @@
+---
+- date: 2008-08-19 09:55:12
+  id_run: 1246
+  id_run_status: 37301
+  id_run_status_dict: 1
+  id_user: 8
+  iscurrent: 0
+- date: 2008-08-20 04:59:51
+  id_run: 1246
+  id_run_status: 37232
+  id_run_status_dict: 1
+  id_user: 8
+  iscurrent: 0
+- date: 2008-08-23 04:59:51
+  id_run: 1246
+  id_run_status: 18111
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2008-08-27 16:28:01
+  id_run: 1246
+  id_run_status: 18386
+  id_run_status_dict: 11
+  id_user: 9
+  iscurrent: 0
+- date: 2008-08-27 16:36:33
+  id_run: 1246
+  id_run_status: 18394
+  id_run_status_dict: 6
+  id_user: 9
+  iscurrent: 0
+- date: 2008-08-27 16:38:34
+  id_run: 1246
+  id_run_status: 18395
+  id_run_status_dict: 14
+  id_user: 7
+  iscurrent: 0
+- date: 2008-08-29 15:12:33
+  id_run: 1246
+  id_run_status: 18670
+  id_run_status_dict: 15
+  id_user: 9
+  iscurrent: 0
+- date: 2008-08-29 18:20:57
+  id_run: 1246
+  id_run_status: 18695
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2008-09-01 18:03:30
+  id_run: 1246
+  id_run_status: 18938
+  id_run_status_dict: 15
+  id_user: 10
+  iscurrent: 0
+- date: 2008-09-01 18:38:34
+  id_run: 1246
+  id_run_status: 18965
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2008-09-10 19:46:50
+  id_run: 1246
+  id_run_status: 19793
+  id_run_status_dict: 15
+  id_user: 10
+  iscurrent: 0
+- date: 2008-09-10 19:51:32
+  id_run: 1246
+  id_run_status: 19807
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2008-09-11 08:27:37
+  id_run: 1246
+  id_run_status: 19830
+  id_run_status_dict: 9
+  id_user: 7
+  iscurrent: 0
+- date: 2008-09-17 16:40:51
+  id_run: 1246
+  id_run_status: 20439
+  id_run_status_dict: 17
+  id_user: 7
+  iscurrent: 0
+- date: 2008-09-17 18:01:54
+  id_run: 1246
+  id_run_status: 20455
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2008-09-17 18:38:23
+  id_run: 1246
+  id_run_status: 20474
+  id_run_status_dict: 17
+  id_user: 10
+  iscurrent: 0
+- date: 2008-09-17 18:52:04
+  id_run: 1246
+  id_run_status: 20489
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2008-09-17 19:47:39
+  id_run: 1246
+  id_run_status: 20517
+  id_run_status_dict: 17
+  id_user: 10
+  iscurrent: 0
+- date: 2008-09-17 19:57:55
+  id_run: 1246
+  id_run_status: 20529
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2008-09-18 18:11:19
+  id_run: 1246
+  id_run_status: 20596
+  id_run_status_dict: 12
+  id_user: 10
+  iscurrent: 0
+- date: 2008-09-22 09:34:10
+  id_run: 1246
+  id_run_status: 21045
+  id_run_status_dict: 19
+  id_user: 11
+  iscurrent: 0
+- date: 2008-09-22 09:34:12
+  id_run: 1246
+  id_run_status: 21048
+  id_run_status_dict: 19
+  id_user: 11
+  iscurrent: 0
+- date: 2008-09-24 12:21:42
+  id_run: 1246
+  id_run_status: 21321
+  id_run_status_dict: 20
+  id_user: 12
+  iscurrent: 0
+- date: 2008-09-25 13:17:56
+  id_run: 1246
+  id_run_status: 21461
+  id_run_status_dict: 19
+  id_user: 12
+  iscurrent: 0
+- date: 2008-09-25 13:18:20
+  id_run: 1246
+  id_run_status: 21462
+  id_run_status_dict: 20
+  id_user: 12
+  iscurrent: 1
+- date: 2008-08-23 16:09:02
+  id_run: 1272
+  id_run_status: 18123
+  id_run_status_dict: 1
+  id_user: 13
+  iscurrent: 0
+- date: 2008-08-23 16:29:07
+  id_run: 1272
+  id_run_status: 18124
+  id_run_status_dict: 2
+  id_user: 7
+  iscurrent: 0
+- date: 2008-08-27 05:54:08
+  id_run: 1272
+  id_run_status: 18322
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2008-08-27 06:12:56
+  id_run: 1272
+  id_run_status: 18323
+  id_run_status_dict: 11
+  id_user: 7
+  iscurrent: 0
+- date: 2008-08-27 06:12:57
+  id_run: 1272
+  id_run_status: 18324
+  id_run_status_dict: 6
+  id_user: 7
+  iscurrent: 0
+- date: 2008-08-29 18:20:57
+  id_run: 1272
+  id_run_status: 18696
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2008-09-01 18:03:51
+  id_run: 1272
+  id_run_status: 18939
+  id_run_status_dict: 6
+  id_user: 8
+  iscurrent: 0
+- date: 2008-09-01 18:38:35
+  id_run: 1272
+  id_run_status: 18966
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2008-09-10 19:47:12
+  id_run: 1272
+  id_run_status: 19794
+  id_run_status_dict: 6
+  id_user: 9
+  iscurrent: 0
+- date: 2008-09-10 19:51:33
+  id_run: 1272
+  id_run_status: 19808
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2008-09-11 08:27:38
+  id_run: 1272
+  id_run_status: 19831
+  id_run_status_dict: 9
+  id_user: 7
+  iscurrent: 0
+- date: 2008-09-17 16:40:52
+  id_run: 1272
+  id_run_status: 20440
+  id_run_status_dict: 17
+  id_user: 7
+  iscurrent: 0
+- date: 2008-09-17 18:01:55
+  id_run: 1272
+  id_run_status: 20456
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2008-09-17 18:38:23
+  id_run: 1272
+  id_run_status: 20473
+  id_run_status_dict: 17
+  id_user: 8
+  iscurrent: 0
+- date: 2008-09-17 18:52:04
+  id_run: 1272
+  id_run_status: 20490
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2008-09-17 19:47:39
+  id_run: 1272
+  id_run_status: 20518
+  id_run_status_dict: 17
+  id_user: 8
+  iscurrent: 0
+- date: 2008-09-17 19:57:56
+  id_run: 1272
+  id_run_status: 20530
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2008-09-18 18:11:20
+  id_run: 1272
+  id_run_status: 20597
+  id_run_status_dict: 12
+  id_user: 8
+  iscurrent: 0
+- date: 2008-09-22 09:34:10
+  id_run: 1272
+  id_run_status: 21044
+  id_run_status_dict: 19
+  id_user: 11
+  iscurrent: 0
+- date: 2008-09-22 09:34:13
+  id_run: 1272
+  id_run_status: 21049
+  id_run_status_dict: 19
+  id_user: 10
+  iscurrent: 0
+- date: 2008-09-24 12:21:54
+  id_run: 1272
+  id_run_status: 21322
+  id_run_status_dict: 20
+  id_user: 12
+  iscurrent: 1
+- date: 2009-07-12 12:33:11
+  id_run: 3323
+  id_run_status: 46328
+  id_run_status_dict: 1
+  id_user: 10
+  iscurrent: 0
+- date: 2009-07-12 13:04:51
+  id_run: 3323
+  id_run_status: 46329
+  id_run_status_dict: 2
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-16 05:04:24
+  id_run: 3323
+  id_run_status: 46681
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-16 05:16:28
+  id_run: 3323
+  id_run_status: 46682
+  id_run_status_dict: 11
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-16 05:16:30
+  id_run: 3323
+  id_run_status: 46683
+  id_run_status_dict: 6
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-16 05:32:26
+  id_run: 3323
+  id_run_status: 46685
+  id_run_status_dict: 14
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-16 07:57:06
+  id_run: 3323
+  id_run_status: 46698
+  id_run_status_dict: 15
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-20 09:08:29
+  id_run: 3323
+  id_run_status: 47007
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-21 08:25:30
+  id_run: 3323
+  id_run_status: 47094
+  id_run_status_dict: 9
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-21 09:59:01
+  id_run: 3323
+  id_run_status: 47104
+  id_run_status_dict: 19
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-31 11:40:09
+  id_run: 3323
+  id_run_status: 48039
+  id_run_status_dict: 17
+  id_user: 13
+  iscurrent: 0
+- date: 2009-07-31 11:56:39
+  id_run: 3323
+  id_run_status: 48045
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-31 13:29:47
+  id_run: 3323
+  id_run_status: 48060
+  id_run_status_dict: 12
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-31 13:29:51
+  id_run: 3323
+  id_run_status: 48062
+  id_run_status_dict: 20
+  id_user: 7
+  iscurrent: 1
+- date: 2009-07-16 16:03:00
+  id_run: 3351
+  id_run_status: 46742
+  id_run_status_dict: 1
+  id_user: 12
+  iscurrent: 0
+- date: 2009-07-16 16:22:25
+  id_run: 3351
+  id_run_status: 46743
+  id_run_status_dict: 2
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-20 08:52:18
+  id_run: 3351
+  id_run_status: 47004
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-20 09:05:10
+  id_run: 3351
+  id_run_status: 47005
+  id_run_status_dict: 11
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-20 09:05:12
+  id_run: 3351
+  id_run_status: 47006
+  id_run_status_dict: 6
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-20 09:08:31
+  id_run: 3351
+  id_run_status: 47008
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-21 08:25:31
+  id_run: 3351
+  id_run_status: 47095
+  id_run_status_dict: 9
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-21 09:59:03
+  id_run: 3351
+  id_run_status: 47105
+  id_run_status_dict: 19
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-31 11:40:10
+  id_run: 3351
+  id_run_status: 48040
+  id_run_status_dict: 17
+  id_user: 12
+  iscurrent: 0
+- date: 2009-07-31 11:56:41
+  id_run: 3351
+  id_run_status: 48046
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-31 13:29:50
+  id_run: 3351
+  id_run_status: 48061
+  id_run_status_dict: 12
+  id_user: 7
+  iscurrent: 0
+- date: 2009-07-31 13:29:52
+  id_run: 3351
+  id_run_status: 48063
+  id_run_status_dict: 20
+  id_user: 7
+  iscurrent: 1
+- date: 2009-08-07 13:28:50
+  id_run: 3500
+  id_run_status: 48768
+  id_run_status_dict: 1
+  id_user: 9
+  iscurrent: 0
+- date: 2009-08-07 14:40:05
+  id_run: 3500
+  id_run_status: 48777
+  id_run_status_dict: 2
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-11 05:53:40
+  id_run: 3500
+  id_run_status: 49035
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-11 06:06:46
+  id_run: 3500
+  id_run_status: 49037
+  id_run_status_dict: 11
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-11 06:06:47
+  id_run: 3500
+  id_run_status: 49038
+  id_run_status_dict: 6
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-11 06:18:23
+  id_run: 3500
+  id_run_status: 49039
+  id_run_status_dict: 14
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-11 10:56:18
+  id_run: 3500
+  id_run_status: 49082
+  id_run_status_dict: 15
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-15 07:03:28
+  id_run: 3500
+  id_run_status: 49318
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-16 11:09:11
+  id_run: 3500
+  id_run_status: 49372
+  id_run_status_dict: 9
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-16 13:16:58
+  id_run: 3500
+  id_run_status: 49376
+  id_run_status_dict: 19
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-19 11:18:37
+  id_run: 3500
+  id_run_status: 49651
+  id_run_status_dict: 17
+  id_user: 12
+  iscurrent: 0
+- date: 2009-08-19 11:29:51
+  id_run: 3500
+  id_run_status: 49654
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-19 13:40:37
+  id_run: 3500
+  id_run_status: 49675
+  id_run_status_dict: 12
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-19 13:40:41
+  id_run: 3500
+  id_run_status: 49677
+  id_run_status_dict: 20
+  id_user: 7
+  iscurrent: 1
+- date: 2009-08-10 11:53:16
+  id_run: 3519
+  id_run_status: 48994
+  id_run_status_dict: 1
+  id_user: 13
+  iscurrent: 0
+- date: 2009-08-10 12:19:23
+  id_run: 3519
+  id_run_status: 48998
+  id_run_status_dict: 2
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-15 16:50:36
+  id_run: 3519
+  id_run_status: 49335
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-15 17:12:38
+  id_run: 3519
+  id_run_status: 49336
+  id_run_status_dict: 11
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-15 17:12:43
+  id_run: 3519
+  id_run_status: 49337
+  id_run_status_dict: 6
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-15 17:32:18
+  id_run: 3519
+  id_run_status: 49338
+  id_run_status_dict: 14
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-15 22:48:48
+  id_run: 3519
+  id_run_status: 49351
+  id_run_status_dict: 15
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-17 13:01:12
+  id_run: 3519
+  id_run_status: 49422
+  id_run_status_dict: 5
+  id_user: 13
+  iscurrent: 1
+- date: 2009-08-11 10:02:07
+  id_run: 3529
+  id_run_status: 49072
+  id_run_status_dict: 1
+  id_user: 9
+  iscurrent: 0
+- date: 2009-08-11 15:23:51
+  id_run: 3529
+  id_run_status: 49106
+  id_run_status_dict: 2
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-15 06:49:26
+  id_run: 3529
+  id_run_status: 49315
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-15 07:01:58
+  id_run: 3529
+  id_run_status: 49316
+  id_run_status_dict: 11
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-15 07:02:00
+  id_run: 3529
+  id_run_status: 49317
+  id_run_status_dict: 6
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-15 07:03:30
+  id_run: 3529
+  id_run_status: 49319
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-16 11:09:13
+  id_run: 3529
+  id_run_status: 49373
+  id_run_status_dict: 9
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-16 13:16:59
+  id_run: 3529
+  id_run_status: 49377
+  id_run_status_dict: 19
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-19 11:18:38
+  id_run: 3529
+  id_run_status: 49652
+  id_run_status_dict: 17
+  id_user: 8
+  iscurrent: 0
+- date: 2009-08-19 11:29:53
+  id_run: 3529
+  id_run_status: 49655
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-19 13:40:39
+  id_run: 3529
+  id_run_status: 49676
+  id_run_status_dict: 12
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-19 13:40:42
+  id_run: 3529
+  id_run_status: 49678
+  id_run_status_dict: 20
+  id_user: 7
+  iscurrent: 1
+- date: 2009-08-27 11:58:15
+  id_run: 3622
+  id_run_status: 50227
+  id_run_status_dict: 1
+  id_user: 13
+  iscurrent: 0
+- date: 2009-08-27 13:11:29
+  id_run: 3622
+  id_run_status: 50237
+  id_run_status_dict: 2
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-29 07:47:52
+  id_run: 3622
+  id_run_status: 50404
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-29 07:52:53
+  id_run: 3622
+  id_run_status: 50405
+  id_run_status_dict: 11
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-29 07:52:55
+  id_run: 3622
+  id_run_status: 50406
+  id_run_status_dict: 6
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-29 08:11:22
+  id_run: 3622
+  id_run_status: 50407
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-30 05:57:02
+  id_run: 3622
+  id_run_status: 50471
+  id_run_status_dict: 9
+  id_user: 7
+  iscurrent: 0
+- date: 2009-08-30 11:23:16
+  id_run: 3622
+  id_run_status: 50524
+  id_run_status_dict: 19
+  id_user: 7
+  iscurrent: 0
+- date: 2009-09-10 13:49:38
+  id_run: 3622
+  id_run_status: 51623
+  id_run_status_dict: 17
+  id_user: 11
+  iscurrent: 0
+- date: 2009-09-10 14:04:52
+  id_run: 3622
+  id_run_status: 51626
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2009-09-10 16:15:05
+  id_run: 3622
+  id_run_status: 51665
+  id_run_status_dict: 12
+  id_user: 7
+  iscurrent: 0
+- date: 2009-09-10 16:15:08
+  id_run: 3622
+  id_run_status: 51666
+  id_run_status_dict: 20
+  id_user: 7
+  iscurrent: 1
+- date: 2009-10-25 10:44:09
+  id_run: 3965
+  id_run_status: 54689
+  id_run_status_dict: 1
+  id_user: 9
+  iscurrent: 0
+- date: 2009-10-25 11:32:42
+  id_run: 3965
+  id_run_status: 54692
+  id_run_status_dict: 2
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-02 06:58:13
+  id_run: 3965
+  id_run_status: 55236
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-02 07:13:57
+  id_run: 3965
+  id_run_status: 55239
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-02 07:29:28
+  id_run: 3965
+  id_run_status: 55240
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-02 07:44:57
+  id_run: 3965
+  id_run_status: 55241
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-02 08:01:09
+  id_run: 3965
+  id_run_status: 55242
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-02 08:17:16
+  id_run: 3965
+  id_run_status: 55243
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-02 08:32:57
+  id_run: 3965
+  id_run_status: 55244
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-02 08:48:39
+  id_run: 3965
+  id_run_status: 55245
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-02 09:04:24
+  id_run: 3965
+  id_run_status: 55246
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-02 09:20:00
+  id_run: 3965
+  id_run_status: 55247
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-02 09:35:50
+  id_run: 3965
+  id_run_status: 55248
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-02 10:27:51
+  id_run: 3965
+  id_run_status: 55249
+  id_run_status_dict: 11
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-02 10:27:52
+  id_run: 3965
+  id_run_status: 55250
+  id_run_status_dict: 6
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-02 16:27:59
+  id_run: 3965
+  id_run_status: 55271
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-03 06:51:14
+  id_run: 3965
+  id_run_status: 55302
+  id_run_status_dict: 9
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-03 11:41:23
+  id_run: 3965
+  id_run_status: 55322
+  id_run_status_dict: 19
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-27 09:58:02
+  id_run: 3965
+  id_run_status: 56864
+  id_run_status_dict: 17
+  id_user: 12
+  iscurrent: 0
+- date: 2009-11-27 10:08:50
+  id_run: 3965
+  id_run_status: 56865
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-27 14:57:11
+  id_run: 3965
+  id_run_status: 56895
+  id_run_status_dict: 12
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-27 14:57:18
+  id_run: 3965
+  id_run_status: 56896
+  id_run_status_dict: 20
+  id_user: 7
+  iscurrent: 1
+- date: 2009-11-06 13:25:28
+  id_run: 4025
+  id_run_status: 55660
+  id_run_status_dict: 1
+  id_user: 13
+  iscurrent: 0
+- date: 2009-11-06 13:31:19
+  id_run: 4025
+  id_run_status: 55662
+  id_run_status_dict: 2
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-14 05:06:40
+  id_run: 4025
+  id_run_status: 56069
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-14 08:38:40
+  id_run: 4025
+  id_run_status: 56077
+  id_run_status_dict: 11
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-14 08:38:42
+  id_run: 4025
+  id_run_status: 56078
+  id_run_status_dict: 6
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-14 08:51:34
+  id_run: 4025
+  id_run_status: 56079
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-15 16:03:45
+  id_run: 4025
+  id_run_status: 56184
+  id_run_status_dict: 9
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-15 22:04:27
+  id_run: 4025
+  id_run_status: 56198
+  id_run_status_dict: 19
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-18 10:01:22
+  id_run: 4025
+  id_run_status: 56325
+  id_run_status_dict: 17
+  id_user: 9
+  iscurrent: 0
+- date: 2009-11-18 10:04:28
+  id_run: 4025
+  id_run_status: 56326
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-19 16:11:20
+  id_run: 4025
+  id_run_status: 56379
+  id_run_status_dict: 12
+  id_user: 7
+  iscurrent: 0
+- date: 2009-11-19 16:11:24
+  id_run: 4025
+  id_run_status: 56380
+  id_run_status_dict: 20
+  id_user: 7
+  iscurrent: 1
+- date: 2009-12-02 13:56:29
+  id_run: 4138
+  id_run_status: 57119
+  id_run_status_dict: 1
+  id_user: 13
+  iscurrent: 0
+- date: 2009-12-02 14:11:31
+  id_run: 4138
+  id_run_status: 57121
+  id_run_status_dict: 2
+  id_user: 7
+  iscurrent: 0
+- date: 2009-12-10 07:20:53
+  id_run: 4138
+  id_run_status: 57500
+  id_run_status_dict: 5
+  id_user: 9
+  iscurrent: 0
+- date: 2010-07-12 17:23:15
+  id_run: 4138
+  id_run_status: 66369
+  id_run_status_dict: 21
+  id_user: 12
+  iscurrent: 1
+- date: 2010-02-02 14:12:07
+  id_run: 4333
+  id_run_status: 59282
+  id_run_status_dict: 1
+  id_user: 8
+  iscurrent: 0
+- date: 2010-02-02 14:12:34
+  id_run: 4333
+  id_run_status: 59283
+  id_run_status_dict: 2
+  id_user: 10
+  iscurrent: 0
+- date: 2010-02-17 09:04:55
+  id_run: 4333
+  id_run_status: 59838
+  id_run_status_dict: 4
+  id_user: 10
+  iscurrent: 0
+- date: 2010-02-17 09:05:12
+  id_run: 4333
+  id_run_status: 59839
+  id_run_status_dict: 11
+  id_user: 10
+  iscurrent: 0
+- date: 2010-02-17 09:16:58
+  id_run: 4333
+  id_run_status: 59842
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2010-02-18 05:32:19
+  id_run: 4333
+  id_run_status: 59887
+  id_run_status_dict: 9
+  id_user: 7
+  iscurrent: 0
+- date: 2010-02-18 23:40:06
+  id_run: 4333
+  id_run_status: 59930
+  id_run_status_dict: 19
+  id_user: 7
+  iscurrent: 0
+- date: 2010-02-22 11:16:49
+  id_run: 4333
+  id_run_status: 60081
+  id_run_status_dict: 17
+  id_user: 11
+  iscurrent: 0
+- date: 2010-02-22 11:23:06
+  id_run: 4333
+  id_run_status: 60083
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2010-02-22 18:00:42
+  id_run: 4333
+  id_run_status: 60099
+  id_run_status_dict: 12
+  id_user: 7
+  iscurrent: 0
+- date: 2010-02-22 18:00:47
+  id_run: 4333
+  id_run_status: 60100
+  id_run_status_dict: 20
+  id_user: 7
+  iscurrent: 1
+- date: 2010-06-02 11:15:42
+  id_run: 4799
+  id_run_status: 64464
+  id_run_status_dict: 1
+  id_user: 8
+  iscurrent: 0
+- date: 2010-06-02 11:51:24
+  id_run: 4799
+  id_run_status: 64466
+  id_run_status_dict: 2
+  id_user: 7
+  iscurrent: 0
+- date: 2010-06-04 17:14:31
+  id_run: 4799
+  id_run_status: 64629
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2010-06-04 20:44:03
+  id_run: 4799
+  id_run_status: 64638
+  id_run_status_dict: 11
+  id_user: 7
+  iscurrent: 0
+- date: 2010-06-04 20:44:07
+  id_run: 4799
+  id_run_status: 64639
+  id_run_status_dict: 6
+  id_user: 7
+  iscurrent: 0
+- date: 2010-06-04 20:50:54
+  id_run: 4799
+  id_run_status: 64640
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2010-06-05 02:27:36
+  id_run: 4799
+  id_run_status: 64650
+  id_run_status_dict: 9
+  id_user: 7
+  iscurrent: 0
+- date: 2010-06-05 12:10:45
+  id_run: 4799
+  id_run_status: 64679
+  id_run_status_dict: 19
+  id_user: 7
+  iscurrent: 0
+- date: 2010-06-07 11:05:57
+  id_run: 4799
+  id_run_status: 64732
+  id_run_status_dict: 8
+  id_user: 12
+  iscurrent: 0
+- date: 2010-06-07 11:27:04
+  id_run: 4799
+  id_run_status: 64733
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2010-06-07 15:41:30
+  id_run: 4799
+  id_run_status: 64749
+  id_run_status_dict: 9
+  id_user: 7
+  iscurrent: 0
+- date: 2010-06-07 21:46:23
+  id_run: 4799
+  id_run_status: 64763
+  id_run_status_dict: 19
+  id_user: 7
+  iscurrent: 0
+- date: 2010-06-09 09:46:01
+  id_run: 4799
+  id_run_status: 64832
+  id_run_status_dict: 17
+  id_user: 8
+  iscurrent: 0
+- date: 2010-06-09 09:48:34
+  id_run: 4799
+  id_run_status: 64833
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2010-06-09 11:21:01
+  id_run: 4799
+  id_run_status: 64841
+  id_run_status_dict: 12
+  id_user: 7
+  iscurrent: 0
+- date: 2010-06-14 11:57:31
+  id_run: 4799
+  id_run_status: 65020
+  id_run_status_dict: 20
+  id_user: 7
+  iscurrent: 1
+- date: 2011-07-31 11:27:09
+  id_run: 6624
+  id_run_status: 86456
+  id_run_status_dict: 1
+  id_user: 12
+  iscurrent: 0
+- date: 2011-07-31 12:07:07
+  id_run: 6624
+  id_run_status: 86468
+  id_run_status_dict: 2
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-11 13:06:59
+  id_run: 6624
+  id_run_status: 87281
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-11 13:43:00
+  id_run: 6624
+  id_run_status: 87284
+  id_run_status_dict: 6
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-11 13:43:00
+  id_run: 6624
+  id_run_status: 87283
+  id_run_status_dict: 11
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-11 15:01:43
+  id_run: 6624
+  id_run_status: 87287
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-14 02:56:16
+  id_run: 6624
+  id_run_status: 87450
+  id_run_status_dict: 24
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-14 02:56:39
+  id_run: 6624
+  id_run_status: 87451
+  id_run_status_dict: 24
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-14 02:57:04
+  id_run: 6624
+  id_run_status: 87452
+  id_run_status_dict: 24
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-14 02:57:45
+  id_run: 6624
+  id_run_status: 87453
+  id_run_status_dict: 24
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-14 02:58:12
+  id_run: 6624
+  id_run_status: 87454
+  id_run_status_dict: 24
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-14 02:58:40
+  id_run: 6624
+  id_run_status: 87455
+  id_run_status_dict: 24
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-14 02:58:55
+  id_run: 6624
+  id_run_status: 87456
+  id_run_status_dict: 24
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-14 02:59:17
+  id_run: 6624
+  id_run_status: 87457
+  id_run_status_dict: 24
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-19 23:59:18
+  id_run: 6624
+  id_run_status: 87833
+  id_run_status_dict: 9
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-19 23:59:22
+  id_run: 6624
+  id_run_status: 87834
+  id_run_status_dict: 19
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-21 00:13:15
+  id_run: 6624
+  id_run_status: 87875
+  id_run_status_dict: 17
+  id_user: 13
+  iscurrent: 0
+- date: 2011-08-21 00:14:03
+  id_run: 6624
+  id_run_status: 87876
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-22 11:19:10
+  id_run: 6624
+  id_run_status: 87935
+  id_run_status_dict: 12
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-22 11:19:21
+  id_run: 6624
+  id_run_status: 87936
+  id_run_status_dict: 20
+  id_user: 7
+  iscurrent: 1
+- date: 2011-08-04 12:01:41
+  id_run: 6642
+  id_run_status: 86833
+  id_run_status_dict: 1
+  id_user: 13
+  iscurrent: 0
+- date: 2011-08-04 12:55:32
+  id_run: 6642
+  id_run_status: 86840
+  id_run_status_dict: 2
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-13 13:07:25
+  id_run: 6642
+  id_run_status: 87423
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-13 15:02:00
+  id_run: 6642
+  id_run_status: 87428
+  id_run_status_dict: 6
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-13 15:02:00
+  id_run: 6642
+  id_run_status: 87427
+  id_run_status_dict: 11
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-13 16:11:47
+  id_run: 6642
+  id_run_status: 87429
+  id_run_status_dict: 7
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-14 03:05:05
+  id_run: 6642
+  id_run_status: 87458
+  id_run_status_dict: 24
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-14 03:05:38
+  id_run: 6642
+  id_run_status: 87459
+  id_run_status_dict: 24
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-14 03:06:24
+  id_run: 6642
+  id_run_status: 87460
+  id_run_status_dict: 24
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-14 03:07:07
+  id_run: 6642
+  id_run_status: 87461
+  id_run_status_dict: 24
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-14 03:07:45
+  id_run: 6642
+  id_run_status: 87462
+  id_run_status_dict: 24
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-14 03:08:44
+  id_run: 6642
+  id_run_status: 87463
+  id_run_status_dict: 24
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-14 03:09:27
+  id_run: 6642
+  id_run_status: 87464
+  id_run_status_dict: 24
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-14 03:10:12
+  id_run: 6642
+  id_run_status: 87465
+  id_run_status_dict: 24
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-21 12:44:47
+  id_run: 6642
+  id_run_status: 87897
+  id_run_status_dict: 9
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-21 12:44:50
+  id_run: 6642
+  id_run_status: 87898
+  id_run_status_dict: 19
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-22 11:34:22
+  id_run: 6642
+  id_run_status: 87941
+  id_run_status_dict: 17
+  id_user: 11
+  iscurrent: 0
+- date: 2011-08-22 11:45:19
+  id_run: 6642
+  id_run_status: 87942
+  id_run_status_dict: 18
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-22 14:10:02
+  id_run: 6642
+  id_run_status: 87943
+  id_run_status_dict: 12
+  id_user: 7
+  iscurrent: 0
+- date: 2011-08-22 14:10:11
+  id_run: 6642
+  id_run_status: 87944
+  id_run_status_dict: 20
+  id_user: 7
+  iscurrent: 1

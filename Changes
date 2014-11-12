@@ -1,0 +1,15 @@
+LIST OF CHANGES
+
+release 37.0
+ - the following modules
+     npg_warehouse::loade::autoqc
+     npg_warehous::loade::npg
+     npg_warehous::loade::qc
+     npg_warehouse::loader::run_status
+   were moved to this package from the SVN data-handling package (release 36.7).
+ - npg_warehouse::loader::run_status module was changed to accomodate
+     loading run statuses to the multi-lims (ml) schema defined in WTSI::DNAP::Warehouse::Schema
+ - initial version of the module (npg_warehous::loade::run) for loading the analysis data to
+     the ml warehouse
+ - initial version of scripts for loading run statuses and analysis data to the ml warehouse
+ 
