@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 149;
+use Test::More tests => 148;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -27,20 +27,8 @@ my @basic_run_lane_columns = qw/cycles
                                 q40_yield_kb_forward_read
                                 q40_yield_kb_reverse_read/;
 
- my @columns =               qw/
-     insert_size_quartile1 
-     insert_size_quartile3 
-     insert_size_median
-     gc_percent_forward_read 
-     gc_percent_reverse_read
-     sequence_mismatch_percent_forward_read 
-     sequence_mismatch_percent_reverse_read
-     adapters_percent_forward_read 
-     adapters_percent_reverse_read
-     tags_decode_percent
-     tags_decode_cv
-                                   /;
-
+ my @columns = qw/tags_decode_percent
+                  tags_decode_cv/;
 
 use_ok('npg_warehouse::loader::run');
 throws_ok {npg_warehouse::loader::run->new()}
@@ -127,8 +115,6 @@ my $init = { _autoqc_store => $autoqc_store,
     push @found, $r->$column;
   }
   is_deeply(\@found, \@expected, 'run-lane data loaded correctly');
-  
-  ok (!$r->$LIMS_FK_COLUMN_NAME, 'lims fk not set');
 
   $r = $rs->next;
   is ($r->position, 2, 'result set for position 2');
@@ -224,30 +210,12 @@ my $init = { _autoqc_store => $autoqc_store,
     }
   }
 
-  $expected->{4333}->{4}->{insert_size_quartile1} = 172;
-  $expected->{4333}->{4}->{insert_size_quartile3} = 207;
-  $expected->{4333}->{4}->{insert_size_median}    = 189;
-  $expected->{4333}->{4}->{gc_percent_forward_read} = 44.89;
-  $expected->{4333}->{4}->{gc_percent_reverse_read} = 44.88;
-  $expected->{4333}->{4}->{sequence_mismatch_percent_forward_read} = 0.31;
-  $expected->{4333}->{4}->{sequence_mismatch_percent_reverse_read} = 0.50;
-  $expected->{4333}->{4}->{adapters_percent_forward_read} = 0.03;
-  $expected->{4333}->{4}->{adapters_percent_reverse_read} = 0.02;
   $expected->{4333}->{4}->{tags_decode_percent} = undef;
   $expected->{4333}->{4}->{tags_decode_cv} = undef;
-
-  $expected->{4333}->{1}->{gc_percent_forward_read} = 45.29;
-  $expected->{4333}->{1}->{gc_percent_reverse_read} = 45.18;
-  $expected->{4333}->{1}->{adapters_percent_forward_read} = 31.99;
-  $expected->{4333}->{1}->{adapters_percent_reverse_read} = 25.93;
   $expected->{4333}->{1}->{tags_decode_percent} = 99.29;
   $expected->{4333}->{1}->{tags_decode_cv} = 55.1;
-
-  $expected->{4333}->{8}->{insert_size_quartile3} = 207;
-  $expected->{4333}->{8}->{insert_size_median}    = 189;
   $expected->{4333}->{8}->{tags_decode_percent} =81.94;
   $expected->{4333}->{8}->{tags_decode_cv} =122.4;
-  #the third quartile has been skipped - the value is too large
  
   my $autoqc = {};
   while (my $row = $rs->next) {
@@ -343,16 +311,7 @@ my $init = { _autoqc_store => $autoqc_store,
   );
   is ($rs->count, 2, '2 product rows');
   
-  my @acolumns = @columns;
-  pop @acolumns;
-  pop @acolumns;
-
-  foreach my $ycolumn (qw/ q20_yield_kb_forward_read q20_yield_kb_reverse_read
-                           ref_match1_name ref_match1_percent
-                           ref_match2_name ref_match2_percent /) {
-    push @acolumns, $ycolumn;
-  }
-  
+  my @acolumns = qw/ q20_yield_kb_forward_read q20_yield_kb_reverse_read /;
   my $found = {}; 
   while (my $row = $rs->next) {
     foreach my $column (@acolumns) {
@@ -360,36 +319,10 @@ my $init = { _autoqc_store => $autoqc_store,
     }
   }
   my $e = {};
-  $e->{1}->{insert_size_quartile1} = undef;
-  $e->{1}->{insert_size_quartile3} = undef;
-  $e->{1}->{insert_size_median} = undef;
-  $e->{1}->{gc_percent_forward_read} = 45.29;
-  $e->{1}->{gc_percent_reverse_read} = 45.18;
-  $e->{1}->{sequence_mismatch_percent_forward_read} = undef;
-  $e->{1}->{sequence_mismatch_percent_reverse_read} = undef;
-  $e->{1}->{adapters_percent_forward_read} = 31.99;
-  $e->{1}->{adapters_percent_reverse_read} = 25.93;
   $e->{1}->{q20_yield_kb_forward_read} = 46671;
   $e->{1}->{q20_yield_kb_reverse_read} = 39877;
-  $e->{4}->{insert_size_quartile1} = 172;
-  $e->{4}->{insert_size_quartile3} = 207;
-  $e->{4}->{insert_size_median} = 189;
-  $e->{4}->{gc_percent_forward_read} = 44.89;
-  $e->{4}->{gc_percent_reverse_read} = 44.88;
-  $e->{4}->{sequence_mismatch_percent_forward_read} = 0.31;
-  $e->{4}->{sequence_mismatch_percent_reverse_read} = 0.5;
-  $e->{4}->{adapters_percent_forward_read} = 0.03;
-  $e->{4}->{adapters_percent_reverse_read} = 0.02;
   $e->{4}->{q20_yield_kb_forward_read} = 1455655;
   $e->{4}->{q20_yield_kb_reverse_read} = 1393269;
-  $e->{1}->{ref_match1_name} = q[Homo sapiens 1000Genomes];
-  $e->{1}->{ref_match1_percent} = 95.7;
-  $e->{1}->{ref_match2_name} = q[Gorilla gorilla gorilla];
-  $e->{1}->{ref_match2_percent} = 85.2;
-  $e->{4}->{ref_match1_name} = q[Homo sapiens 1000Genomes];
-  $e->{4}->{ref_match1_percent} = 97.2;
-  $e->{4}->{ref_match2_name} = q[Gorilla gorilla gorilla];
-  $e->{4}->{ref_match2_percent} = 87.2;
  
   is_deeply ($found, $e, 'lane product autoqc results');  
 }

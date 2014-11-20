@@ -481,15 +481,15 @@ sub _add_lims_fk {
 
   my @types = keys %{ $self->_flowcell_table_fks->{$position} };
 
-  if ($table eq 'IseqRunLaneMetric' || !$values->{'tag_index'} ) {
+  if (!defined $values->{'tag_index'} ) {
 
-    @types = grep { $_ =~ /^library|pool|library_control$/xms } @types;
-    if (scalar @types > 1) {
+    my @lane_types = grep { $_ =~ /^library|library_control$/xms } @types;
+    if (scalar @lane_types > 1) {
       croak q[Lane cannot be all at once: ] . join q[, ], @types;
     }
     $pk = $self->_flowcell_table_fks->{$position}->{$types[0]};
 
-    if ($table eq 'IseqProductMetric' && ($types[0] eq q[pool])) {
+    if (!@lane_types) {
       my @samples = keys %{$self->_flowcell_table_fks->{$position}->{'library_indexed'}};
       if (scalar @samples == 1) { # One-sample pool,
                                   # which we processed as a library
@@ -500,7 +500,7 @@ sub _add_lims_fk {
   } else {
 
     $pk = $self->_flowcell_table_fks->{$position}->{'library_indexed'}->{$pt_key};
-    if (!$pk) { # CHECK THIS LOGIC
+    if (!$pk) {
       $pk = $self->_flowcell_table_fks->{$position}->{'library_indexed_spiked'}->{$pt_key};
       if (!$pk && $values->{'tag_index'} == $SPIKE_FALLBACK_TAG_INDEX) {
         my @spikes = keys %{$self->_flowcell_table_fks->{$position}->{'library_indexed_spiked'}};
@@ -573,13 +573,8 @@ sub _load_table {
       next;
     }
 
-    if ($self->_have_flowcell_table_fks) {
-      my $row = $rs->find();
-      if (!$row || !$row->$LIMS_FK_COLUMN_NAME) { # If the record does not exist
-                                                  # or the fk is NULL try to get
-                                                  # the value for the fk.
-        $self->_add_lims_fk($table, $row);
-      }
+    if (($table eq $PRODUCT_TABLE_NAME) && $self->_have_flowcell_table_fks) {
+      $self->_add_lims_fk($row);
     }
     $rs->update_or_create($row);
     $count++;
