@@ -70,6 +70,20 @@ sub run_is_paired_read {
     return $is_paired_read;
 }
 
+=head2 run_is_indexed
+
+Returns 1 if this run is indexed, 0 otherwise.
+
+=cut
+sub run_is_indexed {
+    my $self = shift;
+    my $count =  $self->schema_npg->resultset('TagRun')->search(
+        { 'me.id_run' => $self->id_run, 'tag.tag' => 'multiplex', },
+        { prefetch => 'tag',},
+    )->count;
+    return $count > 0 ? 1 : 0;
+}
+
 =head2 dates
 
 Returns dates for run pending run complete and qc complete
