@@ -59,17 +59,6 @@ has 'verbose'      => ( isa        => 'Bool',
                         default    => 0,
 );
 
-=head2 reload_product_data
-
-Boolean flag, true by default. If true, existing product rows are dropped.
-
-=cut
-has 'reload_product_data' => ( isa        => 'Bool',
-                               is         => 'ro',
-                               required   => 0,
-                               default    => 1,
-);
-
 =head2 _schema_wh
 
 DBIx schema object for the warehouse database
@@ -118,18 +107,25 @@ has '_flowcell_table_fks' => ( isa        => 'HashRef',
 sub _build__flowcell_table_fks {
   my $self = shift;
   my $lane = $self->_run_lane_rs->[0];
-  my $lims_id = $lane->run->batch_id;
-  my $query = {};
-  if (!$lims_id) {
-    $lims_id = $lane->run->flowcell_id;
-    $query = {'flowcell_barcode' => $lims_id,};
-  } else {
-    $query = {'id_flowcell_lims' => $lims_id,};
-  }
+  my $batch_id_query = $lane->run->batch_id    ? {'id_flowcell_lims' => $lane->run->batch_id,}    :undef;
+  my $barcode_query  = $lane->run->flowcell_id ? {'flowcell_barcode' => $lane->run->flowcell_id,} : undef;
 
   my $fks = {};
-  if ($lims_id) {
-    my $rs = $self->_schema_wh->resultset($FLOWCELL_LIMS_TABLE_NAME)->search($query);
+  if (!$batch_id_query && !$barcode_query) {
+    if ($self->verbose) {
+      warn q[Tracking database has no flowcell information for run ] . $self->id_run . qq[\n];
+    }
+    return $fks;
+  }
+
+  my $rs;
+  if ($batch_id_query) { #barcodes might not be reliable in Sequencescape
+    $rs = $self->_schema_wh->resultset($FLOWCELL_LIMS_TABLE_NAME)->search($batch_id_query);
+  }
+  if ((!$rs || $rs->count == 0) && $barcode_query) {
+    $rs = $self->_schema_wh->resultset($FLOWCELL_LIMS_TABLE_NAME)->search($barcode_query);
+  }
+  if ($rs && $rs->count) {
     while (my $row = $rs->next()) {
       my $entity_type = $row->entity_type;
       my $position    = $row->position;
@@ -137,29 +133,14 @@ sub _build__flowcell_table_fks {
       if (exists $fks->{$position}->{$entity_type}->{$pt_key}) {
         croak qq[Entry for $entity_type, $pt_key already exists];
       }
-      $fks->{$entity_type}->{$pt_key} = $row->$LIMS_FK_COLUMN_NAME;
+      $fks->{$position}->{$entity_type}->{$pt_key} = $row->$LIMS_FK_COLUMN_NAME;
     }
   } else {
     if ($self->verbose) {
-      warn q[Tracking database has no lims information for run ] . $self->id_run . qq[\n];
+      warn q[Flowcell lims table has no information for run ] . $self->id_run . qq[\n];
     }
   }
-
-  if ($lims_id && (scalar keys %{$fks} == 0) & $self->verbose) {
-    warn qq[No lims information for flowcell $lims_id\n];
-  }
-
   return $fks;
-}
-
-has '_have_flowcell_table_fks' => ( isa        => 'Bool',
-                                    is         => 'ro',
-                                    required   => 0,
-                                    lazy_build => 1,
-);
-sub _build__have_flowcell_table_fks {
-  my $self = shift;
-  return scalar keys %{$self->_flowcell_table_fks} ? 1 : 0;
 }
 
 =head2 _schema_npg
@@ -449,11 +430,8 @@ sub _lane_is_indexed {
 }
 
 sub _pt_key {
-  my @pt = @_;
-  if (scalar @pt == 2 && !defined $pt[1]) {
-    pop @pt;
-  }
-  return join q[:], @pt;
+  my ($p, $t) = @_;
+  return defined $t ? join(q[:], $p, $t) : $p;
 }
 
 sub _copy_plex_values {
@@ -473,28 +451,34 @@ sub _copy_plex_values {
 }
 
 sub _add_lims_fk {
-  my ($self, $table, $values) = @_;
+  my ($self, $values) = @_;
 
   my $position = $values->{'position'};
+
+  my @types = exists $self->_flowcell_table_fks->{$position} ?
+    keys %{ $self->_flowcell_table_fks->{$position} } : ();
+  if (!@types) {
+    return;
+  }
+
   my $pt_key = _pt_key($position, $values->{'tag_index'});
   my $pk;
 
-  my @types = keys %{ $self->_flowcell_table_fks->{$position} };
-
   if (!defined $values->{'tag_index'} ) {
 
-    my @lane_types = grep { $_ =~ /^library|library_control$/xms } @types;
+    my @lane_types = grep { $_ =~ /^(?:library|library_control)$/xms } @types;
     if (scalar @lane_types > 1) {
-      croak q[Lane cannot be all at once: ] . join q[, ], @types;
+      croak q[Lane cannot be both ] . join q[ and  ], @types;
     }
-    $pk = $self->_flowcell_table_fks->{$position}->{$types[0]};
 
     if (!@lane_types) {
-      my @samples = keys %{$self->_flowcell_table_fks->{$position}->{'library_indexed'}};
-      if (scalar @samples == 1) { # One-sample pool,
+      my @plexes = keys %{$self->_flowcell_table_fks->{$position}->{'library_indexed'}};
+      if (scalar @plexes == 1) {  # one-sample pool,
                                   # which we processed as a library
-        $pk = $self->_flowcell_table_fks->{$position}->{'library_indexed'}->{$samples[0]};
+        $pk = $self->_flowcell_table_fks->{$position}->{'library_indexed'}->{$plexes[0]};
       }
+    } else {
+      $pk = $self->_flowcell_table_fks->{$position}->{$lane_types[0]}->{$pt_key};
     }
 
   } else {
@@ -551,7 +535,7 @@ sub _load_table {
 
   my $rs = $self->_schema_wh->resultset($table);
 
-  if ($self->reload_product_data && $table eq $PRODUCT_TABLE_NAME) {
+  if ($table eq $PRODUCT_TABLE_NAME) {
     $rs->search({'id_run' => $self->id_run,})->delete();
   }
 
@@ -573,10 +557,12 @@ sub _load_table {
       next;
     }
 
-    if (($table eq $PRODUCT_TABLE_NAME) && $self->_have_flowcell_table_fks) {
+    if ($table eq $PRODUCT_TABLE_NAME) {
       $self->_add_lims_fk($row);
+      $rs->create($row);
+    } else {
+      $rs->update_or_create($row);
     }
-    $rs->update_or_create($row);
     $count++;
   }
 
