@@ -1,0 +1,716 @@
+---
+- accession_number: ERS013342
+  cohort: ~
+  common_name: Burkholderia pseudomallei
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2010-07-26 14:56:52
+  deleted_at: ~
+  description: ''
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 254193
+  id_sample_tmp: 252329
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: 619s001
+  organism: Burkholderia pseudomallei
+  public_name: ATCC15682
+  recorded_at: 2014-11-18 13:06:19
+  reference_genome: ' '
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: ATCC15682
+  supplier_name: ~
+  taxon_id: 28450
+  uuid_sample_lims: 1788c8d0-6a6c-11e4-8e19-68b59977951c
+- accession_number: ERS013343
+  cohort: ~
+  common_name: Burkholderia pseudomallei
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2010-07-26 14:56:52
+  deleted_at: ~
+  description: ''
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 254194
+  id_sample_tmp: 252330
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: 619s002
+  organism: Burkholderia pseudomallei
+  public_name: P6
+  recorded_at: 2014-11-18 13:06:19
+  reference_genome: ' '
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: P6
+  supplier_name: ~
+  taxon_id: 28450
+  uuid_sample_lims: 178df8f0-6a6c-11e4-8e19-68b59977951c
+- accession_number: ERS013344
+  cohort: ~
+  common_name: Burkholderia pseudomallei
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2010-07-26 14:56:53
+  deleted_at: ~
+  description: ''
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 254195
+  id_sample_tmp: 252331
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: 619s003
+  organism: Burkholderia pseudomallei
+  public_name: ATCC23343
+  recorded_at: 2014-11-18 13:06:19
+  reference_genome: ' '
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: ATCC23343
+  supplier_name: ~
+  taxon_id: 28450
+  uuid_sample_lims: 17939e40-6a6c-11e4-8e19-68b59977951c
+- accession_number: ERS013345
+  cohort: ~
+  common_name: Burkholderia pseudomallei
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2010-07-26 14:56:53
+  deleted_at: ~
+  description: ''
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 254196
+  id_sample_tmp: 252332
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: 619s004
+  organism: Burkholderia pseudomallei
+  public_name: EY1
+  recorded_at: 2014-11-18 13:06:19
+  reference_genome: ' '
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: EY1
+  supplier_name: ~
+  taxon_id: 28450
+  uuid_sample_lims: 1798ce60-6a6c-11e4-8e19-68b59977951c
+- accession_number: ERS013346
+  cohort: ~
+  common_name: Burkholderia pseudomallei
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2010-07-26 14:56:53
+  deleted_at: ~
+  description: ''
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 254197
+  id_sample_tmp: 252333
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: 619s005
+  organism: Burkholderia pseudomallei
+  public_name: EY2
+  recorded_at: 2014-11-18 13:06:19
+  reference_genome: ' '
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: EY2
+  supplier_name: ~
+  taxon_id: 28450
+  uuid_sample_lims: 179dfe80-6a6c-11e4-8e19-68b59977951c
+- accession_number: ERS013347
+  cohort: ~
+  common_name: Burkholderia pseudomallei
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2010-07-26 14:56:53
+  deleted_at: ~
+  description: ''
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 254198
+  id_sample_tmp: 252334
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: 619s006
+  organism: Burkholderia pseudomallei
+  public_name: EY3
+  recorded_at: 2014-11-18 13:06:19
+  reference_genome: ' '
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: EY3
+  supplier_name: ~
+  taxon_id: 28450
+  uuid_sample_lims: 17a32ea0-6a6c-11e4-8e19-68b59977951c
+- accession_number: ERS013348
+  cohort: ~
+  common_name: Burkholderia pseudomallei
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2010-07-26 14:56:54
+  deleted_at: ~
+  description: ''
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 254199
+  id_sample_tmp: 252335
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: 619s007
+  organism: Burkholderia pseudomallei
+  public_name: EY4
+  recorded_at: 2014-11-18 13:06:19
+  reference_genome: ' '
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: EY4
+  supplier_name: ~
+  taxon_id: 28450
+  uuid_sample_lims: 17a85ec0-6a6c-11e4-8e19-68b59977951c
+- accession_number: ERS013349
+  cohort: ~
+  common_name: Burkholderia pseudomallei
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2010-07-26 14:56:54
+  deleted_at: ~
+  description: ''
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 254200
+  id_sample_tmp: 252336
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: 619s008
+  organism: Burkholderia pseudomallei
+  public_name: EY5
+  recorded_at: 2014-11-18 13:06:19
+  reference_genome: ' '
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: EY5
+  supplier_name: ~
+  taxon_id: 28450
+  uuid_sample_lims: 17ad67d0-6a6c-11e4-8e19-68b59977951c
+- accession_number: ERS013350
+  cohort: ~
+  common_name: Burkholderia pseudomallei
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2010-07-26 14:56:54
+  deleted_at: ~
+  description: ''
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 254201
+  id_sample_tmp: 252337
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: 619s009
+  organism: Burkholderia pseudomallei
+  public_name: EY6
+  recorded_at: 2014-11-18 13:06:19
+  reference_genome: ' '
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: EY6
+  supplier_name: ~
+  taxon_id: 28450
+  uuid_sample_lims: 17b297f0-6a6c-11e4-8e19-68b59977951c
+- accession_number: ERS013351
+  cohort: ~
+  common_name: Burkholderia pseudomallei
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2010-07-26 14:56:54
+  deleted_at: ~
+  description: ''
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 254202
+  id_sample_tmp: 252338
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: 619s010
+  organism: Burkholderia pseudomallei
+  public_name: EY7
+  recorded_at: 2014-11-18 13:06:19
+  reference_genome: ' '
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: EY7
+  supplier_name: ~
+  taxon_id: 28450
+  uuid_sample_lims: 17b7c810-6a6c-11e4-8e19-68b59977951c
+- accession_number: ~
+  cohort: ~
+  common_name: ~
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2011-08-06 14:24:41
+  deleted_at: ~
+  description: ~
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 1255141
+  id_sample_tmp: 1234191
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: phiX_for_spiked_buffers
+  organism: ~
+  public_name: ~
+  recorded_at: 2014-11-18 22:38:57
+  reference_genome: ' '
+  replicate: ~
+  sample_visibility: ~
+  sanger_sample_id: ~
+  strain: ~
+  supplier_name: ~
+  taxon_id: ~
+  uuid_sample_lims: af021930-6f73-11e4-a268-68b59977951c
+- accession_number: ERS067015
+  cohort: ~
+  common_name: Burkholderia pseudomallei
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2011-10-14 12:16:14
+  deleted_at: ~
+  description: ~
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: Not Applicable
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 1289483
+  id_sample_tmp: 1268205
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: 3921g
+  organism: Burkholderia pseudomallei
+  public_name: ~
+  recorded_at: 2014-11-18 22:58:45
+  reference_genome: ' '
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: ~
+  supplier_name: ~
+  taxon_id: 28450
+  uuid_sample_lims: 72e87ae0-6f76-11e4-a268-68b59977951c
+- accession_number: EGAN00001029408
+  cohort: ~
+  common_name: Homo sapiens
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2011-10-19 11:14:48
+  deleted_at: ~
+  description: ~
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 1290093
+  id_sample_tmp: 1268815
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: PD7354k_wg
+  organism: Human
+  public_name: PD7354k
+  recorded_at: 2014-11-18 22:59:06
+  reference_genome: Homo_sapiens (CGP_GRCh37.NCBI.allchr_MT)
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: ~
+  supplier_name: ~
+  taxon_id: 9606
+  uuid_sample_lims: 7f54b780-6f76-11e4-a268-68b59977951c
+- accession_number: EGAN00001029409
+  cohort: ~
+  common_name: Homo sapiens
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2011-10-19 11:14:49
+  deleted_at: ~
+  description: ~
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 1290094
+  id_sample_tmp: 1268816
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: PD7354r_wg
+  organism: Human
+  public_name: PD7354r
+  recorded_at: 2014-11-18 22:59:06
+  reference_genome: Homo_sapiens (CGP_GRCh37.NCBI.allchr_MT)
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: ~
+  supplier_name: ~
+  taxon_id: 9606
+  uuid_sample_lims: 7f599980-6f76-11e4-a268-68b59977951c
+- accession_number: EGAN00001029410
+  cohort: ~
+  common_name: Homo sapiens
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2011-10-19 11:14:49
+  deleted_at: ~
+  description: ~
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 1290095
+  id_sample_tmp: 1268817
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: PD7355a_wg
+  organism: Human
+  public_name: PD7355a
+  recorded_at: 2014-11-18 22:59:06
+  reference_genome: Homo_sapiens (CGP_GRCh37.NCBI.allchr_MT)
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: ~
+  supplier_name: ~
+  taxon_id: 9606
+  uuid_sample_lims: 7f5f3ed0-6f76-11e4-a268-68b59977951c
+- accession_number: EGAN00001029411
+  cohort: ~
+  common_name: Homo sapiens
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2011-10-19 11:14:49
+  deleted_at: ~
+  description: ~
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 1290096
+  id_sample_tmp: 1268818
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: PD7355f_wg
+  organism: Human
+  public_name: PD7355f
+  recorded_at: 2014-11-18 22:59:06
+  reference_genome: Homo_sapiens (CGP_GRCh37.NCBI.allchr_MT)
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: ~
+  supplier_name: ~
+  taxon_id: 9606
+  uuid_sample_lims: 7f63f9c0-6f76-11e4-a268-68b59977951c
+- accession_number: EGAN00001029412
+  cohort: ~
+  common_name: Homo sapiens
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2011-10-19 11:14:49
+  deleted_at: ~
+  description: ~
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 1290097
+  id_sample_tmp: 1268819
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: PD7356c_wg
+  organism: Human
+  public_name: PD7356c
+  recorded_at: 2014-11-18 22:59:06
+  reference_genome: Homo_sapiens (CGP_GRCh37.NCBI.allchr_MT)
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: ~
+  supplier_name: ~
+  taxon_id: 9606
+  uuid_sample_lims: 7f6902d0-6f76-11e4-a268-68b59977951c
+- accession_number: EGAN00001029413
+  cohort: ~
+  common_name: Homo sapiens
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2011-10-19 11:14:50
+  deleted_at: ~
+  description: ~
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 1290098
+  id_sample_tmp: 1268820
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: PD7356f_wg
+  organism: Human
+  public_name: PD7356f
+  recorded_at: 2014-11-18 22:59:06
+  reference_genome: Homo_sapiens (CGP_GRCh37.NCBI.allchr_MT)
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: ~
+  supplier_name: ~
+  taxon_id: 9606
+  uuid_sample_lims: 7f6de4d0-6f76-11e4-a268-68b59977951c
+- accession_number: EGAN00001029414
+  cohort: ~
+  common_name: Homo sapiens
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2011-10-19 11:14:50
+  deleted_at: ~
+  description: ~
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 1290099
+  id_sample_tmp: 1268821
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: PD7356i_wg
+  organism: Human
+  public_name: PD7356i
+  recorded_at: 2014-11-18 22:59:06
+  reference_genome: Homo_sapiens (CGP_GRCh37.NCBI.allchr_MT)
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: ~
+  supplier_name: ~
+  taxon_id: 9606
+  uuid_sample_lims: 7f729fc0-6f76-11e4-a268-68b59977951c
+
+- accession_number: ERS002257
+  cohort: ~
+  common_name: Staphylococcus aureus
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2009-08-20 11:47:30
+  deleted_at: ~
+  description: ~
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 8164
+  id_sample_tmp: 7138
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: 0601552
+  organism: S aureus
+  public_name: 601552
+  recorded_at: 2014-11-18 11:12:15
+  reference_genome: ' '
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: "601552\n"
+  supplier_name: ~
+  taxon_id: 1280
+  uuid_sample_lims: 11a7d160-6a56-11e4-8e19-68b59977951c
+- accession_number: ERS002270
+  cohort: ~
+  common_name: Staphylococcus aureus
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2009-08-20 11:49:07
+  deleted_at: ~
+  description: ~
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 8177
+  id_sample_tmp: 7151
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: 0301478
+  organism: S aureus
+  public_name: 301478
+  recorded_at: 2014-11-18 11:12:15
+  reference_genome: ' '
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: "301478\n"
+  supplier_name: ~
+  taxon_id: 1280
+  uuid_sample_lims: 11f4b8e0-6a56-11e4-8e19-68b59977951c
+- accession_number: ERS005109
+  cohort: ~
+  common_name: Plasmodium falciparum 3D7
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2009-08-20 13:51:37
+  deleted_at: ~
+  description: ~
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 8180
+  id_sample_tmp: 7154
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: H3K9me3-5
+  organism: Plasmodium falciparum
+  public_name: ~
+  recorded_at: 2014-11-18 11:12:15
+  reference_genome: ' '
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: 3D7
+  supplier_name: ~
+  taxon_id: 36329
+  uuid_sample_lims: 1204e580-6a56-11e4-8e19-68b59977951c
+- accession_number: ERS003256
+  cohort: ~
+  common_name: Mouse tumour transposon PB
+  consent_withdrawn: 0
+  control: ~
+  country_of_origin: ~
+  created: 2010-01-29 09:56:01
+  deleted_at: ~
+  description: ~
+  donor_id: ~
+  ethnicity: ~
+  father: ~
+  gender: ~
+  geographical_region: ~
+  id_lims: SQSCP
+  id_sample_lims: 11094
+  id_sample_tmp: 9836
+  last_updated: 2012-08-03 10:07:02
+  mother: ~
+  name: Roland5-3
+  organism: Mus musculus
+  public_name: Mouse
+  recorded_at: 2014-11-18 11:13:36
+  reference_genome: Mus_musculus (NCBIm37)
+  replicate: ~
+  sample_visibility: Hold
+  sanger_sample_id: ~
+  strain: ~
+  supplier_name: ~
+  taxon_id: 10092
+  uuid_sample_lims: 5789d520-6a56-11e4-8e19-68b59977951c
+

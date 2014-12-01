@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 142;
+use Test::More tests => 224;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -40,8 +40,8 @@ my $util = Moose::Meta::Class->create_anon_class(
 
 my ($schema_npg, $schema_qc, $schema_wh);
 
-lives_ok{ $schema_wh  = $util->create_test_db(q[WTSI::DNAP::Warehouse::Schema]) }
-  'npgqc test db created';
+lives_ok{ $schema_wh  = $util->create_test_db(q[WTSI::DNAP::Warehouse::Schema],
+  q[t/data/fixtures/wh]) } 'warehouse test db created';
 lives_ok{ $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
   q[t/data/fixtures/npg]) } 'npg test db created';
 lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
@@ -426,6 +426,151 @@ my $init = { _autoqc_store => $autoqc_store,
   cmp_ok(sprintf('%.2f',$plex->num_reads()), q(==), 138756624, 'bam (nonhuman) number of reads');
   cmp_ok(sprintf('%.2f',$plex->percent_mapped()), q(==), 96.3, 'bam (nonhuman) mapped percent');
   cmp_ok(sprintf('%.2f',$plex->percent_duplicate()), q(==), 6.34, 'bam (nonhuman) duplicate percent');
+}
+
+{
+  $schema_wh->resultset('IseqFlowcell')->find({id_flowcell_lims=>14178, position=>6, tag_index=>168})
+   ->update({entity_type => 'library_indexed' });
+  is ($schema_wh->resultset('IseqFlowcell')->find({id_flowcell_lims=>14178, position=>6, tag_index=>168})->entity_type,
+      'library_indexed',
+      'lane 6: set spiked phix as usual indexed library - test prerequisite');
+  my $id_run = 6998;
+  my %in = %{$init};
+  $in{'id_run'} = $id_run;
+  $in{'_autoqc_store'} = npg_qc::autoqc::qc_store->new(use_db => 1, qc_schema => $schema_qc, verbose => 0);
+  my $loader  = npg_warehouse::loader::run->new(\%in);
+  $loader->load();
+  my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => $id_run},);
+  is($rs->count, 8, '8 rows in run-lane table');
+
+  foreach my $lane ((2,6)){
+    ok (!$loader->_lane_is_indexed($lane), "lane $lane is not indexed");
+  }
+  foreach my $lane ((1,3,4,5,7,8)){
+    ok ($loader->_lane_is_indexed($lane), "lane $lane is indexed");
+  }
+
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run},);
+  is ($rs->count, 30, '30 rows in product table');
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run,tag_index=>undef},);
+  is ( join(q[ ], sort map {$_->position} $rs->all), '2 6', 'lane-level rows for lane 2 and 6');
+  
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run,position => 2}, {fetch => 'iseq_flowcell'});
+  is ($rs->count, 1, 'one product record for lane 2');
+  my $row = $rs->next;
+  is ($row->id_iseq_flowcell_tmp, 93508, 'flowcell fk set');
+  my $fc = $row->iseq_flowcell;
+  is (ref $fc, 'WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell', 'retrieved flowcell row');
+  is ($fc->pipeline_id_lims, 'No PCR', 'Sequencescape library type');
+  is ($fc->id_lims, 'SQSCP', 'this is Sequencescape record');
+  is ($fc->id_flowcell_lims, 14178, 'batch id correct');
+  is ($fc->position, 2, 'position correct');
+  is ($fc->tag_index, 154, 'lane data linked to the only target library');
+  is ($fc->entity_type, 'library_indexed', 'non-spiked library');
+  
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run,position => 6});
+  is ($rs->count, 1, 'one product record for lane 6');
+  ok (!defined $rs->next->id_iseq_flowcell_tmp,
+    'flowcell fk not set since the flowcell table reports two none-spiked libraries');
+  
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+        {id_run   => $id_run, position => 3},
+        {order_by => 'tag_index',
+         fetch    => 'iseq_flowcell'});
+  is ($rs->count, 3, 'three product records for lane 3');
+  $row = $rs->next;
+  is ($row->tag_index, 0, 'tag zero row present');
+  ok (!defined $row->id_iseq_flowcell_tmp, 'row not linked to the flowcell table');
+  $row = $rs->next;
+  is ($row->tag_index, 153, 'tag 153 row present');
+  ok ($row->id_iseq_flowcell_tmp, 'row is linked to the flowcell table');
+  $fc = $row->iseq_flowcell;
+  is (ref $fc, 'WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell', 'retrieved flowcell row');
+  is ($fc->position, 3, 'position correct');
+  is ($fc->tag_index, 153, 'tag_index correct');  
+  is ($fc->entity_type, 'library_indexed', 'non-spiked library');
+  ok ($fc->is_spiked, 'library is spiked');
+  $row = $rs->next;
+  is ($row->tag_index, 168, 'tag 168 row present');
+  ok ($row->id_iseq_flowcell_tmp, 'row is linked to the flowcell table');
+  $fc = $row->iseq_flowcell;
+  is (ref $fc, 'WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell', 'retrieved flowcell row');
+  is ($fc->position, 3, 'position correct');
+  is ($fc->tag_index, 168, 'tag_index correct');
+  is ($fc->entity_type, 'library_indexed_spike', 'this is a spike');
+  ok ($fc->is_spiked, 'library is not spiked');
+
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+        {id_run   => $id_run, position => 4},
+        {order_by => 'tag_index',
+         fetch    => 'iseq_flowcell'});
+  is ($rs->count, 3, 'three product records for lane 3');
+  $row = $rs->next;
+  is ($row->tag_index, 0, 'tag zero row present');
+  ok (!defined $row->id_iseq_flowcell_tmp, 'row not linked to the flowcell table');
+  $row = $rs->next;
+  is ($row->tag_index, 152, 'tag 152 row present');
+  ok ($row->id_iseq_flowcell_tmp, 'row is linked to the flowcell table');
+  $row = $rs->next;
+  is ($row->tag_index, 888, 'tag 888 row present - test prerequisite');
+  ok ($row->id_iseq_flowcell_tmp, 'row is linked to the flowcell table');
+  $fc = $row->iseq_flowcell;
+  is (ref $fc, 'WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell', 'retrieved flowcell row');
+  is ($fc->position, 4, 'position correct');
+  is ($fc->tag_index, 168, 'tag_index correct');
+  is ($fc->entity_type, 'library_indexed_spike', 'this is a spike');
+} 
+
+{
+  my $id_run = 4486;
+  my %in = %{$init};
+  $in{'id_run'} = $id_run;
+  $in{'_autoqc_store'} = npg_qc::autoqc::qc_store->new(use_db => 1, qc_schema => $schema_qc, verbose => 0);
+  my $loader  = npg_warehouse::loader::run->new(\%in);
+  warning_like { $loader->load() }
+    qr/Run 4486: multiple flowcell table records for library, pt key 1/,
+    'warning about duplicate entries';
+  my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => $id_run},);
+  is($rs->count, 8, '8 rows in run-lane table');
+
+  foreach my $lane ((1 .. 8)){
+    ok (!$loader->_lane_is_indexed($lane), "lane $lane is not indexed");
+  }
+
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run},
+                 {order_by => 'position', fetch => 'iseq_flowcell'});
+  is ($rs->count, 8, '8 rows in product table');
+  my @rows = $rs->all();
+  is (scalar(grep {defined $_->tag_index} @rows), 0, 'none of the rows has tag_index set');
+  is (scalar(grep {defined $_->id_iseq_flowcell_tmp} @rows), 6, 'six rows are linked to the flowcell table');
+  is (join(q[ ], map {$_->position} @rows), '1 2 3 4 5 6 7 8', 'all lanes are represented');
+
+  my $row = $rows[3];
+  is ($row->position, 4, 'control lane present');
+  my $fc = $row->iseq_flowcell;
+  is (ref $fc, 'WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell', 'retrieved flowcell row');
+  is ($fc->id_flowcell_lims, 5992, 'batch id correct');
+  is ($fc->position, 4, 'position correct');
+  ok (!defined $fc->tag_index, 'tag_index not defined');
+  is ($fc->entity_type, 'library_control', 'this is a control');
+
+  $row = $rows[1];
+  is ($row->position, 2, 'lane two present');
+  $fc = $row->iseq_flowcell;
+  is (ref $fc, 'WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell', 'retrieved flowcell row');
+  is ($fc->id_flowcell_lims, 5992, 'batch id correct');
+  is ($fc->position, 2, 'position correct');
+  ok (!defined $fc->tag_index, 'tag_index not defined');
+  is ($fc->entity_type, 'library', 'this is a library');
+
+  $row = $rows[0];
+  is ($row->position, 1, 'lane one present');
+  ok(!defined $row->$LIMS_FK_COLUMN_NAME, 'lane 1 is duplicated in the flowcell table; foreign key for the flowcell table is absent');
+  ok (!$row->iseq_flowcell, 'related object does not exist');
+
+  $row = $rows[4];
+  is ($row->position, 5, 'lane five present');
+  ok(!defined $row->$LIMS_FK_COLUMN_NAME, 'lane 5 is not in the flowcell table; foreign key for the flowcell table is absent');
 }
 
 1;

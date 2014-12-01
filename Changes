@@ -1,9 +1,13 @@
 LIST OF CHANGES
 
-release 37.1
+release 37.2
  - loader changes resulting from dropping most of autoqc columns from the run lane metrics
    and removing from this table a foreign key into the flowcell table
  - give preference to batch_id when linking to the flowcell table
+ - add explain flag for logging problems linking to tle flowcell table
+ - link as much data as possible for a flowcell with duplicate entries
+
+release 37.1
  - add run_is_indexed method to npg tracking data source
 
 release 37.0

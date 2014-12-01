@@ -15,11 +15,13 @@ use npg_warehouse::loader::run;
 our $VERSION = '0';
 
 my $verbose          = 0;
+my $explain          = 0;
 my $help             = q[];
 my $id_run           = [];
 my $dry_run          = 0;
 
 GetOptions ('verbose!'        => \$verbose,
+            'explain!'        => \$explain,
             'dry-run!'        => \$dry_run,
             'help'            => \$help,
             'id_run=i@'       => \$id_run,
@@ -108,6 +110,7 @@ None
 
   --help     brief help message
   --verbose  to switch on verbose mode (disabled by default)
+  --explain  to switch on verbose mode for linking to LIMs (disabled by default)
   --dry-run  switches on verbose mode and reports what is going to de done
   --id_run   to load particular run,
              multiple runs can be specified by repeating this option

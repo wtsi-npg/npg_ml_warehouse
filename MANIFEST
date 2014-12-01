@@ -35,6 +35,12 @@ t/data/fixtures/npg/400-TagRun.yml
 t/data/fixtures/npgqc/CacheQuery.yml
 t/data/fixtures/npgqc/ClusterDensity.yml
 t/data/fixtures/npgqc/Fastqcheck.yml
+t/data/fixtures/npgqc/InsertSize.yml
+t/data/fixtures/npgqc/QXYield.yml
+t/data/fixtures/npgqc/TagMetrics.yml
+t/data/fixtures/wh/000-Sample.yml
+t/data/fixtures/wh/000-Study.yml
+t/data/fixtures/wh/100-IseqFlowcell.yml
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane3/qc/4799_3#0.insert_size.json
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane3/qc/4799_3#0.qX_yield.json
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane3/qc/4799_3#1.insert_size.json
