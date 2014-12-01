@@ -66,6 +66,7 @@ foreach my $id (@{$id_run}) {
   }
   $loader = npg_warehouse::loader::run->new(
       verbose     => $verbose,
+      explain     => $explain,
       id_run      => $id,
       _schema_npg => $npg_schema,
       _schema_qc  => $qc_schema,
