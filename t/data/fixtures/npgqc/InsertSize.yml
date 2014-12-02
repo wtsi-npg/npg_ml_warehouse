@@ -67,9 +67,9 @@
   mean: 442
   median: 425
   min_isize: 104
-  norm_fit_confidence: ~
+  norm_fit_confidence: 0.345
   norm_fit_modes: ~
-  norm_fit_nmode: ~
+  norm_fit_nmode: 2
   norm_fit_pass: ~
   num_well_aligned_reads: 9198
   num_well_aligned_reads_opp_dir: 416
@@ -95,9 +95,9 @@
   mean: 467
   median: 448
   min_isize: 118
-  norm_fit_confidence: ~
+  norm_fit_confidence: -0.34
   norm_fit_modes: ~
-  norm_fit_nmode: ~
+  norm_fit_nmode: 1
   norm_fit_pass: ~
   num_well_aligned_reads: 9207
   num_well_aligned_reads_opp_dir: 473
@@ -123,9 +123,9 @@
   mean: 430
   median: 416
   min_isize: 101
-  norm_fit_confidence: ~
+  norm_fit_confidence: 1.01
   norm_fit_modes: ~
-  norm_fit_nmode: ~
+  norm_fit_nmode: 2
   norm_fit_pass: ~
   num_well_aligned_reads: 9267
   num_well_aligned_reads_opp_dir: 408

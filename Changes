@@ -6,6 +6,8 @@ release 37.2
  - give preference to batch_id when linking to the flowcell table
  - add explain flag for logging problems linking to tle flowcell table
  - link as much data as possible for a flowcell with duplicate entries
+ - retrieve and load data for verify_bam_id check and for normal mode distribution
+   in teh insert size check
 
 release 37.1
  - add run_is_indexed method to npg tracking data source

@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 224;
+use Test::More tests => 235;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -419,6 +419,12 @@ my $init = { _autoqc_store => $autoqc_store,
   cmp_ok(sprintf('%.2f',$lane->percent_mapped()), q(==), 98.19, 'bam mapped percent');
   cmp_ok(sprintf('%.2f',$lane->percent_duplicate()), q(==), 24.63, 'bam duplicate percent');
 
+  $lane = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run, position=>4,tag_index=>undef},)->first;
+  ok ($lane, 'product row for lane 4 is present');
+  cmp_ok(sprintf('%.5f',$lane->verify_bam_id_score()), q(==), 0.00166, 'verify_bam_id_score');
+  cmp_ok(sprintf('%.2f',$lane->verify_bam_id_average_depth()), q(==), 9.42, 'verify_bam_id_average_depth');
+  cmp_ok($lane->verify_bam_id_snp_count(), q(==), 1531960, 'verify_bam_id_snp_count');
+
   my $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>2,tag_index=>4})->first;
   ok ($plex, 'plex row for lane 2 tag index 4 is present');
   cmp_ok(sprintf('%.2f',$plex->human_percent_mapped()), q(==), 55.3, 'bam human mapped percent');
@@ -571,6 +577,23 @@ my $init = { _autoqc_store => $autoqc_store,
   $row = $rows[4];
   is ($row->position, 5, 'lane five present');
   ok(!defined $row->$LIMS_FK_COLUMN_NAME, 'lane 5 is not in the flowcell table; foreign key for the flowcell table is absent');
+}
+
+{
+  my $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+         {id_run => 6998, position => 1, tag_index => [13,14,15]},
+         {order_by => 'tag_index'}
+  );
+  is ($rs->count, 3, 'three records retrieved - test prerequisite');
+  my $row = $rs->next;
+  is($row->insert_size_num_modes, 2, 'num modes');
+  is($row->insert_size_normal_fit_confidence, 0.34, 'confidence');
+  $row = $rs->next;
+  is($row->insert_size_num_modes, 1, 'num modes');
+  is($row->insert_size_normal_fit_confidence, 0, 'negative confidence upped to zero');
+  $row = $rs->next;
+  is($row->insert_size_num_modes, 2, 'num modes');
+  is($row->insert_size_normal_fit_confidence, 1, 'confidence capped to 1');
 }
 
 1;
