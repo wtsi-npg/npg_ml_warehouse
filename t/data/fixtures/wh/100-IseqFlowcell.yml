@@ -9,6 +9,7 @@
   id_flowcell_lims: 5992
   id_iseq_flowcell_tmp: 20301
   id_lims: SQSCP
+  id_pool_lims: 57206
   id_sample_tmp: 6195
   id_study_tmp: 196
   is_r_and_d: 0
@@ -37,6 +38,7 @@
   id_flowcell_lims: 5992
   id_iseq_flowcell_tmp: 20302
   id_lims: SQSCP
+  id_pool_lims: 57222
   id_sample_tmp: 6179
   id_study_tmp: 196
   is_r_and_d: 0
@@ -65,6 +67,7 @@
   id_flowcell_lims: 5992
   id_iseq_flowcell_tmp: 20303
   id_lims: SQSCP
+  id_pool_lims: 57222
   id_sample_tmp: 6179
   id_study_tmp: 196
   is_r_and_d: 0
@@ -93,6 +96,7 @@
   id_flowcell_lims: 5992
   id_iseq_flowcell_tmp: 20304
   id_lims: SQSCP
+  id_pool_lims: 57222
   id_sample_tmp: 6179
   id_study_tmp: 196
   is_r_and_d: 0
@@ -121,6 +125,7 @@
   id_flowcell_lims: 5992
   id_iseq_flowcell_tmp: 20305
   id_lims: SQSCP
+  id_pool_lims: 57200
   id_sample_tmp: 6192
   id_study_tmp: 196
   is_r_and_d: 0
@@ -149,6 +154,7 @@
   id_flowcell_lims: 5992
   id_iseq_flowcell_tmp: 20306
   id_lims: SQSCP
+  id_pool_lims: 57200
   id_sample_tmp: 6192
   id_study_tmp: 196
   is_r_and_d: 0
@@ -177,6 +183,7 @@
   id_flowcell_lims: 5992
   id_iseq_flowcell_tmp: 20307
   id_lims: SQSCP
+  id_pool_lims: 57200
   id_sample_tmp: 6192
   id_study_tmp: 196
   is_r_and_d: 0
@@ -205,6 +212,7 @@
   id_flowcell_lims: 5992
   id_iseq_flowcell_tmp: 20308
   id_lims: SQSCP
+  id_pool_lims: 79577
   id_sample_tmp: 8662
   id_study_tmp: ~
   is_r_and_d: 0
@@ -233,6 +241,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93483
   id_lims: SQSCP
+  id_pool_lims: 3880608
   id_sample_tmp: 1234191
   id_study_tmp: ~
   is_r_and_d: 0
@@ -261,6 +270,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93484
   id_lims: SQSCP
+  id_pool_lims: 3880608
   id_sample_tmp: 252329
   id_study_tmp: 592
   is_r_and_d: 0
@@ -289,6 +299,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93485
   id_lims: SQSCP
+  id_pool_lims: 3880608
   id_sample_tmp: 252330
   id_study_tmp: 592
   is_r_and_d: 0
@@ -317,6 +328,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93486
   id_lims: SQSCP
+  id_pool_lims: 3880608
   id_sample_tmp: 252331
   id_study_tmp: 592
   is_r_and_d: 0
@@ -345,6 +357,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93487
   id_lims: SQSCP
+  id_pool_lims: 3880608
   id_sample_tmp: 252332
   id_study_tmp: 592
   is_r_and_d: 0
@@ -373,6 +386,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93488
   id_lims: SQSCP
+  id_pool_lims: 3880608
   id_sample_tmp: 252333
   id_study_tmp: 592
   is_r_and_d: 0
@@ -401,6 +415,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93489
   id_lims: SQSCP
+  id_pool_lims: 3880608
   id_sample_tmp: 252334
   id_study_tmp: 592
   is_r_and_d: 0
@@ -429,6 +444,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93490
   id_lims: SQSCP
+  id_pool_lims: 3880608
   id_sample_tmp: 252335
   id_study_tmp: 592
   is_r_and_d: 0
@@ -457,6 +473,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93491
   id_lims: SQSCP
+  id_pool_lims: 3880608
   id_sample_tmp: 252336
   id_study_tmp: 592
   is_r_and_d: 0
@@ -485,6 +502,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93492
   id_lims: SQSCP
+  id_pool_lims: 3880608
   id_sample_tmp: 252337
   id_study_tmp: 592
   is_r_and_d: 0
@@ -513,6 +531,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93493
   id_lims: SQSCP
+  id_pool_lims: 3880608
   id_sample_tmp: 252338
   id_study_tmp: 592
   is_r_and_d: 0
@@ -541,6 +560,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93494
   id_lims: SQSCP
+  id_pool_lims: 3880608
   id_sample_tmp: 1268205
   id_study_tmp: 592
   is_r_and_d: 0
@@ -569,6 +589,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93495
   id_lims: SQSCP
+  id_pool_lims: 3880977
   id_sample_tmp: 1234191
   id_study_tmp: ~
   is_r_and_d: 0
@@ -597,6 +618,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93496
   id_lims: SQSCP
+  id_pool_lims: 3880977
   id_sample_tmp: 1268815
   id_study_tmp: 1957
   is_r_and_d: 0
@@ -625,6 +647,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93497
   id_lims: SQSCP
+  id_pool_lims: 3880975
   id_sample_tmp: 1234191
   id_study_tmp: ~
   is_r_and_d: 0
@@ -653,6 +676,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93498
   id_lims: SQSCP
+  id_pool_lims: 3880975
   id_sample_tmp: 1268816
   id_study_tmp: 1957
   is_r_and_d: 0
@@ -681,6 +705,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93499
   id_lims: SQSCP
+  id_pool_lims: 3880973
   id_sample_tmp: 1234191
   id_study_tmp: ~
   is_r_and_d: 0
@@ -709,6 +734,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93500
   id_lims: SQSCP
+  id_pool_lims: 3880973
   id_sample_tmp: 1268817
   id_study_tmp: 1957
   is_r_and_d: 0
@@ -737,6 +763,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93501
   id_lims: SQSCP
+  id_pool_lims: 3880971
   id_sample_tmp: 1234191
   id_study_tmp: ~
   is_r_and_d: 0
@@ -765,6 +792,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93502
   id_lims: SQSCP
+  id_pool_lims: 3880971
   id_sample_tmp: 1268818
   id_study_tmp: 1957
   is_r_and_d: 0
@@ -793,6 +821,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93503
   id_lims: SQSCP
+  id_pool_lims: 3880969
   id_sample_tmp: 1234191
   id_study_tmp: ~
   is_r_and_d: 0
@@ -821,6 +850,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93504
   id_lims: SQSCP
+  id_pool_lims: 3880969
   id_sample_tmp: 1268819
   id_study_tmp: 1957
   is_r_and_d: 0
@@ -849,6 +879,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93505
   id_lims: SQSCP
+  id_pool_lims: 3880967
   id_sample_tmp: 1234191
   id_study_tmp: ~
   is_r_and_d: 0
@@ -877,6 +908,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93506
   id_lims: SQSCP
+  id_pool_lims: 3880967
   id_sample_tmp: 1268820
   id_study_tmp: 1957
   is_r_and_d: 0
@@ -905,6 +937,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93507
   id_lims: SQSCP
+  id_pool_lims: 3880965
   id_sample_tmp: 1234191
   id_study_tmp: ~
   is_r_and_d: 0
@@ -933,6 +966,7 @@
   id_flowcell_lims: 14178
   id_iseq_flowcell_tmp: 93508
   id_lims: SQSCP
+  id_pool_lims: 3880965
   id_sample_tmp: 1268821
   id_study_tmp: 1957
   is_r_and_d: 0
