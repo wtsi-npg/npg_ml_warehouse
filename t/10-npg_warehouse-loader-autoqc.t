@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 98;
+use Test::More tests => 106;
 use Test::Exception;
 use Moose::Meta::Class;
 
@@ -131,6 +131,11 @@ local $ENV{TEST_DIR} = q[t];
   is ($auto->{4}->{contaminants_scan_hit1_score}, '97.30',   'contam check value');
   is ($auto->{4}->{contaminants_scan_hit2_name}, 'Mus_musculus',   'contam check value');
   is ($auto->{4}->{contaminants_scan_hit2_score}, '0.10',   'contam check value');
+  is ($auto->{4}->{insert_size_quartile1}, 172,   'insert size q1');
+  is ($auto->{4}->{insert_size_quartile3}, 207,   'insert size q3');
+  is ($auto->{4}->{insert_size_median},    189,   'insert size median');
+  is ($auto->{4}->{insert_size_num_modes},             1,     'insert size num modes');
+  is ($auto->{4}->{insert_size_normal_fit_confidence}, '0.35',   'insert size norm fit conf');
 
   ok (exists  $auto->{1}->{$plex_key}, 'lane 1 present in an autoqc plex hash');
   ok (exists  $auto->{1}->{$plex_key}->{3}, 'lane 1 tag index 3 present in an autoqc plex hash');
@@ -197,6 +202,10 @@ local $ENV{TEST_DIR} = q[t];
     'staging tag is set - test prerequisite';
 
   my $auto = npg_warehouse::loader::autoqc->new(autoqc_store => $store,plex_key => $plex_key)->retrieve($id_run, $schema_npg);
+
+  cmp_ok(sprintf('%.5f',$auto->{4}->{verify_bam_id_score}), q(==), 0.00166, 'verify_bam_id_score');
+  cmp_ok(sprintf('%.2f',$auto->{4}->{verify_bam_id_average_depth}), q(==), 9.42, 'verify_bam_id_average_depth');
+  cmp_ok($auto->{4}->{verify_bam_id_snp_count}, q(==), 1531960, 'verify_bam_id_snp_count');
 
   cmp_ok(sprintf('%.2f',$auto->{3}->{bam_percent_mapped}), q(==), 98.19, 'bam mapped percent');
   cmp_ok(sprintf('%.2f',$auto->{3}->{bam_percent_duplicate}), q(==), 24.63, 'bam duplicate percent');

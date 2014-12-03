@@ -38,7 +38,7 @@ lives_ok{ $schema_npg  = $util->create_test_db(
       lives_ok {$rsloader->copy_npg_tables()} 'copy  tables';
 
       is ($wh->resultset($rsloader->_prefix .'RunStatusDict')->search({})->count, 24, '24 rows loaded to the dictionary');
-      is ($wh->resultset($rsloader->_prefix .'RunStatus')->search({})->count, 223, '223 rows loaded to the run status table');  
+      is ($wh->resultset($rsloader->_prefix .'RunStatus')->search({})->count, 257, 'all rows loaded to the run status table');  
     }
   }
 }

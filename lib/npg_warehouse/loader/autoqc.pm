@@ -14,43 +14,29 @@ our $VERSION = '0';
 ## no critic (ProhibitUnusedPrivateSubroutines)
 
 Readonly::Scalar our $INSERT_SIZE_QUARTILE_MAX_VALUE => 65_535; #max for MYSQL smallint unsigned
-Readonly::Array  our @CLUSTER_DENSITY_COLUMNS => qw/
-                                                     raw_cluster_density 
-                                                     pf_cluster_density
-                                                   /;
 
 Readonly::Hash   our %AUTOQC_MAPPING  => {
-     insert_size => {
-                      insert_size_quartile1 => 'quartile1',
-                      insert_size_quartile3 => 'quartile3',
-                      insert_size_median    => 'median',
-                    },
-     gc_fraction => {
-                      gc_percent_forward_read => 'forward_read_gc_percent',
-                      gc_percent_reverse_read => 'reverse_read_gc_percent',
-                    },
-     sequence_error => {
-                         sequence_mismatch_percent_forward_read => 'forward_average_percent_error',
-                         sequence_mismatch_percent_reverse_read => 'reverse_average_percent_error',
-                       },
-     adapter     => {
-                      adapters_percent_forward_read => 'forward_percent_contam_reads',
-                      adapters_percent_reverse_read => 'reverse_percent_contam_reads',
-                    },
+     gc_fraction =>      {
+                           'gc_percent_forward_read' => 'forward_read_gc_percent',
+                           'gc_percent_reverse_read' => 'reverse_read_gc_percent',
+                         },
+     sequence_error =>   {
+                           'sequence_mismatch_percent_forward_read' => 'forward_average_percent_error',
+                           'sequence_mismatch_percent_reverse_read' => 'reverse_average_percent_error',
+                         },
+     adapter     =>      {
+                           'adapters_percent_forward_read' => 'forward_percent_contam_reads',
+                           'adapters_percent_reverse_read' => 'reverse_percent_contam_reads',
+                         },
      pulldown_metrics => { 'mean_bait_coverage'      => 'mean_bait_coverage',
                            'on_bait_percent'         => 'on_bait_bases_percent',
                            'on_or_near_bait_percent' => 'selected_bases_percent',
                          },
+     verify_bam_id    => { 'verify_bam_id_score'         => 'freemix',
+                           'verify_bam_id_average_depth' => 'avg_depth',
+                           'verify_bam_id_snp_count'     => 'number_of_snps',
+                         },
                                          };
-
-Readonly::Hash   our %CHECKS_WITH_METHOD => {contamination => 1,
-                                             ref_match => 1,
-                                             tag_decode_stats => 1,
-                                             tag_metrics => 1,
-                                             qX_yield => 1,
-                                             split_stats => 1,
-                                             bam_flagstats => 1,
-                                             genotype => 1 };
 
 Readonly::Scalar our $Q_TWENTY => 20;
 Readonly::Scalar our $HUNDRED  => 100;
@@ -144,6 +130,37 @@ sub _copy_fields {
     return;
 }
 
+sub _insert_size {
+    my ($self, $result, $autoqc) = @_;
+    my $data = {};
+
+    $data->{'insert_size_quartile1'} = $result->quartile1;
+    $data->{'insert_size_quartile3'} = $result->quartile3;
+    $data->{'insert_size_median'}    = $result->median;
+
+    foreach my $key (keys %{$data}) {
+        if ($data->{$key} && $data->{$key} > $INSERT_SIZE_QUARTILE_MAX_VALUE) {
+	    delete $data->{$key};
+	    if($self->verbose) {
+		carp sprintf 'SKIPPING %s for id_run %i position %i: value %i out of range',
+                $key, $result->id_run, $result->position, $data->{$key};
+	    }
+        }
+    }
+
+    $data->{'insert_size_num_modes'}             = $result->norm_fit_nmode;
+    my $v = $result->norm_fit_confidence;
+    if (defined $v) {
+        if ($v > 1) {
+            $v = 1;
+        } elsif ($v < 0) {
+	    $v = 0;
+	}
+        $data->{'insert_size_normal_fit_confidence'} = $self->_truncate_float($v);
+    }
+    $self->_copy_fields($data, $autoqc, $result->position, $result->tag_index);
+    return;
+}
 
 sub _qX_yield {
     my ($self, $result, $autoqc) = @_;
@@ -348,17 +365,9 @@ sub _autoqc_check {
 	my $method = $map->{$key};
 	my $value = $result->$method;
 	if (defined $value && $value ne q[nan]) {
-	    if ($key =~ /^insert_size/smx && $value > $INSERT_SIZE_QUARTILE_MAX_VALUE) {
-		if($self->verbose) {
-                    my $id_run = $result->id_run;
-                    if ($self->verbose) {
-		        carp qq[SKIPPING $key for id_run $id_run position ] .
-			    $result->position . qq[: value $value out of range];
-		    }
-		}
-		next;
+	    if ( $key !~ /\Averify_bam_id/xms ) {
+                $value = $self->_truncate_float($value);
 	    }
-            $value = $self->_truncate_float($value);
 	    if (!defined $result->tag_index) {
 		$autoqc->{$position}->{$key} = $value;
 	    } else {
@@ -389,9 +398,10 @@ sub retrieve {
     my $i = $collection->size - 1;
     while ($i >= 0) { # iterating from tail to head
         my $result = $collection->get($i);
-        my $check_name = $result->class_name;
-        my $method_name = exists $CHECKS_WITH_METHOD{$check_name} ? q[_] . $check_name : q[_autoqc_check];
-        $self->$method_name($result, $autoqc);
+        my $method_name = exists $AUTOQC_MAPPING{$result->class_name} ? q[_autoqc_check] : q[_] . $result->class_name;
+        if ($self->can($method_name)) {
+            $self->$method_name($result, $autoqc);
+	}
         $i--;
     }
     return $autoqc;
