@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 149;
+use Test::More tests => 235;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -27,20 +27,8 @@ my @basic_run_lane_columns = qw/cycles
                                 q40_yield_kb_forward_read
                                 q40_yield_kb_reverse_read/;
 
- my @columns =               qw/
-     insert_size_quartile1 
-     insert_size_quartile3 
-     insert_size_median
-     gc_percent_forward_read 
-     gc_percent_reverse_read
-     sequence_mismatch_percent_forward_read 
-     sequence_mismatch_percent_reverse_read
-     adapters_percent_forward_read 
-     adapters_percent_reverse_read
-     tags_decode_percent
-     tags_decode_cv
-                                   /;
-
+ my @columns = qw/tags_decode_percent
+                  tags_decode_cv/;
 
 use_ok('npg_warehouse::loader::run');
 throws_ok {npg_warehouse::loader::run->new()}
@@ -52,8 +40,8 @@ my $util = Moose::Meta::Class->create_anon_class(
 
 my ($schema_npg, $schema_qc, $schema_wh);
 
-lives_ok{ $schema_wh  = $util->create_test_db(q[WTSI::DNAP::Warehouse::Schema]) }
-  'npgqc test db created';
+lives_ok{ $schema_wh  = $util->create_test_db(q[WTSI::DNAP::Warehouse::Schema],
+  q[t/data/fixtures/wh]) } 'warehouse test db created';
 lives_ok{ $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
   q[t/data/fixtures/npg]) } 'npg test db created';
 lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
@@ -71,7 +59,6 @@ my $init = { _autoqc_store => $autoqc_store,
              _schema_qc    => $schema_qc, 
              _schema_wh    => $schema_wh,
              verbose       => 0,
-             reload_product_data => 0,
            };
 
 ################################################################
@@ -127,8 +114,6 @@ my $init = { _autoqc_store => $autoqc_store,
     push @found, $r->$column;
   }
   is_deeply(\@found, \@expected, 'run-lane data loaded correctly');
-  
-  ok (!$r->$LIMS_FK_COLUMN_NAME, 'lims fk not set');
 
   $r = $rs->next;
   is ($r->position, 2, 'result set for position 2');
@@ -224,30 +209,12 @@ my $init = { _autoqc_store => $autoqc_store,
     }
   }
 
-  $expected->{4333}->{4}->{insert_size_quartile1} = 172;
-  $expected->{4333}->{4}->{insert_size_quartile3} = 207;
-  $expected->{4333}->{4}->{insert_size_median}    = 189;
-  $expected->{4333}->{4}->{gc_percent_forward_read} = 44.89;
-  $expected->{4333}->{4}->{gc_percent_reverse_read} = 44.88;
-  $expected->{4333}->{4}->{sequence_mismatch_percent_forward_read} = 0.31;
-  $expected->{4333}->{4}->{sequence_mismatch_percent_reverse_read} = 0.50;
-  $expected->{4333}->{4}->{adapters_percent_forward_read} = 0.03;
-  $expected->{4333}->{4}->{adapters_percent_reverse_read} = 0.02;
   $expected->{4333}->{4}->{tags_decode_percent} = undef;
   $expected->{4333}->{4}->{tags_decode_cv} = undef;
-
-  $expected->{4333}->{1}->{gc_percent_forward_read} = 45.29;
-  $expected->{4333}->{1}->{gc_percent_reverse_read} = 45.18;
-  $expected->{4333}->{1}->{adapters_percent_forward_read} = 31.99;
-  $expected->{4333}->{1}->{adapters_percent_reverse_read} = 25.93;
   $expected->{4333}->{1}->{tags_decode_percent} = 99.29;
   $expected->{4333}->{1}->{tags_decode_cv} = 55.1;
-
-  $expected->{4333}->{8}->{insert_size_quartile3} = 207;
-  $expected->{4333}->{8}->{insert_size_median}    = 189;
   $expected->{4333}->{8}->{tags_decode_percent} =81.94;
   $expected->{4333}->{8}->{tags_decode_cv} =122.4;
-  #the third quartile has been skipped - the value is too large
  
   my $autoqc = {};
   while (my $row = $rs->next) {
@@ -343,16 +310,7 @@ my $init = { _autoqc_store => $autoqc_store,
   );
   is ($rs->count, 2, '2 product rows');
   
-  my @acolumns = @columns;
-  pop @acolumns;
-  pop @acolumns;
-
-  foreach my $ycolumn (qw/ q20_yield_kb_forward_read q20_yield_kb_reverse_read
-                           ref_match1_name ref_match1_percent
-                           ref_match2_name ref_match2_percent /) {
-    push @acolumns, $ycolumn;
-  }
-  
+  my @acolumns = qw/ q20_yield_kb_forward_read q20_yield_kb_reverse_read /;
   my $found = {}; 
   while (my $row = $rs->next) {
     foreach my $column (@acolumns) {
@@ -360,36 +318,10 @@ my $init = { _autoqc_store => $autoqc_store,
     }
   }
   my $e = {};
-  $e->{1}->{insert_size_quartile1} = undef;
-  $e->{1}->{insert_size_quartile3} = undef;
-  $e->{1}->{insert_size_median} = undef;
-  $e->{1}->{gc_percent_forward_read} = 45.29;
-  $e->{1}->{gc_percent_reverse_read} = 45.18;
-  $e->{1}->{sequence_mismatch_percent_forward_read} = undef;
-  $e->{1}->{sequence_mismatch_percent_reverse_read} = undef;
-  $e->{1}->{adapters_percent_forward_read} = 31.99;
-  $e->{1}->{adapters_percent_reverse_read} = 25.93;
   $e->{1}->{q20_yield_kb_forward_read} = 46671;
   $e->{1}->{q20_yield_kb_reverse_read} = 39877;
-  $e->{4}->{insert_size_quartile1} = 172;
-  $e->{4}->{insert_size_quartile3} = 207;
-  $e->{4}->{insert_size_median} = 189;
-  $e->{4}->{gc_percent_forward_read} = 44.89;
-  $e->{4}->{gc_percent_reverse_read} = 44.88;
-  $e->{4}->{sequence_mismatch_percent_forward_read} = 0.31;
-  $e->{4}->{sequence_mismatch_percent_reverse_read} = 0.5;
-  $e->{4}->{adapters_percent_forward_read} = 0.03;
-  $e->{4}->{adapters_percent_reverse_read} = 0.02;
   $e->{4}->{q20_yield_kb_forward_read} = 1455655;
   $e->{4}->{q20_yield_kb_reverse_read} = 1393269;
-  $e->{1}->{ref_match1_name} = q[Homo sapiens 1000Genomes];
-  $e->{1}->{ref_match1_percent} = 95.7;
-  $e->{1}->{ref_match2_name} = q[Gorilla gorilla gorilla];
-  $e->{1}->{ref_match2_percent} = 85.2;
-  $e->{4}->{ref_match1_name} = q[Homo sapiens 1000Genomes];
-  $e->{4}->{ref_match1_percent} = 97.2;
-  $e->{4}->{ref_match2_name} = q[Gorilla gorilla gorilla];
-  $e->{4}->{ref_match2_percent} = 87.2;
  
   is_deeply ($found, $e, 'lane product autoqc results');  
 }
@@ -487,6 +419,12 @@ my $init = { _autoqc_store => $autoqc_store,
   cmp_ok(sprintf('%.2f',$lane->percent_mapped()), q(==), 98.19, 'bam mapped percent');
   cmp_ok(sprintf('%.2f',$lane->percent_duplicate()), q(==), 24.63, 'bam duplicate percent');
 
+  $lane = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run, position=>4,tag_index=>undef},)->first;
+  ok ($lane, 'product row for lane 4 is present');
+  cmp_ok(sprintf('%.5f',$lane->verify_bam_id_score()), q(==), 0.00166, 'verify_bam_id_score');
+  cmp_ok(sprintf('%.2f',$lane->verify_bam_id_average_depth()), q(==), 9.42, 'verify_bam_id_average_depth');
+  cmp_ok($lane->verify_bam_id_snp_count(), q(==), 1531960, 'verify_bam_id_snp_count');
+
   my $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>2,tag_index=>4})->first;
   ok ($plex, 'plex row for lane 2 tag index 4 is present');
   cmp_ok(sprintf('%.2f',$plex->human_percent_mapped()), q(==), 55.3, 'bam human mapped percent');
@@ -494,30 +432,168 @@ my $init = { _autoqc_store => $autoqc_store,
   cmp_ok(sprintf('%.2f',$plex->num_reads()), q(==), 138756624, 'bam (nonhuman) number of reads');
   cmp_ok(sprintf('%.2f',$plex->percent_mapped()), q(==), 96.3, 'bam (nonhuman) mapped percent');
   cmp_ok(sprintf('%.2f',$plex->percent_duplicate()), q(==), 6.34, 'bam (nonhuman) duplicate percent');
+}
 
-  my $num_products1 = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run})->count;
-  my $old_value = $loader->_data->{$PRODUCT_TABLE_NAME}->[1]->{tag_decode_percent};
-  $loader->_data->{$PRODUCT_TABLE_NAME}->[1]->{tag_decode_percent} = $old_value + 1;
-  my $tag_index = $loader->_data->{$PRODUCT_TABLE_NAME}->[1]->{tag_index};
-  my $pos = $loader->_data->{$PRODUCT_TABLE_NAME}->[1]->{position};
+{
+  $schema_wh->resultset('IseqFlowcell')->find({id_flowcell_lims=>14178, position=>6, tag_index=>168})
+   ->update({entity_type => 'library_indexed' });
+  is ($schema_wh->resultset('IseqFlowcell')->find({id_flowcell_lims=>14178, position=>6, tag_index=>168})->entity_type,
+      'library_indexed',
+      'lane 6: set spiked phix as usual indexed library - test prerequisite');
+  my $id_run = 6998;
+  my %in = %{$init};
+  $in{'id_run'} = $id_run;
+  $in{'_autoqc_store'} = npg_qc::autoqc::qc_store->new(use_db => 1, qc_schema => $schema_qc, verbose => 0);
+  my $loader  = npg_warehouse::loader::run->new(\%in);
   $loader->load();
-  my $num_products2 = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run})->count;
-  is ($num_products2, $num_products1 + 1, 'one row duplicated on reloading');
-  is ($schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>$pos,tag_index=>$tag_index})->count(),
-    2, 'edited row was duplicated'); 
+  my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => $id_run},);
+  is($rs->count, 8, '8 rows in run-lane table');
 
-  $in{'reload_product_data'} = 1;
-  $loader  = npg_warehouse::loader::run->new(\%in);
-  $loader->load();
-  $num_products2 = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run})->count;
-  is ($num_products2, $num_products1, 'no duplication');
-  $loader->_data->{$PRODUCT_TABLE_NAME}->[1]->{tag_decode_percent} = $old_value + 1;
-  $loader->load();
-  $num_products2 = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run})->count;
-  is ($num_products2, $num_products1, 'no duplication');
-  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>$pos,tag_index=>$tag_index});
-  is ($rs->count, 1, 'edited row was not duplicated');
-  is ($rs->next->tag_decode_percent, $old_value + 1, 'value updated');
+  foreach my $lane ((2,6)){
+    ok (!$loader->_lane_is_indexed($lane), "lane $lane is not indexed");
+  }
+  foreach my $lane ((1,3,4,5,7,8)){
+    ok ($loader->_lane_is_indexed($lane), "lane $lane is indexed");
+  }
+
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run},);
+  is ($rs->count, 30, '30 rows in product table');
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run,tag_index=>undef},);
+  is ( join(q[ ], sort map {$_->position} $rs->all), '2 6', 'lane-level rows for lane 2 and 6');
+  
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run,position => 2}, {fetch => 'iseq_flowcell'});
+  is ($rs->count, 1, 'one product record for lane 2');
+  my $row = $rs->next;
+  is ($row->id_iseq_flowcell_tmp, 93508, 'flowcell fk set');
+  my $fc = $row->iseq_flowcell;
+  is (ref $fc, 'WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell', 'retrieved flowcell row');
+  is ($fc->pipeline_id_lims, 'No PCR', 'Sequencescape library type');
+  is ($fc->id_lims, 'SQSCP', 'this is Sequencescape record');
+  is ($fc->id_flowcell_lims, 14178, 'batch id correct');
+  is ($fc->position, 2, 'position correct');
+  is ($fc->tag_index, 154, 'lane data linked to the only target library');
+  is ($fc->entity_type, 'library_indexed', 'non-spiked library');
+  
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run,position => 6});
+  is ($rs->count, 1, 'one product record for lane 6');
+  ok (!defined $rs->next->id_iseq_flowcell_tmp,
+    'flowcell fk not set since the flowcell table reports two none-spiked libraries');
+  
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+        {id_run   => $id_run, position => 3},
+        {order_by => 'tag_index',
+         fetch    => 'iseq_flowcell'});
+  is ($rs->count, 3, 'three product records for lane 3');
+  $row = $rs->next;
+  is ($row->tag_index, 0, 'tag zero row present');
+  ok (!defined $row->id_iseq_flowcell_tmp, 'row not linked to the flowcell table');
+  $row = $rs->next;
+  is ($row->tag_index, 153, 'tag 153 row present');
+  ok ($row->id_iseq_flowcell_tmp, 'row is linked to the flowcell table');
+  $fc = $row->iseq_flowcell;
+  is (ref $fc, 'WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell', 'retrieved flowcell row');
+  is ($fc->position, 3, 'position correct');
+  is ($fc->tag_index, 153, 'tag_index correct');  
+  is ($fc->entity_type, 'library_indexed', 'non-spiked library');
+  ok ($fc->is_spiked, 'library is spiked');
+  $row = $rs->next;
+  is ($row->tag_index, 168, 'tag 168 row present');
+  ok ($row->id_iseq_flowcell_tmp, 'row is linked to the flowcell table');
+  $fc = $row->iseq_flowcell;
+  is (ref $fc, 'WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell', 'retrieved flowcell row');
+  is ($fc->position, 3, 'position correct');
+  is ($fc->tag_index, 168, 'tag_index correct');
+  is ($fc->entity_type, 'library_indexed_spike', 'this is a spike');
+  ok ($fc->is_spiked, 'library is not spiked');
+
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+        {id_run   => $id_run, position => 4},
+        {order_by => 'tag_index',
+         fetch    => 'iseq_flowcell'});
+  is ($rs->count, 3, 'three product records for lane 3');
+  $row = $rs->next;
+  is ($row->tag_index, 0, 'tag zero row present');
+  ok (!defined $row->id_iseq_flowcell_tmp, 'row not linked to the flowcell table');
+  $row = $rs->next;
+  is ($row->tag_index, 152, 'tag 152 row present');
+  ok ($row->id_iseq_flowcell_tmp, 'row is linked to the flowcell table');
+  $row = $rs->next;
+  is ($row->tag_index, 888, 'tag 888 row present - test prerequisite');
+  ok ($row->id_iseq_flowcell_tmp, 'row is linked to the flowcell table');
+  $fc = $row->iseq_flowcell;
+  is (ref $fc, 'WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell', 'retrieved flowcell row');
+  is ($fc->position, 4, 'position correct');
+  is ($fc->tag_index, 168, 'tag_index correct');
+  is ($fc->entity_type, 'library_indexed_spike', 'this is a spike');
+} 
+
+{
+  my $id_run = 4486;
+  my %in = %{$init};
+  $in{'id_run'} = $id_run;
+  $in{'_autoqc_store'} = npg_qc::autoqc::qc_store->new(use_db => 1, qc_schema => $schema_qc, verbose => 0);
+  my $loader  = npg_warehouse::loader::run->new(\%in);
+  warning_like { $loader->load() }
+    qr/Run 4486: multiple flowcell table records for library, pt key 1/,
+    'warning about duplicate entries';
+  my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => $id_run},);
+  is($rs->count, 8, '8 rows in run-lane table');
+
+  foreach my $lane ((1 .. 8)){
+    ok (!$loader->_lane_is_indexed($lane), "lane $lane is not indexed");
+  }
+
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run},
+                 {order_by => 'position', fetch => 'iseq_flowcell'});
+  is ($rs->count, 8, '8 rows in product table');
+  my @rows = $rs->all();
+  is (scalar(grep {defined $_->tag_index} @rows), 0, 'none of the rows has tag_index set');
+  is (scalar(grep {defined $_->id_iseq_flowcell_tmp} @rows), 6, 'six rows are linked to the flowcell table');
+  is (join(q[ ], map {$_->position} @rows), '1 2 3 4 5 6 7 8', 'all lanes are represented');
+
+  my $row = $rows[3];
+  is ($row->position, 4, 'control lane present');
+  my $fc = $row->iseq_flowcell;
+  is (ref $fc, 'WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell', 'retrieved flowcell row');
+  is ($fc->id_flowcell_lims, 5992, 'batch id correct');
+  is ($fc->position, 4, 'position correct');
+  ok (!defined $fc->tag_index, 'tag_index not defined');
+  is ($fc->entity_type, 'library_control', 'this is a control');
+
+  $row = $rows[1];
+  is ($row->position, 2, 'lane two present');
+  $fc = $row->iseq_flowcell;
+  is (ref $fc, 'WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell', 'retrieved flowcell row');
+  is ($fc->id_flowcell_lims, 5992, 'batch id correct');
+  is ($fc->position, 2, 'position correct');
+  ok (!defined $fc->tag_index, 'tag_index not defined');
+  is ($fc->entity_type, 'library', 'this is a library');
+
+  $row = $rows[0];
+  is ($row->position, 1, 'lane one present');
+  ok(!defined $row->$LIMS_FK_COLUMN_NAME, 'lane 1 is duplicated in the flowcell table; foreign key for the flowcell table is absent');
+  ok (!$row->iseq_flowcell, 'related object does not exist');
+
+  $row = $rows[4];
+  is ($row->position, 5, 'lane five present');
+  ok(!defined $row->$LIMS_FK_COLUMN_NAME, 'lane 5 is not in the flowcell table; foreign key for the flowcell table is absent');
+}
+
+{
+  my $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+         {id_run => 6998, position => 1, tag_index => [13,14,15]},
+         {order_by => 'tag_index'}
+  );
+  is ($rs->count, 3, 'three records retrieved - test prerequisite');
+  my $row = $rs->next;
+  is($row->insert_size_num_modes, 2, 'num modes');
+  is($row->insert_size_normal_fit_confidence, 0.34, 'confidence');
+  $row = $rs->next;
+  is($row->insert_size_num_modes, 1, 'num modes');
+  is($row->insert_size_normal_fit_confidence, 0, 'negative confidence upped to zero');
+  $row = $rs->next;
+  is($row->insert_size_num_modes, 2, 'num modes');
+  is($row->insert_size_normal_fit_confidence, 1, 'confidence capped to 1');
 }
 
 1;

@@ -1,0 +1,108 @@
+---
+- abbreviation: 619STDY
+  abstract: For further information on this study please see http://www.sanger.ac.uk/resources/downloads/bacteria/burkholderia-pseudomallei.html
+  accession_number: ERP000251
+  aligned: 1
+  array_express_accession_number: ~
+  contains_human_dna: No
+  contaminated_human_dna: No
+  created: 2010-06-25 11:19:52
+  data_access_group: ~
+  data_release_delay_period: ~
+  data_release_delay_reason: ~
+  data_release_sort_of_study: genomic sequencing
+  data_release_strategy: open
+  data_release_timing: standard
+  deleted_at: ~
+  description: 'For further information on this study please'
+  ega_dac_accession_number: ~
+  ega_policy_accession_number: ~
+  ena_project_id: 0
+  ethically_approved: ~
+  faculty_sponsor: Julian Parkhill
+  id_lims: SQSCP
+  id_study_lims: 619
+  id_study_tmp: 592
+  last_updated: 2012-11-26 14:15:32
+  name: Burkholderia pseudomallei diversity
+  recorded_at: 2014-11-19 14:48:06
+  reference_genome: ' '
+  remove_x_and_autosomes: 0
+  separate_y_chromosome_data: 0
+  state: active
+  study_title: Burkholderia pseudomallei diversity
+  study_type: Whole Genome Sequencing
+  study_visibility: Hold
+  uuid_study_lims: 1231de50-6ffb-11e4-b9db-68b59977951c
+- abbreviation: 1985STDY
+  abstract: 'Extraordinary recent advances in sequencing now make it a realistic aim to sequence large numbers of cancer genomes to find somatic mutations on a massive scale. '
+  accession_number: EGAS00001000148
+  aligned: 1
+  array_express_accession_number: ~
+  contains_human_dna: Yes
+  contaminated_human_dna: No
+  created: 2011-09-27 08:29:53
+  data_access_group: ~
+  data_release_delay_period: ~
+  data_release_delay_reason: ~
+  data_release_sort_of_study: genomic sequencing
+  data_release_strategy: managed
+  data_release_timing: standard
+  deleted_at: ~
+  description: 'We propose to definitively characterise the somatic genetics of Lung cancer through generation of comprehensive catalogues of somatic mutations by high coverage genome sequencing. '
+  ega_dac_accession_number: EGAC00001000012
+  ega_policy_accession_number: EGAP00001000001
+  ena_project_id: PRJEB9
+  ethically_approved: 1
+  faculty_sponsor: Peter Campbell
+  id_lims: SQSCP
+  id_study_lims: 1985
+  id_study_tmp: 1957
+  last_updated: 2013-05-22 15:55:30
+  name: Lung Cancer Whole Genomes
+  recorded_at: 2014-11-19 14:49:27
+  reference_genome: Homo_sapiens (CGP_GRCh37.NCBI.allchr_MT)
+  remove_x_and_autosomes: 0
+  separate_y_chromosome_data: 0
+  state: active
+  study_title: Lung Cancer Whole Genomes
+  study_type: Cancer Genomics
+  study_visibility: Hold
+  uuid_study_lims: 42abb060-6ffb-11e4-b9db-68b59977951c
+
+- abbreviation: 244STDY
+  abstract: For further information on this study please see http://www.sanger.ac.uk/resources/downloads/bacteria/streptococcus-suis.html
+  accession_number: ERP000893
+  aligned: 1
+  array_express_accession_number: ~
+  contains_human_dna: No
+  contaminated_human_dna: No
+  created: 2009-02-12 16:53:57
+  data_access_group: ~
+  data_release_delay_period: ~
+  data_release_delay_reason: ~
+  data_release_sort_of_study: genomic sequencing
+  data_release_strategy: open
+  data_release_timing: standard
+  deleted_at: ~
+  description: 'For further information on this study please see http://www.sanger.ac.uk/resources/downloads/bacteria/streptococcus-suis.html This data is part of a pre-publication release. For information on the proper use of pre-publication data shared by the Wellcome Trust Sanger Institute (including details of any publication moratoria), please see http://www.sanger.ac.uk/datasharing/'
+  ega_dac_accession_number: ~
+  ega_policy_accession_number: ~
+  ena_project_id: 0
+  ethically_approved: ~
+  faculty_sponsor: Julian Parkhill
+  id_lims: SQSCP
+  id_study_lims: 244
+  id_study_tmp: 219
+  last_updated: 2012-11-26 14:15:14
+  name: Discovery of sequence diversity in Streptococcus suis (Vietnam)
+  recorded_at: 2014-11-19 14:47:33
+  reference_genome: Streptococcus_suis (BM407)
+  remove_x_and_autosomes: 0
+  separate_y_chromosome_data: 0
+  state: active
+  study_title: Discovery of sequence diversity in Streptococcus suis (Vietnam)
+  study_type: Population Genomics
+  study_visibility: Hold
+  uuid_study_lims: fe940c60-6ffa-11e4-b9db-68b59977951c
+

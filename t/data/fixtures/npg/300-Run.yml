@@ -194,4 +194,30 @@
   is_paired: 0
   priority: 1
   team: '"joint"'
+- actual_cycle_count: 208
+  batch_id: 14178
+  expected_cycle_count: 208
+  flowcell_id: D0B76ACXX
+  folder_name: 111031_HS19_06998_B_D0B76ACXX
+  folder_path_glob: '/{export,nfs}/sf28/ILorHSany_sf28/*/'
+  id_instrument: 81
+  id_instrument_format: 10
+  id_run: 6998
+  id_run_pair: 0
+  is_paired: 0
+  priority: 1
+  team: '"joint"'
+- actual_cycle_count: 216
+  batch_id: 5992
+  expected_cycle_count: 216
+  flowcell_id: ~
+  folder_name: ~
+  folder_path_glob: ~
+  id_instrument: 26
+  id_instrument_format: 4
+  id_run: 4486
+  id_run_pair: 0
+  is_paired: 0
+  priority: 1
+  team: joint
 
