@@ -16,9 +16,17 @@ use npg_warehouse::loader::autoqc;
 use npg_warehouse::loader::qc;
 use npg_warehouse::loader::npg;
 
-with 'npg_tracking::glossary::run';
+with qw/
+   npg_tracking::glossary::run
+   WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell
+       /;
 
 our $VERSION  = '0';
+
+Readonly::Scalar my $NON_INDEXED_LIBRARY      => $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::NON_INDEXED_LIBRARY;
+Readonly::Scalar my $CONTROL_LANE             => $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::CONTROL_LANE;
+Readonly::Scalar my $INDEXED_LIBRARY          => $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::INDEXED_LIBRARY;
+Readonly::Scalar my $INDEXED_LIBRARY_SPIKE    => $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::INDEXED_LIBRARY_SPIKE;
 
 Readonly::Scalar my $FLOWCELL_LIMS_TABLE_NAME => q[IseqFlowcell];
 Readonly::Scalar my $RUN_LANE_TABLE_NAME      => q[IseqRunLaneMetric];
@@ -31,11 +39,6 @@ Readonly::Scalar my $PLEXES_KEY               => q[plexes];
 
 Readonly::Scalar my $SPIKE_FALLBACK_TAG_INDEX => 888;
 Readonly::Scalar my $MIN_NEW_RUN              => 10_000;
-
-Readonly::Scalar my $NON_INDEXED_LIBRARY      => q[library];
-Readonly::Scalar my $CONTROL_LANE             => q[library_control];
-Readonly::Scalar my $INDEXED_LIBRARY          => q[library_indexed];
-Readonly::Scalar my $INDEXED_LIBRARY_SPIKE    => q[library_indexed_spike];
 
 =head1 NAME
 
@@ -75,6 +78,38 @@ has 'explain'      => ( isa        => 'Bool',
                         default    => 0,
 );
 
+=head2 id_flowcell_lims
+
+LIMs specific flowcell id
+
+=cut
+has '+id_flowcell_lims'  => ( lazy_build => 1,);
+sub _build_id_flowcell_lims {
+  my $self = shift;
+  return $self->_run_lane_rs->[0]->run->batch_id;
+}
+
+=head2 id_flowcell_manufacturer
+
+Manufacturer flowcell id
+
+=cut
+has '+id_flowcell_manufacturer'  => ( lazy_build => 1,);
+sub _build_id_flowcell_manufacturer {
+  my $self = shift;
+  return $self->_run_lane_rs->[0]->run->flowcell_id;
+}
+
+=head2 iseq_flowcell
+
+DBIx result set from which relevant flowcell rows can be retrieved
+
+=cut
+sub iseq_flowcell {
+  my $self = shift;
+  return $self->_schema_wh->resultset($FLOWCELL_LIMS_TABLE_NAME);
+}
+
 =head2 _schema_wh
 
 DBIx schema object for the warehouse database
@@ -85,6 +120,14 @@ has '_schema_wh'  =>  ( isa        => 'WTSI::DNAP::Warehouse::Schema',
                         required   => 0,
                         lazy_build => 1,
 );
+sub _build__schema_wh {
+  my $self = shift;
+  my $schema = WTSI::DNAP::Warehouse::Schema->connect();
+  if($self->verbose) {
+    carp q[Connected to the warehouse db, schema object ] . $schema;
+  }
+  return $schema;
+}
 
 has ['_rlt_column_names', '_pt_column_names'] =>  (
                            isa        => 'ArrayRef',
@@ -106,15 +149,6 @@ sub _build__pt_column_names {
   return $self->_column_names($PRODUCT_TABLE_NAME);
 }
 
-sub _build__schema_wh {
-  my $self = shift;
-  my $schema = WTSI::DNAP::Warehouse::Schema->connect();
-  if($self->verbose) {
-    carp q[Connected to the warehouse db, schema object ] . $schema;
-  }
-  return $schema;
-}
-
 has '_flowcell_table_fks' => ( isa        => 'HashRef',
                                is         => 'ro',
                                required   => 0,
@@ -123,26 +157,22 @@ has '_flowcell_table_fks' => ( isa        => 'HashRef',
 sub _build__flowcell_table_fks {
   my $self = shift;
 
-  my $lane = $self->_run_lane_rs->[0];
-  my $batch_id = $lane->run->batch_id;
-  my $barcode  = $lane->run->flowcell_id;
-  my $batch_id_query = $batch_id ? {'id_flowcell_lims' => $batch_id} : undef;
-  my $barcode_query  = $barcode  ? {'flowcell_barcode' => $barcode}  : undef;
-
   my $fks = {};
-  if (!($batch_id_query || $barcode_query)) {
+  my $rs;
+  try {
+    $rs = $self->query_resultset;
+  } catch {
+    my $error = q[Either id_flowcell_lim or flowcell_barcode should be defined];
+    if ($_ !~ /$error/xms) {
+      croak $_;
+    }
+  };
+
+  if (!$rs) {
     if ($self->explain) {
       warn q[Tracking database has no flowcell information for run ] . $self->id_run . qq[\n];
     }
     return $fks;
-  }
-
-  my $rs;
-  if ($batch_id_query) { #barcodes might not be reliable in Sequencescape
-    $rs = $self->_schema_wh->resultset($FLOWCELL_LIMS_TABLE_NAME)->search($batch_id_query);
-  }
-  if ((!$rs || $rs->count == 0) && $barcode_query) {
-    $rs = $self->_schema_wh->resultset($FLOWCELL_LIMS_TABLE_NAME)->search($barcode_query);
   }
 
   if ($rs && $rs->count) {
@@ -455,7 +485,7 @@ sub _lane_is_indexed {
       my $message = qq[Plex autoqc data present for lane $position, but no tag decoding data available];
       if ($self->id_run < $MIN_NEW_RUN) { # This run is "old".
         if ($self->verbose) {
-          warn qq[message\n];
+          warn qq[$message\n];
         }
         $is_indexed = 1;
       } else {
@@ -712,6 +742,8 @@ __END__
 =item MooseX::StrictConstructor
 
 =item WTSI::DNAP::Warehouse::Schema
+
+=item WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell
 
 =item npg_tracking::Schema
 
