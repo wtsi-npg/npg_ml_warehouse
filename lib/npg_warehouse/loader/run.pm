@@ -18,8 +18,9 @@ use npg_warehouse::loader::npg;
 
 with qw/
    npg_tracking::glossary::run
-   WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell
+   npg_tracking::glossary::flowcell
        /;
+with 'WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell';
 
 our $VERSION  = '0';
 
@@ -94,8 +95,8 @@ sub _build_id_flowcell_lims {
 Manufacturer flowcell id
 
 =cut
-has '+id_flowcell_manufacturer'  => ( lazy_build => 1,);
-sub _build_id_flowcell_manufacturer {
+has '+flowcell_barcode'  => ( lazy_build => 1,);
+sub _build_flowcell_barcode {
   my $self = shift;
   return $self->_run_lane_rs->[0]->run->flowcell_id;
 }
@@ -162,7 +163,7 @@ sub _build__flowcell_table_fks {
   try {
     $rs = $self->query_resultset;
   } catch {
-    my $error = q[Either id_flowcell_lim or flowcell_barcode should be defined];
+    my $error = q[id_flowcell_lims or flowcell_barcode];
     if ($_ !~ /$error/xms) {
       croak $_;
     }
@@ -748,6 +749,8 @@ __END__
 =item npg_tracking::Schema
 
 =item npg_tracking::glossary::run
+
+=item npg_tracking::glossary::flowcell
 
 =item npg_qc::Schema
 
