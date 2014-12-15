@@ -19,7 +19,6 @@
   ega_policy_accession_number: ~
   ena_project_id: 0
   ethically_approved: ~
-  faculty_sponsor: Julian Parkhill
   id_lims: SQSCP
   id_study_lims: 619
   id_study_tmp: 592
@@ -54,7 +53,6 @@
   ega_policy_accession_number: EGAP00001000001
   ena_project_id: PRJEB9
   ethically_approved: 1
-  faculty_sponsor: Peter Campbell
   id_lims: SQSCP
   id_study_lims: 1985
   id_study_tmp: 1957
@@ -90,7 +88,6 @@
   ega_policy_accession_number: ~
   ena_project_id: 0
   ethically_approved: ~
-  faculty_sponsor: Julian Parkhill
   id_lims: SQSCP
   id_study_lims: 244
   id_study_tmp: 219
