@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+ - ml_warehouse driver for st::api::lims
+ - ml_warehouse loader - use common code for retrieving flowcell LIMs data from the database
+
 release 37.2
  - loader changes resulting from dropping most of autoqc columns from the run lane metrics
    and removing from this table a foreign key into the flowcell table

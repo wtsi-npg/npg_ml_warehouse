@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 235;
+use Test::More tests => 236;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -59,6 +59,7 @@ my $init = { _autoqc_store => $autoqc_store,
              _schema_qc    => $schema_qc, 
              _schema_wh    => $schema_wh,
              verbose       => 0,
+             explain       => 0,
            };
 
 ################################################################
@@ -445,6 +446,7 @@ my $init = { _autoqc_store => $autoqc_store,
   $in{'id_run'} = $id_run;
   $in{'_autoqc_store'} = npg_qc::autoqc::qc_store->new(use_db => 1, qc_schema => $schema_qc, verbose => 0);
   my $loader  = npg_warehouse::loader::run->new(\%in);
+  is ($loader->id_flowcell_lims, 14178, 'id_flowcell_lims populated correctly');
   $loader->load();
   my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => $id_run},);
   is($rs->count, 8, '8 rows in run-lane table');
@@ -461,7 +463,8 @@ my $init = { _autoqc_store => $autoqc_store,
   $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run,tag_index=>undef},);
   is ( join(q[ ], sort map {$_->position} $rs->all), '2 6', 'lane-level rows for lane 2 and 6');
   
-  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run,position => 2}, {fetch => 'iseq_flowcell'});
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+    {'me.id_run' => $id_run,'me.position' => 2,}, {prefetch => 'iseq_flowcell'});
   is ($rs->count, 1, 'one product record for lane 2');
   my $row = $rs->next;
   is ($row->id_iseq_flowcell_tmp, 93508, 'flowcell fk set');
@@ -481,8 +484,7 @@ my $init = { _autoqc_store => $autoqc_store,
   
   $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
         {id_run   => $id_run, position => 3},
-        {order_by => 'tag_index',
-         fetch    => 'iseq_flowcell'});
+        {order_by => 'tag_index'});
   is ($rs->count, 3, 'three product records for lane 3');
   $row = $rs->next;
   is ($row->tag_index, 0, 'tag zero row present');
@@ -508,8 +510,7 @@ my $init = { _autoqc_store => $autoqc_store,
 
   $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
         {id_run   => $id_run, position => 4},
-        {order_by => 'tag_index',
-         fetch    => 'iseq_flowcell'});
+        {order_by => 'tag_index'});
   is ($rs->count, 3, 'three product records for lane 3');
   $row = $rs->next;
   is ($row->tag_index, 0, 'tag zero row present');
@@ -543,8 +544,8 @@ my $init = { _autoqc_store => $autoqc_store,
     ok (!$loader->_lane_is_indexed($lane), "lane $lane is not indexed");
   }
 
-  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run},
-                 {order_by => 'position', fetch => 'iseq_flowcell'});
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+    {id_run => $id_run}, {order_by => 'position'});
   is ($rs->count, 8, '8 rows in product table');
   my @rows = $rs->all();
   is (scalar(grep {defined $_->tag_index} @rows), 0, 'none of the rows has tag_index set');

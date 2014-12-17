@@ -1,4 +1,6 @@
 npg_ml_warehouse
 ================
 
-Loading analysis results into the multi-lims warehouse, see ml_warehouse project for the warehouse details.
+1. Loader to save analysis results to the multi-lims warehouse, see ml_warehouse project for the warehouse details.
+
+2. A driver to present LIMs warehouse data as st::api::lims objects (see npg_tracking project for information about these objects).
