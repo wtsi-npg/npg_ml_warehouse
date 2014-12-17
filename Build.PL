@@ -46,10 +46,12 @@ my $builder = npg_tracking::util::build->new(
                     'warnings'                  => 0,
 
                     'WTSI::DNAP::Warehouse::Schema'           => 0,
+                    'WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell' => 0,
                     'npg_qc::Schema'                          => 0,
                     'npg_qc::autoqc::qc_store'                => 0,
                     'npg_qc::autoqc::qc_store::options'       => 0,
                     'npg_qc::autoqc::qc_store::query'         => 0,
+                    'npg_tracking::glossary::flowcell'        => 0,
                     'npg_tracking::glossary::run'             => 0,
                     'npg_tracking::Schema'                    => 0,
                  },
