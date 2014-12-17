@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+release 37.3
  - ml_warehouse driver for st::api::lims
  - ml_warehouse loader - use common code for retrieving flowcell LIMs data from the database
 
