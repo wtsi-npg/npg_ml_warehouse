@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 236;
+use Test::More tests => 240;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -127,6 +127,19 @@ my $init = { _autoqc_store => $autoqc_store,
   is ($r->q30_yield_kb_forward_read, 3, 'forward read q30 for the product');
   is ($r->q40_yield_kb_forward_read, 4, 'forward read q40 for the product');
   ok (!$r->$LIMS_FK_COLUMN_NAME, 'lims fk not set');
+
+  lives_ok {$schema_npg->resultset('Run')
+    ->update_or_create({batch_id => undef, flowcell_id => undef, id_run => 1246, })}
+    'both batch and flowcell ids unset - test prerequisite';
+  %in = %{$init};
+  $in{'id_run'}  = 1246;
+  $in{'explain'} = 1;
+  lives_ok {$loader  = npg_warehouse::loader::run->new(\%in)}
+    'loader object instantiated by passing schema objects to the constructor';
+  warning_like { $loader->_flowcell_table_fks } 
+    qr/Tracking database has no flowcell information for run 1246/,
+    'warning about absence of lims data in tracking db';
+  lives_ok { $loader->load() } 'absence of lims data does not lead to an error';
 }
 
 {
