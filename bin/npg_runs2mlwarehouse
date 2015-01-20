@@ -38,6 +38,7 @@ if ($verbose) {
   }
   warn qq[\nwarehouse loader is running with the following options:\n];
   warn qq[  verbose\t$verbose\n];
+  warn qq[  explain\t$explain\n];
   if (@{$id_run}) {
     my $runs = join q[ ], sort {$a <=> $b} @{$id_run};
     warn qq[  id_run\t$runs\n];
