@@ -163,9 +163,10 @@ sub _build__flowcell_table_fks {
   try {
     $rs = $self->query_resultset;
   } catch {
-    my $error = q[id_flowcell_lims or flowcell_barcode];
-    if ($_ !~ /$error/xms) {
-      croak $_;
+    my $allowed_error = qr/id_flowcell_lims\sor\sflowcell_barcode/xms;
+    my $error = $_;
+    if ($error !~ $allowed_error) {
+      croak $error;
     }
   };
 
