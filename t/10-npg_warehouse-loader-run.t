@@ -267,7 +267,7 @@ my $init = { _autoqc_store => $autoqc_store,
   my $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
        {id_run => $id_run, tag_index => [1,2,3,4]},
   );
-  is ($rs->count, 20, '20 rows in the plex table for run 4799 for plexes[1-4]');
+  is ($rs->count, 20, '20 rows in the product table for run 4799 for plexes[1-4]');
 
   my $expected_tag_info =  {
     1 => {tag_decode_percent=>12.99, tag_sequence=>'ATCACGT',},

@@ -620,45 +620,60 @@ sub _load_table {
   my ($self, $table) = @_;
 
   if (scalar keys $self->_data->{$table} == 0) {
+    if ($self->verbose) {
+      warn qq[No data for table $table\n];
+    }
     return 0;
   }
 
-  my $rs = $self->_schema_wh->resultset($table);
-
-  if ($table eq $PRODUCT_TABLE_NAME) {
-    $rs->search({'id_run' => $self->id_run,})->delete();
-  }
-
-  my $count = 0;
+  my @rows = ();
   foreach my $row (@{$self->_data->{$table}}) {
 
     $self->_filter_column_names($table, $row);
-
-    if($self->verbose) {
-      my $message = defined $row->{'tag_index'} ? q[tag_index ] . $row->{'tag_index'} : q[];
-      $message = sprintf 'Creating record in table %s for run %i position %i %s',
-         $table, $self->id_run,  $row->{'position'}, $message;
-      warn "$message\n";
-    }
-
     my @test = keys %{$row};
     @test = grep { $_ !~ /\Aid_run|position|tag_index\Z/smx } @test;
     if (!@test) { # no useful data
       next;
     }
 
-    if ($table eq $PRODUCT_TABLE_NAME) {
-      if ($self->_flowcell_table_fks_exist) {
-        $self->_add_lims_fk($row);
-      }
-      $rs->create($row);
-    } else {
-      $rs->update_or_create($row);
+    if ($table eq $PRODUCT_TABLE_NAME && $self->_flowcell_table_fks_exist) {
+      $self->_add_lims_fk($row);
     }
-    $count++;
+
+    if ($self->verbose) {
+      my $message = defined $row->{'tag_index'} ? q[tag_index ] . $row->{'tag_index'} : q[];
+      warn sprintf 'Will create record in table %s for run %i position %i %s%s',
+         $table, $self->id_run,  $row->{'position'}, $message, qq[\n];
+    }
+    push @rows, $row;
   }
 
-  return $count;
+  my $rs = $self->_schema_wh->resultset($table);
+
+  my $transaction;
+  if ($table eq $PRODUCT_TABLE_NAME) {
+    $transaction = sub {
+      $rs->search({'id_run' => $self->id_run,})->delete();
+      if ($self->_schema_wh->storage->connect_info->[0] =~ /dbi:SQLite/smx) {
+        # SQLite driver does not support batch inserts; by assigning a return value
+        # to a variable we are forcing DBIx to do execute multiple create statements.
+        my $r = $rs->populate(\@rows);
+      } else {
+        if ($self->verbose) {
+          warn qq[Using fast batch insert on non-sqlite database\n];
+	}
+        $rs->populate(\@rows);
+      }
+    }
+  } else {
+    $transaction = sub {
+      map { $rs->update_or_create($_) } @rows;
+    }
+  }
+
+  $self->_schema_wh->txn_do($transaction);
+
+  return scalar @rows;
 }
 
 =head2 load
@@ -669,9 +684,11 @@ Loads data for one sequencing run to the warehouse
 sub load {
   my ($self) = @_;
 
+  my $id_run = $self->id_run;
+
   if (! @{$self->_run_lane_rs}) {
     if($self->verbose) {
-      warn q[No lanes for run ] . $self->id_run . qq[, not loading\n];
+      warn qq[No lanes for run $id_run, not loading\n];
     }
     return;
   }
@@ -679,7 +696,7 @@ sub load {
   if ($self->_old_forward_id_run) {
     if ($self->verbose) {
       warn sprintf 'Run %i is an old reverse run for %i, not loading.%s',
-        $self->id_run, $self->_old_forward_id_run, qq[\n];
+        $id_run, $self->_old_forward_id_run, qq[\n];
     }
     return;
   }
@@ -693,23 +710,19 @@ sub load {
 
   if ($data) {
 
-    my $transaction = sub {
+    try {
       foreach my $table (($RUN_LANE_TABLE_NAME, $PRODUCT_TABLE_NAME)) {
         my $count = $self->_load_table($table);
         if ($self->verbose) {
-          warn qq[Loaded $count rows to table $table for run ] . $self->id_run .qq[\n];
+          warn qq[Loaded $count rows to table $table for run $id_run\n];
 	}
       }
-    };
-
-    try {
-      $self->_schema_wh->txn_do($transaction);
     } catch {
       my $err = $_;
       if ($err =~ /Rollback failed/sxm) {
         croak $err;
       }
-      warn q[Failed to load ] . $self->id_run . qq[: $err\n];
+      warn qq[Failed to load run $id_run: $err\n];
     };
   }
 
