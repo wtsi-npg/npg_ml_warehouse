@@ -5,6 +5,7 @@ README
 bin/npg_run_statuses2mlwarehouse
 bin/npg_runs2mlwarehouse
 lib/npg_warehouse/loader/autoqc.pm
+lib/npg_warehouse/loader/base.pm
 lib/npg_warehouse/loader/npg.pm
 lib/npg_warehouse/loader/qc.pm
 lib/npg_warehouse/loader/run_status.pm
