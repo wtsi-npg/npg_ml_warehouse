@@ -24,15 +24,31 @@ A base class for warehouse-related code. Defines common attributes.
 
 =head1 SUBROUTINES/METHODS
 
+=head2 explain
+
+Boolean flag activating logging of linking to the flowcell table problems
+
+=cut
+has 'explain'      => ( isa           => 'Bool',
+                        is            => 'ro',
+                        required      => 0,
+                        default       => 0,
+                        documentation =>
+  'Boolean flag, activates logging of linking to the flowcell table' .
+  ' problems, false by default',
+);
+
 =head2 verbose
 
 Verbose boolean flag
 
 =cut
-has 'verbose'      => ( isa        => 'Bool',
-                        is         => 'ro',
-                        required   => 0,
-                        default    => 0,
+has 'verbose'      => ( isa           => 'Bool',
+                        is            => 'ro',
+                        required      => 0,
+                        default       => 0,
+                        documentation =>
+  'Verbose boolean flag, false by default',
 );
 
 =head2 schema_wh

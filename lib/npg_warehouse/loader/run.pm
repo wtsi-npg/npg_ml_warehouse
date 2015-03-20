@@ -56,17 +56,6 @@ npg_warehouse::loader::run
 
 Run id
 
-=head2 explain
-
-Boolean flag activating logging of linking to the flowcell table problems
-
-=cut
-has 'explain'      => ( isa        => 'Bool',
-                        is         => 'ro',
-                        required   => 0,
-                        default    => 0,
-);
-
 =head2 id_flowcell_lims
 
 LIMs specific flowcell id
