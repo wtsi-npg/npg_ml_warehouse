@@ -118,7 +118,7 @@ has '_history'     =>   ( isa        => 'HashRef',
 sub _where_query {
   my $h = {};
   $h->{'id_iseq_flowcell_tmp'} = undef;
-  $h->{'tag_index'}            = {q[!=], 0};
+  $h->{'tag_index'}            = [undef, {q[!=], 0}];
   return $h;
 }
 

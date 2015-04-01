@@ -47,6 +47,8 @@ t/data/fixtures/npgqc/TagMetrics.yml
 t/data/fixtures/wh/000-Sample.yml
 t/data/fixtures/wh/000-Study.yml
 t/data/fixtures/wh/100-IseqFlowcell.yml
+t/data/fixtures/wh_npg/200-IseqProductMetric.yml
+t/data/fixtures/wh_npg/200-IseqRunLaneMetric.yml
 t/data/fixtures_stlims_wh/000-Sample.yml
 t/data/fixtures_stlims_wh/000-Study.yml
 t/data/fixtures_stlims_wh/100-IseqFlowcell.yml

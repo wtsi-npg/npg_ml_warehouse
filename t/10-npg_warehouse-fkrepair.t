@@ -1,7 +1,11 @@
 use strict;
 use warnings;
-use Test::More tests => 10;
+use Test::More tests => 22;
+use Test::Exception;
 use Moose::Meta::Class;
+use File::Temp qw/tempdir/;
+use File::Copy;
+
 use npg_testing::db;
 
 use npg_qc::autoqc::qc_store;
@@ -32,26 +36,62 @@ isa_ok (npg_warehouse::fk_repair->new(), 'npg_warehouse::fk_repair');
 my $util = Moose::Meta::Class->create_anon_class(
   roles => [qw/npg_testing::db/])->new_object({});
 
+# Get full (lim sand npg) set of fixtures
+my $wh_fix = tempdir(UNLINK => 0);
+foreach my $dir (qw(t/data/fixtures/wh t/data/fixtures/wh_npg)) {
+  foreach my $file (glob join(q[/], $dir, '*.yml')) {
+    copy $file, $wh_fix;
+  }
+}
+
 my ($schema_npg, $schema_qc, $schema_wh);
 
-# lives_ok{ $schema_wh  = $util->create_test_db(q[WTSI::DNAP::Warehouse::Schema],
-#   q[t/data/fixtures/wh]) } 'warehouse test db created';
-# lives_ok{ $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
-#   q[t/data/fixtures/npg]) } 'npg test db created';
-# lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
-#   q[t/data/fixtures/npgqc]) } 'npgqc test db created';
+lives_ok{ $schema_wh  = $util->create_test_db(q[WTSI::DNAP::Warehouse::Schema],
+  $wh_fix) } 'warehouse test db created';
+lives_ok{ $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
+  q[t/data/fixtures/npg]) } 'npg test db created';
+lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
+  q[t/data/fixtures/npgqc]) } 'npgqc test db created';
 
-my $init = {
-             schema_npg   => $schema_npg, 
-             schema_qc    => $schema_qc, 
-             schema_wh    => $schema_wh,
-             verbose       => 0,
-             explain       => 0,
-           };
+{
+  my $init = {
+       schema_npg   => $schema_npg, 
+       schema_qc    => $schema_qc, 
+       schema_wh    => $schema_wh,
+       verbose      => 0,
+       explain      => 0,
+       loop         => 0,
+             };
 
+  my $rs = $schema_wh->resultset('IseqProductMetric');
+  my @lanes = sort map {$_->position}
+    $rs->search({id_run               => 4486,
+                 id_iseq_flowcell_tmp => undef,
+                 tag_index            => [undef, {'!=', 0}],
+                })->all;
+  is (join(q[:], @lanes), '3:4:5', 'lanes without fk - test prerequisite');
 
+  my $total       = $rs->search({id_run => 6998})->count;
+  my $no_fk_count = $rs->search({id_run => 6998, id_iseq_flowcell_tmp => undef})->count;
+  is ($no_fk_count, $total, 'no record for run 6998 has fk - test prerequisite');
 
+  my $r = npg_warehouse::fk_repair->new($init);
+  is (join(q[ ], $r->_runs_with_null_fks()) , '4486 6998', 'runs to repair detected');
+  lives_ok {$r->run()} 'repair runs OK';
+  is (join(q[ ], $r->_runs_with_null_fks()) , '4486', 'runs to repair are still detected');
 
+  my $no_fk_rs = $rs->search({id_run => 4486, id_iseq_flowcell_tmp => undef});
+  is ($no_fk_rs->count, 2,
+    'two rows for run 4486 are without the fk (lim sdata missing for lane 5)');
+  @lanes = sort map {$_->position} $no_fk_rs->all;
+  is (join(q[ ], @lanes), '1 5', 'no fk for lanes 1 and 5');
 
+  $no_fk_rs = $rs->search({id_run => 6998, id_iseq_flowcell_tmp => undef});
+  my $tags = { };
+  $tags->{'tag_index0'} = 0;
+  map { $tags->{'tag_index' . $_->tag_index} += 1 } $no_fk_rs->all();
+  is (scalar keys %{$tags}, 1, 'only one type of tag cannot be linked to lims');
+  is ($tags->{'tag_index0'}, 6, 'six tag zero records cannot be linked to lims');
+}
 
 1;
