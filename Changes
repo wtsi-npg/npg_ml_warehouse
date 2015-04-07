@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - a utility for repairing unset foreign keys from npg product table to
+   the flowcell table in the ml warehouse
  - minimise time tables are locked for when loading data to the warehouse
  - use fast batch insert mode
 

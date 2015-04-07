@@ -55,9 +55,9 @@ my $user_id = 7;
 my $plex_key = q[plexes];
 
 my $init = { _autoqc_store => $autoqc_store,
-             _schema_npg   => $schema_npg, 
-             _schema_qc    => $schema_qc, 
-             _schema_wh    => $schema_wh,
+             schema_npg   => $schema_npg, 
+             schema_qc    => $schema_qc, 
+             schema_wh    => $schema_wh,
              verbose       => 0,
              explain       => 0,
            };
