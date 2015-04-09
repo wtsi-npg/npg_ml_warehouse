@@ -16,7 +16,6 @@
   is_spiked: 0
   last_updated: 2013-05-08 14:26:33
   manual_qc: 0
-  num_target_components: 1
   pipeline_id_lims: Standard
   position: 1
   priority: 0
@@ -45,7 +44,6 @@
   is_spiked: 0
   last_updated: 2013-05-08 14:26:33
   manual_qc: 0
-  num_target_components: 1
   pipeline_id_lims: Standard
   position: 1
   priority: 0
@@ -74,7 +72,6 @@
   is_spiked: 0
   last_updated: 2013-05-08 14:26:33
   manual_qc: 0
-  num_target_components: 1
   pipeline_id_lims: Standard
   position: 2
   priority: 0
@@ -103,7 +100,6 @@
   is_spiked: 0
   last_updated: 2013-05-08 14:26:33
   manual_qc: 0
-  num_target_components: 1
   pipeline_id_lims: Standard
   position: 3
   priority: 0
@@ -132,7 +128,6 @@
   is_spiked: 0
   last_updated: 2013-05-08 14:26:33
   manual_qc: 0
-  num_target_components: 1
   pipeline_id_lims: Standard
   position: 6
   priority: 0
@@ -161,7 +156,6 @@
   is_spiked: 0
   last_updated: 2013-05-08 14:26:33
   manual_qc: 0
-  num_target_components: 1
   pipeline_id_lims: Standard
   position: 7
   priority: 0
@@ -190,7 +184,6 @@
   is_spiked: 0
   last_updated: 2013-05-08 14:26:33
   manual_qc: 0
-  num_target_components: 1
   pipeline_id_lims: Standard
   position: 8
   priority: 0
@@ -219,7 +212,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:26:33
   manual_qc: 0
-  num_target_components: 1
   pipeline_id_lims: ~
   position: 4
   priority: 0
@@ -248,7 +240,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 12
   pipeline_id_lims: ~
   position: 1
   priority: 0
@@ -277,7 +268,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 12
   pipeline_id_lims: No PCR
   position: 1
   priority: 0
@@ -306,7 +296,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 12
   pipeline_id_lims: No PCR
   position: 1
   priority: 0
@@ -335,7 +324,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 12
   pipeline_id_lims: No PCR
   position: 1
   priority: 0
@@ -364,7 +352,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 12
   pipeline_id_lims: No PCR
   position: 1
   priority: 0
@@ -393,7 +380,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 12
   pipeline_id_lims: No PCR
   position: 1
   priority: 0
@@ -422,7 +408,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 12
   pipeline_id_lims: No PCR
   position: 1
   priority: 0
@@ -451,7 +436,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 12
   pipeline_id_lims: No PCR
   position: 1
   priority: 0
@@ -480,7 +464,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 12
   pipeline_id_lims: No PCR
   position: 1
   priority: 0
@@ -509,7 +492,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 12
   pipeline_id_lims: No PCR
   position: 1
   priority: 0
@@ -538,7 +520,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 12
   pipeline_id_lims: No PCR
   position: 1
   priority: 0
@@ -567,7 +548,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 12
   pipeline_id_lims: No PCR
   position: 1
   priority: 0
@@ -596,7 +576,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 2
   pipeline_id_lims: ~
   position: 8
   priority: 0
@@ -625,7 +604,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 2
   pipeline_id_lims: No PCR
   position: 8
   priority: 0
@@ -654,7 +632,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 2
   pipeline_id_lims: ~
   position: 7
   priority: 0
@@ -683,7 +660,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 2
   pipeline_id_lims: No PCR
   position: 7
   priority: 0
@@ -712,7 +688,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 2
   pipeline_id_lims: ~
   position: 6
   priority: 0
@@ -741,7 +716,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 2
   pipeline_id_lims: No PCR
   position: 6
   priority: 0
@@ -770,7 +744,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 2
   pipeline_id_lims: ~
   position: 5
   priority: 0
@@ -799,7 +772,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 2
   pipeline_id_lims: No PCR
   position: 5
   priority: 0
@@ -828,7 +800,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 2
   pipeline_id_lims: ~
   position: 4
   priority: 0
@@ -857,7 +828,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 2
   pipeline_id_lims: No PCR
   position: 4
   priority: 0
@@ -886,7 +856,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 2
   pipeline_id_lims: ~
   position: 3
   priority: 0
@@ -915,7 +884,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 2
   pipeline_id_lims: No PCR
   position: 3
   priority: 0
@@ -944,7 +912,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 2
   pipeline_id_lims: ~
   position: 2
   priority: 0
@@ -973,7 +940,6 @@
   is_spiked: 1
   last_updated: 2013-05-08 14:46:05
   manual_qc: 0
-  num_target_components: 2
   pipeline_id_lims: No PCR
   position: 2
   priority: 0
