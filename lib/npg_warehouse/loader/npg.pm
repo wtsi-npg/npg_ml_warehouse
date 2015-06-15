@@ -3,6 +3,7 @@ package npg_warehouse::loader::npg;
 use Carp;
 use Moose;
 use MooseX::StrictConstructor;
+use List::MoreUtils qw/none/;
 use npg_tracking::Schema;
 
 with 'npg_tracking::glossary::run';
@@ -54,6 +55,23 @@ Run id, optional attribute.
 =cut
 has '+id_run'   =>        (required        => 0,);
 
+=head2 run_ready2load
+
+A boolean test returning true if the run can be loaded and false
+if it's too early (bases on run status) to load the run
+
+=cut
+sub run_ready2load {
+    my $self = shift;
+    if (!$self->id_run) {
+        croak 'Need run id';
+    }
+    my $status_desc = $self->schema_npg()->resultset('Run')->find($self->id_run)->current_run_status_description() || q[];
+    if ($self->verbose) {
+        warn "Run status is '$status_desc'\n";
+    }
+    return none {$status_desc eq $_} ('run pending', 'run in progress', 'run on hold');
+}
 
 =head2 run_is_paired_read
 
