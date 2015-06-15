@@ -227,6 +227,8 @@ __END__
 
 =item MooseX::StrictConstructor
 
+=item List::MoreUtils
+
 =item npg_tracking::Schema
 
 =item npg_tracking::glossary::run
@@ -243,7 +245,7 @@ Andy Brown and Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2014 Genome Research Limited
+Copyright (C) 2015 Genome Research Limited
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
