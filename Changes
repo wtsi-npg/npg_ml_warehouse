@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+release 37.6
  - delay wh loader till the run is finished so that we have time to
    update the number of lanes in the npg_tracking db
 
