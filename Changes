@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+ - delay wh loader till the run is finished so that we have time to
+   update the number of lanes in the npg_tracking db
+
 release 37.5.1
  - DBIx batch insert does not work correctly, leaves some columns empty.
    Reverted to per-row insert.
