@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+ - Try to figure out id_run from IseqProductMetrics if a flowcell
+   identifier is provided
+
 release 37.7
  - wh loader bug fix to prevent dropping existing product data if
    no new data is available (GCLP staging data not visible from seq farm
