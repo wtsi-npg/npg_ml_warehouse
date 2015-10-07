@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+release 37.8
  - Load unexpected tag and chimeric fields in iseq_product_metric and 
    iseq_run_lane_metric tables
 
