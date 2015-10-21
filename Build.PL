@@ -54,6 +54,8 @@ my $builder = npg_tracking::util::build->new(
                     'npg_qc::autoqc::qc_store::query'         => 0,
                     'npg_tracking::glossary::flowcell'        => 0,
                     'npg_tracking::glossary::run'             => 0,
+                    'npg_tracking::glossary::lane'            => 0,
+                    'npg_tracking::glossary::tag'             => 0,
                     'npg_tracking::Schema'                    => 0,
                  },
 );
