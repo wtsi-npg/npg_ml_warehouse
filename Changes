@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+ - daemon to continiously repair foreign keys from iseq_product_metrics
+   table in ml warehouse to iseq_flowcell table
+
 release 37.8
  - Load unexpected tag and chimeric fields in iseq_product_metric and 
    iseq_run_lane_metric tables
