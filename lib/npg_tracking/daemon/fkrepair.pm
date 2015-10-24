@@ -12,7 +12,7 @@ Readonly::Scalar our $SCRIPT_NAME => q[npg_mlwarehouse_fkrepair];
 override '_build_hosts' => sub { return ['sf2-farm-srv2']; };
 
 override 'daemon_name'  => sub { return $SCRIPT_NAME; };
-override 'command'      => sub { return "$SCRIPT_NAME --loop --sleep-time 1200"; };
+override 'command'      => sub { return "$SCRIPT_NAME --loop --sleep_time 1200"; };
 
 no Moose;
 
