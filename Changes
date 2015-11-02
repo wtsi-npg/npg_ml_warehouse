@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - Try to figure out id_run from IseqProductMetrics if a flowcell
+   identifier is provided
  - daemon to continiously repair foreign keys from iseq_product_metrics
    table in ml warehouse to iseq_flowcell table
 
