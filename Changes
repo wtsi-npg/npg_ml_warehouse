@@ -2,6 +2,12 @@ LIST OF CHANGES
 
  - Try to figure out id_run from IseqProductMetrics if a flowcell
    identifier is provided
+ - daemon to continiously repair foreign keys from iseq_product_metrics
+   table in ml warehouse to iseq_flowcell table
+
+release 37.8
+ - Load unexpected tag and chimeric fields in iseq_product_metric and 
+   iseq_run_lane_metric tables
 
 release 37.7
  - wh loader bug fix to prevent dropping existing product data if
