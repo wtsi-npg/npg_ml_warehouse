@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 250;
+use Test::More tests => 229;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -81,7 +81,9 @@ my $init = { _autoqc_store => $autoqc_store,
 #12498    #  6642   #               # 1           #    #     # 1 split and bam stats added
 ################################################################
 
-{
+subtest 'two runfolders old run ' => sub {
+  plan tests => 31;
+
   my %in = %{$init};
   $in{'id_run'} = 1246;
   my $loader;
@@ -124,9 +126,13 @@ my $init = { _autoqc_store => $autoqc_store,
   $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => 1246,});
   is ($rs->count, 1, '1 product row for run 1246');
   $r = $rs->next;
+  is ($r->position, 1, 'position correct');
   is ($r->q30_yield_kb_forward_read, 3, 'forward read q30 for the product');
   is ($r->q40_yield_kb_forward_read, 4, 'forward read q40 for the product');
   ok (!$r->$LIMS_FK_COLUMN_NAME, 'lims fk not set');
+  is ($r->qc, undef, 'qc value undefined');
+  is ($r->qc_seq, undef, 'seq qc value undefined');
+  is ($r->qc_lib, undef, 'lib qc value undefined');
 
   lives_ok {$schema_npg->resultset('Run')
     ->update_or_create({batch_id => undef, flowcell_id => undef, id_run => 1246, })}
@@ -140,7 +146,21 @@ my $init = { _autoqc_store => $autoqc_store,
     qr/Tracking database has no flowcell information for run 1246/,
     'warning about absence of lims data in tracking db';
   lives_ok { $loader->load() } 'absence of lims data does not lead to an error';
-}
+
+  for my $p ((1 .. 3)) {
+    $schema_qc->resultset('MqcOutcomeEnt')
+              ->create({id_run => 1246, position => $p, id_mqc_outcome => 3});
+  }
+  
+  npg_warehouse::loader::run->new(\%in)->load();
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => 1246,});
+  is ($rs->count, 1, '1 product row for run 1246');
+  $r = $rs->next;
+  is ($r->position, 1, 'position correct');
+  is ($r->qc, 1, 'qc value 1');
+  is ($r->qc_seq, 1, 'seq qc value 1');
+  is ($r->qc_lib, undef, 'lib qc value undefined');  
+};
 
 {
   my %in = %{$init};
