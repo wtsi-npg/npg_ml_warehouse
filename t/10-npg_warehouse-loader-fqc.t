@@ -5,14 +5,14 @@ use Test::Exception;
 use Moose::Meta::Class;
 use npg_testing::db;
 
-use_ok('npg_warehouse::loader::mqc');
+use_ok('npg_warehouse::loader::fqc');
 
 my $util = Moose::Meta::Class->create_anon_class(
   roles => [qw/npg_testing::db/])->new_object({});
 
 my $schema_qc;
 
-my @qc_types = qw/mqc mqc_lib mqc_seq/;
+my @qc_types = qw/qc qc_lib qc_seq/;
 
 lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
   q[t/data/fixtures/npgqc]) } 'qc test db created';
@@ -20,17 +20,17 @@ lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
  subtest 'object initialization and input checking' => sub {
   plan tests => 8;
 
-  throws_ok {npg_warehouse::loader::mqc->new(schema_qc => $schema_qc) }
+  throws_ok {npg_warehouse::loader::fqc->new(schema_qc => $schema_qc) }
     qr/Attribute \(plex_key\) is required /,
     'error if plex_key attr is not set';
 
   my $mqc;
-  lives_ok { $mqc  = npg_warehouse::loader::mqc->new( 
+  lives_ok { $mqc  = npg_warehouse::loader::fqc->new( 
                                              schema_qc => $schema_qc, 
                                              plex_key => 'plex'
                                                    )}
   'object instantiated';
-  isa_ok ($mqc, 'npg_warehouse::loader::mqc');
+  isa_ok ($mqc, 'npg_warehouse::loader::fqc');
   is ($mqc->verbose, 0, 'verbose mode is off by default');
 
   throws_ok { $mqc->retrieve_lane_outcomes() }
@@ -46,7 +46,7 @@ lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
 subtest 'saving data' => sub {
   plan tests => 10;
 
-  my $mqc  = npg_warehouse::loader::mqc->new( 
+  my $mqc  = npg_warehouse::loader::fqc->new( 
                                 schema_qc => $schema_qc, 
                                 plex_key => 'plex'
                                            );
@@ -123,7 +123,7 @@ subtest 'retrieve data, seq outcomes only' => sub {
     }
   }
 
-  my $mqc  = npg_warehouse::loader::mqc->new( 
+  my $mqc  = npg_warehouse::loader::fqc->new( 
                                 schema_qc => $schema_qc, 
                                 plex_key => 'plex'
                                            );
@@ -139,14 +139,14 @@ subtest 'retrieve data, seq outcomes only' => sub {
 
   $rs->find({id_run => 33, position => 1})
     ->update({id_mqc_outcome => 4, reported => $time});
-  $expected->{1}->{1}->{'mqc'} = 0;
-  $expected->{1}->{1}->{'mqc_seq'} = 0;
+  $expected->{1}->{1}->{'qc'} = 0;
+  $expected->{1}->{1}->{'qc_seq'} = 0;
 
   is_deeply ($mqc->retrieve_lane_outcomes(33, 1, []), $expected->{1},
     'two fail outcomes defined');
 
-  $expected->{2}->{2}->{'mqc'} = 1;
-  $expected->{2}->{2}->{'mqc_seq'} = 1;
+  $expected->{2}->{2}->{'qc'} = 1;
+  $expected->{2}->{2}->{'qc_seq'} = 1;
   is_deeply ($mqc->retrieve_lane_outcomes(33, 2, []), $expected->{2},
     'two pass outcomes defined');
 
@@ -156,7 +156,7 @@ subtest 'retrieve data, seq outcomes only' => sub {
       delete $expected->{$p}->{$p}->{$t};
       for my $tag (@tags) {
         $expected->{$p}->{$p}->{'plex'}->{$tag}->{$t} =
-          ($t eq 'mqc_lib') ? undef : (($p == 1) ? 0 : 1);
+          ($t eq 'qc_lib') ? undef : (($p == 1) ? 0 : 1);
       }
     }
   }
@@ -183,20 +183,20 @@ subtest 'retrieve data, seq+lib outcomes for a one lib lane' => sub {
     }
   }
 
-  $expected->{1}->{1}->{'mqc_seq'} = 1;
-  $expected->{2}->{2}->{'mqc_seq'} = 1;
-  $expected->{5}->{5}->{'mqc_seq'} = 0;
-  $expected->{6}->{6}->{'mqc_seq'} = 0;
+  $expected->{1}->{1}->{'qc_seq'} = 1;
+  $expected->{2}->{2}->{'qc_seq'} = 1;
+  $expected->{5}->{5}->{'qc_seq'} = 0;
+  $expected->{6}->{6}->{'qc_seq'} = 0;
 
-  $expected->{1}->{1}->{'mqc_lib'} = 1;
-  $expected->{2}->{2}->{'mqc_lib'} = 0;
+  $expected->{1}->{1}->{'qc_lib'} = 1;
+  $expected->{2}->{2}->{'qc_lib'} = 0;
 
-  $expected->{1}->{1}->{'mqc'} = 1;
-  $expected->{2}->{2}->{'mqc'} = 0;
-  $expected->{5}->{5}->{'mqc'} = 0;
-  $expected->{6}->{6}->{'mqc'} = 0;
+  $expected->{1}->{1}->{'qc'} = 1;
+  $expected->{2}->{2}->{'qc'} = 0;
+  $expected->{5}->{5}->{'qc'} = 0;
+  $expected->{6}->{6}->{'qc'} = 0;
 
-  my $mqc  = npg_warehouse::loader::mqc->new( 
+  my $mqc  = npg_warehouse::loader::fqc->new( 
                                 schema_qc => $schema_qc, 
                                 plex_key => 'plex'
                                            );
@@ -239,16 +239,16 @@ subtest 'retrieve data, seq+lib outcomes for a pool' => sub {
       $expected->{1}->{1}->{'plex'}->{$tag}->{$t} = 1;
     }
   }
-  $expected->{1}->{1}->{'plex'}->{6}->{'mqc'} = 0;
-  $expected->{1}->{1}->{'plex'}->{6}->{'mqc_lib'} = 0;
+  $expected->{1}->{1}->{'plex'}->{6}->{'qc'} = 0;
+  $expected->{1}->{1}->{'plex'}->{6}->{'qc_lib'} = 0;
 
   for my $tag (@tags) {
-    $expected->{6}->{6}->{'plex'}->{$tag}->{'mqc_seq'} = 0;
-    $expected->{6}->{6}->{'plex'}->{$tag}->{'mqc'}     = 0;
-    $expected->{6}->{6}->{'plex'}->{$tag}->{'mqc_lib'} = undef;
+    $expected->{6}->{6}->{'plex'}->{$tag}->{'qc_seq'} = 0;
+    $expected->{6}->{6}->{'plex'}->{$tag}->{'qc'}     = 0;
+    $expected->{6}->{6}->{'plex'}->{$tag}->{'qc_lib'} = undef;
   }
 
-  my $mqc  = npg_warehouse::loader::mqc->new( 
+  my $mqc  = npg_warehouse::loader::fqc->new( 
                                 schema_qc => $schema_qc, 
                                 plex_key => 'plex'
                                            );
@@ -270,12 +270,12 @@ subtest 'retrieve data, seq+lib outcomes for a pool' => sub {
 
   delete $expected->{6}->{6}->{'plex'}->{6};
   delete $expected->{1}->{1}->{'plex'}->{6};
-  $expected->{1}->{1}->{'plex'}->{7}->{'mqc_lib'} = undef;
-  $expected->{1}->{1}->{'plex'}->{7}->{'mqc_seq'} = 1;
-  $expected->{1}->{1}->{'plex'}->{7}->{'mqc'}     = 1;
-  $expected->{6}->{6}->{'plex'}->{7}->{'mqc_lib'} = undef;
-  $expected->{6}->{6}->{'plex'}->{7}->{'mqc_seq'} = 0;
-  $expected->{6}->{6}->{'plex'}->{7}->{'mqc'}     = 0;
+  $expected->{1}->{1}->{'plex'}->{7}->{'qc_lib'} = undef;
+  $expected->{1}->{1}->{'plex'}->{7}->{'qc_seq'} = 1;
+  $expected->{1}->{1}->{'plex'}->{7}->{'qc'}     = 1;
+  $expected->{6}->{6}->{'plex'}->{7}->{'qc_lib'} = undef;
+  $expected->{6}->{6}->{'plex'}->{7}->{'qc_seq'} = 0;
+  $expected->{6}->{6}->{'plex'}->{7}->{'qc'}     = 0;
 
   foreach my $p ((1, 6)) {
     is_deeply ($mqc->retrieve_lane_outcomes(333, $p, [5, 7]), $expected->{$p},

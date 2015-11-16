@@ -9,7 +9,7 @@ lib/npg_tracking/daemon/fkrepair.pm
 lib/npg_warehouse/fk_repair.pm
 lib/npg_warehouse/loader/autoqc.pm
 lib/npg_warehouse/loader/base.pm
-lib/npg_warehouse/loader/mqc.pm
+lib/npg_warehouse/loader/fqc.pm
 lib/npg_warehouse/loader/npg.pm
 lib/npg_warehouse/loader/qc.pm
 lib/npg_warehouse/loader/run_status.pm
@@ -17,7 +17,7 @@ lib/npg_warehouse/loader/run.pm
 lib/st/api/lims/ml_warehouse.pm
 t/10-npg_warehouse-fkrepair.t
 t/10-npg_warehouse-loader-autoqc.t
-t/10-npg_warehouse-loader-mqc.t
+t/10-npg_warehouse-loader-fqc.t
 t/10-npg_warehouse-loader-npg.t
 t/10-npg_warehouse-loader-qc.t
 t/10-npg_warehouse-loader-run.t

@@ -1,4 +1,4 @@
-package npg_warehouse::loader::mqc;
+package npg_warehouse::loader::fqc;
 
 use Carp;
 use Moose;
@@ -9,20 +9,20 @@ use npg_qc::Schema;
 
 our $VERSION = '0';
 
-Readonly::Scalar my $COL_NAME_MQC     => 'mqc';
-Readonly::Scalar my $COL_NAME_MQC_SEQ => $COL_NAME_MQC . '_seq';
-Readonly::Scalar my $COL_NAME_MQC_LIB => $COL_NAME_MQC . '_lib';
+Readonly::Scalar my $COL_NAME_QC     => 'qc';
+Readonly::Scalar my $COL_NAME_QC_SEQ => $COL_NAME_QC . '_seq';
+Readonly::Scalar my $COL_NAME_QC_LIB => $COL_NAME_QC . '_lib';
 
 =head1 NAME
 
-npg_warehouse::loader::mqc
+npg_warehouse::loader::fqc
 
 =head1 SYNOPSIS
 
 =head1 DESCRIPTION
 
-A retriever for manual QC outcomes to be loaded to the warehouse table.
-Data for 'mqc_seq', 'mqc_lib' and 'mqc' columns are retrieved as sequencing
+A retriever for final QC outcomes to be loaded to the warehouse table.
+Data for 'qc_seq', 'qc_lib' and 'qc' columns are retrieved as sequencing
 qc outcome, library qc outcome and a cumulative value to be used for the product.
 Either of the outcomes may be undefined.
 
@@ -68,7 +68,7 @@ has 'plex_key' =>   ( isa             => 'Str',
 
 =head2 retrieve_lane_outcomes
 
-Retrieves manual qc outcomes for a lane as a hash in the format expected
+Retrieves final qc outcomes for a lane as a hash in the format expected
 by the warehouse loader.
 
   my $id_run = 22;
@@ -100,7 +100,7 @@ sub retrieve_lane_outcomes {
   $tags //= [];
   my $outcomes = {};
   $self->_save_outcomes($outcomes,
-                        [$COL_NAME_MQC, $COL_NAME_MQC_SEQ, $COL_NAME_MQC_LIB],
+                        [$COL_NAME_QC, $COL_NAME_QC_SEQ, $COL_NAME_QC_LIB],
                         $tags);
 
   my $where       = {'id_run' => $id_run, 'position' => $position};
@@ -124,7 +124,7 @@ sub _seq_outcome {
   my $seq_outcome;
   if ($row && $row->has_final_outcome) {
     $seq_outcome = $row->is_accepted ? 1 : 0;
-    $self->_save_outcomes($outcomes, [$COL_NAME_MQC, $COL_NAME_MQC_SEQ], $tags, $seq_outcome);
+    $self->_save_outcomes($outcomes, [$COL_NAME_QC, $COL_NAME_QC_SEQ], $tags, $seq_outcome);
   }
 
   return $seq_outcome;
@@ -145,9 +145,9 @@ sub _lib_outcomes {
       my $lib_outcome = $lib_row->is_accepted ? 1 : ($lib_row->is_rejected ? 0 : undef);
       if (defined $lib_outcome) {
         my $tag_array = defined $lib_row->tag_index ? [$lib_row->tag_index] : [];
-        $self->_save_outcomes($outcomes, [$COL_NAME_MQC_LIB], $tag_array, $lib_outcome);
+        $self->_save_outcomes($outcomes, [$COL_NAME_QC_LIB], $tag_array, $lib_outcome);
         if (!$lib_outcome) {
-          $self->_save_outcomes($outcomes, [$COL_NAME_MQC], $tag_array, $lib_outcome);
+          $self->_save_outcomes($outcomes, [$COL_NAME_QC], $tag_array, $lib_outcome);
 	}
       }
     }
