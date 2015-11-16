@@ -208,7 +208,7 @@ subtest 'retrieve data, seq+lib outcomes for a one lib lane' => sub {
 };
 
 subtest 'retrieve data, seq+lib outcomes for a pool' => sub {
-  plan tests => 2;
+  plan tests => 6;
 
   my $rs = $schema_qc->resultset('MqcLibraryOutcomeEnt');
   my @tags = (1, 2, 5, 6);
@@ -244,7 +244,7 @@ subtest 'retrieve data, seq+lib outcomes for a pool' => sub {
 
   for my $tag (@tags) {
     $expected->{6}->{6}->{'plex'}->{$tag}->{'mqc_seq'} = 0;
-    $expected->{6}->{6}->{'plex'}->{$tag}->{'mqc'} = 0;
+    $expected->{6}->{6}->{'plex'}->{$tag}->{'mqc'}     = 0;
     $expected->{6}->{6}->{'plex'}->{$tag}->{'mqc_lib'} = undef;
   }
 
@@ -255,8 +255,32 @@ subtest 'retrieve data, seq+lib outcomes for a pool' => sub {
 
   foreach my $p ((1, 6)) {
     is_deeply ($mqc->retrieve_lane_outcomes(333, $p, \@tags), $expected->{$p},
-    'correct outcomes');
+      'correct outcomes');
   }
+
+  for my $tag ((1,2)) {
+    delete $expected->{6}->{6}->{'plex'}->{$tag};
+    delete $expected->{1}->{1}->{'plex'}->{$tag};
+  }
+
+  foreach my $p ((1, 6)) {
+    is_deeply ($mqc->retrieve_lane_outcomes(333, $p, [5, 6]), $expected->{$p},
+      'correct outcomes with reduces list of tags');
+  }
+
+  delete $expected->{6}->{6}->{'plex'}->{6};
+  delete $expected->{1}->{1}->{'plex'}->{6};
+  $expected->{1}->{1}->{'plex'}->{7}->{'mqc_lib'} = undef;
+  $expected->{1}->{1}->{'plex'}->{7}->{'mqc_seq'} = 1;
+  $expected->{1}->{1}->{'plex'}->{7}->{'mqc'}     = 1;
+  $expected->{6}->{6}->{'plex'}->{7}->{'mqc_lib'} = undef;
+  $expected->{6}->{6}->{'plex'}->{7}->{'mqc_seq'} = 0;
+  $expected->{6}->{6}->{'plex'}->{7}->{'mqc'}     = 0;
+
+  foreach my $p ((1, 6)) {
+    is_deeply ($mqc->retrieve_lane_outcomes(333, $p, [5, 7]), $expected->{$p},
+      'correct outcomes with a list of tags that includes a tag without lib outcome');
+  }  
 };
 
 1;
