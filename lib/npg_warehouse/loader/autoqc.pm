@@ -319,7 +319,7 @@ sub _upstream_tags {
     my ($self, $result, $autoqc) = @_;
     my $position = $result->position;
     my $tag_index = $result->tag_index;
-    my $total = $result->total_tag0_reads;
+    my $total = $result->total_lane_reads;
     my $unexpected_tags_percent = $self->_truncate_float($total ? $result->tag0_perfect_match_reads * $HUNDRED / $total : 0.00);
     $self->_copy_fields({unexpected_tags_percent => $unexpected_tags_percent}, $autoqc, $position, $tag_index);
     return;

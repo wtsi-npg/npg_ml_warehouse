@@ -2,6 +2,9 @@ LIST OF CHANGES
 
  - extended ml warrehouse loader to load final qc values
 
+release 37.10
+ - Corrected calculation of unexpected_tags_percent
+
 release 37.9
  - Try to figure out id_run from IseqProductMetrics if a flowcell
    identifier is provided.
