@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - extended ml warrehouse loader to load final qc values
+
 release 37.10
  - Corrected calculation of unexpected_tags_percent
 

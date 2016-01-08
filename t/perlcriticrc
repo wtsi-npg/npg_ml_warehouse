@@ -5,4 +5,4 @@
 [Documentation::RequirePodSections]
 lib_sections    = NAME | SYNOPSIS | DESCRIPTION | SUBROUTINES/METHODS | BUGS AND LIMITATIONS | DEPENDENCIES | CONFIGURATION AND ENVIRONMENT | INCOMPATIBILITIES | AUTHOR | LICENSE AND COPYRIGHT
 [Documentation::PodSpelling]
-stop_words = FindBin flowcell NPG npg DBIx NPGQC qc arg dev plex Gourtovaia autoqc Readonly boolean LIMs
+stop_words = FindBin flowcell NPG npg DBIx NPGQC qc arg dev plex Gourtovaia autoqc Readonly boolean LIMs mqc

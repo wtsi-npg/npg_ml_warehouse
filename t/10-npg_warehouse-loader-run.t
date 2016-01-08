@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 250;
+use Test::More tests => 15;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -81,7 +81,9 @@ my $init = { _autoqc_store => $autoqc_store,
 #12498    #  6642   #               # 1           #    #     # 1 split and bam stats added
 ################################################################
 
-{
+subtest 'old paired (two runfolders) run' => sub {
+  plan tests => 31;
+
   my %in = %{$init};
   $in{'id_run'} = 1246;
   my $loader;
@@ -124,9 +126,13 @@ my $init = { _autoqc_store => $autoqc_store,
   $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => 1246,});
   is ($rs->count, 1, '1 product row for run 1246');
   $r = $rs->next;
+  is ($r->position, 1, 'position correct');
   is ($r->q30_yield_kb_forward_read, 3, 'forward read q30 for the product');
   is ($r->q40_yield_kb_forward_read, 4, 'forward read q40 for the product');
   ok (!$r->$LIMS_FK_COLUMN_NAME, 'lims fk not set');
+  is ($r->qc, undef, 'qc value undefined');
+  is ($r->qc_seq, undef, 'seq qc value undefined');
+  is ($r->qc_lib, undef, 'lib qc value undefined');
 
   lives_ok {$schema_npg->resultset('Run')
     ->update_or_create({batch_id => undef, flowcell_id => undef, id_run => 1246, })}
@@ -140,9 +146,27 @@ my $init = { _autoqc_store => $autoqc_store,
     qr/Tracking database has no flowcell information for run 1246/,
     'warning about absence of lims data in tracking db';
   lives_ok { $loader->load() } 'absence of lims data does not lead to an error';
-}
 
-{
+  for my $p ((1 .. 3)) {
+    $schema_qc->resultset('MqcOutcomeEnt')
+      ->create({id_run => 1246, position => $p, id_mqc_outcome => 3});
+    $schema_qc->resultset('MqcLibraryOutcomeEnt')
+      ->create({id_run => 1246, position => $p, id_mqc_outcome => 3, tag_index => 8});
+  }
+  
+  npg_warehouse::loader::run->new(\%in)->load();
+  $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => 1246,});
+  is ($rs->count, 1, '1 product row for run 1246');
+  $r = $rs->next;
+  is ($r->position, 1, 'position correct');
+  is ($r->qc, 1, 'qc value 1');
+  is ($r->qc_seq, 1, 'seq qc value 1');
+  is ($r->qc_lib, undef, 'lib qc value undefined');  
+};
+
+subtest 'old paired (two runfolders) run' => sub {
+  plan tests => 11;
+
   my %in = %{$init};
   $in{'id_run'} = 4138;
   my $loader  = npg_warehouse::loader::run->new(\%in);
@@ -171,9 +195,11 @@ my $init = { _autoqc_store => $autoqc_store,
   $r = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 3323,position=>1},)->next;
   is($r->raw_cluster_density, undef, 'raw_cluster_density undefined');
   is($r->pf_cluster_density, undef, 'pf_cluster_density undefined'); 
-}
+};
 
-{
+subtest 'indexed run' => sub {
+  plan tests => 45;
+
   my $id_run = 4333;
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
@@ -239,9 +265,11 @@ my $init = { _autoqc_store => $autoqc_store,
     }
   }
   cmp_deeply($autoqc, $expected, 'loaded autoqc results');
-}
+};
 
-{
+subtest 'indexed run' => sub {
+  plan tests => 25;
+
   my $id_run = 4799;
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
@@ -340,15 +368,27 @@ my $init = { _autoqc_store => $autoqc_store,
   $e->{4}->{q20_yield_kb_reverse_read} = 1393269;
  
   is_deeply ($found, $e, 'lane product autoqc results');  
-}
+};
 
-{
+subtest 'indexed run' => sub {
+  plan tests => 40;
+
   my $id_run = 6624;
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
   lives_ok {$schema_npg->resultset('Run')
     ->update_or_create({folder_path_glob => $folder_glob, folder_name => '110731_HS17_06624_A_B00T5ACXX', id_run => $id_run, })}
     'forder glob reset lives - test prerequisite';
+
+  my $lane_qc_rs = $schema_qc->resultset('MqcOutcomeEnt');
+  my $lib_qc_rs  = $schema_qc->resultset('MqcLibraryOutcomeEnt');
+  $lane_qc_rs->create({id_run => 6624, position => 1, id_mqc_outcome => 3});
+  $lib_qc_rs->create({id_run => 6624, position => 1, tag_index => 0, id_mqc_outcome => 3});     $lane_qc_rs->create({id_run => 6624, position => 2, id_mqc_outcome => 4});
+  $lib_qc_rs->create({id_run => 6624, position => 2, tag_index => 1, id_mqc_outcome => 5});
+  $lane_qc_rs->create({id_run => 6624, position => 3, id_mqc_outcome => 3});
+  $lib_qc_rs->create({id_run => 6624, position => 3, tag_index => 1, id_mqc_outcome => 3});
+  $lib_qc_rs->create({id_run => 6624, position => 3, tag_index => 4, id_mqc_outcome => 4});
+  $lib_qc_rs->create({id_run => 6624, position => 3, tag_index => 3, id_mqc_outcome => 4});
 
   my %in = %{$init};
   $in{'id_run'} = $id_run;
@@ -375,6 +415,9 @@ my $init = { _autoqc_store => $autoqc_store,
   my $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->find({id_run=>6624,position=>1,tag_index=>0});
   ok(!defined $plex->tag_sequence4deplexing(), 'index zero tag sequence is not defined');
   is($plex->tag_decode_count(), 1831358, 'lane 1 tag index 0 count');
+  is($plex->qc, undef, 'qc value undefined');
+  is($plex->qc_lib, undef, 'qc lib value undefined');
+  is($plex->qc_seq, undef, 'qc seq value undefined');
 
   ok ($loader->_lane_is_indexed(2), 'lane 2 is indexed');
   is ($schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>2,tag_index=>undef})->count,
@@ -386,16 +429,25 @@ my $init = { _autoqc_store => $autoqc_store,
   is($plex->tag_decode_count(), 1277701, 'lane 2 tag index 168 count');
   cmp_ok(sprintf('%.2f', $plex->tag_decode_percent()), q(==), 0.73, ,
     'lane 2 tag index 168 percent');
+  is($plex->qc, 0, 'qc value 1');
+  is($plex->qc_lib, undef, 'qc lib value undefined');
+  is($plex->qc_seq, 0, 'qc seq value 1');
 
   $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>3,tag_index=>1})->first;
   cmp_ok(sprintf('%.2f',$plex->mean_bait_coverage()), q(==), 41.49, 'mean bait coverage');
   cmp_ok(sprintf('%.2f',$plex->on_bait_percent()), q(==), 68.06, 'on bait percent');
   cmp_ok(sprintf('%.2f',$plex->on_or_near_bait_percent()), q(==), 88.92, 'on or near bait percent');
+  is($plex->qc, 1, 'qc value 1');
+  is($plex->qc_lib, 1, 'qc lib value undefined');
+  is($plex->qc_seq, 1, 'qc seq value 1');
 
   $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>3,tag_index=>4})->first;
   cmp_ok(sprintf('%.2f',$plex->num_reads()), q(==), 33605036, 'bam number of reads');
   cmp_ok(sprintf('%.2f',$plex->percent_mapped()), q(==), 96.12, 'bam (nonphix) mapped percent');
   cmp_ok(sprintf('%.2f',$plex->percent_duplicate()), q(==), 1.04, 'bam (nonphix) duplicate percent');
+  is($plex->qc, 0, 'qc value 0');
+  is($plex->qc_lib, 0, 'qc lib value undefined');
+  is($plex->qc_seq, 1, 'qc seq value 1');
 
   ok ($loader->_lane_is_indexed(4), 'lane 4 is indexed');
   is ($schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>4,tag_index=>undef})->count,
@@ -403,9 +455,11 @@ my $init = { _autoqc_store => $autoqc_store,
   $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->find({id_run=>$id_run,position=>4,tag_index=>0});
   is($plex->q30_yield_kb_reverse_read, 99353, 'q30 plex reverse');
   is($plex->q40_yield_kb_forward_read, 72788, 'q40 plex forward');
-}
+};
 
-{
+subtest 'indexed run' => sub {
+  plan tests => 23;
+
   my $id_run = 6642;
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
@@ -449,9 +503,11 @@ my $init = { _autoqc_store => $autoqc_store,
   cmp_ok(sprintf('%.2f',$plex->num_reads()), q(==), 138756624, 'bam (nonhuman) number of reads');
   cmp_ok(sprintf('%.2f',$plex->percent_mapped()), q(==), 96.3, 'bam (nonhuman) mapped percent');
   cmp_ok(sprintf('%.2f',$plex->percent_duplicate()), q(==), 6.34, 'bam (nonhuman) duplicate percent');
-}
+};
 
-{
+subtest 'linking to lims data' => sub {
+  plan tests => 52;
+
   $schema_wh->resultset('IseqFlowcell')->find({id_flowcell_lims=>14178, position=>6, tag_index=>168})
    ->update({entity_type => 'library_indexed' });
   is ($schema_wh->resultset('IseqFlowcell')->find({id_flowcell_lims=>14178, position=>6, tag_index=>168})->entity_type,
@@ -542,9 +598,11 @@ my $init = { _autoqc_store => $autoqc_store,
   is ($fc->position, 4, 'position correct');
   is ($fc->tag_index, 168, 'tag_index correct');
   is ($fc->entity_type, 'library_indexed_spike', 'this is a spike');
-} 
+};
 
-{
+subtest 'linking to lims data' => sub {
+  plan tests => 31;
+
   my $id_run = 4486;
   my %in = %{$init};
   $in{'id_run'} = $id_run;
@@ -594,9 +652,11 @@ my $init = { _autoqc_store => $autoqc_store,
   $row = $rows[4];
   is ($row->position, 5, 'lane five present');
   ok(!defined $row->$LIMS_FK_COLUMN_NAME, 'lane 5 is not in the flowcell table; foreign key for the flowcell table is absent');
-}
+};
 
-{
+subtest 'loading mode data for insert size' => sub {
+  plan tests => 7;
+
   my $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
          {id_run => 6998, position => 1, tag_index => [13,14,15]},
          {order_by => 'tag_index'}
@@ -611,10 +671,11 @@ my $init = { _autoqc_store => $autoqc_store,
   $row = $rs->next;
   is($row->insert_size_num_modes, 2, 'num modes');
   is($row->insert_size_normal_fit_confidence, 1, 'confidence capped to 1');
+};
 
-}
+subtest 'not loading early stage runs' => sub {
+  plan tests => 1;
 
-{
   my %in = %{$init};
   $in{'id_run'} = 1246;
   $in{'verbose'} = 1;
@@ -625,6 +686,6 @@ my $init = { _autoqc_store => $autoqc_store,
     qr/Run status is \'run in progress\'/,
     qr/Too early to load run 1246, not loading/],
     'warning about not loading an early stage run';
-}
+};
 
 1;
