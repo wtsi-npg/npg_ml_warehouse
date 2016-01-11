@@ -15,6 +15,7 @@ lib/npg_warehouse/loader/qc.pm
 lib/npg_warehouse/loader/run_status.pm
 lib/npg_warehouse/loader/run.pm
 lib/st/api/lims/ml_warehouse.pm
+lib/st/api/lims/ml_warehouse_auto.pm
 t/10-npg_warehouse-fkrepair.t
 t/10-npg_warehouse-loader-autoqc.t
 t/10-npg_warehouse-loader-fqc.t
