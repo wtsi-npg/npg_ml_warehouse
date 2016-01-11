@@ -9,6 +9,7 @@ lib/npg_tracking/daemon/fkrepair.pm
 lib/npg_warehouse/fk_repair.pm
 lib/npg_warehouse/loader/autoqc.pm
 lib/npg_warehouse/loader/base.pm
+lib/npg_warehouse/loader/fqc.pm
 lib/npg_warehouse/loader/npg.pm
 lib/npg_warehouse/loader/qc.pm
 lib/npg_warehouse/loader/run_status.pm
@@ -17,6 +18,7 @@ lib/st/api/lims/ml_warehouse.pm
 lib/st/api/lims/ml_warehouse_auto.pm
 t/10-npg_warehouse-fkrepair.t
 t/10-npg_warehouse-loader-autoqc.t
+t/10-npg_warehouse-loader-fqc.t
 t/10-npg_warehouse-loader-npg.t
 t/10-npg_warehouse-loader-qc.t
 t/10-npg_warehouse-loader-run.t
@@ -45,6 +47,8 @@ t/data/fixtures/npgqc/CacheQuery.yml
 t/data/fixtures/npgqc/ClusterDensity.yml
 t/data/fixtures/npgqc/Fastqcheck.yml
 t/data/fixtures/npgqc/InsertSize.yml
+t/data/fixtures/npgqc/MqcLibraryOutcomeDict.yml
+t/data/fixtures/npgqc/MqcOutcomeDict.yml
 t/data/fixtures/npgqc/QXYield.yml
 t/data/fixtures/npgqc/TagMetrics.yml
 t/data/fixtures/wh/000-Sample.yml
