@@ -114,14 +114,12 @@ sub _build_mlwh_schema {
   return WTSI::DNAP::Warehouse::Schema->connect();
 }
 
-=head2 query_resultset
+=head2 ensure_nonzero_query_resultset
 
-Inherited from WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell.
-Modified to raise error when no records for the LIMs object are
-retrieved.
+Helper method for Moose "around" of query_resultset.
 
 =cut
-around 'query_resultset' => sub {
+sub ensure_nonzero_query_resultset {
   my ($orig, $self) = @_;
   my $original = $self->$orig();
   my $rs = $original;
@@ -133,6 +131,15 @@ around 'query_resultset' => sub {
   }
   return $original;
 };
+
+=head2 query_resultset
+
+Inherited from WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell.
+Modified to raise error when no records for the LIMs object are
+retrieved.
+
+=cut
+around 'query_resultset' => \&ensure_nonzero_query_resultset;
 
 =head2 children
 
@@ -153,9 +160,11 @@ sub _build__lchildren {
 
   if (!$self->tag_index) {
 
+    my $package_name = ref $self;
     my $init = {};
-    foreach my $init_attr (qw/id_flowcell_lims flowcell_barcode/) {
-      if ($self->$init_attr) {
+    foreach my $init_attr ( qw/id_flowcell_lims flowcell_barcode id_run/) {
+      my $pred = "has_$init_attr";
+      if ($self->$pred) {
         $init->{$init_attr} = $self->$init_attr;
       }
     }
@@ -165,18 +174,18 @@ sub _build__lchildren {
         $init->{'query_resultset'} = $self->query_resultset;
         $init->{'position'}        = $self->position;
         my %hashed_rs = map { $_->tag_index => 1} $self->query_resultset->all;
-        foreach my $tag_index (sort keys %hashed_rs) {
+        foreach my $tag_index (sort {$a <=> $b} keys %hashed_rs) {
           $init->{'tag_index'} = $tag_index;
-          push @children, __PACKAGE__->new($init);
+          push @children, $package_name->new($init);
 	}
       }
     } else {
       my %hashed_rs = map { $_->position => 1} $self->query_resultset->all;
-      my @positions = sort keys %hashed_rs;
+      my @positions = sort {$a <=> $b} keys %hashed_rs;
       foreach my $position (@positions) {
-        $init->{'query_resultset'} = $self->query_resultset->search({position => $position});
+        $init->{'query_resultset'} = $self->query_resultset->search({'me.position' => $position});
         $init->{'position'}        = $position;
-        push @children, __PACKAGE__->new($init);
+        push @children, $package_name->new($init);
       }
     }
   }

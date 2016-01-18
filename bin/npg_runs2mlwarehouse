@@ -44,11 +44,19 @@ if ($verbose) {
     warn qq[  id_run\t$runs\n];
   }
   if (defined $ENV{dev} && $ENV{dev}) {
-    warn 'Using ' . $ENV{dev} . " databases\n";
+    warn 'Using ' . $ENV{dev} . " ml warehouse database\n";
   }
 }
 
-my $npg_schema = npg_tracking::Schema->connect();
+my $wh_schema = WTSI::DNAP::Warehouse::Schema->connect();
+
+my ($npg_schema, $qc_schema);
+{
+  # Use live databases to source data
+  local $ENV{'dev'} = undef;
+  $npg_schema = npg_tracking::Schema->connect();
+  $qc_schema = npg_qc::Schema->connect();
+}
 
 if (!@{$id_run}) {
   my $rs = $npg_schema->resultset('Run')->search({});
@@ -57,8 +65,6 @@ if (!@{$id_run}) {
   }
 }
 
-my $qc_schema = npg_qc::Schema->connect();
-my $wh_schema = WTSI::DNAP::Warehouse::Schema->connect();
 my $loader;
 
 foreach my $id (@{$id_run}) {

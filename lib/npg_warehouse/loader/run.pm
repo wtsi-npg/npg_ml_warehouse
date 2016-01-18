@@ -11,6 +11,7 @@ use npg_qc::autoqc::qc_store;
 
 use npg_warehouse::loader::autoqc;
 use npg_warehouse::loader::qc;
+use npg_warehouse::loader::fqc;
 use npg_warehouse::loader::npg;
 
 extends 'npg_warehouse::loader::base';
@@ -285,6 +286,18 @@ sub _build__npgqc_data_retriever {
                                         plex_key          => $PLEXES_KEY);
 }
 
+has '_fqc_data_retriever'     => ( isa        => 'npg_warehouse::loader::fqc',
+                                   is         => 'ro',
+                                   required   => 0,
+                                   lazy_build => 1,
+);
+sub _build__fqc_data_retriever {
+  my $self = shift;
+  return npg_warehouse::loader::fqc->new(schema_qc         => $self->schema_qc,
+                                         verbose           => $self->verbose,
+                                         plex_key          => $PLEXES_KEY);
+}
+
 has '_run_end_summary'   =>    ( isa        => 'HashRef',
                                  is         => 'ro',
                                  required   => 0,
@@ -382,12 +395,32 @@ sub _build__data {
 
     push @{$array}, $values;
     if ($product_values) {
-      $product_values->{'id_run'}    = $self->id_run;
-      $product_values->{'position'}  = $position;
-      push @{$product_array}, $product_values;
+      delete $product_values->{$PLEXES_KEY};
+      if (keys %{$product_values}) {
+        if (!$lane_is_indexed) {
+          my $lane_outcome =
+	    $self->_fqc_data_retriever->retrieve_lane_outcomes($self->id_run, $position);
+          _copy_lane_values($product_values, $lane_outcome->{$position});
+        }
+        $product_values->{'id_run'}    = $self->id_run;
+        $product_values->{'position'}  = $position;
+        push @{$product_array}, $product_values;
+      }
     }
 
-    foreach my $tag_index (keys %{$plexes}) {
+    my @plex_indexes = keys %{$plexes};
+
+    if ($lane_is_indexed) {
+      my @tags = grep { $_ != 0 } @plex_indexes;
+      if (@tags) {
+        my $qc_outcomes =
+          $self->_fqc_data_retriever->retrieve_lane_outcomes(
+            $self->id_run, $position, \@tags);
+        _copy_plex_values($plexes, $qc_outcomes, $position);
+      }
+    }
+
+    foreach my $tag_index (@plex_indexes) {
       my $plex_values             = $plexes->{$tag_index};
       $plex_values->{'id_run'}    = $self->id_run;
       $plex_values->{'position'}  = $position;
@@ -421,6 +454,14 @@ sub _lane_is_indexed {
 sub _pt_key {
   my ($p, $t) = @_;
   return defined $t ? join(q[:], $p, $t) : $p;
+}
+
+sub _copy_lane_values {
+  my ($destination, $source) = @_;
+  foreach my $column_name (keys %{$source}) {
+    $destination->{$column_name} = $source->{$column_name};
+  }
+  return;
 }
 
 sub _copy_plex_values {
