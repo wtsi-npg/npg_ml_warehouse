@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - added tests for 'purpose'
+
 release 38.0
  - autonomous ml_warehouse driver which takes query by run id
  - extended ml warehouse loader to load final qc values
