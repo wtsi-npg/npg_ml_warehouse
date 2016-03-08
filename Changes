@@ -1,6 +1,8 @@
 LIST OF CHANGES
 
  - added tests for 'purpose'
+ - ml_warehouse lims driver refinments to ensure db connection is
+   propagated
 
 release 38.0
  - autonomous ml_warehouse driver which takes query by run id
