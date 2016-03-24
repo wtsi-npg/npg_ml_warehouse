@@ -8,7 +8,7 @@ use List::MoreUtils qw(any);
 use st::api::lims;
 use npg_tracking::util::types;
 use WTSI::DNAP::Warehouse::Schema;
-use WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell;
+use WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell;
 
 with qw/  npg_tracking::glossary::lane
           npg_tracking::glossary::tag
@@ -112,14 +112,6 @@ sub _build_iseq_flowcell {
   my $self = shift;
   return $self->mlwh_schema->resultset('IseqFlowcell');
 }
-
-#######
-# This role requires iseq_flowcell, which is implemented as
-# an attribute rather than as a method in this class, hence,
-# according to Moose documentation, the need to consume the
-# role after the attribute was defined.
-
-with qw/ WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell /;
 
 =head2 mlwh_schema
 
