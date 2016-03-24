@@ -260,7 +260,7 @@ sub qc_state {
     my @r = grep {$_->position == $p} $self->_run_resultset_rows;
     my $t = $self->tag_index;
     if( defined $t ){
-      @r = grep {$_->tag_index == $t} @r;
+      @r = grep {$_->tag_index and $_->tag_index == $t} @r;
     } else {
       @r = grep {$_->entity_type ne
           $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::INDEXED_LIBRARY_SPIKE } @r;
