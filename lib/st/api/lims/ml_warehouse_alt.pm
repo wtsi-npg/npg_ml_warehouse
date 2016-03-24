@@ -44,7 +44,7 @@ sub BUILD {
     @r=grep{$_->position == $self->position}@r;
   }
   if ($self->tag_index) {
-    @r = grep{$_->tag_index == $self->tag_index}@r;
+    @r = grep{defined $_->tag_index and $_->tag_index == $self->tag_index}@r;
   }
   croak 'No record retrieved for ' . $self->to_string if not @r;
   return;
@@ -248,9 +248,32 @@ sub _build_spiked_phix_tag_index {
   return $tag_index;
 }
 
+=head2 qc_state
+
+Same logic as found in WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell
+
+=cut
+
+sub qc_state {
+  my $self = shift;
+  if( my $p = $self->position ){
+    my @r = grep {$_->position == $p} $self->_run_resultset_rows;
+    my $t = $self->tag_index;
+    if( defined $t ){
+      @r = grep {$_->tag_index == $t} @r;
+    } else {
+      @r = grep {$_->entity_type ne
+          $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::INDEXED_LIBRARY_SPIKE } @r;
+    }
+    @r = grep{defined} map {$_->qc} map{$_->iseq_product_metrics}@r;
+    return shift @r if @r==1;
+  }
+  return;
+}
+
 sub _to_delegate {
   my $package = 'WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell';
-  my @l = grep {$package->can($_)} st::api::lims->driver_method_list_short(__PACKAGE__->meta->get_attribute_list);
+  my @l = grep {$_ ne 'qc_state'} grep {$package->can($_)} st::api::lims->driver_method_list_short(__PACKAGE__->meta->get_attribute_list);
   return \@l;
 }
 
@@ -352,7 +375,7 @@ __END__
 
 =head1 AUTHOR
 
-Marina Gourtovaia E<lt>mg8@sanger.ac.ukE<gt>
+David Jackson E<lt>david.jackson@sanger.ac.ukE<gt>
 
 =head1 LICENSE AND COPYRIGHT
 
