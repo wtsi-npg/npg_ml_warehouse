@@ -39,10 +39,7 @@ sanity checks on construction
 
 sub BUILD {
   my($self)=@_;
-  my@r=$self->_run_resultset_rows;
-  if ($self->position) {
-    @r=grep{$_->position == $self->position}@r;
-  }
+  my@r= $self->position ? $self->_position_resultset_rows : $self->_run_resultset_rows;
   if ($self->tag_index) {
     @r = grep{defined $_->tag_index and $_->tag_index == $self->tag_index}@r;
   }
@@ -147,6 +144,11 @@ sub _build__run_resultset_rows_cache {
   return [$self->iseq_flowcell->search($q,{prefetch =>[qw(sample study iseq_product_metrics)]})->all];
 }
 
+sub _position_resultset_rows {
+  my$self=shift;
+  return grep {$self->position == $_->position} $self->_run_resultset_rows;
+}
+
 =head2 count
 
 Number of underlying records used for evaluating this object
@@ -155,8 +157,7 @@ Number of underlying records used for evaluating this object
 
 sub count {
   my$self=shift;
-  my@r = $self->_run_resultset_rows;
-  if ($self->position) { @r = grep{$_->position == $self->position}@r; }
+  my@r = $self->position ? $self->_position_resultset_rows : $self->_run_resultset_rows;
   return scalar @r;
 }
 
@@ -182,8 +183,7 @@ sub children {
     if ($self->position) {
       if ($self->is_pool) {
         $init->{'position'}        = $self->position;
-        my %hashed_rs = map { $_->tag_index => 1}
-          grep{$_->position == $self->position} $self->_run_resultset_rows;
+        my %hashed_rs = map { $_->tag_index => 1} $self->_position_resultset_rows;
         foreach my $tag_index (sort {$a <=> $b} keys %hashed_rs) {
           $init->{'tag_index'} = $tag_index;
           push @children, $package_name->new($init);
@@ -212,7 +212,7 @@ sub _build_is_pool {
   if ( $self->position && !$self->tag_index ) {
     return 1 if any {
       $_->entity_type eq $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::INDEXED_LIBRARY
-    } grep {$self->position == $_->position} $self->_run_resultset_rows;
+    } $self->_position_resultset_rows;
   }
   return 0;
 }
@@ -234,8 +234,7 @@ sub _build_spiked_phix_tag_index {
   my $tag_index;
   if ($self->position) {
     my $spike_type = $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::INDEXED_LIBRARY_SPIKE;
-    my @rs = grep{$_->entity_type eq $spike_type}
-      grep{$_->position == $self->position} $self->_run_resultset_rows;
+    my @rs = grep{$_->entity_type eq $spike_type} $self->_position_resultset_rows;
     my $row = shift @rs;
     if ($row) {
       croak q[Multiple spike definitions] if @rs;
@@ -256,8 +255,8 @@ Same logic as found in WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell
 
 sub qc_state {
   my $self = shift;
-  if( my $p = $self->position ){
-    my @r = grep {$_->position == $p} $self->_run_resultset_rows;
+  if( $self->position ){
+    my @r = $self->_position_resultset_rows;
     my $t = $self->tag_index;
     if( defined $t ){
       @r = grep {$_->tag_index and $_->tag_index == $t} @r;
@@ -290,15 +289,14 @@ sub _build__dbix_row {
     if (!$self->is_pool) {
       my @rs;
       if ($self->tag_index) {
-        @rs = grep{$_->tag_index == $self->tag_index}
-           grep{$_->position == $self->position} $self->_run_resultset_rows;
+        @rs = grep{$_->tag_index == $self->tag_index} $self->_position_resultset_rows;
       } else {
         @rs = grep {
           ( $_->entity_type eq
           $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::NON_INDEXED_LIBRARY
           ) or ( $_->entity_type eq
           $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::CONTROL_LANE
-          ) } grep{$_->position == $self->position} $self->_run_resultset_rows;
+          ) } $self->_position_resultset_rows;
       }
       if( my $row = shift @rs ) {
         croak 'Multiple entities ('.(scalar @rs).' excess) for ' . $self->to_string if @rs;
