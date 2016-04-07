@@ -1,4 +1,4 @@
-package st::api::lims::ml_warehouse_alt;
+package st::api::lims::ml_warehouse_fc_cache;
 
 use Moose;
 use MooseX::StrictConstructor;
@@ -18,7 +18,7 @@ our $VERSION = '0';
 
 =head1 NAME
 
-st::api::lims::ml_warehouse_alt
+st::api::lims::ml_warehouse_fc_cache
 
 =head1 SYNOPSIS
 
