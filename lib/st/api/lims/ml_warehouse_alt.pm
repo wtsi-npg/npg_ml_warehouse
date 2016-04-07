@@ -144,9 +144,18 @@ sub _build__run_resultset_rows_cache {
   return [$self->iseq_flowcell->search($q,{prefetch =>[qw(sample study iseq_product_metrics)]})->all];
 }
 
-sub _position_resultset_rows {
-  my$self=shift;
-  return grep {$self->position == $_->position} $self->_run_resultset_rows;
+has '_position_resultset_rows_cache' =>
+                         ( isa             => 'ArrayRef',
+                           traits          => ['Array'],
+                           is              => 'ro',
+                           lazy_build      => 1,
+                           handles         => { _position_resultset_rows => 'elements'},
+);
+sub _build__position_resultset_rows_cache {
+  my $self=shift;
+  my $p = $self->position;
+  croak 'Trying to access position or tag level info without a position' if not $p;
+  return [grep {$p == $_->position} $self->_run_resultset_rows];
 }
 
 =head2 count
