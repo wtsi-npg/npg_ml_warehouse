@@ -1,5 +1,9 @@
 LIST OF CHANGES
 
+release 39.1
+ - compensate for loss of split_stats role in npg_qc
+  (see https://github.com/wtsi-npg/npg_qc/pull/342)
+
 release 39.0
  - added tests for 'purpose'
  - ml_warehouse lims driver refinments to ensure db connection is

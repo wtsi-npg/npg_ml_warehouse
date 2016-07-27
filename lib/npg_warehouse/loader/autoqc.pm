@@ -331,7 +331,12 @@ sub _split_stats {
     my $check_name = $result->check_name;
     $check_name =~ s/[ ]stats//xsmg;
     $check_name =~ s/[ ]/_/xsmg;
-    $self->_copy_fields({$check_name.q[_percent] => $result->percent_split}, $autoqc, $result->position, $result->tag_index);
+    my $tot;
+    if (defined $result->num_aligned_merge && defined $result->num_not_aligned_merge) {
+      $tot = $result->num_aligned_merge + $result->num_not_aligned_merge;
+    }
+    my $pc = $tot ? ($HUNDRED * $result->num_aligned_merge) / $tot : undef;
+    $self->_copy_fields({$check_name.q[_percent] => $pc}, $autoqc, $result->position, $result->tag_index);
     return;
 }
 
