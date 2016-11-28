@@ -7,7 +7,8 @@
 
 set -e -x
 
-sudo apt-get install libgd2-xpm-dev # For npg_tracking
+sudo apt-get install libgd2-xpm-dev # for npg_tracking
+cpanm --quiet --notest Alien::Tidyp # for npg_qc
 
 # Git branch to merge to or custom branch
 WTSI_NPG_BUILD_BRANCH=${WTSI_NPG_BUILD_BRANCH:=$TRAVIS_BRANCH}
