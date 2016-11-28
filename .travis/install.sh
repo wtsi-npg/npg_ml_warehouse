@@ -12,7 +12,7 @@ sudo apt-get install libgd2-xpm-dev # For npg_tracking
 # Git branch to merge to or custom branch
 WTSI_NPG_BUILD_BRANCH=${WTSI_NPG_BUILD_BRANCH:=$TRAVIS_BRANCH}
 # WTSI NPG Perl repo dependencies
-repos="ml_warehouse npg_tracking"
+repos="perl-dnap-utilities ml_warehouse npg_tracking"
 for repo in $repos
 do
   # Logic of keeping branch consistent was taken from @dkj
