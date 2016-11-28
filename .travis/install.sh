@@ -13,7 +13,7 @@ cpanm --quiet --notest Alien::Tidyp # for npg_qc
 # Git branch to merge to or custom branch
 WTSI_NPG_BUILD_BRANCH=${WTSI_NPG_BUILD_BRANCH:=$TRAVIS_BRANCH}
 # WTSI NPG Perl repo dependencies
-repos="perl-dnap-utilities ml_warehouse npg_tracking"
+repos="perl-dnap-utilities ml_warehouse npg_tracking npg_qc"
 for repo in $repos
 do
   # Logic of keeping branch consistent was taken from @dkj
