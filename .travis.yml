@@ -1,0 +1,14 @@
+sudo: required
+
+language: perl
+
+perl:
+  - "5.22-shrplib"
+
+env:
+  global:
+    - WTSI_NPG_GITHUB_URL=https://github.com/wtsi-npg
+install:
+ - ./.travis/install.sh
+
+

@@ -130,7 +130,7 @@ local $ENV{TEST_DIR} = q[t];
   is ($auto->{4}->{contaminants_scan_hit1_name}, 'PhiX',   'contam check value');
   is ($auto->{4}->{contaminants_scan_hit1_score}, '97.30',   'contam check value');
   is ($auto->{4}->{contaminants_scan_hit2_name}, 'Mus_musculus',   'contam check value');
-  is ($auto->{4}->{contaminants_scan_hit2_score}, '0.10',   'contam check value');
+  is ($auto->{4}->{contaminants_scan_hit2_score}, '0.12',   'contam check value');
   is ($auto->{4}->{insert_size_quartile1}, 172,   'insert size q1');
   is ($auto->{4}->{insert_size_quartile3}, 207,   'insert size q3');
   is ($auto->{4}->{insert_size_median},    189,   'insert size median');
