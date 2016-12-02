@@ -501,7 +501,7 @@ sub _add_lims_fk {
 
   if (!defined $values->{'tag_index'} ) {
 
-    my @lane_types = grep { $_ =~ /^(?: $NON_INDEXED_LIBRARY | $CONTROL_LANE )$/xms } @types;
+    my @lane_types = grep { /^(?: $NON_INDEXED_LIBRARY | $CONTROL_LANE )$/xms } @types;
     if (scalar @lane_types > 1) {
       croak q[Lane cannot be both ] . join q[ and  ], @types;
     }
@@ -580,7 +580,7 @@ sub _filter_column_names {
 sub _load_table {
   my ($self, $table) = @_;
 
-  if (scalar keys $self->_data->{$table} == 0) {
+  if (!defined $self->_data->{$table} || scalar @{$self->_data->{$table}} == 0) {
     if ($self->verbose) {
       warn qq[No data for table $table\n];
     }
@@ -592,7 +592,7 @@ sub _load_table {
 
     $self->_filter_column_names($table, $row);
     my @test = keys %{$row};
-    @test = grep { $_ !~ /\Aid_run|position|tag_index\Z/smx } @test;
+    @test = grep { ! /\Aid_run|position|tag_index\Z/smx } @test;
     if (!@test) { # no useful data
       next;
     }

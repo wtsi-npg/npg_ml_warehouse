@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - code changes to eliminate warnings when running under Perl 5.22.2
+
 release 39.1
  - compensate for loss of split_stats role in npg_qc
   (see https://github.com/wtsi-npg/npg_qc/pull/342)
