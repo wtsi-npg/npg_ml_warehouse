@@ -1,6 +1,9 @@
 LIST OF CHANGES
 
  - code changes to eliminate warnings when running under Perl 5.22.2
+ - PDL return value is now dealt with withing autoqc result objects,
+   the warehouse loader can rely on them being either a number
+   or undefined
 
 release 39.1
  - compensate for loss of split_stats role in npg_qc
