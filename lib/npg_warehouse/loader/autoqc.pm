@@ -383,7 +383,7 @@ sub _autoqc_check {
     foreach my $key (keys %{$map}) {
 	my $method = $map->{$key};
 	my $value = $result->$method;
-	if (defined $value && $value ne q[nan]) {
+	if (defined $value) {
 	    if ( $key !~ /\Averify_bam_id/xms ) {
                 $value = $self->_truncate_float($value);
 	    }
