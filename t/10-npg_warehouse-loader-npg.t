@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 27;
+use Test::More tests => 26;
 use Test::Exception;
 use Test::Deep;
 use Moose::Meta::Class;
@@ -83,7 +83,6 @@ lives_ok{ $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
 {
   my $npg;
   lives_ok {$npg  = npg_warehouse::loader::npg->new( schema_npg => $schema_npg )} 'object instantiated without id_run lives';
-  is(join(q[ ], sort @{$npg->dev_cost_codes}), 'S0696 S0700 S0755', 'r&d cost codes');
   throws_ok { $npg->run_ready2load } qr/Need run id/, 'error checking readiness to load without run id';
 }
 
