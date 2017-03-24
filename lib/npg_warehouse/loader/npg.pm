@@ -187,25 +187,6 @@ sub instrument_info {
     return $info;
 }
 
-
-=head2 dev_cost_codes
-
-Returns an array reference with dev project cost codes
-
-=cut
-sub dev_cost_codes {
-    my $self = shift;
-    my @codes = ();
-    my $rows = $self->schema_npg->resultset('CostCode')->search(
-        {id_cost_group => 1,},
-    );
-    while (my $row = $rows->next) {
-        push @codes, $row->cost_code;
-    }
-    return \@codes;
-}
-
-
 __PACKAGE__->meta->make_immutable;
 
 1;
