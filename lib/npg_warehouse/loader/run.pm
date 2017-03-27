@@ -351,6 +351,7 @@ sub _build__data {
     $values->{'flowcell_barcode'}   = $rs->run->flowcell_id;
     $values->{'position'}           = $position;
     $values->{'cycles'}             = $rs->run->actual_cycle_count;
+    $values->{'run_priority'}       = $rs->run->priority;
     $values->{'cancelled'}          = $self->_run_is_cancelled;
     $values->{'paired_read'}        = $self->_run_is_paired_read;
     $values->{'instrument_name'}    = $instr->{'name'};
