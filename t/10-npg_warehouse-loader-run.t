@@ -17,6 +17,7 @@ my @basic_run_lane_columns = qw/cycles
                                 pf_bases
                                 paired_read
                                 cancelled
+                                run_priority
                                 instrument_name
                                 instrument_model
                                 raw_cluster_count
@@ -112,7 +113,7 @@ subtest 'old paired (two runfolders) run' => sub {
   is ($r->run_pending->datetime, '2008-08-19T09:55:12', 'run pending for position 1');
 
   my @found = ();
-  my @expected = (37,25284,617430,1,0,'IL20','1G',38831,undef,undef,3,0,4,0);
+  my @expected = (37,25284,617430,1,0,1,'IL20','1G',38831,undef,undef,3,0,4,0);
   foreach my $column (@basic_run_lane_columns) {
     push @found, $r->$column;
   }

@@ -23,6 +23,7 @@
   run_pending: 2010-03-20 13:06:29
   tags_decode_cv: ~
   tags_decode_percent: ~
+  run_priority: 1
 - cancelled: 0
   cycles: 216
   flowcell_barcode: ~
@@ -47,6 +48,7 @@
   run_pending: 2010-03-20 13:06:29
   tags_decode_cv: ~
   tags_decode_percent: ~
+  run_priority: 1
 - cancelled: 0
   cycles: 216
   flowcell_barcode: ~
@@ -71,6 +73,7 @@
   run_pending: 2010-03-20 13:06:29
   tags_decode_cv: ~
   tags_decode_percent: ~
+  run_priority: 1
 - cancelled: 0
   cycles: 216
   flowcell_barcode: ~
@@ -95,6 +98,7 @@
   run_pending: 2010-03-20 13:06:29
   tags_decode_cv: ~
   tags_decode_percent: ~
+  run_priority: 1
 - cancelled: 0
   cycles: 216
   flowcell_barcode: ~
@@ -119,6 +123,7 @@
   run_pending: 2010-03-20 13:06:29
   tags_decode_cv: ~
   tags_decode_percent: ~
+  run_priority: 1
 - cancelled: 0
   cycles: 216
   flowcell_barcode: ~
@@ -143,6 +148,7 @@
   run_pending: 2010-03-20 13:06:29
   tags_decode_cv: ~
   tags_decode_percent: ~
+  run_priority: 1
 - cancelled: 0
   cycles: 216
   flowcell_barcode: ~
@@ -167,6 +173,7 @@
   run_pending: 2010-03-20 13:06:29
   tags_decode_cv: ~
   tags_decode_percent: ~
+  run_priority: 1
 - cancelled: 0
   cycles: 216
   flowcell_barcode: ~
@@ -191,6 +198,7 @@
   run_pending: 2010-03-20 13:06:29
   tags_decode_cv: ~
   tags_decode_percent: ~
+  run_priority: 1
 - cancelled: 0
   cycles: 208
   flowcell_barcode: D0B76ACXX
@@ -215,6 +223,7 @@
   run_pending: 2011-10-31 15:18:18
   tags_decode_cv: 30.92
   tags_decode_percent: 98.74
+  run_priority: 1
 - cancelled: 0
   cycles: 208
   flowcell_barcode: D0B76ACXX
@@ -239,6 +248,7 @@
   run_pending: 2011-10-31 15:18:18
   tags_decode_cv: ~
   tags_decode_percent: ~
+  run_priority: 1
 - cancelled: 0
   cycles: 208
   flowcell_barcode: D0B76ACXX
@@ -263,6 +273,7 @@
   run_pending: 2011-10-31 15:18:18
   tags_decode_cv: 97.58
   tags_decode_percent: 83.29
+  run_priority: 1
 - cancelled: 0
   cycles: 208
   flowcell_barcode: D0B76ACXX
@@ -287,6 +298,7 @@
   run_pending: 2011-10-31 15:18:18
   tags_decode_cv: 97.68
   tags_decode_percent: 98.68
+  run_priority: 1
 - cancelled: 0
   cycles: 208
   flowcell_barcode: D0B76ACXX
@@ -311,6 +323,7 @@
   run_pending: 2011-10-31 15:18:18
   tags_decode_cv: 97.85
   tags_decode_percent: 98.48
+  run_priority: 1
 - cancelled: 0
   cycles: 208
   flowcell_barcode: D0B76ACXX
@@ -335,6 +348,7 @@
   run_pending: 2011-10-31 15:18:18
   tags_decode_cv: ~
   tags_decode_percent: ~
+  run_priority: 1
 - cancelled: 0
   cycles: 208
   flowcell_barcode: D0B76ACXX
@@ -359,6 +373,7 @@
   run_pending: 2011-10-31 15:18:18
   tags_decode_cv: 97.85
   tags_decode_percent: 98.32
+  run_priority: 1
 - cancelled: 0
   cycles: 208
   flowcell_barcode: D0B76ACXX
