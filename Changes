@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+release 39.3
+ - added iseq_run_lane_metrics.run_priority to warehouse update (from npg_tracking run.priority)
+
 release 39.2
  - code changes to eliminate warnings when running under Perl 5.22.2
  - PDL return value is now dealt with withing autoqc result objects,
