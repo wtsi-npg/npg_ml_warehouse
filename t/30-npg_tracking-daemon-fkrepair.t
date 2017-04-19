@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use Test::More tests => 8;
 use Cwd;
+use npg_tracking::util::abs_path qw(abs_path);
 
 use_ok('npg_tracking::daemon::fkrepair');
 {
@@ -11,7 +12,7 @@ use_ok('npg_tracking::daemon::fkrepair');
 
 {
   my $command = 'npg_mlwarehouse_fkrepair';
-  my $log_dir = join(q[/],getcwd(), 'logs');
+  my $log_dir = abs_path(join(q[/],getcwd(), 'logs'));
   my $r = npg_tracking::daemon::fkrepair->new(timestamp => '2013');
   is(join(q[ ], @{$r->hosts}), q[sf2-farm-srv2], 'default host names array');
   is($r->command, "$command --loop --sleep_time 1200", 'command to run');

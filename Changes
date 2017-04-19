@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - correct computation of expected abs path in test
+ 
 release 39.3
  - added iseq_run_lane_metrics.run_priority to warehouse update (from npg_tracking run.priority)
 
