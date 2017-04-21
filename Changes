@@ -1,5 +1,10 @@
 LIST OF CHANGES
 
+ - to enforce business logic consistency, common parts of lims drivers
+   factored out; a driver parent object is created
+ - early failure with a clear error message when essential parts of
+   a flowcell database record are missing
+  
 release 39.3
  - added iseq_run_lane_metrics.run_priority to warehouse update (from npg_tracking run.priority)
 
