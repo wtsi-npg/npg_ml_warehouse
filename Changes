@@ -1,5 +1,11 @@
 LIST OF CHANGES
 
+ - to enforce business logic consistency, common parts of lims drivers
+   factored out; a driver parent object is created
+ - early failure with a clear error message when essential parts of
+   a flowcell database record are missing
+ - correct computation of expected abs path in test
+ 
 release 39.4
  - correct computation of expected abs path in test
 
