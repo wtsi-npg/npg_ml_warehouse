@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+release 39.5
  - to enforce business logic consistency, common parts of lims drivers
    factored out; a driver parent object is created
  - early failure with a clear error message when essential parts of
