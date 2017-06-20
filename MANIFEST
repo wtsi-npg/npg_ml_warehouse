@@ -14,6 +14,7 @@ lib/npg_warehouse/loader/npg.pm
 lib/npg_warehouse/loader/qc.pm
 lib/npg_warehouse/loader/run_status.pm
 lib/npg_warehouse/loader/run.pm
+lib/st/api/lims/ml_warehouse/driver.pm
 lib/st/api/lims/ml_warehouse.pm
 lib/st/api/lims/ml_warehouse_fc_cache.pm
 lib/st/api/lims/ml_warehouse_auto.pm
