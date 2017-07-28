@@ -4,6 +4,7 @@
   filename2: 4486_1_2.fastqcheck
   id_qx_yield: 6013
   id_run: 4486
+  id_seq_composition: 1601530
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"8943"}'
   pass: 1
   path: /nfs/sf10/IL23/analysis/100320_IL23_4486/Data/Intensities/Bustard1.6.0a14_01-04-2010_RTA/GERALD_01-04-2010_RTA/archive
@@ -19,6 +20,7 @@
   filename2: 4486_2_2.fastqcheck
   id_qx_yield: 6014
   id_run: 4486
+  id_seq_composition: 1601658
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"8943"}'
   pass: 1
   path: /nfs/sf10/IL23/analysis/100320_IL23_4486/Data/Intensities/Bustard1.6.0a14_01-04-2010_RTA/GERALD_01-04-2010_RTA/archive
@@ -34,6 +36,7 @@
   filename2: 4486_3_2.fastqcheck
   id_qx_yield: 6015
   id_run: 4486
+  id_seq_composition: 1601364
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"8943"}'
   pass: 1
   path: /nfs/sf10/IL23/analysis/100320_IL23_4486/Data/Intensities/Bustard1.6.0a14_01-04-2010_RTA/GERALD_01-04-2010_RTA/archive
@@ -49,6 +52,7 @@
   filename2: 4486_4_2.fastqcheck
   id_qx_yield: 6016
   id_run: 4486
+  id_seq_composition: 1601875
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"8943"}'
   pass: 1
   path: /nfs/sf10/IL23/analysis/100320_IL23_4486/Data/Intensities/Bustard1.6.0a14_01-04-2010_RTA/GERALD_01-04-2010_RTA/archive
@@ -64,6 +68,7 @@
   filename2: 4486_5_2.fastqcheck
   id_qx_yield: 6017
   id_run: 4486
+  id_seq_composition: 1601699
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"8943"}'
   pass: 1
   path: /nfs/sf10/IL23/analysis/100320_IL23_4486/Data/Intensities/Bustard1.6.0a14_01-04-2010_RTA/GERALD_01-04-2010_RTA/archive
@@ -79,6 +84,7 @@
   filename2: 4486_6_2.fastqcheck
   id_qx_yield: 6018
   id_run: 4486
+  id_seq_composition: 1601287
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"8943"}'
   pass: 1
   path: /nfs/sf10/IL23/analysis/100320_IL23_4486/Data/Intensities/Bustard1.6.0a14_01-04-2010_RTA/GERALD_01-04-2010_RTA/archive
@@ -94,6 +100,7 @@
   filename2: 4486_7_2.fastqcheck
   id_qx_yield: 6019
   id_run: 4486
+  id_seq_composition: 1601271
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"8943"}'
   pass: 1
   path: /nfs/sf10/IL23/analysis/100320_IL23_4486/Data/Intensities/Bustard1.6.0a14_01-04-2010_RTA/GERALD_01-04-2010_RTA/archive
@@ -109,6 +116,7 @@
   filename2: 4486_8_2.fastqcheck
   id_qx_yield: 6020
   id_run: 4486
+  id_seq_composition: 1601526
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"8943"}'
   pass: 1
   path: /nfs/sf10/IL23/analysis/100320_IL23_4486/Data/Intensities/Bustard1.6.0a14_01-04-2010_RTA/GERALD_01-04-2010_RTA/archive
@@ -124,6 +132,7 @@
   filename2: 6998_1_2.fastqcheck
   id_qx_yield: 123341
   id_run: 6998
+  id_seq_composition: 1683029
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: 1
   path: /nfs/sf28/ILorHSany_sf28/analysis//111031_HS19_06998_B_D0B76ACXX/Data/Intensities/PB_basecalls_20111112-195951/PB_cal/archive
@@ -139,6 +148,7 @@
   filename2: 6998_1_2#0.fastqcheck
   id_qx_yield: 123349
   id_run: 6998
+  id_seq_composition: 1677844
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/PB_basecalls_20111112-195951/PB_cal/archive/lane1
@@ -154,6 +164,7 @@
   filename2: 6998_1_2#13.fastqcheck
   id_qx_yield: 123350
   id_run: 6998
+  id_seq_composition: 1684384
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/PB_basecalls_20111112-195951/PB_cal/archive/lane1
@@ -169,6 +180,7 @@
   filename2: 6998_1_2#14.fastqcheck
   id_qx_yield: 123351
   id_run: 6998
+  id_seq_composition: 1683033
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/PB_basecalls_20111112-195951/PB_cal/archive/lane1
@@ -184,6 +196,7 @@
   filename2: 6998_1_2#15.fastqcheck
   id_qx_yield: 123352
   id_run: 6998
+  id_seq_composition: 1684231
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/PB_basecalls_20111112-195951/PB_cal/archive/lane1
@@ -199,6 +212,7 @@
   filename2: 6998_1_2#16.fastqcheck
   id_qx_yield: 123353
   id_run: 6998
+  id_seq_composition: 1683450
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/PB_basecalls_20111112-195951/PB_cal/archive/lane1
@@ -214,6 +228,7 @@
   filename2: 6998_1_2#17.fastqcheck
   id_qx_yield: 123355
   id_run: 6998
+  id_seq_composition: 1680998
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/PB_basecalls_20111112-195951/PB_cal/archive/lane1
@@ -229,6 +244,7 @@
   filename2: 6998_1_2#18.fastqcheck
   id_qx_yield: 123356
   id_run: 6998
+  id_seq_composition: 1680085
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/PB_basecalls_20111112-195951/PB_cal/archive/lane1
@@ -244,6 +260,7 @@
   filename2: 6998_1_2#19.fastqcheck
   id_qx_yield: 123357
   id_run: 6998
+  id_seq_composition: 1677372
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/PB_basecalls_20111112-195951/PB_cal/archive/lane1
@@ -259,6 +276,7 @@
   filename2: 6998_1_2#20.fastqcheck
   id_qx_yield: 123358
   id_run: 6998
+  id_seq_composition: 1674626
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/PB_basecalls_20111112-195951/PB_cal/archive/lane1
@@ -274,6 +292,7 @@
   filename2: 6998_1_2#21.fastqcheck
   id_qx_yield: 123359
   id_run: 6998
+  id_seq_composition: 1677851
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/PB_basecalls_20111112-195951/PB_cal/archive/lane1
@@ -289,6 +308,7 @@
   filename2: 6998_1_2#22.fastqcheck
   id_qx_yield: 123360
   id_run: 6998
+  id_seq_composition: 1684386
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/PB_basecalls_20111112-195951/PB_cal/archive/lane1
@@ -304,6 +324,7 @@
   filename2: 6998_1_2#23.fastqcheck
   id_qx_yield: 123361
   id_run: 6998
+  id_seq_composition: 1683037
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/PB_basecalls_20111112-195951/PB_cal/archive/lane1
@@ -319,6 +340,7 @@
   filename2: 6998_1_2#168.fastqcheck
   id_qx_yield: 123354
   id_run: 6998
+  id_seq_composition: 1680616
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/PB_basecalls_20111112-195951/PB_cal/archive/lane1
@@ -334,6 +356,7 @@
   filename2: 6998_2_2.fastqcheck
   id_qx_yield: 220319
   id_run: 6998
+  id_seq_composition: 1780296
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: 1
   path: /nfs/sf48/tmp_nf2/run_6998/v3/3_reprocess/archive/
@@ -349,6 +372,7 @@
   filename2: 6998_3_2.fastqcheck
   id_qx_yield: 123343
   id_run: 6998
+  id_seq_composition: 1683446
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: 1
   path: /nfs/sf28/ILorHSany_sf28/analysis//111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive
@@ -364,6 +388,7 @@
   filename2: 6998_3_2#0.fastqcheck
   id_qx_yield: 123365
   id_run: 6998
+  id_seq_composition: 1681005
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive/lane3
@@ -379,6 +404,7 @@
   filename2: 6998_3_2#153.fastqcheck
   id_qx_yield: 123366
   id_run: 6998
+  id_seq_composition: 1680093
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive/lane3
@@ -394,6 +420,7 @@
   filename2: 6998_3_2#168.fastqcheck
   id_qx_yield: 123367
   id_run: 6998
+  id_seq_composition: 1677379
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive/lane3
@@ -409,6 +436,7 @@
   filename2: 6998_4_2.fastqcheck
   id_qx_yield: 123344
   id_run: 6998
+  id_seq_composition: 1680610
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: 1
   path: /nfs/sf28/ILorHSany_sf28/analysis//111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive
@@ -424,6 +452,7 @@
   filename2: 6998_4_2#0.fastqcheck
   id_qx_yield: 123368
   id_run: 6998
+  id_seq_composition: 1674634
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive/lane4
@@ -439,6 +468,7 @@
   filename2: 6998_4_2#152.fastqcheck
   id_qx_yield: 123369
   id_run: 6998
+  id_seq_composition: 1677860
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive/lane4
@@ -454,6 +484,7 @@
   filename2: 6998_4_2#168.fastqcheck
   id_qx_yield: 123370
   id_run: 6998
+  id_seq_composition: 1684388
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive/lane4
@@ -469,6 +500,7 @@
   filename2: 6998_5_2.fastqcheck
   id_qx_yield: 123345
   id_run: 6998
+  id_seq_composition: 1680991
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: 1
   path: /nfs/sf28/ILorHSany_sf28/analysis//111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive
@@ -484,6 +516,7 @@
   filename2: 6998_5_2#0.fastqcheck
   id_qx_yield: 123371
   id_run: 6998
+  id_seq_composition: 1683040
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive/lane5
@@ -499,6 +532,7 @@
   filename2: 6998_5_2#151.fastqcheck
   id_qx_yield: 123372
   id_run: 6998
+  id_seq_composition: 1684234
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive/lane5
@@ -514,6 +548,7 @@
   filename2: 6998_5_2#168.fastqcheck
   id_qx_yield: 123373
   id_run: 6998
+  id_seq_composition: 1683453
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive/lane5
@@ -529,6 +564,7 @@
   filename2: 6998_6_2.fastqcheck
   id_qx_yield: 220321
   id_run: 6998
+  id_seq_composition: 1774262
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: 1
   path: /nfs/sf48/tmp_nf2/run_6998/v3/3_reprocess/archive/
@@ -544,6 +580,7 @@
   filename2: 6998_7_2.fastqcheck
   id_qx_yield: 123347
   id_run: 6998
+  id_seq_composition: 1677365
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: 1
   path: /nfs/sf28/ILorHSany_sf28/analysis//111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive
@@ -559,6 +596,7 @@
   filename2: 6998_7_2#0.fastqcheck
   id_qx_yield: 123377
   id_run: 6998
+  id_seq_composition: 1677387
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive/lane7
@@ -574,6 +612,7 @@
   filename2: 6998_7_2#149.fastqcheck
   id_qx_yield: 123378
   id_run: 6998
+  id_seq_composition: 1674641
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive/lane7
@@ -589,6 +628,7 @@
   filename2: 6998_7_2#168.fastqcheck
   id_qx_yield: 123379
   id_run: 6998
+  id_seq_composition: 1677865
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive/lane7
@@ -604,6 +644,7 @@
   filename2: 6998_8_2.fastqcheck
   id_qx_yield: 123348
   id_run: 6998
+  id_seq_composition: 1674618
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: 1
   path: /nfs/sf28/ILorHSany_sf28/analysis//111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive
@@ -619,6 +660,7 @@
   filename2: 6998_8_2#0.fastqcheck
   id_qx_yield: 123380
   id_run: 6998
+  id_seq_composition: 1684390
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive/lane8
@@ -634,6 +676,7 @@
   filename2: 6998_8_2#148.fastqcheck
   id_qx_yield: 123381
   id_run: 6998
+  id_seq_composition: 1683045
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive/lane8
@@ -649,6 +692,7 @@
   filename2: 6998_8_2#168.fastqcheck
   id_qx_yield: 123382
   id_run: 6998
+  id_seq_composition: 1684237
   info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"14179"}'
   pass: ~
   path: /nfs/sf28/ILorHSany_sf28/analysis/111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive/lane8

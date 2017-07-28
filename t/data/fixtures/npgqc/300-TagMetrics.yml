@@ -2,6 +2,7 @@
 - barcode_tag_name: BC
   comments: ~
   id_run: 6998
+  id_seq_composition: 1683446
   id_tag_metrics: 3
   info: '{"Check":"npg_qc::autoqc::checks::tag_metrics","Check_version":"14617"}'
   matches_percent: '{"0":"0.167131","168":"0.010078","153":"0.822791"}'
@@ -25,6 +26,7 @@
 - barcode_tag_name: BC
   comments: ~
   id_run: 6998
+  id_seq_composition: 1680610
   id_tag_metrics: 4
   info: '{"Check":"npg_qc::autoqc::checks::tag_metrics","Check_version":"14617"}'
   matches_percent: '{"152":"0.9753","0":"0.013247","888":"0.011453"}'
@@ -48,6 +50,7 @@
 - barcode_tag_name: BC
   comments: ~
   id_run: 6998
+  id_seq_composition: 1680991
   id_tag_metrics: 5
   info: '{"Check":"npg_qc::autoqc::checks::tag_metrics","Check_version":"14617"}'
   matches_percent: '{"0":"0.015178","151":"0.97423","168":"0.010593"}'
@@ -71,6 +74,7 @@
 - barcode_tag_name: BC
   comments: ~
   id_run: 6998
+  id_seq_composition: 1677365
   id_tag_metrics: 7
   info: '{"Check":"npg_qc::autoqc::checks::tag_metrics","Check_version":"14617"}'
   matches_percent: '{"149":"0.972617","0":"0.01681","168":"0.010573"}'
@@ -94,6 +98,7 @@
 - barcode_tag_name: BC
   comments: ~
   id_run: 6998
+  id_seq_composition: 1674618
   id_tag_metrics: 8
   info: '{"Check":"npg_qc::autoqc::checks::tag_metrics","Check_version":"14617"}'
   matches_percent: '{"0":"0.324998","148":"0.666691","168":"0.008311"}'
