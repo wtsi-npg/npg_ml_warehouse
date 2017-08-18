@@ -7,6 +7,7 @@
   filenames: '["6998_1_1.fastq","6998_1_2.fastq"]'
   id_insert_size: 119305
   id_run: 6998
+  id_seq_composition: 1683029
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 436
   median: 418
@@ -35,6 +36,7 @@
   filenames: '["6998_1_1#0.fastq","6998_1_2#0.fastq"]'
   id_insert_size: 119313
   id_run: 6998
+  id_seq_composition: 1677844
   info: '{"Check":"npg_qc::autoqc::checks::insert_size","Check_version":"13879"}'
   mean: ~
   median: ~
@@ -63,6 +65,7 @@
   filenames: '["6998_1_1#13.fastq","6998_1_2#13.fastq"]'
   id_insert_size: 119314
   id_run: 6998
+  id_seq_composition: 1684384
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 442
   median: 425
@@ -91,6 +94,7 @@
   filenames: '["6998_1_1#14.fastq","6998_1_2#14.fastq"]'
   id_insert_size: 119315
   id_run: 6998
+  id_seq_composition: 1683033
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 467
   median: 448
@@ -119,6 +123,7 @@
   filenames: '["6998_1_1#15.fastq","6998_1_2#15.fastq"]'
   id_insert_size: 119316
   id_run: 6998
+  id_seq_composition: 1684231
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 430
   median: 416
@@ -147,6 +152,7 @@
   filenames: '["6998_1_1#16.fastq","6998_1_2#16.fastq"]'
   id_insert_size: 119317
   id_run: 6998
+  id_seq_composition: 1683450
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 457
   median: 438
@@ -175,6 +181,7 @@
   filenames: '["6998_1_1#17.fastq","6998_1_2#17.fastq"]'
   id_insert_size: 119319
   id_run: 6998
+  id_seq_composition: 1680998
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 438
   median: 420
@@ -203,6 +210,7 @@
   filenames: '["6998_1_1#18.fastq","6998_1_2#18.fastq"]'
   id_insert_size: 119320
   id_run: 6998
+  id_seq_composition: 1680085
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 436
   median: 420
@@ -231,6 +239,7 @@
   filenames: '["6998_1_1#19.fastq","6998_1_2#19.fastq"]'
   id_insert_size: 119321
   id_run: 6998
+  id_seq_composition: 1677372
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 437
   median: 419
@@ -259,6 +268,7 @@
   filenames: '["6998_1_1#20.fastq","6998_1_2#20.fastq"]'
   id_insert_size: 119322
   id_run: 6998
+  id_seq_composition: 1674626
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 399
   median: 380
@@ -287,6 +297,7 @@
   filenames: '["6998_1_1#21.fastq","6998_1_2#21.fastq"]'
   id_insert_size: 119323
   id_run: 6998
+  id_seq_composition: 1677851
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 420
   median: 400
@@ -315,6 +326,7 @@
   filenames: '["6998_1_1#22.fastq","6998_1_2#22.fastq"]'
   id_insert_size: 119324
   id_run: 6998
+  id_seq_composition: 1684386
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 444
   median: 425
@@ -343,6 +355,7 @@
   filenames: '["6998_1_1#23.fastq","6998_1_2#23.fastq"]'
   id_insert_size: 119325
   id_run: 6998
+  id_seq_composition: 1683037
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 415
   median: 393
@@ -371,6 +384,7 @@
   filenames: '["6998_1_1#168.fastq","6998_1_2#168.fastq"]'
   id_insert_size: 119318
   id_run: 6998
+  id_seq_composition: 1680616
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: ~
   median: ~
@@ -399,6 +413,7 @@
   filenames: '["6998_2_1.fastq","6998_2_2.fastq"]'
   id_insert_size: 215214
   id_run: 6998
+  id_seq_composition: 1780296
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"15765"}'
   mean: 364
   median: 354
@@ -427,6 +442,7 @@
   filenames: '["6998_3_1.fastq","6998_3_2.fastq"]'
   id_insert_size: 119307
   id_run: 6998
+  id_seq_composition: 1683446
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 374
   median: 361
@@ -455,6 +471,7 @@
   filenames: '["6998_3_1#0.fastq","6998_3_2#0.fastq"]'
   id_insert_size: 119329
   id_run: 6998
+  id_seq_composition: 1681005
   info: '{"Check":"npg_qc::autoqc::checks::insert_size","Check_version":"13879"}'
   mean: ~
   median: ~
@@ -483,6 +500,7 @@
   filenames: '["6998_3_1#153.fastq","6998_3_2#153.fastq"]'
   id_insert_size: 119330
   id_run: 6998
+  id_seq_composition: 1680093
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 376
   median: 363
@@ -511,6 +529,7 @@
   filenames: '["6998_3_1#168.fastq","6998_3_2#168.fastq"]'
   id_insert_size: 119331
   id_run: 6998
+  id_seq_composition: 1677379
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 311
   median: 314
@@ -539,6 +558,7 @@
   filenames: '["6998_4_1.fastq","6998_4_2.fastq"]'
   id_insert_size: 119308
   id_run: 6998
+  id_seq_composition: 1680610
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 379
   median: 366
@@ -567,6 +587,7 @@
   filenames: '["6998_4_1#0.fastq","6998_4_2#0.fastq"]'
   id_insert_size: 119332
   id_run: 6998
+  id_seq_composition: 1674634
   info: '{"Check":"npg_qc::autoqc::checks::insert_size","Check_version":"13879"}'
   mean: ~
   median: ~
@@ -595,6 +616,7 @@
   filenames: '["6998_4_1#152.fastq","6998_4_2#152.fastq"]'
   id_insert_size: 119333
   id_run: 6998
+  id_seq_composition: 1677860
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 379
   median: 366
@@ -623,6 +645,7 @@
   filenames: '["6998_4_1#888.fastq","6998_4_2#888.fastq"]'
   id_insert_size: 119334
   id_run: 6998
+  id_seq_composition: 1684388
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 310
   median: 314
@@ -651,6 +674,7 @@
   filenames: '["6998_5_1.fastq","6998_5_2.fastq"]'
   id_insert_size: 119309
   id_run: 6998
+  id_seq_composition: 1680991
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 388
   median: 377
@@ -679,6 +703,7 @@
   filenames: '["6998_5_1#0.fastq","6998_5_2#0.fastq"]'
   id_insert_size: 119335
   id_run: 6998
+  id_seq_composition: 1683040
   info: '{"Check":"npg_qc::autoqc::checks::insert_size","Check_version":"13879"}'
   mean: ~
   median: ~
@@ -707,6 +732,7 @@
   filenames: '["6998_5_1#151.fastq","6998_5_2#151.fastq"]'
   id_insert_size: 119336
   id_run: 6998
+  id_seq_composition: 1684234
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 389
   median: 377
@@ -735,6 +761,7 @@
   filenames: '["6998_5_1#168.fastq","6998_5_2#168.fastq"]'
   id_insert_size: 119337
   id_run: 6998
+  id_seq_composition: 1683453
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 310
   median: 314
@@ -763,6 +790,7 @@
   filenames: '["6998_6_1.fastq","6998_6_2.fastq"]'
   id_insert_size: 215216
   id_run: 6998
+  id_seq_composition: 1774262
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"15765"}'
   mean: 378
   median: 366
@@ -791,6 +819,7 @@
   filenames: '["6998_7_1.fastq","6998_7_2.fastq"]'
   id_insert_size: 119311
   id_run: 6998
+  id_seq_composition: 1677365
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 373
   median: 361
@@ -819,6 +848,7 @@
   filenames: '["6998_7_1#0.fastq","6998_7_2#0.fastq"]'
   id_insert_size: 119341
   id_run: 6998
+  id_seq_composition: 1677387
   info: '{"Check":"npg_qc::autoqc::checks::insert_size","Check_version":"13879"}'
   mean: ~
   median: ~
@@ -847,6 +877,7 @@
   filenames: '["6998_7_1#149.fastq","6998_7_2#149.fastq"]'
   id_insert_size: 119342
   id_run: 6998
+  id_seq_composition: 1674641
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 373
   median: 360
@@ -875,6 +906,7 @@
   filenames: '["6998_7_1#168.fastq","6998_7_2#168.fastq"]'
   id_insert_size: 119343
   id_run: 6998
+  id_seq_composition: 1677865
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 311
   median: 314
@@ -903,6 +935,7 @@
   filenames: '["6998_8_1.fastq","6998_8_2.fastq"]'
   id_insert_size: 119312
   id_run: 6998
+  id_seq_composition: 1674618
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 389
   median: 380
@@ -931,6 +964,7 @@
   filenames: '["6998_8_1#0.fastq","6998_8_2#0.fastq"]'
   id_insert_size: 119344
   id_run: 6998
+  id_seq_composition: 1684390
   info: '{"Check":"npg_qc::autoqc::checks::insert_size","Check_version":"13879"}'
   mean: ~
   median: ~
@@ -959,6 +993,7 @@
   filenames: '["6998_8_1#148.fastq","6998_8_2#148.fastq"]'
   id_insert_size: 119345
   id_run: 6998
+  id_seq_composition: 1683045
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 389
   median: 380
@@ -987,6 +1022,7 @@
   filenames: '["6998_8_1#168.fastq","6998_8_2#168.fastq"]'
   id_insert_size: 119346
   id_run: 6998
+  id_seq_composition: 1684237
   info: '{"Additional_Modules":"npg_qc::autoqc::parse::alignment 13703;npg_common::extractor::fastq 14595;npg_common::Alignment 12834;FASTX Toolkit fastx_reverse_complement 0.0.13","Check":"npg_qc::autoqc::checks::insert_size","Aligner":"bwa","Aligner_version":"0.5.9-r16","Check_version":"13879"}'
   mean: 311
   median: 314

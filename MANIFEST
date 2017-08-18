@@ -47,11 +47,14 @@ t/data/fixtures/npg/400-TagRun.yml
 t/data/fixtures/npgqc/CacheQuery.yml
 t/data/fixtures/npgqc/ClusterDensity.yml
 t/data/fixtures/npgqc/Fastqcheck.yml
-t/data/fixtures/npgqc/InsertSize.yml
 t/data/fixtures/npgqc/MqcLibraryOutcomeDict.yml
 t/data/fixtures/npgqc/MqcOutcomeDict.yml
-t/data/fixtures/npgqc/QXYield.yml
-t/data/fixtures/npgqc/TagMetrics.yml
+t/data/fixtures/npgqc/100-SeqComponent.yml
+t/data/fixtures/npgqc/100-SeqComposition.yml
+t/data/fixtures/npgqc/200-SeqComponentComposition.yml
+t/data/fixtures/npgqc/300-InsertSize.yml
+t/data/fixtures/npgqc/300-QXYield.yml
+t/data/fixtures/npgqc/300-TagMetrics.yml
 t/data/fixtures/wh/000-Sample.yml
 t/data/fixtures/wh/000-Study.yml
 t/data/fixtures/wh/100-IseqFlowcell.yml
