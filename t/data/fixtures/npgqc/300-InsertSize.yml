@@ -27,7 +27,7 @@
   reference: /lustre/scratch101/sanger/srpipe/references/Burkholderia_pseudomallei/K96243/all/bwa/B_pseudomallei_K96243.fasta
   sample_size: 10000
   std: 100
-  tag_index: -1
+  tag_index: ~
 - bin_width: ~
   bins: ~
   comments: 'multiple references found: /lustre/scratch101/sanger/srpipe/references/Burkholderia_pseudomallei/K96243/all/bwa/B_pseudomallei_K96243.fasta;/lustre/scratch101/sanger/srpipe/references/PhiX/Illumina/all/bwa/phix-illumina.fa'
@@ -433,7 +433,7 @@
   reference: /lustre/scratch109/srpipe/references/Homo_sapiens/CGP_GRCh37.NCBI.allchr_MT/all/bwa/Homo_sapiens.GRCh37.NCBI.allchr_MT.fa
   sample_size: 10000
   std: 68
-  tag_index: -1
+  tag_index: ~
 - bin_width: 9
   bins: '[4,6,4,7,8,5,9,3,5,8,4,6,6,7,23,60,98,139,203,311,405,453,451,419,434,408,427,396,356,376,339,319,290,265,266,255,246,215,207,213,176,199,172,158,162,121,115,116,89,78,87,38,23,13,7,3,5,1,0,1,1,1,2,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,1,1,0,0,0,0,0,0,1]'
   comments: ~
@@ -462,7 +462,7 @@
   reference: /lustre/scratch101/sanger/srpipe/references/Homo_sapiens/CGP_GRCh37.NCBI.allchr_MT/all/bwa/Homo_sapiens.GRCh37.NCBI.allchr_MT.fa
   sample_size: 10000
   std: 67
-  tag_index: -1
+  tag_index: ~
 - bin_width: ~
   bins: ~
   comments: 'multiple references found: /lustre/scratch101/sanger/srpipe/references/Homo_sapiens/CGP_GRCh37.NCBI.allchr_MT/all/bwa/Homo_sapiens.GRCh37.NCBI.allchr_MT.fa;/lustre/scratch101/sanger/srpipe/references/PhiX/Illumina/all/bwa/phix-illumina.fa'
@@ -578,7 +578,7 @@
   reference: /lustre/scratch101/sanger/srpipe/references/Homo_sapiens/CGP_GRCh37.NCBI.allchr_MT/all/bwa/Homo_sapiens.GRCh37.NCBI.allchr_MT.fa
   sample_size: 10000
   std: 70
-  tag_index: -1
+  tag_index: ~
 - bin_width: ~
   bins: ~
   comments: 'multiple references found: /lustre/scratch101/sanger/srpipe/references/Homo_sapiens/CGP_GRCh37.NCBI.allchr_MT/all/bwa/Homo_sapiens.GRCh37.NCBI.allchr_MT.fa;/lustre/scratch101/sanger/srpipe/references/PhiX/Illumina/all/bwa/phix-illumina.fa'
@@ -694,7 +694,7 @@
   reference: /lustre/scratch101/sanger/srpipe/references/Homo_sapiens/CGP_GRCh37.NCBI.allchr_MT/all/bwa/Homo_sapiens.GRCh37.NCBI.allchr_MT.fa
   sample_size: 10000
   std: 69
-  tag_index: -1
+  tag_index: ~
 - bin_width: ~
   bins: ~
   comments: 'multiple references found: /lustre/scratch101/sanger/srpipe/references/Homo_sapiens/CGP_GRCh37.NCBI.allchr_MT/all/bwa/Homo_sapiens.GRCh37.NCBI.allchr_MT.fa;/lustre/scratch101/sanger/srpipe/references/PhiX/Illumina/all/bwa/phix-illumina.fa'
@@ -810,7 +810,7 @@
   reference: /lustre/scratch109/srpipe/references/Homo_sapiens/CGP_GRCh37.NCBI.allchr_MT/all/bwa/Homo_sapiens.GRCh37.NCBI.allchr_MT.fa
   sample_size: 10000
   std: 65
-  tag_index: -1
+  tag_index: ~
 - bin_width: 8
   bins: '[2,8,2,3,7,6,12,9,8,8,12,8,6,6,14,13,21,32,85,130,213,276,337,378,385,387,367,390,364,348,347,338,345,296,321,281,285,258,237,242,211,214,188,201,174,173,167,160,146,147,129,124,94,106,87,102,50,40,16,7,2,5,1,1,0,1,2,4,0,2,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,1]'
   comments: ~
@@ -839,7 +839,7 @@
   reference: /lustre/scratch101/sanger/srpipe/references/Homo_sapiens/CGP_GRCh37.NCBI.allchr_MT/all/bwa/Homo_sapiens.GRCh37.NCBI.allchr_MT.fa
   sample_size: 10000
   std: 67
-  tag_index: -1
+  tag_index: ~
 - bin_width: ~
   bins: ~
   comments: 'multiple references found: /lustre/scratch101/sanger/srpipe/references/Homo_sapiens/CGP_GRCh37.NCBI.allchr_MT/all/bwa/Homo_sapiens.GRCh37.NCBI.allchr_MT.fa;/lustre/scratch101/sanger/srpipe/references/PhiX/Illumina/all/bwa/phix-illumina.fa'
@@ -955,7 +955,7 @@
   reference: /lustre/scratch101/sanger/srpipe/references/Homo_sapiens/CGP_GRCh37.NCBI.allchr_MT/all/bwa/Homo_sapiens.GRCh37.NCBI.allchr_MT.fa
   sample_size: 10000
   std: 72
-  tag_index: -1
+  tag_index: ~
 - bin_width: ~
   bins: ~
   comments: 'multiple references found: /lustre/scratch101/sanger/srpipe/references/Homo_sapiens/CGP_GRCh37.NCBI.allchr_MT/all/bwa/Homo_sapiens.GRCh37.NCBI.allchr_MT.fa;/lustre/scratch101/sanger/srpipe/references/PhiX/Illumina/all/bwa/phix-illumina.fa'

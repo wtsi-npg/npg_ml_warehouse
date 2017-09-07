@@ -9,7 +9,7 @@
   pass: 1
   path: /nfs/sf10/IL23/analysis/100320_IL23_4486/Data/Intensities/Bustard1.6.0a14_01-04-2010_RTA/GERALD_01-04-2010_RTA/archive
   position: 1
-  tag_index: -1
+  tag_index: ~
   threshold_quality: 20
   threshold_yield1: 700541
   threshold_yield2: 700541
@@ -25,7 +25,7 @@
   pass: 1
   path: /nfs/sf10/IL23/analysis/100320_IL23_4486/Data/Intensities/Bustard1.6.0a14_01-04-2010_RTA/GERALD_01-04-2010_RTA/archive
   position: 2
-  tag_index: -1
+  tag_index: ~
   threshold_quality: 20
   threshold_yield1: 700541
   threshold_yield2: 700541
@@ -41,7 +41,7 @@
   pass: 1
   path: /nfs/sf10/IL23/analysis/100320_IL23_4486/Data/Intensities/Bustard1.6.0a14_01-04-2010_RTA/GERALD_01-04-2010_RTA/archive
   position: 3
-  tag_index: -1
+  tag_index: ~
   threshold_quality: 20
   threshold_yield1: 700541
   threshold_yield2: 700541
@@ -57,7 +57,7 @@
   pass: 1
   path: /nfs/sf10/IL23/analysis/100320_IL23_4486/Data/Intensities/Bustard1.6.0a14_01-04-2010_RTA/GERALD_01-04-2010_RTA/archive
   position: 4
-  tag_index: -1
+  tag_index: ~
   threshold_quality: 20
   threshold_yield1: 700541
   threshold_yield2: 700541
@@ -73,7 +73,7 @@
   pass: 1
   path: /nfs/sf10/IL23/analysis/100320_IL23_4486/Data/Intensities/Bustard1.6.0a14_01-04-2010_RTA/GERALD_01-04-2010_RTA/archive
   position: 5
-  tag_index: -1
+  tag_index: ~
   threshold_quality: 20
   threshold_yield1: 700541
   threshold_yield2: 700541
@@ -89,7 +89,7 @@
   pass: 1
   path: /nfs/sf10/IL23/analysis/100320_IL23_4486/Data/Intensities/Bustard1.6.0a14_01-04-2010_RTA/GERALD_01-04-2010_RTA/archive
   position: 6
-  tag_index: -1
+  tag_index: ~
   threshold_quality: 20
   threshold_yield1: 700541
   threshold_yield2: 700541
@@ -105,7 +105,7 @@
   pass: 1
   path: /nfs/sf10/IL23/analysis/100320_IL23_4486/Data/Intensities/Bustard1.6.0a14_01-04-2010_RTA/GERALD_01-04-2010_RTA/archive
   position: 7
-  tag_index: -1
+  tag_index: ~
   threshold_quality: 20
   threshold_yield1: 700541
   threshold_yield2: 700541
@@ -121,7 +121,7 @@
   pass: 1
   path: /nfs/sf10/IL23/analysis/100320_IL23_4486/Data/Intensities/Bustard1.6.0a14_01-04-2010_RTA/GERALD_01-04-2010_RTA/archive
   position: 8
-  tag_index: -1
+  tag_index: ~
   threshold_quality: 20
   threshold_yield1: 700541
   threshold_yield2: 700541
@@ -137,7 +137,7 @@
   pass: 1
   path: /nfs/sf28/ILorHSany_sf28/analysis//111031_HS19_06998_B_D0B76ACXX/Data/Intensities/PB_basecalls_20111112-195951/PB_cal/archive
   position: 1
-  tag_index: -1
+  tag_index: ~
   threshold_quality: 20
   threshold_yield1: 6666667
   threshold_yield2: 6666667
@@ -361,7 +361,7 @@
   pass: 1
   path: /nfs/sf48/tmp_nf2/run_6998/v3/3_reprocess/archive/
   position: 2
-  tag_index: -1
+  tag_index: ~
   threshold_quality: 20
   threshold_yield1: 6666667
   threshold_yield2: 6666667
@@ -377,7 +377,7 @@
   pass: 1
   path: /nfs/sf28/ILorHSany_sf28/analysis//111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive
   position: 3
-  tag_index: -1
+  tag_index: ~
   threshold_quality: 20
   threshold_yield1: 6666667
   threshold_yield2: 6666667
@@ -441,7 +441,7 @@
   pass: 1
   path: /nfs/sf28/ILorHSany_sf28/analysis//111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive
   position: 4
-  tag_index: -1
+  tag_index: ~
   threshold_quality: 20
   threshold_yield1: 6666667
   threshold_yield2: 6666667
@@ -505,7 +505,7 @@
   pass: 1
   path: /nfs/sf28/ILorHSany_sf28/analysis//111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive
   position: 5
-  tag_index: -1
+  tag_index: ~
   threshold_quality: 20
   threshold_yield1: 6666667
   threshold_yield2: 6666667
@@ -569,7 +569,7 @@
   pass: 1
   path: /nfs/sf48/tmp_nf2/run_6998/v3/3_reprocess/archive/
   position: 6
-  tag_index: -1
+  tag_index: ~
   threshold_quality: 20
   threshold_yield1: 6666667
   threshold_yield2: 6666667
@@ -585,7 +585,7 @@
   pass: 1
   path: /nfs/sf28/ILorHSany_sf28/analysis//111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive
   position: 7
-  tag_index: -1
+  tag_index: ~
   threshold_quality: 20
   threshold_yield1: 6666667
   threshold_yield2: 6666667
@@ -649,7 +649,7 @@
   pass: 1
   path: /nfs/sf28/ILorHSany_sf28/analysis//111031_HS19_06998_B_D0B76ACXX/Data/Intensities/BAM_basecalls_20111121-135533/PB_cal_bam/archive
   position: 8
-  tag_index: -1
+  tag_index: ~
   threshold_quality: 20
   threshold_yield1: 6666667
   threshold_yield2: 6666667
