@@ -3,7 +3,9 @@ use warnings;
 use Test::More tests => 7;
 use Test::Exception;
 use Moose::Meta::Class;
+
 use npg_testing::db;
+use t::util;
 
 use_ok('npg_warehouse::loader::fqc');
 
@@ -106,7 +108,10 @@ subtest 'retrieve data, seq outcomes only' => sub {
   my $rs = $schema_qc->resultset('MqcOutcomeEnt');
   for my $r ((3, 33, 333)) {
     for my $p ((1 .. 8)) {
-      $rs->create({id_run => $r, position => $p, id_mqc_outcome => 1});
+      my $q = {id_run => $r, position => $p};
+      $q->{'id_seq_composition'} = t::util::find_or_save_composition($schema_qc, $q);
+      $q->{'id_mqc_outcome'} = 1;
+      $rs->create($q);
     }
   }
   
@@ -171,10 +176,27 @@ subtest 'retrieve data, seq+lib outcomes for a one lib lane' => sub {
   plan tests => 4;
 
   my $rs = $schema_qc->resultset('MqcLibraryOutcomeEnt');
-  $rs->create({id_run => 3, position => 1, id_mqc_outcome => 3}); #final pass
-  $rs->create({id_run => 3, position => 2, id_mqc_outcome => 4}); #final fail
-  $rs->create({id_run => 3, position => 5, id_mqc_outcome => 5}); #final undefined
-  $rs->create({id_run => 3, position => 6, id_mqc_outcome => 1});
+  my $f_keys = {};
+  for my $p (qw/1 2 5 6/) {
+    $f_keys->{$p} = t::util::find_or_save_composition(
+      $schema_qc, {id_run => 3, position => $p});
+  }
+  $rs->create({id_run             => 3,
+               position           => 1,
+               id_seq_composition => $f_keys->{1},
+               id_mqc_outcome     => 3}); #final pass
+  $rs->create({id_run             => 3,
+               position           => 2,
+               id_seq_composition => $f_keys->{2},
+               id_mqc_outcome     => 4}); #final fail
+  $rs->create({id_run             => 3,
+               position           => 5,
+               id_seq_composition => $f_keys->{5},
+               id_mqc_outcome     => 5}); #final undefined
+  $rs->create({id_run             => 3,
+               position           => 6,
+               id_seq_composition => $f_keys->{6},
+               id_mqc_outcome     => 1});
 
   my $expected = {};
   for my $p ((1, 2, 5, 6)) {
@@ -215,16 +237,22 @@ subtest 'retrieve data, seq+lib outcomes for a pool' => sub {
 
   foreach my $tag (@tags) {
     my $outcome = ($tag < 6) ? 3 : 4;
-    $rs->create({  id_run         => 333,
-                   position       => 1,
-                   tag_index      => $tag,
-                   id_mqc_outcome => $outcome,
-               });
-    $rs->create({ id_run         => 333,
-                  position       => 6,
-                  tag_index      => $tag,
-                  id_mqc_outcome => 6,
-               });
+    my $q1 = { id_run         => 333,
+               position       => 1,
+               tag_index      => $tag
+             };
+    my $q6 = { id_run         => 333,
+               position       => 6,
+               tag_index      => $tag
+             };
+    $q1->{'id_seq_composition'} =
+      t::util::find_or_save_composition($schema_qc, $q1);
+    $q1->{'id_mqc_outcome'} = $outcome;
+    $q6->{'id_seq_composition'} =
+      t::util::find_or_save_composition($schema_qc, $q6);
+    $q6->{'id_mqc_outcome'} = 6;
+    $rs->create($q1);
+    $rs->create($q6);
   }
 
   $rs = $schema_qc->resultset('MqcOutcomeEnt');
