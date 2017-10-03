@@ -2,6 +2,9 @@ LIST OF CHANGES
 
  - code and tests changed to enable finding QC outcomes via a linked composition
 
+release 39.7
+ - test data changes to ensure compatibility with npg_qc release 64.1
+
 release 39.6
  - qc database fixtures additions to enable finding autoqc
      results via a linked composition
