@@ -92,7 +92,6 @@ sub retrieve_lane_outcomes {
   if (!$id_run) {
     croak 'Run id is missing';
   }
-
   if (!$position) {
     croak 'Position is missing';
   }
@@ -102,15 +101,18 @@ sub retrieve_lane_outcomes {
   $self->_save_outcomes($outcomes,
                         [$COL_NAME_QC, $COL_NAME_QC_SEQ, $COL_NAME_QC_LIB],
                         $tags);
-
   my $where       = {'id_run' => $id_run, 'position' => $position};
-  my $seq_outcome = $self->_seq_outcome($outcomes, $where, $tags);
-
-  if ($seq_outcome) {
+  if ($self->_seq_outcome($outcomes, $where, $tags)) {
     $self->_lib_outcomes($outcomes, $where, $tags);
   }
-
   return {$position => $outcomes};
+}
+
+sub _create_query {
+  my ($self, $rs_name, $rel_name, $query) = @_;
+  return $self->schema_qc->resultset($rs_name)
+                          ->search({}, {'join' => $rel_name})
+                          ->search_autoqc($query);
 }
 
 sub _seq_outcome {
@@ -120,7 +122,7 @@ sub _seq_outcome {
     croak 'Missing input';
   }
 
-  my $row = $self->schema_qc->resultset('MqcOutcomeEnt')->find($where);
+  my $row = $self->_create_query('MqcOutcomeEnt', 'mqc_outcome', $where)->next();
   my $seq_outcome;
   if ($row && $row->has_final_outcome) {
     $seq_outcome = $row->is_accepted ? 1 : 0;
@@ -138,13 +140,17 @@ sub _lib_outcomes {
   }
 
   $where->{'tag_index'} = ($tags && @{$tags}) ? $tags : undef;
-  my $lib_rs = $self->schema_qc->resultset('MqcLibraryOutcomeEnt')->search_autoqc($where);
-
+  my $lib_rs = $self->_create_query('MqcLibraryOutcomeEnt', 'mqc_outcome', $where);
   while (my $lib_row = $lib_rs->next) {
     if ($lib_row->has_final_outcome) {
       my $lib_outcome = $lib_row->is_accepted ? 1 : ($lib_row->is_rejected ? 0 : undef);
       if (defined $lib_outcome) {
-        my $tag_array = defined $lib_row->tag_index ? [$lib_row->tag_index] : [];
+        my $composition = $lib_row->composition();
+        if ($composition->num_components() > 1) {
+          croak 'Cannot save fqc outcome for multiple components';
+	}
+        my $tag_index = $composition->get_component(0)->tag_index;
+        my $tag_array = defined $tag_index ? [$tag_index] : [];
         $self->_save_outcomes($outcomes, [$COL_NAME_QC_LIB], $tag_array, $lib_outcome);
         if (!$lib_outcome) {
           $self->_save_outcomes($outcomes, [$COL_NAME_QC], $tag_array, $lib_outcome);

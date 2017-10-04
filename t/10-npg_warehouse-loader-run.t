@@ -5,9 +5,11 @@ use Test::Exception;
 use Test::Warn;
 use Test::Deep;
 use Moose::Meta::Class;
-use npg_testing::db;
 
+use npg_tracking::glossary::rpt;
+use npg_testing::db;
 use npg_qc::autoqc::qc_store;
+use t::util;
 
 my $RUN_LANE_TABLE_NAME      = q[IseqRunLaneMetric];
 my $PRODUCT_TABLE_NAME       = q[IseqProductMetric];
@@ -149,10 +151,14 @@ subtest 'old paired (two runfolders) run' => sub {
   lives_ok { $loader->load() } 'absence of lims data does not lead to an error';
 
   for my $p ((1 .. 3)) {
-    $schema_qc->resultset('MqcOutcomeEnt')
-      ->create({id_run => 1246, position => $p, id_mqc_outcome => 3});
-    $schema_qc->resultset('MqcLibraryOutcomeEnt')
-      ->create({id_run => 1246, position => $p, id_mqc_outcome => 3, tag_index => 8});
+    my $q = {id_run => 1246, position => $p};
+    $q->{'id_seq_composition'} = t::util::find_or_save_composition($schema_qc, $q);
+    $q->{'id_mqc_outcome'} = 3;
+    $schema_qc->resultset('MqcOutcomeEnt')->create($q);
+    $q = {id_run => 1246, position => $p, tag_index => 8};
+    $q->{'id_seq_composition'} = t::util::find_or_save_composition($schema_qc, $q);
+    $q->{'id_mqc_outcome'} = 3;
+    $schema_qc->resultset('MqcLibraryOutcomeEnt')->create($q);
   }
   
   npg_warehouse::loader::run->new(\%in)->load();
@@ -381,15 +387,22 @@ subtest 'indexed run' => sub {
     ->update_or_create({folder_path_glob => $folder_glob, folder_name => '110731_HS17_06624_A_B00T5ACXX', id_run => $id_run, })}
     'forder glob reset lives - test prerequisite';
 
-  my $lane_qc_rs = $schema_qc->resultset('MqcOutcomeEnt');
-  my $lib_qc_rs  = $schema_qc->resultset('MqcLibraryOutcomeEnt');
-  $lane_qc_rs->create({id_run => 6624, position => 1, id_mqc_outcome => 3});
-  $lib_qc_rs->create({id_run => 6624, position => 1, tag_index => 0, id_mqc_outcome => 3});     $lane_qc_rs->create({id_run => 6624, position => 2, id_mqc_outcome => 4});
-  $lib_qc_rs->create({id_run => 6624, position => 2, tag_index => 1, id_mqc_outcome => 5});
-  $lane_qc_rs->create({id_run => 6624, position => 3, id_mqc_outcome => 3});
-  $lib_qc_rs->create({id_run => 6624, position => 3, tag_index => 1, id_mqc_outcome => 3});
-  $lib_qc_rs->create({id_run => 6624, position => 3, tag_index => 4, id_mqc_outcome => 4});
-  $lib_qc_rs->create({id_run => 6624, position => 3, tag_index => 3, id_mqc_outcome => 4});
+  my $outcomes = {'6624:1'   => 3,
+                  '6624:1:0' => 3,
+                  '6624:2'   => 4,
+                  '6624:2:1' => 5,
+                  '6624:3'   => 3,
+                  '6624:3:1' => 3,
+                  '6624:3:3' => 4,
+                  '6624:3:4' => 4
+                 }; 
+  for my $rpt (keys %{$outcomes}) {
+    my $q = npg_tracking::glossary::rpt->inflate_rpt($rpt);
+    $q->{'id_seq_composition'} = t::util::find_or_save_composition($schema_qc, $q);
+    $q->{'id_mqc_outcome'}     = $outcomes->{$rpt};
+    my $rs_name = defined $q->{'tag_index'} ? 'MqcLibraryOutcomeEnt' : 'MqcOutcomeEnt';
+    $schema_qc->resultset($rs_name)->create($q);
+  }
 
   my %in = %{$init};
   $in{'id_run'} = $id_run;

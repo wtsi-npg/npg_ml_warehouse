@@ -34,6 +34,7 @@ t/00-podcoverage.t
 t/00-pod.t
 t/00-scripts_compile.t
 t/perlcriticrc
+t/util.pm
 t/data/fixtures/npg/000-InstrumentStatusDict.yml
 t/data/fixtures/npg/000-RunStatusDict.yml
 t/data/fixtures/npg/000-Tag.yml

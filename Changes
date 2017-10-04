@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - code and tests changed to enable finding QC outcomes via a linked composition
+
 release 39.7
  - test data changes to ensure compatibility with npg_qc release 64.1
 
