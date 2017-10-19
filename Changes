@@ -1,6 +1,10 @@
 LIST OF CHANGES
 
+release 39.8
  - code and tests changed to enable finding QC outcomes via a linked composition
+ - Travis builds might fail under Perl interpreters without support for threads,
+   see wtsi-npg/npg_tracking#428 for details. Production code does not run
+   under Perl 5.16, so removed Travis build for this Perl version
 
 release 39.7
  - test data changes to ensure compatibility with npg_qc release 64.1
