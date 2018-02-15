@@ -236,6 +236,10 @@ sub _tag_metrics {
 	    $self->_truncate_float($result->variance_coeff(1));
     }
 
+    if (defined $result->pct_tag_hops) {
+        $autoqc->{$position}->{pct_tag_hops} = $result->pct_tag_hops;
+    }
+
     foreach my $i (keys %{$result->tags}) {
         if ($i != 0) { # no tag sequence for tag zero
             $autoqc->{$position}->{$self->plex_key}->{$i}->{'tag_sequence'} = $result->tags->{$i};

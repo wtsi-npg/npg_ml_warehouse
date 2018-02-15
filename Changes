@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+
+ - added pct_tag_hops
 release 39.8
  - code and tests changed to enable finding QC outcomes via a linked composition
  - Travis builds might fail under Perl interpreters without support for threads,
