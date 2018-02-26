@@ -43,8 +43,9 @@ Readonly::Hash   our %AUTOQC_MAPPING  => {
                            'rna_genes_detected'            => 'genes_detected',
                            'rna_norm_3_prime_coverage'     => 'end_3_norm',
                            'rna_norm_5_prime_coverage'     => 'end_5_norm',
-                           'rna_intronic_rate'             => {'other_metrics' => 'Intronic Rate'},
-                           'rna_transcripts_detected'      => {'other_metrics' => 'Transcripts Detected'},
+                           'rna_intronic_rate'             => 'intronic_rate',
+                           'rna_transcripts_detected'      => 'transcripts_detected',
+                           'rna_globin_percent_tpm'        => 'globin_pct_tpm',
                          },
 };
 
@@ -386,39 +387,27 @@ sub _genotype {
 
 sub _autoqc_check {
     my ($self, $result, $autoqc) = @_;
-    my ($position, $tag_index, @components);
 
-    if ($result->can('composition')){
-        @components = $result->composition->components_list();
-        $position = $components[0]->{'position'};
-        $tag_index = $components[0]->{'tag_index'};
-    } else {
-        $position = $result->position;
-        if ($result->has_column('tag_index')){
-            $tag_index = $result->tag_index;
-        }
+    my $num_components = $result->composition->num_components();
+    if ($num_components > 1){
+        croak q[Too many components for check ] . $result->class_name;
     }
+    my $component = $result->composition->get_component(0);
+    my $position = $component->position;
+    my $tag_index = $component->tag_index;
 
     my $map = $AUTOQC_MAPPING{$result->class_name};
-    foreach my $mlwh_column (keys %{$map}) {
-        my $qc_column = $map->{$mlwh_column};
-        my $value;
-        if (ref($qc_column) eq 'HASH') {
-            my @column = keys %{$qc_column};
-            my @metric = values %{$qc_column};
-            my $name = $column[0];
-            $value = $result->$name->{$metric[0]};
-        } else {
-            $value = $result->$qc_column;
-        }
+    foreach my $key (keys %{$map}) {
+        my $method = $map->{$key};
+        my $value = $result->$method;
         if (defined $value) {
-            if ( $mlwh_column !~ /\Averify_bam_id|\Arna/xms ) {
+            if ( $key !~ /\Averify_bam_id|\Arna/xms ) {
                 $value = $self->_truncate_float($value);
             }
-            if (!defined $tag_index) {
-                $autoqc->{$position}->{$mlwh_column} = $value;
+            if (! defined $tag_index) {
+                $autoqc->{$position}->{$key} = $value;
             } else {
-                $autoqc->{$position}->{$self->plex_key}->{$tag_index}->{$mlwh_column} = $value;
+                $autoqc->{$position}->{$self->plex_key}->{$tag_index}->{$key} = $value;
             }
         }
     }
