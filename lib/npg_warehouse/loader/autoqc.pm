@@ -36,7 +36,17 @@ Readonly::Hash   our %AUTOQC_MAPPING  => {
                            'verify_bam_id_average_depth' => 'avg_depth',
                            'verify_bam_id_snp_count'     => 'number_of_snps',
                          },
-                                         };
+     rna_seqc         => {
+                           'rna_exonic_rate'               => 'exonic_rate',
+                           'rna_percent_end_2_reads_sense' => 'end_2_pct_sense',
+                           'rna_rrna_rate'                 => 'rrna_rate',
+                           'rna_genes_detected'            => 'genes_detected',
+                           'rna_norm_3_prime_coverage'     => 'end_3_norm',
+                           'rna_norm_5_prime_coverage'     => 'end_5_norm',
+                           'rna_intronic_rate'             => 'intronic_rate',
+                           'rna_transcripts_detected'      => 'transcripts_detected',
+                         },
+};
 
 Readonly::Scalar our $Q_TWENTY => 20;
 Readonly::Scalar our $HUNDRED  => 100;
@@ -381,22 +391,28 @@ sub _genotype {
 sub _autoqc_check {
     my ($self, $result, $autoqc) = @_;
 
-    my $position = $result->position;
-    my $map = $AUTOQC_MAPPING{$result->class_name};
+    my $num_components = $result->composition->num_components();
+    if ($num_components > 1){
+        croak q[Too many components for check ] . $result->class_name;
+    }
+    my $component = $result->composition->get_component(0);
+    my $position = $component->position;
+    my $tag_index = $component->tag_index;
 
+    my $map = $AUTOQC_MAPPING{$result->class_name};
     foreach my $key (keys %{$map}) {
-	my $method = $map->{$key};
-	my $value = $result->$method;
-	if (defined $value) {
-	    if ( $key !~ /\Averify_bam_id/xms ) {
+        my $method = $map->{$key};
+        my $value = $result->$method;
+        if (defined $value) {
+            if ( $key !~ /\Averify_bam_id|\Arna/xms ) {
                 $value = $self->_truncate_float($value);
-	    }
-	    if (!defined $result->tag_index) {
-		$autoqc->{$position}->{$key} = $value;
-	    } else {
-		$autoqc->{$position}->{$self->plex_key}->{$result->tag_index}->{$key} = $value;
-	    }
-	}
+            }
+            if (! defined $tag_index) {
+                $autoqc->{$position}->{$key} = $value;
+            } else {
+                $autoqc->{$position}->{$self->plex_key}->{$tag_index}->{$key} = $value;
+            }
+        }
     }
     return;
 }
@@ -424,7 +440,7 @@ sub retrieve {
         my $method_name = exists $AUTOQC_MAPPING{$result->class_name} ? q[_autoqc_check] : q[_] . $result->class_name;
         if ($self->can($method_name)) {
             $self->$method_name($result, $autoqc);
-	}
+        }
         $i--;
     }
     return $autoqc;

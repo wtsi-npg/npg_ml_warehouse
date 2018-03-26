@@ -386,11 +386,11 @@ sub _build__data {
       if ($data_hash->{$position}) {
         _copy_plex_values($plexes, $data_hash, $position);
         foreach my $column (keys %{$data_hash->{$position}}) {
-	  $values->{$column} = $data_hash->{$position}->{$column};
+          $values->{$column} = $data_hash->{$position}->{$column};
           if ( !$lane_is_indexed ) {
             $product_values->{$column} = $data_hash->{$position}->{$column};
-	  }
-	}
+          }
+        }
       }
     }
 
@@ -400,7 +400,7 @@ sub _build__data {
       if (keys %{$product_values}) {
         if (!$lane_is_indexed) {
           my $lane_outcome =
-	    $self->_fqc_data_retriever->retrieve_lane_outcomes($self->id_run, $position);
+          $self->_fqc_data_retriever->retrieve_lane_outcomes($self->id_run, $position);
           _copy_lane_values($product_values, $lane_outcome->{$position});
         }
         $product_values->{'id_run'}    = $self->id_run;
@@ -526,7 +526,7 @@ sub _add_lims_fk {
         my @spikes = keys %{$self->_flowcell_table_fks->{$position}->{$INDEXED_LIBRARY_SPIKE}};
         if (scalar @spikes == 1) {
           $pk = $self->_flowcell_table_fks->{$position}->{$INDEXED_LIBRARY_SPIKE}->{$spikes[0]};
-	}
+        }
       }
     }
 
@@ -682,7 +682,7 @@ sub load {
         my $count = $self->_load_table($table);
         if ($self->verbose) {
           warn qq[Loaded $count rows to table $table for run $id_run\n];
-	}
+    }
       }
     } catch {
       my $err = $_;
