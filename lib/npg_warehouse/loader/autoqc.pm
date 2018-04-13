@@ -250,6 +250,10 @@ sub _tag_metrics {
         $autoqc->{$position}->{tag_hops_percent} = $result->tag_hops_percent;
     }
 
+    if (defined $result->tag_hops_power) {
+        $autoqc->{$position}->{tag_hops_power} = $result->tag_hops_power;
+    }
+
     foreach my $i (keys %{$result->tags}) {
         if ($i != 0) { # no tag sequence for tag zero
             $autoqc->{$position}->{$self->plex_key}->{$i}->{'tag_sequence'} = $result->tags->{$i};
