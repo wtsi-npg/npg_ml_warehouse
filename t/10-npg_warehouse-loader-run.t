@@ -704,7 +704,7 @@ subtest 'not loading early stage runs' => sub {
 };
 
 subtest 'rna run' => sub {
-  plan tests => 13;
+  plan tests => 14;
 
   my $id_run = 24975;
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
@@ -731,6 +731,7 @@ subtest 'rna run' => sub {
   cmp_ok(sprintf('%.10f',$r->rna_percent_end_2_reads_sense), q(==), 98.17338, 'loaded pct end 2 sense reads matches source');
   cmp_ok(sprintf('%.10f',$r->rna_rrna_rate), q(==), 0.020362793, 'loaded rrna rate matches source');
   cmp_ok(sprintf('%.10f',$r->rna_transcripts_detected), q(==), 71321, 'loaded transcripts detected matches source');
+  cmp_ok(sprintf('%.10f',$r->rna_globin_percent_tpm), q(==), 2.71, 'loaded globin pct tpm matches source');
 };
 
 1;

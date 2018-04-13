@@ -241,6 +241,7 @@ local $ENV{TEST_DIR} = q[t];
   cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_percent_end_2_reads_sense}), q(==), 98.17338, 'rna - pct end 2 sense reads');
   cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_rrna_rate}), q(==), 0.020362793, 'rna - rrna rate');
   cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_transcripts_detected}), q(==), 71321, 'rna - transcripts detected');
+  cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_globin_percent_tpm}), q(==), 2.71, 'rna - globin percent tpm');
   ok(! exists $auto->{1}->{$plex_key}->{1}->{rna_rrna}, 'rna - rrna not present');
 }
 
