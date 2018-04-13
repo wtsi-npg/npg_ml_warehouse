@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 120;
+use Test::More tests => 121;
 use Test::Exception;
 use Moose::Meta::Class;
 
