@@ -1,6 +1,6 @@
 LIST OF CHANGES
 
- - added tag_hops_percent
+ - added tag_hops_percent and tag_hops_power
 
 release 39.9
  - multiple RNA-related metrics to be loaded into iseq_product_metrics

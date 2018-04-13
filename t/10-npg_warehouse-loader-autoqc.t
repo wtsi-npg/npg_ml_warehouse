@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 119;
+use Test::More tests => 120;
 use Test::Exception;
 use Moose::Meta::Class;
 
@@ -180,6 +180,7 @@ local $ENV{TEST_DIR} = q[t];
 
   cmp_ok(sprintf('%.2f', $auto->{1}->{tags_decode_percent}), q(==), 98.96, 'lane 1 tag decode percent from tag metrics');
   cmp_ok(sprintf('%.2f', $auto->{1}->{tag_hops_percent}), q(==), 1.23, 'lane 1 percent tag hops from tag metrics');
+  cmp_ok(sprintf('%.2f', $auto->{1}->{tag_hops_power}), q(==), 0.85, 'lane 1 tag hops power from tag metrics');
   cmp_ok(sprintf('%.2f', $auto->{1}->{tags_decode_cv}), q(==), 11.78, 'lane 1 tag decode coeff of var from tag metrics');
   cmp_ok(sprintf('%.2f', $auto->{2}->{tags_decode_percent}), q(==), 98.96, 'lane 2 tag decode percent from tag metrics in presence of tag decode stats');
   cmp_ok(sprintf('%.2f', $auto->{2}->{tags_decode_cv}), q(==), 11.69, 'lane 2 tag matrics coeff of var from tag metrics in presence of tag decode stats');
