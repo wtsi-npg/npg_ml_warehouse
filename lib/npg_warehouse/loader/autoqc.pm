@@ -45,6 +45,7 @@ Readonly::Hash   our %AUTOQC_MAPPING  => {
                            'rna_norm_5_prime_coverage'     => 'end_5_norm',
                            'rna_intronic_rate'             => 'intronic_rate',
                            'rna_transcripts_detected'      => 'transcripts_detected',
+                           'rna_globin_percent_tpm'        => 'globin_pct_tpm',
                          },
 };
 
