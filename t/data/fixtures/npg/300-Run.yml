@@ -220,4 +220,17 @@
   is_paired: 0
   priority: 1
   team: joint
+- actual_cycle_count: 158
+  batch_id: 59337
+  expected_cycle_count: 158
+  flowcell_id: MS6073474-300V2
+  folder_name: 180130_MS6_24975_A_MS6073474-300V2
+  folder_path_glob: '/{export,nfs}/sf55/IL_seq_data/*/'
+  id_instrument: 110
+  id_instrument_format: 11
+  id_run: 24975
+  id_run_pair: 0
+  is_paired: 0
+  priority: 1
+  team: '"joint"'
 

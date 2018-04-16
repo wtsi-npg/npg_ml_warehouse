@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 106;
+use Test::More tests => 121;
 use Test::Exception;
 use Moose::Meta::Class;
 
@@ -179,6 +179,8 @@ local $ENV{TEST_DIR} = q[t];
   cmp_ok(sprintf('%.2f', $auto->{3}->{$plex_key}->{2}->{on_or_near_bait_percent}), q(==), 89.09, 'on or near bait percent'); 
 
   cmp_ok(sprintf('%.2f', $auto->{1}->{tags_decode_percent}), q(==), 98.96, 'lane 1 tag decode percent from tag metrics');
+  cmp_ok(sprintf('%.2f', $auto->{1}->{tag_hops_percent}), q(==), 1.23, 'lane 1 percent tag hops from tag metrics');
+  cmp_ok(sprintf('%.2f', $auto->{1}->{tag_hops_power}), q(==), 0.85, 'lane 1 tag hops power from tag metrics');
   cmp_ok(sprintf('%.2f', $auto->{1}->{tags_decode_cv}), q(==), 11.78, 'lane 1 tag decode coeff of var from tag metrics');
   cmp_ok(sprintf('%.2f', $auto->{2}->{tags_decode_percent}), q(==), 98.96, 'lane 2 tag decode percent from tag metrics in presence of tag decode stats');
   cmp_ok(sprintf('%.2f', $auto->{2}->{tags_decode_cv}), q(==), 11.69, 'lane 2 tag matrics coeff of var from tag metrics in presence of tag decode stats');
@@ -220,6 +222,27 @@ local $ENV{TEST_DIR} = q[t];
   cmp_ok(sprintf('%.2f',$auto->{2}->{$plex_key}->{5}->{bam_human_percent_duplicate}), q(==), 68.09, 'bam xahuman duplicate percent as human');
   cmp_ok(sprintf('%.2f',$auto->{2}->{$plex_key}->{6}->{bam_human_percent_mapped}), q(==), 55.3, 'bam yhuman mapped percent as human');
   cmp_ok(sprintf('%.2f',$auto->{2}->{$plex_key}->{6}->{bam_human_percent_duplicate}), q(==), 68.09, 'bam yhuman duplicate percent as human');
+}
+
+{
+  my $id_run = 24975;
+  lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })}
+    'forder glob reset lives - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+    'staging tag is set - test prerequisite';
+  my $auto;
+  lives_ok {$auto = npg_warehouse::loader::autoqc->new(autoqc_store => $store, plex_key => $plex_key )->retrieve($id_run, $schema_npg)}
+    'data for run 24975 retrieved';
+  cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_exonic_rate}), q(==), 0.68215317, 'rna - exonic rate');
+  cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_genes_detected}), q(==), 12202, 'rna - genes detected');
+  cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_intronic_rate}), q(==), 0.27704784, 'rna - intronic rate');
+  cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_norm_3_prime_coverage}), q(==), 0.558965, 'rna - norm 3\' coverage');
+  cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_norm_5_prime_coverage}), q(==), 0.38012463, 'rna - norm 5\' coverage');
+  cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_percent_end_2_reads_sense}), q(==), 98.17338, 'rna - pct end 2 sense reads');
+  cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_rrna_rate}), q(==), 0.020362793, 'rna - rrna rate');
+  cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_transcripts_detected}), q(==), 71321, 'rna - transcripts detected');
+  cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_globin_percent_tpm}), q(==), 2.71, 'rna - globin percent tpm');
+  ok(! exists $auto->{1}->{$plex_key}->{1}->{rna_rrna}, 'rna - rrna not present');
 }
 
 1;
