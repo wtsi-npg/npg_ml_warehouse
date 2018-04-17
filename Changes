@@ -1,12 +1,11 @@
 LIST OF CHANGES
 
- - added tag_hops_percent and tag_hops_power
-
 release 39.9
  - multiple RNA-related metrics to be loaded into iseq_product_metrics
    when updating the data warehouse
  - added support for NPG SeQC metric tables that only have composition
    and not id_run, position and tag_index columns such as rna_seqc
+ - added tag_hops_percent and tag_hops_power
 
 release 39.8
  - code and tests changed to enable finding QC outcomes via a linked composition
