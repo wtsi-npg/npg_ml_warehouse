@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 16;
+use Test::More tests => 17;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -734,4 +734,25 @@ subtest 'rna run' => sub {
   cmp_ok(sprintf('%.10f',$r->rna_globin_percent_tpm), q(==), 2.71, 'loaded globin pct tpm matches source');
 };
 
+subtest 'gbs run' => sub {
+  plan tests => 6;
+
+  my $id_run = 25710;
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+    'staging tag is set - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, folder_name => '180423_MS7_25710_A_MS6392545-300V2',})}
+    'forder glob reset lives - test prerequisite';
+
+  my %in = %{$init};
+  $in{'id_run'} = $id_run;
+  $in{'verbose'} = 0;
+  my $loader  = npg_warehouse::loader::run->new(\%in);
+  lives_ok {$loader->load()} 'data is loaded into the product table';
+
+  my $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->find({id_run => $id_run, position => 1, tag_index=>60},);
+  ok ($r, 'plex row for lane 1 tag index 60 is present');
+
+  cmp_ok(sprintf('%.10f',$r->gbs_call_rate), q(==), 1, 'loaded gbs call rate matches source');
+  cmp_ok(sprintf('%.10f',$r->gbs_pass_rate), q(==), 0.99, 'loaded gbs pass rate matches source');
+};
 1;

@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 121;
+use Test::More tests => 126;
 use Test::Exception;
 use Moose::Meta::Class;
 
@@ -243,6 +243,20 @@ local $ENV{TEST_DIR} = q[t];
   cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_transcripts_detected}), q(==), 71321, 'rna - transcripts detected');
   cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_globin_percent_tpm}), q(==), 2.71, 'rna - globin percent tpm');
   ok(! exists $auto->{1}->{$plex_key}->{1}->{rna_rrna}, 'rna - rrna not present');
+}
+
+{
+  my $id_run = 25710;
+  lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })}
+    'folder glob reset lives - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+    'staging tag is set - test prerequisite';
+  my $auto;
+  lives_ok {$auto = npg_warehouse::loader::autoqc->new(autoqc_store => $store, plex_key => $plex_key )->retrieve($id_run, $schema_npg)}
+    'data for run 25710 retrieved';
+
+  cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{60}->{gbs_call_rate}), q(==), 1, 'gbs - call rate');
+  cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{60}->{gbs_pass_rate}), q(==), 0.99, 'gbs - pass rate');
 }
 
 1;

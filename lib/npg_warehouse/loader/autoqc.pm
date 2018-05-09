@@ -47,6 +47,10 @@ Readonly::Hash   our %AUTOQC_MAPPING  => {
                            'rna_transcripts_detected'      => 'transcripts_detected',
                            'rna_globin_percent_tpm'        => 'globin_pct_tpm',
                          },
+     genotype_call    => {
+                           'gbs_call_rate'                 => 'genotype_call_rate',
+                           'gbs_pass_rate'                 => 'genotype_passed_rate',
+                         },
 };
 
 Readonly::Scalar our $Q_TWENTY => 20;
