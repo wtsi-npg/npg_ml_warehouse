@@ -402,7 +402,8 @@ sub _autoqc_check {
 
     my $num_components = $result->composition->num_components();
     if ($num_components > 1){
-        croak q[Too many components for check ] . $result->class_name;
+        carp q[Too many components for check ] . $result->class_name;
+        return;
     }
     my $component = $result->composition->get_component(0);
     my $position = $component->position;
