@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - auto QC loader query costruction: do not use invalid option
+
 release 39.10
  - two gbs metrics to be added to the iseq_product_metrics table
 
