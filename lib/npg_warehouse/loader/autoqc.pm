@@ -436,11 +436,10 @@ sub retrieve {
     my ($self, $id_run, $npg_schema) = @_;
 
     my $query = npg_qc::autoqc::qc_store::query->new(
-                                                id_run => $id_run,
-                                                option => $ALL,
-                                                npg_tracking_schema=> $npg_schema,
-                                                propagate_npg_tracking_schema => 1);
-
+                                                id_run              => $id_run,
+                                                option              => $ALL,
+                                                npg_tracking_schema => $npg_schema
+                                                    );
     my $autoqc = {};
     my $collection = $self->autoqc_store->load($query);
     $collection->sort_collection(q[check_name]); # tag metrics object are after tag decode stats now
