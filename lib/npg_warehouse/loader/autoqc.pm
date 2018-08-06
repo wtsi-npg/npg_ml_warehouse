@@ -6,8 +6,9 @@ use MooseX::StrictConstructor;
 use Readonly;
 
 use npg_qc::autoqc::qc_store;
-use npg_qc::autoqc::qc_store::options qw/$ALL/;
+use npg_qc::autoqc::qc_store::options qw/$LANES $PLEXES/;
 use npg_qc::autoqc::qc_store::query;
+use npg_qc::autoqc::results::collection;
 
 our $VERSION = '0';
 
@@ -98,7 +99,7 @@ has 'autoqc_store' =>    ( isa        => 'npg_qc::autoqc::qc_store',
                          );
 sub _build_autoqc_store {
     my $self = shift;
-    return npg_qc::autoqc::qc_store->new(verbose => $self->verbose);
+    return npg_qc::autoqc::qc_store->new();
 }
 
 =head2 plex_key
@@ -400,11 +401,6 @@ sub _genotype {
 sub _autoqc_check {
     my ($self, $result, $autoqc) = @_;
 
-    my $num_components = $result->composition->num_components();
-    if ($num_components > 1){
-        carp q[Too many components for check ] . $result->class_name;
-        return;
-    }
     my $component = $result->composition->get_component(0);
     my $position = $component->position;
     my $tag_index = $component->tag_index;
@@ -429,28 +425,38 @@ sub _autoqc_check {
 
 =head2 retrieve
 
-Retrieves autoqc results for a run
+Retrieves autoqc results for a run. Skips results for multi-component entities.
 
 =cut
 sub retrieve {
     my ($self, $id_run, $npg_schema) = @_;
 
-    my $query = npg_qc::autoqc::qc_store::query->new(
+    my $query1 = npg_qc::autoqc::qc_store::query->new(
                                                 id_run              => $id_run,
-                                                option              => $ALL,
+                                                option              => $LANES,
                                                 npg_tracking_schema => $npg_schema
-                                                    );
-    my $autoqc = {};
-    my $collection = $self->autoqc_store->load($query);
+                                                     );
+    my $query2 = npg_qc::autoqc::qc_store::query->new(
+                                                id_run              => $id_run,
+                                                option              => $PLEXES,
+                                                npg_tracking_schema => $npg_schema
+                                                     );
+    my $collection = npg_qc::autoqc::results::collection->join_collections(
+                     $self->autoqc_store->load($query1), $self->autoqc_store->load($query2));
     $collection->sort_collection(q[check_name]); # tag metrics object are after tag decode stats now
+
     my $i = $collection->size - 1;
+    my $autoqc = {};
     while ($i >= 0) { # iterating from tail to head
         my $result = $collection->get($i);
+        $i--;
+        if ($result->composition->num_components() > 1) {
+            next;
+        }
         my $method_name = exists $AUTOQC_MAPPING{$result->class_name} ? q[_autoqc_check] : q[_] . $result->class_name;
         if ($self->can($method_name)) {
             $self->$method_name($result, $autoqc);
         }
-        $i--;
     }
     return $autoqc;
 }

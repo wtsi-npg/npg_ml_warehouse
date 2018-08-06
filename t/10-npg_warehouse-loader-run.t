@@ -50,7 +50,7 @@ lives_ok{ $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
 lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
   q[t/data/fixtures/npgqc]) } 'npgqc test db created';
 
-my $autoqc_store =  npg_qc::autoqc::qc_store->new(use_db => 0, verbose => 0);
+my $autoqc_store =  npg_qc::autoqc::qc_store->new(use_db => 0);
 
 my $folder_glob = q[t/data/runfolders/];
 my $user_id = 7;
@@ -96,7 +96,7 @@ subtest 'old paired (two runfolders) run' => sub {
   isa_ok ($loader, 'npg_warehouse::loader::run');
   ok (!$loader->_old_forward_id_run, 'old forward id run is not set');
   $loader->load();
-  my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 1246,});
+  my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 1246});
   is ($rs->count, 8, '8 run-lane rows for run 1246');
   
   $in{'id_run'} = 1272;
@@ -623,8 +623,8 @@ subtest 'linking to lims data' => sub {
   $in{'id_run'} = $id_run;
   $in{'_autoqc_store'} = npg_qc::autoqc::qc_store->new(use_db => 1, qc_schema => $schema_qc, verbose => 0);
   my $loader  = npg_warehouse::loader::run->new(\%in);
-  warning_like { $loader->load() }
-    qr/Run 4486: multiple flowcell table records for library, pt key 1/,
+  warnings_exist { $loader->load() }
+    [qr/Run 4486: multiple flowcell table records for library, pt key 1/],
     'warning about duplicate entries';
   my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => $id_run},);
   is($rs->count, 8, '8 rows in run-lane table');
