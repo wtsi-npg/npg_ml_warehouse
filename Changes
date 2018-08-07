@@ -1,6 +1,9 @@
 LIST OF CHANGES
 
  - auto QC loader query costruction: do not use invalid option
+ - wh loader: skip loading results for multi-component entities
+ - to retrieve lane-level results for multi-component entities,
+   ask for lanes and plexes separately    
 
 release 39.10
  - two gbs metrics to be added to the iseq_product_metrics table
