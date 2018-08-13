@@ -11,7 +11,7 @@ use npg_qc::Schema;
 our $VERSION = '0';
 
 Readonly::Array   my @CLUSTER_DENSITY_COLUMNS => qw/ raw_cluster_density 
-                                                    pf_cluster_density  /;
+                                                     pf_cluster_density  /;
 Readonly::Hash    my %QUALITIES => { 'thirty' => 'q30', 'forty' => 'q40',};
 Readonly::Scalar  my $THOUSAND  => 1000;
 
@@ -103,66 +103,6 @@ sub retrieve_cluster_density {
 	}
     }
     return $density;
-}
-
-
-=head2 retrieve_summary
-
-Returns a hash containing per lane/end NPG QC information
-
-=cut
-sub retrieve_summary {
-    my ($self, $id_run, $end, $has_two_runfolders) = @_;
-
-    if (!defined $id_run) {
-        croak 'Run id argument should be set';
-    }
-    if (!defined $end) {
-        croak 'End argument should be set';
-    }
-    if (!defined $has_two_runfolders) {
-        croak 'Two run folders flag argument should be set';
-    }
-
-    my $ends = [$end];
-    my $lanes = {};
-    if (!$has_two_runfolders) {
-        if ($end == $self->reverse_end_index) {
-            croak qq[Reverse end index AND run with one runfolder for run $id_run];
-	}
-        push @{$ends}, $self->reverse_end_index;
-    }
-
-    my $rs_all = $self->schema_qc->resultset('CacheQuery')->search(
-             {
-                 id_run     => $id_run,
-	         end        => $ends,
-                 is_current => 1,
-                 type       => 'lane_summary',
-             },
-             {
-                 columns => [ qw/results/],
-             },
-    					                           );
-    my $rs;
-    while ($rs = $rs_all->next) {
-        my $result = $rs->results;
-        if ($result) {
-            my $rows_ref;
-            my $semi_colon_count = $result =~ tr/;/;/;
-            ##no critic (ProhibitEscapedMetacharacters)
-            if ($semi_colon_count == 1 && $result =~ /[$]rows_ref[ ]=[ ]\[\{.*?\}\];\z/xms) {
-                eval $result; ## no critic (ProhibitStringyEval,RequireCheckingReturnValueOfEval)
-            } else {
-                croak 'Too many statements in returned code: ' . $result;
-            }
-
-            foreach my $lane_hash (@{$rows_ref}) {
-                $lanes->{$lane_hash->{lane}}->{$lane_hash->{end}} = $lane_hash;
-            }
-	}
-    }
-    return $lanes;
 }
 
 =head2 retrieve_yields
