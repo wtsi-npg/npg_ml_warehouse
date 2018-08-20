@@ -15,14 +15,11 @@ my $RUN_LANE_TABLE_NAME      = q[IseqRunLaneMetric];
 my $PRODUCT_TABLE_NAME       = q[IseqProductMetric];
 my $LIMS_FK_COLUMN_NAME      = q[id_iseq_flowcell_tmp];
 my @basic_run_lane_columns = qw/cycles
-                                pf_cluster_count
-                                pf_bases
                                 paired_read
                                 cancelled
                                 run_priority
                                 instrument_name
                                 instrument_model
-                                raw_cluster_count
                                 raw_cluster_density
                                 pf_cluster_density
                                 q30_yield_kb_forward_read
@@ -115,7 +112,7 @@ subtest 'old paired (two runfolders) run' => sub {
   is ($r->run_pending->datetime, '2008-08-19T09:55:12', 'run pending for position 1');
 
   my @found = ();
-  my @expected = (37,25284,617430,1,0,1,'IL20','1G',38831,undef,undef,3,0,4,0);
+  my @expected = (37,1,0,1,'IL20','1G',undef,undef,3,0,4,0);
   foreach my $column (@basic_run_lane_columns) {
     push @found, $r->$column;
   }
@@ -173,7 +170,7 @@ subtest 'old paired (two runfolders) run' => sub {
 };
 
 subtest 'old paired (two runfolders) run' => sub {
-  plan tests => 11;
+  plan tests => 8;
 
   my %in = %{$init};
   $in{'id_run'} = 4138;
@@ -186,9 +183,6 @@ subtest 'old paired (two runfolders) run' => sub {
   $loader  = npg_warehouse::loader::run->new(\%in);
   $loader->load();
   my $r = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 3965,position=>1},)->next;
-  is ($r->raw_cluster_count, 185608, 'clusters_raw as expected');
-  is ($r->pf_bases, 1430265+1430265 ,
-    'pf_bases is summed up for two ends for a paired single folder run');
   is ($r->paired_read, 1, 'paired read flag updated correctly');
   is ($r->tags_decode_percent, undef, 'tags_decode_percent NULL where not loaded');
   is ($r->instrument_name, q[IL36] , 'instr name');
@@ -201,7 +195,6 @@ subtest 'old paired (two runfolders) run' => sub {
   $loader  = npg_warehouse::loader::run->new(\%in);
   $loader->load();
   $r = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 3323,position=>1},)->next;
-  is($r->raw_cluster_density, undef, 'raw_cluster_density undefined');
   is($r->pf_cluster_density, undef, 'pf_cluster_density undefined'); 
 };
 

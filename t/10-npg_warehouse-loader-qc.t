@@ -1,8 +1,7 @@
 use strict;
 use warnings;
-use Test::More tests => 20;
+use Test::More tests => 14;
 use Test::Exception;
-use Test::Deep;
 use Moose::Meta::Class;
 use npg_testing::db;
 
@@ -57,9 +56,6 @@ lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
                                            reverse_end_index => $index,
                                            plex_key => 'plex');
   throws_ok {$q->retrieve_cluster_density()} qr/Run id argument should be set/, 'error if id_run arg not set';
-  throws_ok {$q->retrieve_summary()} qr/Run id argument should be set/, 'error if id_run arg not set';
-  throws_ok {$q->retrieve_summary(22)} qr/End argument should be set/, 'error if end arg not set';
-  throws_ok {$q->retrieve_summary(22,1)} qr/Two run folders flag argument should be set/, 'error if two run folders flag arg not set';
   throws_ok {$q->retrieve_yields()} qr/Run id argument should be set/, 'error if id_run arg not set';
 }
 
@@ -67,24 +63,6 @@ lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
   my $q =  npg_warehouse::loader::qc->new( schema_qc => $schema_qc, 
                                            reverse_end_index => $index,
                                            plex_key => 'plex');
-  throws_ok {$q->retrieve_summary( 1, 2, 0)} qr/Reverse end index AND run with one runfolder/, 'error in get_run_qc_summary on a combination of a second read and one runfolder args';
-
-  cmp_deeply($q->retrieve_summary( 22, 1, 1), {}, 'qc summary is an empty hash if run is not in the db');
-
-  my $rows_ref = [{'clusters_pf' => '81851','lane_yield' => '363418','perc_pf_align_sd' => undef,'perc_pf_clusters_sd' => '2.40','clusters_pf_sd' => '4659','perc_pf_clusters' => '83.41','align_score' => undef,'perc_pf_align' => undef,'perc_error_rate' => undef,'first_cycle_int_sd' => '3','perc_error_rate_sd' => undef,'perc_int_20_cycles_sd' => '3.46','clusters_raw_sd' => '4765','lane' => '1','first_cycle_int' => '69','clusters_raw' => '98126','end' => '1','perc_int_20_cycles' => '75.60','align_score_sd' => undef},{'clusters_pf' => '95506','lane_yield' => '424046','perc_pf_align_sd' => undef,'perc_pf_clusters_sd' => '1.43','clusters_pf_sd' => '2161','perc_pf_clusters' => '84.83','align_score' => undef,'perc_pf_align' => undef,'perc_error_rate' => undef,'first_cycle_int_sd' => '1','perc_error_rate_sd' => undef,'perc_int_20_cycles_sd' => '0.97','clusters_raw_sd' => '2905','lane' => '2','first_cycle_int' => '45','clusters_raw' => '112604','end' => '1','perc_int_20_cycles' => '76.67','align_score_sd' => undef},{'clusters_pf' => '133450','lane_yield' => '592516','perc_pf_align_sd' => undef,'perc_pf_clusters_sd' => '1.64','clusters_pf_sd' => '2551','perc_pf_clusters' => '78.75','align_score' => undef,'perc_pf_align' => undef,'perc_error_rate' => undef,'first_cycle_int_sd' => '1','perc_error_rate_sd' => undef,'perc_int_20_cycles_sd' => '2.69','clusters_raw_sd' => '3975','lane' => '3','first_cycle_int' => '49','clusters_raw' => '169519','end' => '1','perc_int_20_cycles' => '74.23','align_score_sd' => undef},{'clusters_pf' => '132313','lane_yield' => '587469','perc_pf_align_sd' => '0.04','perc_pf_clusters_sd' => '1.62','clusters_pf_sd' => '3790','perc_pf_clusters' => '83.17','align_score' => '178.07','perc_pf_align' => '99.13','perc_error_rate' => '0.22','first_cycle_int_sd' => '2','perc_error_rate_sd' => '0.01','perc_int_20_cycles_sd' => '1.58','clusters_raw_sd' => '7318','lane' => '4','first_cycle_int' => '74','clusters_raw' => '159216','end' => '1','perc_int_20_cycles' => '79.46','align_score_sd' => '0.12'},{'clusters_pf' => '125077','lane_yield' => '555341','perc_pf_align_sd' => undef,'perc_pf_clusters_sd' => '0.93','clusters_pf_sd' => '1939','perc_pf_clusters' => '82.55','align_score' => undef,'perc_pf_align' => undef,'perc_error_rate' => undef,'first_cycle_int_sd' => '1','perc_error_rate_sd' => undef,'perc_int_20_cycles_sd' => '1.03','clusters_raw_sd' => '3519','lane' => '5','first_cycle_int' => '46','clusters_raw' => '151558','end' => '1','perc_int_20_cycles' => '76.82','align_score_sd' => undef},{'clusters_pf' => '131445','lane_yield' => '583616','perc_pf_align_sd' => undef,'perc_pf_clusters_sd' => '1.65','clusters_pf_sd' => '4088','perc_pf_clusters' => '60.65','align_score' => undef,'perc_pf_align' => undef,'perc_error_rate' => undef,'first_cycle_int_sd' => '1','perc_error_rate_sd' => undef,'perc_int_20_cycles_sd' => '1.15','clusters_raw_sd' => '1848','lane' => '6','first_cycle_int' => '56','clusters_raw' => '216692','end' => '1','perc_int_20_cycles' => '65.04','align_score_sd' => undef},{'clusters_pf' => '102878','lane_yield' => '456778','perc_pf_align_sd' => undef,'perc_pf_clusters_sd' => '1.96','clusters_pf_sd' => '5659','perc_pf_clusters' => '50.11','align_score' => undef,'perc_pf_align' => undef,'perc_error_rate' => undef,'first_cycle_int_sd' => '2','perc_error_rate_sd' => undef,'perc_int_20_cycles_sd' => '1.46','clusters_raw_sd' => '3720','lane' => '7','first_cycle_int' => '58','clusters_raw' => '205196','end' => '1','perc_int_20_cycles' => '64.96','align_score_sd' => undef},{'clusters_pf' => '49202','lane_yield' => '218459','perc_pf_align_sd' => undef,'perc_pf_clusters_sd' => '1.58','clusters_pf_sd' => '4114','perc_pf_clusters' => '89.22','align_score' => undef,'perc_pf_align' => undef,'perc_error_rate' => undef,'first_cycle_int_sd' => '8','perc_error_rate_sd' => undef,'perc_int_20_cycles_sd' => '3.97','clusters_raw_sd' => '4518','lane' => '8','first_cycle_int' => '58','clusters_raw' => '55147','end' => '1','perc_int_20_cycles' => '73.03','align_score_sd' => undef}];
-
-  my $h = $q->retrieve_summary( 3622, 1, 1);
-  my @a;
-  foreach my $key (sort keys %{$h}) {
-    push @a, $h->{$key}->{1};
-  }
-  cmp_deeply( \@a, $rows_ref, 'qc summary for run 3622 end 1');
-}
-
-{
-  my $q =  npg_warehouse::loader::qc->new( schema_qc => $schema_qc, 
-                                         reverse_end_index => $index,
-                                         plex_key => 'plex');
   is (scalar keys %{$q->retrieve_cluster_density(3323)}, 0, 'no cluster densities for run 3622');  
 }
 
@@ -104,7 +82,7 @@ lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
                                            reverse_end_index => $index,
                                            plex_key   => 'plex');
   my $values = $q->retrieve_cluster_density(4333);
-  cmp_deeply ($q->retrieve_cluster_density(4333), $expected, 'cluster densities for run 4333');
+  is_deeply ($q->retrieve_cluster_density(4333), $expected, 'cluster densities for run 4333');
 }
 
 {
@@ -148,7 +126,7 @@ lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
                                            reverse_end_index => $index,
                                            plex_key => 'plex');
   my $values = $q->retrieve_yields(4333);
-  cmp_deeply ($values, $expected, 'q30 and q40 yields for run 4333 - all lanes not pools');
+  is_deeply ($values, $expected, 'q30 and q40 yields for run 4333 - all lanes not pools');
   ok(!exists $values->{1}->{plex}, 'no plexes retrieved');
 
   $expected =    {
@@ -194,7 +172,7 @@ lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
         };
 
   $values = $q->retrieve_yields(6624);
-  cmp_deeply ($values, $expected, 'q30 and q40 yields for two pooled lanes of run 6624');
+  is_deeply ($values, $expected, 'q30 and q40 yields for two pooled lanes of run 6624');
 }
 
 1;

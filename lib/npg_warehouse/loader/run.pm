@@ -298,17 +298,6 @@ sub _build__fqc_data_retriever {
                                          plex_key          => $PLEXES_KEY);
 }
 
-has '_run_end_summary'   =>    ( isa        => 'HashRef',
-                                 is         => 'ro',
-                                 required   => 0,
-                                 lazy_build => 1,
-);
-sub _build__run_end_summary {
-  my $self = shift;
-  return $self->_npgqc_data_retriever->retrieve_summary(
-    $self->id_run, $FORWARD_END_INDEX, $self->_run_lane_rs->[0]->run->is_paired);
-}
-
 has '_qyields'           =>    ( isa        => 'HashRef',
                                  is         => 'ro',
                                  required   => 0,
@@ -363,19 +352,6 @@ sub _build__data {
 
     foreach my $column (keys %{ $self->_cluster_density->{$position} || {} }) {
       $values->{$column} = $self->_cluster_density->{$position}->{$column};
-    }
-
-    if (exists $self->_run_end_summary->{$position}->{$FORWARD_END_INDEX}) {
-      $values->{'raw_cluster_count'}  =
-        $self->_run_end_summary->{$position}->{$FORWARD_END_INDEX}->{'clusters_raw'};
-      $values->{'pf_cluster_count'}   =
-        $self->_run_end_summary->{$position}->{$FORWARD_END_INDEX}->{'clusters_pf'};
-      $values->{'pf_bases'}           =
-        $self->_run_end_summary->{$position}->{$FORWARD_END_INDEX}->{'lane_yield'};
-      if (exists $self->_run_end_summary->{$position}->{$REVERSE_END_INDEX}) {
-        $values->{'pf_bases'}        +=
-        $self->_run_end_summary->{$position}->{$REVERSE_END_INDEX}->{'lane_yield'};
-      }
     }
 
     my $lane_is_indexed = $self->_lane_is_indexed($position);
