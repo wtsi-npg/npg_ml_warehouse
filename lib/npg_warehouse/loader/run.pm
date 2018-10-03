@@ -17,8 +17,8 @@ use npg_warehouse::loader::npg;
 extends 'npg_warehouse::loader::base';
 
 with qw/
-   npg_tracking::glossary::run
-   npg_tracking::glossary::flowcell
+  npg_tracking::glossary::run
+  npg_tracking::glossary::flowcell
        /;
 with 'WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell';
 
@@ -171,13 +171,6 @@ sub _build__flowcell_table_fks_exist {
   return scalar keys %{$self->_flowcell_table_fks} ? 1 : 0;
 }
 
-=head2 _autoqc_store
-
-A driver to retrieve autoqc objects. If DB storage is not available,
-it will give no error, so no need to mock DB for this one in tests.
-Just mock the staging area in your tests
-
-=cut
 has '_autoqc_store' =>    ( isa        => 'npg_qc::autoqc::qc_store',
                             is         => 'ro',
                             required   => 0,
@@ -190,11 +183,6 @@ sub _build__autoqc_store {
                                        qc_schema => $self->schema_qc);
 }
 
-=head2 _run_lane_rs
-
-Result set object for run lanes that have to be loaded
-
-=cut
 has '_run_lane_rs' =>     ( isa        => 'ArrayRef',
                             is         => 'ro',
                             required   => 0,
@@ -280,10 +268,7 @@ has '_npgqc_data_retriever'   => ( isa        => 'npg_warehouse::loader::qc',
 );
 sub _build__npgqc_data_retriever {
   my $self = shift;
-  return npg_warehouse::loader::qc->new(schema_qc         => $self->schema_qc,
-                                        verbose           => $self->verbose,
-                                        reverse_end_index => $REVERSE_END_INDEX,
-                                        plex_key          => $PLEXES_KEY);
+  return npg_warehouse::loader::qc->new(schema_qc => $self->schema_qc);
 }
 
 has '_fqc_data_retriever'     => ( isa        => 'npg_warehouse::loader::fqc',
@@ -296,16 +281,6 @@ sub _build__fqc_data_retriever {
   return npg_warehouse::loader::fqc->new(schema_qc         => $self->schema_qc,
                                          verbose           => $self->verbose,
                                          plex_key          => $PLEXES_KEY);
-}
-
-has '_qyields'           =>    ( isa        => 'HashRef',
-                                 is         => 'ro',
-                                 required   => 0,
-                                 lazy_build => 1,
-);
-sub _build__qyields {
-  my $self = shift;
-  return $self->_npgqc_data_retriever->retrieve_yields($self->id_run);
 }
 
 has '_cluster_density'   =>    ( isa        => 'HashRef',
@@ -358,14 +333,13 @@ sub _build__data {
     my $product_values;
     my $plexes = {};
 
-    foreach my $data_hash (($self->_qyields, $self->_autoqc_data)) {
-      if ($data_hash->{$position}) {
-        _copy_plex_values($plexes, $data_hash, $position);
-        foreach my $column (keys %{$data_hash->{$position}}) {
-          $values->{$column} = $data_hash->{$position}->{$column};
-          if ( !$lane_is_indexed ) {
-            $product_values->{$column} = $data_hash->{$position}->{$column};
-          }
+    my $data_hash = $self->_autoqc_data;
+    if ($data_hash->{$position}) {
+      _copy_plex_values($plexes, $data_hash, $position);
+      foreach my $column (keys %{$data_hash->{$position}}) {
+        $values->{$column} = $data_hash->{$position}->{$column};
+        if ( !$lane_is_indexed ) {
+          $product_values->{$column} = $data_hash->{$position}->{$column};
         }
       }
     }

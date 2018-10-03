@@ -86,6 +86,7 @@ subtest 'old paired (two runfolders) run' => sub {
 
   my %in = %{$init};
   $in{'id_run'} = 1246;
+  delete $in{'_autoqc_store'};
   my $loader;
 
   lives_ok {$loader  = npg_warehouse::loader::run->new(\%in)}
@@ -138,6 +139,7 @@ subtest 'old paired (two runfolders) run' => sub {
     ->update_or_create({batch_id => undef, flowcell_id => undef, id_run => 1246, })}
     'both batch and flowcell ids unset - test prerequisite';
   %in = %{$init};
+  delete $in{'_autoqc_store'};
   $in{'id_run'}  = 1246;
   $in{'explain'} = 1;
   lives_ok {$loader  = npg_warehouse::loader::run->new(\%in)}

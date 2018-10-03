@@ -55,8 +55,7 @@ Readonly::Hash   our %AUTOQC_MAPPING  => {
                          },
 };
 
-Readonly::Scalar our $Q_TWENTY => 20;
-Readonly::Scalar our $HUNDRED  => 100;
+Readonly::Scalar my $HUNDRED  => 100;
 
 =head1 NAME
 
@@ -88,20 +87,13 @@ has 'verbose'      => ( isa        => 'Bool',
 
 =head2 autoqc_store
 
-A driver to retrieve autoqc objects. If DB storage is not available,
-it will give no error, so no need to mock DB for this one in tests.
-Just mock the staging area in your tests
+A driver to retrieve autoqc objects, required attribute.
 
 =cut
 has 'autoqc_store' =>    ( isa        => 'npg_qc::autoqc::qc_store',
                            is         => 'ro',
-                           required   => 0,
-                           lazy_build => 1,
+                           required   => 1,
                          );
-sub _build_autoqc_store {
-    my $self = shift;
-    return npg_qc::autoqc::qc_store->new();
-}
 
 =head2 plex_key
 
@@ -182,21 +174,21 @@ sub _insert_size {
 sub _qX_yield {
     my ($self, $result, $autoqc) = @_;
 
-    if ($result->threshold_quality != $Q_TWENTY) {
-        croak 'Need Q20 quality, got ' . $result->threshold_quality;
-    }
-
     my $data = {};
-    if (defined $result->yield1) {
-        $data->{q20_yield_kb_forward_read} = $result->yield1;
-    }
-    if (defined $result->yield2) {
-        $data->{q20_yield_kb_reverse_read} = $result->yield2;
+    foreach my $read (qw/1 2/) {
+        foreach my $quality (qw/20 30 40/) {
+            my $autoqc_method_name = sprintf 'yield%s_q%s', $read, $quality;
+            my $wh_column_name     = sprintf 'q%s_yield_kb_%s_read',
+                $quality, ($read eq '1') ? 'forward' : 'reverse';
+            my $value = $result->$autoqc_method_name;
+            if (defined $value) {
+                $data->{$wh_column_name} = $result->$autoqc_method_name;
+            }
+        }
     }
     $self->_copy_fields($data, $autoqc, $result->position, $result->tag_index);
     return;
 }
-
 
 sub _ref_match {
     my ($self, $result, $autoqc) = @_;

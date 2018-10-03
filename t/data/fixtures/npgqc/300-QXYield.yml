@@ -1,5 +1,25 @@
 ---
 - comments: ~
+  filename1: 1246_1_1.fastqcheck
+  filename2: 1246_1_2.fastqcheck
+  id_qx_yield: 6000
+  id_run: 1246
+  id_seq_composition: 1904398
+  info: '{"Check":"npg_qc::autoqc::checks::qX_yield","Check_version":"8943"}'
+  pass: 1
+  path: archive
+  position: 1
+  tag_index: ~
+  threshold_quality: 20
+  threshold_yield1: 700541
+  threshold_yield2: 700541
+  yield1: 274
+  yield2: 236
+  yield1_q30: 3
+  yield2_q30: 0
+  yield1_q40: 4
+  yield2_q40: 0
+- comments: ~
   filename1: 4486_1_1.fastqcheck
   filename2: 4486_1_2.fastqcheck
   id_qx_yield: 6013

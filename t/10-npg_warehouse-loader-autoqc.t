@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 128;
+use Test::More tests => 127;
 use Test::Exception;
 use Moose::Meta::Class;
 
@@ -50,10 +50,7 @@ my $user_id = 7;
                  );
    my $result = npg_qc::autoqc::results::qX_yield->new(
      path => q[dodo], id_run=>22, position=>1, threshold_quality => 30,);
-   throws_ok {$autoqc->_qX_yield($result, {})}
-     qr/Need Q20 quality, got 30/, 'error when quality is not 20';
-   $result->threshold_quality(20);
-   lives_ok {$autoqc->_qX_yield($result, {})} 'lives with quality 20';
+   lives_ok {$autoqc->_qX_yield($result, {})} 'lives with quality 30';
    $result->yield1(200);
    my $h = {};
    $autoqc->_qX_yield($result, $h);
