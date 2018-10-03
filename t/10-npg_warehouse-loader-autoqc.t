@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 127;
+use Test::More tests => 128;
 use Test::Exception;
 use Moose::Meta::Class;
 
@@ -238,6 +238,7 @@ my $user_id = 7;
   cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_rrna_rate}), q(==), 0.020362793, 'rna - rrna rate');
   cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_transcripts_detected}), q(==), 71321, 'rna - transcripts detected');
   cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_globin_percent_tpm}), q(==), 2.71, 'rna - globin percent tpm');
+  cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_mitochondrial_percent_tpm}), q(==), 6.56, 'rna - mitochondrial percent tpm');
   ok(! exists $auto->{1}->{$plex_key}->{1}->{rna_rrna}, 'rna - rrna not present');
 }
 
