@@ -47,6 +47,7 @@ Readonly::Hash   our %AUTOQC_MAPPING  => {
                            'rna_intronic_rate'             => 'intronic_rate',
                            'rna_transcripts_detected'      => 'transcripts_detected',
                            'rna_globin_percent_tpm'        => 'globin_pct_tpm',
+                           'rna_mitochondrial_percent_tpm'  => 'mt_pct_tpm',
                          },
      genotype_call    => {
                            'gbs_call_rate'                 => 'genotype_call_rate',
