@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 127;
+use Test::More tests => 137;
 use Test::Exception;
 use Moose::Meta::Class;
 
@@ -251,6 +251,25 @@ my $user_id = 7;
 
   cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{60}->{gbs_call_rate}), q(==), 1, 'gbs - call rate');
   cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{60}->{gbs_pass_rate}), q(==), 0.99, 'gbs - pass rate');
+}
+
+{
+  my $id_run = 27116;
+  lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })}
+    'folder glob reset lives - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run})->set_tag($user_id, 'staging')}
+    'staging tag is set - test prerequisite';
+  my $auto;
+  lives_ok {$auto = npg_warehouse::loader::autoqc->new(autoqc_store => $store, plex_key => $plex_key )->retrieve($id_run, $schema_npg)}
+    'data for run 27116 retrieved';
+ 
+  is ($auto->{1}->{$plex_key}->{1}->{target_filter}, 'F0xF04_target',  'target - target_filter');
+  cmp_ok(sprintf('%.2f',$auto->{1}->{$plex_key}->{1}->{target_coverage_threshold}), q(==), 15, 'target - target_coverage_threshold');
+  cmp_ok(sprintf('%.2f',$auto->{1}->{$plex_key}->{1}->{target_length}), q(==), '2945869055', 'target - target_length');
+  cmp_ok(sprintf('%.2f',$auto->{1}->{$plex_key}->{1}->{target_mapped_bases}), q(==), 8700474137, 'target - target_mapped_bases');
+  cmp_ok(sprintf('%.2f',$auto->{1}->{$plex_key}->{1}->{target_mapped_reads}), q(==), 58704583, 'target - target_mapped_reads');
+  cmp_ok(sprintf('%.2f',$auto->{1}->{$plex_key}->{1}->{target_percent_gt_coverage_threshold}), q(==), 0.15, 'target - target_percent_gt_coverage_threshold');
+  cmp_ok(sprintf('%.2f',$auto->{1}->{$plex_key}->{1}->{target_proper_pair_mapped_reads}), q(==), 57355728, 'target - target_proper_pair_mapped_reads');
 }
 
 {
