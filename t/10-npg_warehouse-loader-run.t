@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 15;
+use Test::More tests => 17;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -15,14 +15,11 @@ my $RUN_LANE_TABLE_NAME      = q[IseqRunLaneMetric];
 my $PRODUCT_TABLE_NAME       = q[IseqProductMetric];
 my $LIMS_FK_COLUMN_NAME      = q[id_iseq_flowcell_tmp];
 my @basic_run_lane_columns = qw/cycles
-                                pf_cluster_count
-                                pf_bases
                                 paired_read
                                 cancelled
                                 run_priority
                                 instrument_name
                                 instrument_model
-                                raw_cluster_count
                                 raw_cluster_density
                                 pf_cluster_density
                                 q30_yield_kb_forward_read
@@ -50,7 +47,7 @@ lives_ok{ $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
 lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
   q[t/data/fixtures/npgqc]) } 'npgqc test db created';
 
-my $autoqc_store =  npg_qc::autoqc::qc_store->new(use_db => 0, verbose => 0);
+my $autoqc_store =  npg_qc::autoqc::qc_store->new(use_db => 0);
 
 my $folder_glob = q[t/data/runfolders/];
 my $user_id = 7;
@@ -89,6 +86,7 @@ subtest 'old paired (two runfolders) run' => sub {
 
   my %in = %{$init};
   $in{'id_run'} = 1246;
+  delete $in{'_autoqc_store'};
   my $loader;
 
   lives_ok {$loader  = npg_warehouse::loader::run->new(\%in)}
@@ -96,7 +94,7 @@ subtest 'old paired (two runfolders) run' => sub {
   isa_ok ($loader, 'npg_warehouse::loader::run');
   ok (!$loader->_old_forward_id_run, 'old forward id run is not set');
   $loader->load();
-  my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 1246,});
+  my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 1246});
   is ($rs->count, 8, '8 run-lane rows for run 1246');
   
   $in{'id_run'} = 1272;
@@ -115,7 +113,7 @@ subtest 'old paired (two runfolders) run' => sub {
   is ($r->run_pending->datetime, '2008-08-19T09:55:12', 'run pending for position 1');
 
   my @found = ();
-  my @expected = (37,25284,617430,1,0,1,'IL20','1G',38831,undef,undef,3,0,4,0);
+  my @expected = (37,1,0,1,'IL20','1G',undef,undef,3,0,4,0);
   foreach my $column (@basic_run_lane_columns) {
     push @found, $r->$column;
   }
@@ -141,6 +139,7 @@ subtest 'old paired (two runfolders) run' => sub {
     ->update_or_create({batch_id => undef, flowcell_id => undef, id_run => 1246, })}
     'both batch and flowcell ids unset - test prerequisite';
   %in = %{$init};
+  delete $in{'_autoqc_store'};
   $in{'id_run'}  = 1246;
   $in{'explain'} = 1;
   lives_ok {$loader  = npg_warehouse::loader::run->new(\%in)}
@@ -163,6 +162,7 @@ subtest 'old paired (two runfolders) run' => sub {
   
   npg_warehouse::loader::run->new(\%in)->load();
   $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => 1246,});
+  
   is ($rs->count, 1, '1 product row for run 1246');
   $r = $rs->next;
   is ($r->position, 1, 'position correct');
@@ -172,7 +172,7 @@ subtest 'old paired (two runfolders) run' => sub {
 };
 
 subtest 'old paired (two runfolders) run' => sub {
-  plan tests => 11;
+  plan tests => 8;
 
   my %in = %{$init};
   $in{'id_run'} = 4138;
@@ -185,9 +185,6 @@ subtest 'old paired (two runfolders) run' => sub {
   $loader  = npg_warehouse::loader::run->new(\%in);
   $loader->load();
   my $r = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 3965,position=>1},)->next;
-  is ($r->raw_cluster_count, 185608, 'clusters_raw as expected');
-  is ($r->pf_bases, 1430265+1430265 ,
-    'pf_bases is summed up for two ends for a paired single folder run');
   is ($r->paired_read, 1, 'paired read flag updated correctly');
   is ($r->tags_decode_percent, undef, 'tags_decode_percent NULL where not loaded');
   is ($r->instrument_name, q[IL36] , 'instr name');
@@ -200,7 +197,6 @@ subtest 'old paired (two runfolders) run' => sub {
   $loader  = npg_warehouse::loader::run->new(\%in);
   $loader->load();
   $r = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 3323,position=>1},)->next;
-  is($r->raw_cluster_density, undef, 'raw_cluster_density undefined');
   is($r->pf_cluster_density, undef, 'pf_cluster_density undefined'); 
 };
 
@@ -622,8 +618,8 @@ subtest 'linking to lims data' => sub {
   $in{'id_run'} = $id_run;
   $in{'_autoqc_store'} = npg_qc::autoqc::qc_store->new(use_db => 1, qc_schema => $schema_qc, verbose => 0);
   my $loader  = npg_warehouse::loader::run->new(\%in);
-  warning_like { $loader->load() }
-    qr/Run 4486: multiple flowcell table records for library, pt key 1/,
+  warnings_exist { $loader->load() }
+    [qr/Run 4486: multiple flowcell table records for library, pt key 1/],
     'warning about duplicate entries';
   my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => $id_run},);
   is($rs->count, 8, '8 rows in run-lane table');
@@ -702,4 +698,57 @@ subtest 'not loading early stage runs' => sub {
     'warning about not loading an early stage run';
 };
 
+subtest 'rna run' => sub {
+  plan tests => 15;
+
+  my $id_run = 24975;
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+    'staging tag is set - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, folder_name => '180130_MS6_24975_A_MS6073474-300V2',})}
+    'forder glob reset lives - test prerequisite';
+
+  my %in = %{$init};
+  $in{'id_run'} = $id_run;
+  $in{'verbose'} = 0;
+  my $loader  = npg_warehouse::loader::run->new(\%in);
+  lives_ok {$loader->load()} 'data is loaded into the product table';
+
+  my $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => 24975,});
+  is($rs->count(), 22, '22 rows in product table');
+
+  my $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->find({id_run => $id_run, position => 1, tag_index=>1},);
+  ok ($r, 'plex row for lane 1 tag index 1 is present');
+  cmp_ok(sprintf('%.10f',$r->rna_exonic_rate), q(==), 0.68215317, 'loaded exonic rate matches source');
+  cmp_ok(sprintf('%.10f',$r->rna_genes_detected), q(==), 12202, 'loaded genes detected matches source');
+  cmp_ok(sprintf('%.10f',$r->rna_intronic_rate), q(==), 0.27704784, 'loaded intronic rate matches source');
+  cmp_ok(sprintf('%.10f',$r->rna_norm_3_prime_coverage), q(==), 0.558965, 'loaded norm 3\' coverage matches source');
+  cmp_ok(sprintf('%.10f',$r->rna_norm_5_prime_coverage), q(==), 0.38012463, 'loaded norm 5\' coverage matches source');
+  cmp_ok(sprintf('%.10f',$r->rna_percent_end_2_reads_sense), q(==), 98.17338, 'loaded pct end 2 sense reads matches source');
+  cmp_ok(sprintf('%.10f',$r->rna_rrna_rate), q(==), 0.020362793, 'loaded rrna rate matches source');
+  cmp_ok(sprintf('%.10f',$r->rna_transcripts_detected), q(==), 71321, 'loaded transcripts detected matches source');
+  cmp_ok(sprintf('%.10f',$r->rna_globin_percent_tpm), q(==), 2.71, 'loaded globin pct tpm matches source');
+  cmp_ok(sprintf('%.10f',$r->rna_mitochondrial_percent_tpm), q(==), 6.56, 'loaded mitochondrial pct tpm matches source');
+};
+
+subtest 'gbs run' => sub {
+  plan tests => 6;
+
+  my $id_run = 25710;
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+    'staging tag is set - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, folder_name => '180423_MS7_25710_A_MS6392545-300V2',})}
+    'forder glob reset lives - test prerequisite';
+
+  my %in = %{$init};
+  $in{'id_run'} = $id_run;
+  $in{'verbose'} = 0;
+  my $loader  = npg_warehouse::loader::run->new(\%in);
+  lives_ok {$loader->load()} 'data is loaded into the product table';
+
+  my $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->find({id_run => $id_run, position => 1, tag_index=>60},);
+  ok ($r, 'plex row for lane 1 tag index 60 is present');
+
+  cmp_ok(sprintf('%.10f',$r->gbs_call_rate), q(==), 1, 'loaded gbs call rate matches source');
+  cmp_ok(sprintf('%.10f',$r->gbs_pass_rate), q(==), 0.99, 'loaded gbs pass rate matches source');
+};
 1;
