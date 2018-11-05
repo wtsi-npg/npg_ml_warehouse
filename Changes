@@ -7,6 +7,7 @@ LIST OF CHANGES
  - stop loading Illumina qc data that came from chached_query table
    of the npg_qc database (pf_cluster_count, raw_cluster_count, pf_bases)
  - load q30 and q40 yields from qX_yield autoqc check results     
+ - load bam_flagstats target metrics into iseq_product_metrics table
 
 release 39.10
  - two gbs metrics to be added to the iseq_product_metrics table

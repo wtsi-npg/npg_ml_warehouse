@@ -329,6 +329,13 @@ sub _bam_flagstats {
         ? ($result->mate_mapped_defferent_chr_5 * $HUNDRED / $num_reads)
         : 0.00);
     $self->_copy_fields({chimeric_reads_percent => $chimeric_reads}, $autoqc, $position, $tag_index);
+    foreach my $method (qw(target_filter target_length target_mapped_reads 
+           target_proper_pair_mapped_reads target_mapped_bases target_coverage_threshold 
+           target_percent_gt_coverage_threshold)) {
+       if(my $r = $result->$method ) {
+          $self->_copy_fields({$method => $r}, $autoqc, $position, $tag_index);
+       }
+    }
     return;
 }
 
