@@ -3,7 +3,7 @@ package npg_warehouse::loader::run;
 use Moose;
 use MooseX::StrictConstructor;
 use Try::Tiny;
-use List::MoreUtils qw/ any none /;
+use List::MoreUtils qw/ any none uniq /;
 use Readonly;
 use Carp;
 
@@ -34,12 +34,7 @@ Readonly::Scalar my $RUN_LANE_TABLE_NAME      => q[IseqRunLaneMetric];
 Readonly::Scalar my $PRODUCT_TABLE_NAME       => q[IseqProductMetric];
 Readonly::Scalar my $LIMS_FK_COLUMN_NAME      => q[id_iseq_flowcell_tmp];
 
-Readonly::Scalar my $FORWARD_END_INDEX        => 1;
-Readonly::Scalar my $REVERSE_END_INDEX        => 2;
-Readonly::Scalar my $PLEXES_KEY               => q[plexes];
-
 Readonly::Scalar my $SPIKE_FALLBACK_TAG_INDEX => 888;
-Readonly::Scalar my $MIN_NEW_RUN              => 10_000;
 
 =head1 NAME
 
@@ -212,23 +207,6 @@ sub _build__old_forward_id_run {
   return $rp;
 }
 
-has '_autoqc_data'   =>   ( isa        => 'HashRef',
-                            is         => 'ro',
-                            required   => 0,
-                            lazy_build => 1,
-);
-sub _build__autoqc_data {
-  my $self = shift;
-  if (!$self->_run_is_cancelled) {
-    return npg_warehouse::loader::autoqc->new(
-      autoqc_store => $self->_autoqc_store,
-      verbose => $self->verbose,
-      plex_key => $PLEXES_KEY)->retrieve($self->id_run, $self->schema_npg);
-  }
-  return {};
-}
-
-
 has '_npg_data_retriever'   =>   ( isa        => 'npg_warehouse::loader::npg',
                                    is         => 'ro',
                                    required   => 0,
@@ -278,9 +256,7 @@ has '_fqc_data_retriever'     => ( isa        => 'npg_warehouse::loader::fqc',
 );
 sub _build__fqc_data_retriever {
   my $self = shift;
-  return npg_warehouse::loader::fqc->new(schema_qc         => $self->schema_qc,
-                                         verbose           => $self->verbose,
-                                         plex_key          => $PLEXES_KEY);
+  return npg_warehouse::loader::fqc->new(schema_qc => $self->schema_qc);
 }
 
 has '_cluster_density'   =>    ( isa        => 'HashRef',
@@ -299,13 +275,12 @@ has '_data'              =>    ( isa        => 'HashRef',
                                  lazy_build => 1,
 );
 sub _build__data {
-  my ($self) = @_;
+  my $self = shift;
 
-  my $array              = [];
-  my $product_array      = [];
-
-  my $dates              = $self->_npg_data_retriever()->dates();
-  my $instr              = $self->_npg_data_retriever()->instrument_info;
+  my $dates = $self->_npg_data_retriever()->dates();
+  my $instr = $self->_npg_data_retriever()->instrument_info;
+  my $lane_data = {};
+  my $lane_deplexed_flags = {};
 
   foreach my $rs (@{$self->_run_lane_rs})  {
 
@@ -329,106 +304,84 @@ sub _build__data {
       $values->{$column} = $self->_cluster_density->{$position}->{$column};
     }
 
-    my $lane_is_indexed = $self->_lane_is_indexed($position);
-    my $product_values;
-    my $plexes = {};
-
-    my $data_hash = $self->_autoqc_data;
-    if ($data_hash->{$position}) {
-      _copy_plex_values($plexes, $data_hash, $position);
-      foreach my $column (keys %{$data_hash->{$position}}) {
-        $values->{$column} = $data_hash->{$position}->{$column};
-        if ( !$lane_is_indexed ) {
-          $product_values->{$column} = $data_hash->{$position}->{$column};
-        }
-      }
-    }
-
-    push @{$array}, $values;
-    if ($product_values) {
-      delete $product_values->{$PLEXES_KEY};
-      if (keys %{$product_values}) {
-        if (!$lane_is_indexed) {
-          my $lane_outcome =
-          $self->_fqc_data_retriever->retrieve_lane_outcomes($self->id_run, $position);
-          _copy_lane_values($product_values, $lane_outcome->{$position});
-        }
-        $product_values->{'id_run'}    = $self->id_run;
-        $product_values->{'position'}  = $position;
-        push @{$product_array}, $product_values;
-      }
-    }
-
-    my @plex_indexes = keys %{$plexes};
-
-    if ($lane_is_indexed) {
-      my @tags = grep { $_ != 0 } @plex_indexes;
-      if (@tags) {
-        my $qc_outcomes =
-          $self->_fqc_data_retriever->retrieve_lane_outcomes(
-            $self->id_run, $position, \@tags);
-        _copy_plex_values($plexes, $qc_outcomes, $position);
-      }
-    }
-
-    foreach my $tag_index (@plex_indexes) {
-      my $plex_values             = $plexes->{$tag_index};
-      $plex_values->{'id_run'}    = $self->id_run;
-      $plex_values->{'position'}  = $position;
-      $plex_values->{'tag_index'} = $tag_index;
-      push @{$product_array}, $plex_values;
-    }
+    $lane_data->{$position} = $values;
   }
 
-  return {$RUN_LANE_TABLE_NAME => $array, $PRODUCT_TABLE_NAME => $product_array,};
+  my $data_hash = $self->_run_is_cancelled ? {} :
+    npg_warehouse::loader::autoqc->new(autoqc_store => $self->_autoqc_store)
+                                 ->retrieve($self->id_run, $self->schema_npg);
+  my $indexed_lanes = _indexed_lanes_hash($data_hash);
+
+  my @products = ();
+
+  while (my ($product_digest, $data) = each %{$data_hash} ) {
+    my $composition = $data->{'composition'};
+    if ($composition->num_components == 1) {
+      my $component = $composition->get_component(0);
+      my $position  = $component->position;
+      my $tag_index = $component->tag_index;
+      if (!defined $tag_index) { # Lane data
+        while (my ($column_name, $value) = each %{$data}) {
+          $lane_data->{$position}->{$column_name} = $value;
+        }
+        # If this is lane data for an indexed lane, the lane itself is
+        # not the end product.
+        if ($data->{'tags_decode_percent'} || $indexed_lanes->{$position}) {
+          $lane_data->{$position}->{'qc_seq'} =
+            $self->_fqc_data_retriever->retrieve_lane_outcome($composition);
+          next;
+	}
+      }
+      $data->{'id_run'}    = $component->id_run;
+      $data->{'position'}  = $position;
+      $data->{'tag_index'} = $tag_index;
+    } else {
+      my @id_runs = uniq map { $_->id_run } $composition->components_list();
+      if (scalar @id_runs == 1) {
+        $data->{'id_run'}  = $id_runs[0];
+      }
+      my @tis = grep { defined }
+                map  { $_->tag_index }
+                $composition->components_list();
+      if (scalar @tis == $composition->num_components) {
+        @tis = uniq @tis;
+        if (scalar @tis == 1) {
+          $data->{'tag_index'} = $tis[0];
+	}
+      }
+    }
+
+    my $qc_outcomes =
+      $self->_fqc_data_retriever->retrieve_outcomes($composition);
+    while ( my ($column_name, $value) = each %{$qc_outcomes} ) {
+      $data->{$column_name} = $value;
+    }
+    $data->{'id_iseq_product'}      = $composition->digest;
+    $data->{'iseq_composition_tmp'} = $composition->freeze();
+    push @products, $data;
+  }
+
+  return { $RUN_LANE_TABLE_NAME => [values %{$lane_data}],
+           $PRODUCT_TABLE_NAME  => \@products};
 }
 
-sub _lane_is_indexed {
-  my ($self, $position) = @_;
-  my $is_indexed = exists $self->_autoqc_data->{$position}->{'tags_decode_percent'};
-  if (!$is_indexed) {
-    if (scalar keys %{$self->_autoqc_data->{$position}->{$PLEXES_KEY}}) {
-      my $message = qq[Plex autoqc data present for lane $position, but no tag decoding data available];
-      if ($self->id_run < $MIN_NEW_RUN) { # This run is "old".
-        if ($self->verbose) {
-          warn qq[$message\n];
-        }
-        $is_indexed = 1;
-      } else {
-        croak $message;
-      }
-    }
-  }
-  return $is_indexed;
+sub _indexed_lanes_hash {
+  my $data_hash = shift;
+  my %pools =
+      map  {$_ => 1 }
+      uniq
+      map  { $_->position }
+      grep { defined $_->tag_index }
+      map  { $_->get_component(0) }
+      grep { $_->num_components == 1 }
+      map  { $_->{'composition'} }
+      values %{$data_hash};
+  return \%pools;
 }
 
 sub _pt_key {
   my ($p, $t) = @_;
   return defined $t ? join(q[:], $p, $t) : $p;
-}
-
-sub _copy_lane_values {
-  my ($destination, $source) = @_;
-  foreach my $column_name (keys %{$source}) {
-    $destination->{$column_name} = $source->{$column_name};
-  }
-  return;
-}
-
-sub _copy_plex_values {
-  my ($destination, $source, $position) = @_;
-
-  if (!exists $source->{$position}->{$PLEXES_KEY}) {
-    return;
-  }
-
-  foreach my $tag_index (keys %{ $source->{$position}->{$PLEXES_KEY} } ) {
-    foreach my $column_name (keys %{ $source->{$position}->{$PLEXES_KEY}->{$tag_index} } ) {
-      $destination->{$tag_index}->{$column_name} =
-        $source->{$position}->{$PLEXES_KEY}->{$tag_index}->{$column_name};
-    }
-  }
-  return;
 }
 
 sub _add_lims_fk {
@@ -541,6 +494,8 @@ sub _load_table {
   my @rows = ();
   foreach my $row (@{$self->_data->{$table}}) {
 
+    my $composition = delete $row->{'composition'};
+
     $self->_filter_column_names($table, $row);
     my @test = keys %{$row};
     @test = grep { ! /\Aid_run|position|tag_index\Z/smx } @test;
@@ -548,7 +503,8 @@ sub _load_table {
       next;
     }
 
-    if ($table eq $PRODUCT_TABLE_NAME && $self->_flowcell_table_fks_exist) {
+    if ($table eq $PRODUCT_TABLE_NAME && ($composition->num_components == 1)
+        && $self->_flowcell_table_fks_exist) {
       $self->_add_lims_fk($row);
     }
 
@@ -557,6 +513,7 @@ sub _load_table {
       warn sprintf 'Will create record in table %s for run %i position %i %s%s',
          $table, $self->id_run,  $row->{'position'}, $message, qq[\n];
     }
+
     push @rows, $row;
   }
 
@@ -681,12 +638,6 @@ __END__
 
 =item npg_qc::autoqc::qc_store
 
-=item npg_warehouse::loader::autoqc
-
-=item npg_warehouse::loader::qc
-
-=item npg_warehouse::loader::npg
-
 =back
 
 =head1 INCOMPATIBILITIES
@@ -699,7 +650,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2015 Genome Research Limited
+Copyright (C) 2018 Genome Research Limited
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

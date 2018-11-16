@@ -271,7 +271,7 @@ subtest 'indexed run' => sub {
 };
 
 subtest 'indexed run' => sub {
-  plan tests => 25;
+  plan tests => 17;
 
   my $id_run = 4799;
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
@@ -284,14 +284,6 @@ subtest 'indexed run' => sub {
   $in{'id_run'} = $id_run;
   my $loader  = npg_warehouse::loader::run->new(\%in);
   $loader->load();
-
-  foreach my $pos (qw(1 2 4)) {
-    ok (!$loader->_lane_is_indexed($pos), qq[lane $pos is not indexed]);
-  }
-
-  foreach my $pos (qw(3 5 6 7 8)) {
-    ok ($loader->_lane_is_indexed($pos), qq[lane $pos is indexed]);
-  }
 
   my @rows = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search(
        {id_run => $id_run, position => [5-8]},
@@ -374,7 +366,7 @@ subtest 'indexed run' => sub {
 };
 
 subtest 'indexed run' => sub {
-  plan tests => 40;
+  plan tests => 38;
 
   my $id_run = 6624;
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
@@ -384,7 +376,6 @@ subtest 'indexed run' => sub {
     'forder glob reset lives - test prerequisite';
 
   my $outcomes = {'6624:1'   => 3,
-                  '6624:1:0' => 3,
                   '6624:2'   => 4,
                   '6624:2:1' => 5,
                   '6624:3'   => 3,
@@ -427,9 +418,8 @@ subtest 'indexed run' => sub {
   is($plex->tag_decode_count(), 1831358, 'lane 1 tag index 0 count');
   is($plex->qc, undef, 'qc value undefined');
   is($plex->qc_lib, undef, 'qc lib value undefined');
-  is($plex->qc_seq, undef, 'qc seq value undefined');
+  is($plex->qc_seq, 1, 'qc seq value pass');
 
-  ok ($loader->_lane_is_indexed(2), 'lane 2 is indexed');
   is ($schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>2,tag_index=>undef})->count,
     0, 'lane 2 is not in product table');
   $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->find({id_run=>$id_run,position=>2,tag_index=>168});
@@ -439,9 +429,9 @@ subtest 'indexed run' => sub {
   is($plex->tag_decode_count(), 1277701, 'lane 2 tag index 168 count');
   cmp_ok(sprintf('%.2f', $plex->tag_decode_percent()), q(==), 0.73, ,
     'lane 2 tag index 168 percent');
-  is($plex->qc, 0, 'qc value 1');
+  is($plex->qc, undef, 'qc value undefined');
   is($plex->qc_lib, undef, 'qc lib value undefined');
-  is($plex->qc_seq, 0, 'qc seq value 1');
+  is($plex->qc_seq, 0, 'qc seq fail');
 
   $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>3,tag_index=>1})->first;
   cmp_ok(sprintf('%.2f',$plex->mean_bait_coverage()), q(==), 41.49, 'mean bait coverage');
@@ -459,7 +449,6 @@ subtest 'indexed run' => sub {
   is($plex->qc_lib, 0, 'qc lib value undefined');
   is($plex->qc_seq, 1, 'qc seq value 1');
 
-  ok ($loader->_lane_is_indexed(4), 'lane 4 is indexed');
   is ($schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>4,tag_index=>undef})->count,
     0, 'lane 4 is not in product table');
   $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->find({id_run=>$id_run,position=>4,tag_index=>0});
@@ -468,7 +457,7 @@ subtest 'indexed run' => sub {
 };
 
 subtest 'indexed run' => sub {
-  plan tests => 23;
+  plan tests => 20;
 
   my $id_run = 6642;
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
@@ -485,14 +474,11 @@ subtest 'indexed run' => sub {
   my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => $id_run},);
   is($rs->count, 8, '8 rows in run-lane table');
 
-  ok (!$loader->_lane_is_indexed(1), 'lane 1 is not indexed');
   my $lane = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>1,tag_index=>undef})->first;
   ok ($lane, 'product row for lane 1 is present');
-  ok ($loader->_lane_is_indexed(2), 'lane 2 is indexed');
   $lane = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>2,tag_index=>undef})->first;
   ok (!$lane, 'product row for lane 2 is not present');
 
-  ok (!$loader->_lane_is_indexed(3), 'lane 3 is not indexed');
   $lane = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run, position=>3,tag_index=>undef},)->first;
   ok ($lane, 'product row for lane 3 is present');
   cmp_ok(sprintf('%.2f',$lane->num_reads()), q(==), 308368522, 'bam number of reads');
@@ -516,7 +502,7 @@ subtest 'indexed run' => sub {
 };
 
 subtest 'linking to lims data' => sub {
-  plan tests => 52;
+  plan tests => 44;
 
   $schema_wh->resultset('IseqFlowcell')->find({id_flowcell_lims=>14178, position=>6, tag_index=>168})
    ->update({entity_type => 'library_indexed' });
@@ -526,19 +512,14 @@ subtest 'linking to lims data' => sub {
   my $id_run = 6998;
   my %in = %{$init};
   $in{'id_run'} = $id_run;
-  $in{'_autoqc_store'} = npg_qc::autoqc::qc_store->new(use_db => 1, qc_schema => $schema_qc, verbose => 0);
+  $in{'_autoqc_store'} = npg_qc::autoqc::qc_store->new(
+    use_db => 1, qc_schema => $schema_qc, verbose => 0);
   my $loader  = npg_warehouse::loader::run->new(\%in);
   is ($loader->id_flowcell_lims, 14178, 'id_flowcell_lims populated correctly');
   $loader->load();
+
   my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => $id_run},);
   is($rs->count, 8, '8 rows in run-lane table');
-
-  foreach my $lane ((2,6)){
-    ok (!$loader->_lane_is_indexed($lane), "lane $lane is not indexed");
-  }
-  foreach my $lane ((1,3,4,5,7,8)){
-    ok ($loader->_lane_is_indexed($lane), "lane $lane is indexed");
-  }
 
   $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run},);
   is ($rs->count, 30, '30 rows in product table');
@@ -611,7 +592,7 @@ subtest 'linking to lims data' => sub {
 };
 
 subtest 'linking to lims data' => sub {
-  plan tests => 31;
+  plan tests => 23;
 
   my $id_run = 4486;
   my %in = %{$init};
@@ -623,10 +604,6 @@ subtest 'linking to lims data' => sub {
     'warning about duplicate entries';
   my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => $id_run},);
   is($rs->count, 8, '8 rows in run-lane table');
-
-  foreach my $lane ((1 .. 8)){
-    ok (!$loader->_lane_is_indexed($lane), "lane $lane is not indexed");
-  }
 
   $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
     {id_run => $id_run}, {order_by => 'position'});
