@@ -5,7 +5,9 @@ use Moose;
 use MooseX::StrictConstructor;
 use Readonly;
 
+use npg_tracking::glossary::rpt;
 use npg_qc::Schema;
+use npg_qc::mqc::outcomes;
 
 our $VERSION = '0';
 
@@ -21,24 +23,10 @@ npg_warehouse::loader::fqc
 
 =head1 DESCRIPTION
 
-A retriever for final QC outcomes to be loaded to the warehouse table.
-Data for 'qc_seq', 'qc_lib' and 'qc' columns are retrieved as sequencing
-qc outcome, library qc outcome and a cumulative value to be used for the product.
-Either of the outcomes may be undefined.
+A retriever for overall, sequencing and library QC outcomes to be
+loaded to the warehouse table.
 
 =head1 SUBROUTINES/METHODS
-
-=head2 verbose
-
-Verbose flag
-
-=cut
-
-has 'verbose'      => ( isa        => 'Bool',
-                        is         => 'ro',
-                        required   => 0,
-                        default    => 0,
-                      );
 
 =head2 schema_qc
 
@@ -55,134 +43,158 @@ sub _build_schema_qc {
   return npg_qc::Schema->connect();
 }
 
-=head2 plex_key
+has '_retriever' =>   ( isa        => 'npg_qc::mqc::outcomes',
+                        is         => 'bare',
+                        required   => 0,
+                        lazy_build => 1,
+		        handles    => {
+                          '_get_outcomes' => 'get'
+		        },
+                      );
+sub _build__retriever {
+  my $self = shift;
+  return npg_qc::mqc::outcomes->new(qc_schema  => $self->schema_qc);
+}
 
-Name of the key to use in data structures for plex data.
+=head2 retrieve_outcomes
 
-=cut
+Retrieves qc outcomes for an entity defined by the argument composition
+as a hash in the format expected by the warehouse loader (keys as qc,
+qc_lib and qc_seq and values as 0, 1 or undefined).
 
-has 'plex_key' =>   ( isa             => 'Str',
-                      is              => 'ro',
-                      required        => 1,
-		    );
+  my $qc_outcomes = $obj->retrieve_outcomes($composition);
 
-=head2 retrieve_lane_outcomes
-
-Retrieves final qc outcomes for a lane as a hash in the format expected
-by the warehouse loader.
-
-  my $id_run = 22;
-  my $position = 2;
-
-  # Retrieves data for a lane only, tags are not considered
-  my $hash_output = $obj->retrieve_lane_outcomes($id_run, $position);
-  # or
-  my $tags = []; #an array of tag indices
-  $hash_output = $obj->retrieve_lane_outcomes($id_run, $position, $tags);
-
-  # Retrieves data for the given tags
-  $tags = [2, 3, 5, 7];
-  $hash_output = $obj->retrieve_lane_outcomes($id_run, $position, $tags);
+Applies certain rules computing the overall QC outcome from outcomes
+of the library and sequencing QC. Non-final QC outcomes are equivalent
+to outcome not being defined. A fail on sequencing QC leads to the
+overall fail. A pass on sequencing QC is overwritten by the library
+QC outcome, meaning that the overall QC would be undefined if the
+library QC value is undefined. Sequencing QC outcome for multi-component
+entities is composed from sequencing QC outcomes for individual lanes.
+If all of them pass, the value is a pass, if one of then fail, the value
+is a fail and if none are failed, but one of them is undefined, the value
+is undefined.
   
 =cut
 
-sub retrieve_lane_outcomes {
-  my ($self, $id_run, $position, $tags) = @_;
+sub retrieve_outcomes {
+  my ($self, $composition) = @_;
 
-  if (!$id_run) {
-    croak 'Run id is missing';
-  }
-  if (!$position) {
-    croak 'Position is missing';
+  if (!$composition) {
+    croak 'Composition object is missing';
   }
 
-  $tags //= [];
-  my $outcomes = {};
-  $self->_save_outcomes($outcomes,
-                        [$COL_NAME_QC, $COL_NAME_QC_SEQ, $COL_NAME_QC_LIB],
-                        $tags);
-  my $where       = {'id_run' => $id_run, 'position' => $position};
-  if ($self->_seq_outcome($outcomes, $where, $tags)) {
-    $self->_lib_outcomes($outcomes, $where, $tags);
+  my $h = {};
+  for my $name (($COL_NAME_QC, $COL_NAME_QC_SEQ, $COL_NAME_QC_LIB)) {
+    $h->{$name} = undef;
   }
-  return {$position => $outcomes};
+
+  my $rpt_list = $composition->freeze2rpt();
+  my $outcomes = $self->_get_outcomes([$rpt_list]);
+  my $lib_qc = $outcomes->{'lib'}->{$rpt_list}->{'mqc_outcome'};
+  $h->{$COL_NAME_QC_LIB} = $self->_outcome_desc2wh_value('lib', $lib_qc);
+
+  my @lane_rpts = map { _lane_rpt_from_rpt($_->freeze2rpt()) }
+                  $composition->components_list;
+  my $seq_qc;
+  if (scalar @lane_rpts == 1) {
+    $seq_qc = $outcomes->{'seq'}->{$lane_rpts[0]}->{'mqc_outcome'};
+    $seq_qc = $self->_outcome_desc2wh_value('seq', $seq_qc);
+  } else {
+    my $lo = $self->_get_outcomes(\@lane_rpts);
+    my @lane_outcomes =
+      map { $self->_outcome_desc2wh_value('seq', $_) }
+      map { $lo->{$_}->{'mqc_outcome'} }
+      @lane_rpts;
+    if (any { defined $_ && $_ == 0 } @lane_outcomes) {
+      $seq_qc = 0;
+    } elsif (none { !defined } @lane_outcomes) {
+      $seq_qc = 1;
+    }
+  }
+
+  $h->{$COL_NAME_QC_SEQ} = $seq_qc;
+
+  if (!defined $h->{$COL_NAME_QC_SEQ} && defined $h->{$COL_NAME_QC_LIB}) {
+    croak 'Inconsistent qc outcomes';
+  }
+
+  $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_SEQ};
+  if (defined $h->{$COL_NAME_QC_LIB}) {
+    if (!$h->{$COL_NAME_QC_LIB}) {
+      $h->{$COL_NAME_QC} = 0;
+    }
+  } else {
+    # No overwrite if the query was about a single lane
+    if ((scalar @lane_rpts > 1) || ($lane_rpts[0] ne $rpt_list)) {
+      $h->{$COL_NAME_QC} = undef;
+    }
+  }
+
+  return $h;
 }
 
-sub _create_query {
-  my ($self, $rs_name, $rel_name, $query) = @_;
-  return $self->schema_qc->resultset($rs_name)
-                          ->search({}, {'join' => $rel_name})
-                          ->search_autoqc($query);
+=head2 retrieve_lane_outcome
+
+Retrieves outcome for a single lane as 0, 1 or undefined. Takes
+composition object for a lane as an argument. No check is
+made to ensure that the composition is for a lane.
+
+ my $outcome = $obj->retrieve_lane_outcome($composition);
+
+=cut
+
+sub retrieve_lane_outcome {
+  my ($self, $composition) = @_;
+
+  if (!$composition) {
+    croak 'Composition object is missing';
+  }
+  return $self->_seq_outcome($composition->freeze2rpt());
+}
+
+sub _lane_rpt_from_rpt {
+  my $rpt = shift;
+  my $h = npg_tracking::glossary::rpt->inflate_rpt($rpt);
+  delete $h->{'tag_index'};
+  return npg_tracking::glossary::rpt->deflate_rpt($h);
 }
 
 sub _seq_outcome {
-  my ($self, $outcomes, $where, $tags) = @_;
-
-  if (!($outcomes && $where)) {
-    croak 'Missing input';
+  my ($self, $rpt) = @_;
+  my $seq_qc = $self->_get_outcomes([$rpt])
+                    ->{'seq'}->{$rpt}->{'mqc_outcome'};
+  if ($seq_qc) {
+    $seq_qc = $self->_outcome_desc2wh_value('seq', $seq_qc);
   }
-
-  my $row = $self->_create_query('MqcOutcomeEnt', 'mqc_outcome', $where)->next();
-  my $seq_outcome;
-  if ($row && $row->has_final_outcome) {
-    $seq_outcome = $row->is_accepted ? 1 : 0;
-    $self->_save_outcomes($outcomes, [$COL_NAME_QC, $COL_NAME_QC_SEQ], $tags, $seq_outcome);
-  }
-
-  return $seq_outcome;
+  return $seq_qc;
 }
 
-sub _lib_outcomes {
-  my ($self, $outcomes, $where, $tags) = @_;
+sub _outcome_desc2wh_value {
+  my ($self, $qc_type, $desc) = @_;
 
-  if (!($outcomes && $where)) {
-    croak 'Missing input';
-  }
-
-  $where->{'tag_index'} = ($tags && @{$tags}) ? $tags : undef;
-  my $lib_rs = $self->_create_query('MqcLibraryOutcomeEnt', 'mqc_outcome', $where);
-  while (my $lib_row = $lib_rs->next) {
-    if ($lib_row->has_final_outcome) {
-      my $lib_outcome = $lib_row->is_accepted ? 1 : ($lib_row->is_rejected ? 0 : undef);
-      if (defined $lib_outcome) {
-        my $composition = $lib_row->composition();
-        if ($composition->num_components() > 1) {
-          croak 'Cannot save fqc outcome for multiple components';
-	}
-        my $tag_index = $composition->get_component(0)->tag_index;
-        my $tag_array = defined $tag_index ? [$tag_index] : [];
-        $self->_save_outcomes($outcomes, [$COL_NAME_QC_LIB], $tag_array, $lib_outcome);
-        if (!$lib_outcome) {
-          $self->_save_outcomes($outcomes, [$COL_NAME_QC], $tag_array, $lib_outcome);
-	}
+  my $outcome;
+  if ($desc) {
+    $qc_type ||= q[];
+    my $rs_name = $qc_type eq 'lib' ? 'MqcLibraryOutcomeDict' :
+                 ($qc_type eq 'seq' ? 'MqcOutcomeDict'
+                 : croak "Unknown qc type $qc_type");
+    my $row = $self->schema_qc->resultset($rs_name)
+                   ->search({'short_desc' => $desc})->next;
+    if (!$row) {
+      croak "Invalid qc outcome description $desc";
+    }
+    if ($row->is_final_outcome) {
+      if ($row->is_accepted) {
+        $outcome = 1;
+      } elsif ($row->is_rejected) {
+        $outcome = 0;
       }
     }
   }
 
-  return;
+  return $outcome;
 }
-
-sub _save_outcomes {
-  my ($self, $outcomes, $outcome_types, $tags, $value) = @_;
-
-  if ($outcomes) {
-    $outcome_types //= [];
-    $tags          //= [];
-    for my $outcome_type ( @{$outcome_types} ) {
-      if ( @{$tags} ) {
-        my $pk = $self->plex_key;
-        for my $t ( @{$tags} ) {
-          $outcomes->{$pk}->{$t}->{$outcome_type} = $value;
-        }
-      } else {
-        $outcomes->{$outcome_type} = $value;
-      }
-    }
-  }
-
-  return;
-}
-
 
 __PACKAGE__->meta->make_immutable;
 
@@ -207,6 +219,10 @@ __END__
 
 =item MooseX::StrictConstructor
 
+=item npg_tracking::glossary::rpt
+
+=item npg_qc::mqc::outcomes
+
 =item npg_qc::Schema
 
 =back
@@ -221,7 +237,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2015 Genome Research Limited
+Copyright (C) 2018 Genome Research Limited
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
