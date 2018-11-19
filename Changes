@@ -8,6 +8,7 @@ LIST OF CHANGES
    of the npg_qc database (pf_cluster_count, raw_cluster_count, pf_bases)
  - load q30 and q40 yields from qX_yield autoqc check results     
  - load bam_flagstats target metrics into iseq_product_metrics table
+ - a script to launch warehouse loader script for certain runs
 
 release 39.10
  - two gbs metrics to be added to the iseq_product_metrics table

@@ -1,6 +1,7 @@
 bin/npg_mlwarehouse_fkrepair
 bin/npg_run_statuses2mlwarehouse
 bin/npg_runs2mlwarehouse
+bin/warehouse_loader_launcher
 Build.PL
 Changes
 lib/npg_tracking/daemon/fkrepair.pm
