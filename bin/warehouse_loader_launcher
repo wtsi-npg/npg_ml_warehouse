@@ -62,8 +62,11 @@ my @rows = npg_tracking::Schema->connect()
 
 my @id_runs = ();
 foreach my $run (@rows) {
-  if (glob $run->folder_path_glob) {
-    push @id_runs, $run->id_run;
+  my @dirs = glob $run->folder_path_glob;
+  if (@dirs) {
+    my $id_run = $run->id_run;
+    warn "Run $id_run: found " . join(q[, ], @dirs) . qq[\n];
+    push @id_runs, $id_run;
   }
 }
 
