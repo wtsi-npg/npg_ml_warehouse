@@ -1,15 +1,20 @@
 use strict;
 use warnings;
-use Test::More tests => 17;
+use Test::More tests => 18;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
 use Moose::Meta::Class;
 
+use npg_tracking::glossary::composition;
+use npg_tracking::glossary::composition::component::illumina;
 use npg_tracking::glossary::rpt;
 use npg_testing::db;
 use npg_qc::autoqc::qc_store;
 use t::util;
+
+my $compos_pkg = 'npg_tracking::glossary::composition';
+my $compon_pkg = 'npg_tracking::glossary::composition::component::illumina';
 
 my $RUN_LANE_TABLE_NAME      = q[IseqRunLaneMetric];
 my $PRODUCT_TABLE_NAME       = q[IseqProductMetric];
@@ -429,7 +434,7 @@ subtest 'indexed run' => sub {
   is($plex->tag_decode_count(), 1277701, 'lane 2 tag index 168 count');
   cmp_ok(sprintf('%.2f', $plex->tag_decode_percent()), q(==), 0.73, ,
     'lane 2 tag index 168 percent');
-  is($plex->qc, undef, 'qc value undefined');
+  is($plex->qc, 0, 'qc value fail');
   is($plex->qc_lib, undef, 'qc lib value undefined');
   is($plex->qc_seq, 0, 'qc seq fail');
 
@@ -457,7 +462,7 @@ subtest 'indexed run' => sub {
 };
 
 subtest 'indexed run' => sub {
-  plan tests => 20;
+  plan tests => 23;
 
   my $id_run = 6642;
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
@@ -476,11 +481,17 @@ subtest 'indexed run' => sub {
 
   my $lane = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>1,tag_index=>undef})->first;
   ok ($lane, 'product row for lane 1 is present');
+  my $d = $compos_pkg->new(components =>
+    [$compon_pkg->new(id_run => $id_run, position => 1)])->digest;
+  is ($lane->id_iseq_product, $d, 'id product');
   $lane = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>2,tag_index=>undef})->first;
   ok (!$lane, 'product row for lane 2 is not present');
 
   $lane = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => $id_run, position=>3,tag_index=>undef},)->first;
   ok ($lane, 'product row for lane 3 is present');
+  $d = $compos_pkg->new(components =>
+    [$compon_pkg->new(id_run => $id_run, position => 3)])->digest;
+  is ($lane->id_iseq_product, $d, 'id product');
   cmp_ok(sprintf('%.2f',$lane->num_reads()), q(==), 308368522, 'bam number of reads');
   cmp_ok(sprintf('%.2f',$lane->percent_mapped()), q(==), 98.19, 'bam mapped percent');
   cmp_ok(sprintf('%.2f',$lane->percent_duplicate()), q(==), 24.63, 'bam duplicate percent');
@@ -494,6 +505,9 @@ subtest 'indexed run' => sub {
 
   my $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>2,tag_index=>4})->first;
   ok ($plex, 'plex row for lane 2 tag index 4 is present');
+  $d = $compos_pkg->new(components =>
+    [$compon_pkg->new(id_run => $id_run, position => 2, tag_index => 4)])->digest;
+  is ($plex->id_iseq_product, $d, 'id product');
   cmp_ok(sprintf('%.2f',$plex->human_percent_mapped()), q(==), 55.3, 'bam human mapped percent');
   cmp_ok(sprintf('%.2f',$plex->human_percent_duplicate()), q(==), 68.09, 'bam human duplicate percent');
   cmp_ok(sprintf('%.2f',$plex->num_reads()), q(==), 138756624, 'bam (nonhuman) number of reads');
@@ -728,4 +742,141 @@ subtest 'gbs run' => sub {
   cmp_ok(sprintf('%.10f',$r->gbs_call_rate), q(==), 1, 'loaded gbs call rate matches source');
   cmp_ok(sprintf('%.10f',$r->gbs_pass_rate), q(==), 0.99, 'loaded gbs pass rate matches source');
 };
+
+subtest 'run with merged data' => sub {
+  plan tests => 116;
+
+  my $id_run = 26291;
+
+    'staging tag is set - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')->create(
+    {folder_path_glob => $folder_glob,
+     id_run => $id_run,
+     folder_name => 'with_merges',
+     is_paired => 1,
+     id_instrument_format => 12,
+     id_instrument => 90,
+     team => '"joint"',
+     actual_cycle_count => 318,
+     expected_cycle_count => 318    
+    })} 'run created - test prerequisite';
+  
+  lives_ok {$schema_npg->resultset('Run')
+     ->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+    'staging tag assigned - test prerequisite';
+  lives_ok {
+    $schema_npg->resultset('RunLane')->create({
+      id_run => $id_run, tile_count => 704, tracks => 1, position => 1});
+    $schema_npg->resultset('RunLane')->create({
+      id_run => $id_run, tile_count => 704, tracks => 1, position => 2})
+  } 'run-lanes records created - test prerequisite';
+
+  my %in = %{$init};
+  $in{'id_run'} = $id_run;
+  $in{'verbose'} = 0;
+  my $loader  = npg_warehouse::loader::run->new(\%in);
+  lives_ok {$loader->load()} 'data is loaded';
+
+  my @rows = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search(
+    {id_run => $id_run})->all();
+  is ( scalar @rows, 2, 'two run-lane records created');
+  for my $row (@rows) {
+    is ($row->qc_seq, undef, 'seq qc undefined');
+  }
+
+  @rows = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+    {id_run => $id_run})->all();
+  is ( scalar @rows, 15, '15 product records created');
+  is ($schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+    {id_run => $id_run, tag_index => undef})->count, 0,
+    'no product record for a lane');
+
+  for my $row (@rows) {
+    is ($row->qc_seq, undef, 'seq qc undefined');
+    is ($row->qc_lib, undef, 'lib qc undefined');
+    is ($row->qc, undef, 'ovarall qc undefined');
+  }
+
+  my %plex_rows = map {$_->tag_index =>  $_} grep { defined $_->position } @rows;
+  is ( scalar keys %plex_rows, 14, '14 records for plexes');
+  for my $i ((0 .. 12, 888)) {
+    my $c = $compos_pkg->new(components =>
+      [$compon_pkg->new(id_run => $id_run, position => 1, tag_index => $i)]);
+    my $d = $c->digest;
+    ok (exists $plex_rows{$i}, "record for plex $i created");
+    is ($plex_rows{$i}->id_iseq_product, $d, "product id for plex $i");
+    is ($plex_rows{$i}->iseq_composition_tmp, $c->freeze,
+      'correct product composition JSON for plex $i');
+  }
+
+  my %merged_plex_rows = map {$_->tag_index =>  $_} grep { !defined $_->position } @rows;
+  is ( scalar keys %merged_plex_rows, 1, '1 record for merged plexes');
+  my $c = $compos_pkg->new(components =>
+      [$compon_pkg->new(id_run => $id_run, position => 1, tag_index => 1),
+       $compon_pkg->new(id_run => $id_run, position => 2, tag_index => 1)]);
+  my $d4merged = $c->digest;
+  ok (exists $merged_plex_rows{1}, "record for merged plex 1 created");
+  is ($merged_plex_rows{1}->id_iseq_product, $d4merged,
+    'product id for merged plex 1');
+  is ($merged_plex_rows{1}->id_run, $id_run, 'run id for merged plex 1');
+  is ($merged_plex_rows{1}->tag_index, 1, 'tag index for merged plex 1');
+  ok (!defined $merged_plex_rows{1}->position,
+    'position for merged plex 1 is undefined');
+  is ($merged_plex_rows{1}->iseq_composition_tmp, $c->freeze,
+    'correct  product composition JSON for merged plex 1');
+
+  # Create qc outcomes
+
+  my $srs = $schema_qc->resultset('MqcOutcomeEnt');
+  for my $p ((1 .. 2)) {
+    my $q = {id_run => $id_run, position => $p};
+    $q->{'id_seq_composition'} =
+      t::util::find_or_save_composition($schema_qc, $q);
+    $q->{'id_mqc_outcome'} = 3; #'Accepted final' 
+    $srs->create($q);
+  }
+
+  my @queries =
+    map { {id_run => $id_run, position => $_, tag_index => 1} }
+    (1 .. 2);
+  my $q = {};
+  $q->{'id_seq_composition'} =
+    t::util::find_or_save_composition($schema_qc, @queries);
+  $q->{'id_mqc_outcome'} = 3; #'Accepted final'
+  $schema_qc->resultset('MqcLibraryOutcomeEnt')->create($q);
+
+  # Load data again
+
+  $loader = npg_warehouse::loader::run->new(\%in);
+  lives_ok {$loader->load()} 'data is loaded';
+
+  @rows = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search(
+    {id_run => $id_run})->all();
+  is ( scalar @rows, 2, 'two run-lane records');
+  for my $row (@rows) {
+    is ($row->qc_seq, 1, 'seq qc is a pass for lane ' . $row->position);
+  }
+
+  my @all = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+    {id_run => $id_run})->all();
+  is (scalar @all, 15, '15 product records');
+  my @qc_ed = grep {$_->qc_seq == 1} @all;
+  is(scalar @qc_ed, 15, '15 rows have seq qc value set to 1');
+  @qc_ed = grep {!defined $_->qc && !defined $_->qc_lib} @all;
+  is(scalar @qc_ed, 14,
+    '14 rows have both ovarall and lib qc values undefined');
+  @qc_ed =
+    grep {(defined $_->qc && $_->qc == 1) &&
+          (defined $_->qc_seq && $_->qc_seq == 1) &&
+          (defined $_->qc_lib && $_->qc_lib == 1)}
+    @all;
+  is(scalar @qc_ed, 1, '1 row has all qc values set to 1');
+  my $row = $qc_ed[0];
+  is ($row->id_iseq_product, $d4merged,
+    'product with all qc values set is the merged plex 1');
+  is ($row->qc_seq, 1, 'seq qc is a pass');
+  is ($row->qc_lib, 1, 'lib qc is a pass');
+  is ($row->qc, 1, 'overall qc is a pass');
+};
+
 1;

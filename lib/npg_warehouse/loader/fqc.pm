@@ -4,6 +4,7 @@ use Carp;
 use Moose;
 use MooseX::StrictConstructor;
 use Readonly;
+use List::MoreUtils qw/any/;
 
 use npg_tracking::glossary::rpt;
 use npg_qc::Schema;
@@ -64,16 +65,14 @@ qc_lib and qc_seq and values as 0, 1 or undefined).
 
   my $qc_outcomes = $obj->retrieve_outcomes($composition);
 
-Applies certain rules computing the overall QC outcome from outcomes
-of the library and sequencing QC. Non-final QC outcomes are equivalent
-to outcome not being defined. A fail on sequencing QC leads to the
-overall fail. A pass on sequencing QC is overwritten by the library
-QC outcome, meaning that the overall QC would be undefined if the
-library QC value is undefined. Sequencing QC outcome for multi-component
-entities is composed from sequencing QC outcomes for individual lanes.
-If all of them pass, the value is a pass, if one of then fail, the value
-is a fail and if none are failed, but one of them is undefined, the value
-is undefined.
+Non-final QC outcomes are equivalent to the outcome not being defined.
+A fail on sequencing QC leads to the overall fail. A pass on sequencing QC
+is overwritten by the library QC outcome, meaning that the overall QC
+value would be undefined if the library QC value is undefined. Sequencing QC
+outcome for multi-component entities is composed from sequencing QC outcomes
+for individual lanes. If all of them are a pass, the value is a pass, if one
+of them i a fail, the value is a fail and if none are failed, but one of them
+is undefined, the value is undefined.
   
 =cut
 
@@ -101,34 +100,32 @@ sub retrieve_outcomes {
     $seq_qc = $outcomes->{'seq'}->{$lane_rpts[0]}->{'mqc_outcome'};
     $seq_qc = $self->_outcome_desc2wh_value('seq', $seq_qc);
   } else {
-    my $lo = $self->_get_outcomes(\@lane_rpts);
+    my $lo = $self->_get_outcomes(\@lane_rpts)->{'seq'};
     my @lane_outcomes =
       map { $self->_outcome_desc2wh_value('seq', $_) }
       map { $lo->{$_}->{'mqc_outcome'} }
       @lane_rpts;
-    if (any { defined $_ && $_ == 0 } @lane_outcomes) {
+    $seq_qc = 1;
+    if (any { defined $_ && ($_ == 0) } @lane_outcomes) {
       $seq_qc = 0;
-    } elsif (none { !defined } @lane_outcomes) {
-      $seq_qc = 1;
+    } elsif (any { !defined } @lane_outcomes) {
+      $seq_qc = undef;
     }
   }
 
   $h->{$COL_NAME_QC_SEQ} = $seq_qc;
-
-  if (!defined $h->{$COL_NAME_QC_SEQ} && defined $h->{$COL_NAME_QC_LIB}) {
-    croak 'Inconsistent qc outcomes';
-  }
-
-  $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_SEQ};
-  if (defined $h->{$COL_NAME_QC_LIB}) {
-    if (!$h->{$COL_NAME_QC_LIB}) {
+  $h->{$COL_NAME_QC}     = $seq_qc;
+  if ($h->{$COL_NAME_QC}) {
+    if (!defined $h->{$COL_NAME_QC_LIB}) {
+      # No overwrite for a single lane.
+      if ((scalar @lane_rpts > 1) || ($lane_rpts[0] ne $rpt_list)) {
+        $h->{$COL_NAME_QC} = undef;
+      }
+    } elsif ($h->{$COL_NAME_QC_LIB} == 0) {
       $h->{$COL_NAME_QC} = 0;
     }
-  } else {
-    # No overwrite if the query was about a single lane
-    if ((scalar @lane_rpts > 1) || ($lane_rpts[0] ne $rpt_list)) {
-      $h->{$COL_NAME_QC} = undef;
-    }
+  } elsif (!defined $h->{$COL_NAME_QC_SEQ} && defined $h->{$COL_NAME_QC_LIB}) {
+    croak 'Inconsistent qc outcomes';
   }
 
   return $h;
@@ -136,9 +133,10 @@ sub retrieve_outcomes {
 
 =head2 retrieve_lane_outcome
 
-Retrieves outcome for a single lane as 0, 1 or undefined. Takes
-composition object for a lane as an argument. No check is
-made to ensure that the composition is for a lane.
+Similar to retrieve_outcomes, but retrieves only sequencing
+outcome for the lane represented by the argument composition.
+Takes composition object for a lane as an argument. No check
+is made to ensure that the composition is for a lane.
 
  my $outcome = $obj->retrieve_lane_outcome($composition);
 
@@ -150,7 +148,8 @@ sub retrieve_lane_outcome {
   if (!$composition) {
     croak 'Composition object is missing';
   }
-  return $self->_seq_outcome($composition->freeze2rpt());
+  return {$COL_NAME_QC_SEQ =>
+          $self->_seq_outcome($composition->freeze2rpt())};
 }
 
 sub _lane_rpt_from_rpt {
@@ -218,6 +217,8 @@ __END__
 =item Moose
 
 =item MooseX::StrictConstructor
+
+=item List::MoreUtils
 
 =item npg_tracking::glossary::rpt
 

@@ -71,3 +71,11 @@
   iscurrent: 1
   model: MiSeq
   runs_between_washes: 1
+- days_between_washes: 14
+  default_columns: 8
+  default_tiles: 704
+  id_instrument_format: 12
+  id_manufacturer: 10
+  iscurrent: 1
+  model: NovaSeq
+  runs_between_washes: 1

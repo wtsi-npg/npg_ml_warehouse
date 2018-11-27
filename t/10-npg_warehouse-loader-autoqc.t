@@ -336,7 +336,7 @@ subtest 'retrieve target stats data' => sub {
 };
 
 subtest 'retrieve data for milti-component compositions' => sub {
-  plan tests => 15;
+  plan tests => 18;
 
   my $id_run = 26291;
   $schema_npg->resultset('Run')->update_or_create({
@@ -345,7 +345,8 @@ subtest 'retrieve data for milti-component compositions' => sub {
     folder_name          => 'with_merges',
     id_instrument_format => 10,
     team                 => 'A'});
-  $schema_npg->resultset('Run')->find({id_run => $id_run})->set_tag($user_id, 'staging');
+  $schema_npg->resultset('Run')
+             ->find({id_run => $id_run})->set_tag($user_id, 'staging');
   my $auto = npg_warehouse::loader::autoqc->new(autoqc_store => $store)
                                           ->retrieve($id_run, $schema_npg);
 
@@ -412,6 +413,21 @@ subtest 'retrieve data for milti-component compositions' => sub {
     delete $auto->{$d}->{composition};
     is_deeply ($auto->{$d}, $expected->{$key}, "correct data for $key");
   } 
+
+  my @components = 
+    map {$compon_pkg->new($_)}
+    map { {id_run => $id_run, position => $_, tag_index => 1} }
+    qw/1 2/;
+  my $d = $compos_pkg->new(components => \@components)->digest;
+  ok (exists $auto->{$d}, 'data for tag 1 merge exists');
+  my $c = delete $auto->{$d}->{'composition'};
+  is ($c->digest, $d, 'composition digest is correct');
+  $expected =  {'insert_size_median' => 498,
+                'insert_size_quartile1' => 420,
+                'insert_size_num_modes' => 2,
+                'insert_size_quartile3' => 611,
+                'insert_size_normal_fit_confidence' => '0.64'};
+  is_deeply (delete $auto->{$d}, $expected, 'insert size data are retrieved');
 };
 
 1;

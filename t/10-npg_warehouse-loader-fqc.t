@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 6;
+use Test::More tests => 7;
 use Test::Exception;
 use Moose::Meta::Class;
 
@@ -38,7 +38,7 @@ my $srs = $rs->search({id_run => 3});
 while (my $row = $srs->next) {
   my $p = $row->position;
   if ($p ==2 || $p == 5) {
-    my $id = $p == 2
+    my $id = ($p == 2)
       ? 3  # 'Accepted final'
       : 4; # 'Rejected final';
     $row->update({id_mqc_outcome => $id, reported => $row->get_time_now()});
@@ -66,17 +66,17 @@ subtest 'retrieve lane seq outcome' => sub {
 
   my $c = $compos_pkg->new(components =>
       [$compon_pkg->new(id_run => 3, position => 1)]);
-  is ($mqc->retrieve_lane_outcome($c), undef,
+  is_deeply ($mqc->retrieve_lane_outcome($c), {qc_seq => undef},
     'undefined for a non-final outcome');
   $c = $compos_pkg->new(components =>
       [$compon_pkg->new(id_run => 3, position => 2)]);
-  is ($mqc->retrieve_lane_outcome($c), 1, '1 for accepted final');
+  is_deeply ($mqc->retrieve_lane_outcome($c), {qc_seq => 1}, '1 for accepted final');
   $c = $compos_pkg->new(components =>
       [$compon_pkg->new(id_run => 3, position => 5)]);
-  is ($mqc->retrieve_lane_outcome($c), 0, '0 for rejected final');
+  is_deeply ($mqc->retrieve_lane_outcome($c), {qc_seq => 0}, '0 for rejected final');
   $c = $compos_pkg->new(components =>
       [$compon_pkg->new(id_run => 3, position => 8)]);
-  is ($mqc->retrieve_lane_outcome($c), undef, 'undef for no record');  
+  is_deeply ($mqc->retrieve_lane_outcome($c), {qc_seq => undef}, 'undef for no record');  
 };
 
 subtest 'retrieve outcomes for a lane' => sub {
@@ -178,8 +178,9 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $c = $compos_pkg->new(components =>
       [$compon_pkg->new(id_run => 3, position => 5, tag_index => 1)]);
   $outcomes->{qc_seq} = 0;
+  $outcomes->{qc} = 0;
   is_deeply ($mqc->retrieve_outcomes($c), $outcomes,
-    'final seq outcome, no lib outcome - overall undefined');
+    'final fail seq outcome, no lib outcome - overall undefined');
 
   $q = {};
   $q->{'id_seq_composition'} = t::util::find_or_save_composition(
@@ -209,13 +210,14 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $q->{'id_mqc_outcome'} = 6; #'Undecided final';
   $o = $rsl->create($q);
   $outcomes->{qc_lib} = undef;
-  $outcomes->{qc} = undef;
+  $outcomes->{qc} = 0;
   is_deeply ($mqc->retrieve_outcomes($c), $outcomes,
-    'seq and lib outcomes final, lib undef - overall undef');
+    'seq and lib outcomes final, lib undef - overall fail');
 
   $c = $compos_pkg->new(components =>
       [$compon_pkg->new(id_run => 3, position => 2, tag_index => 1)]);
   $outcomes->{qc_seq} = 1;
+  $outcomes->{qc} = undef;
   is_deeply ($mqc->retrieve_outcomes($c), $outcomes,
     'final seq outcome, no lib outcome - overall undefined');
 
@@ -225,7 +227,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $q->{'id_mqc_outcome'} = 1; #'Accepted preliminary' 
   $o = $rsl->create($q);
   is_deeply ($mqc->retrieve_outcomes($c), $outcomes,
-    'seq outcome final, lib not final - overall undefined');
+    'seq outcome pass final, lib not final - overall undefined');
 
   $o->delete();
   $q->{'id_mqc_outcome'} = 3; #'Accepted final';
@@ -250,6 +252,108 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $outcomes->{qc} =undef;
   is_deeply ($mqc->retrieve_outcomes($c), $outcomes,
     'seq and lib outcomes final, lib undef - lib and qc undef');
+};
+
+subtest 'retrieve outcomes for a multi component plex' => sub {
+  plan tests => 24;
+
+  my $id_run = 4;
+  my @lane_rows = ();
+  for my $p ((1 .. 4)) {
+    my $q = {id_run => $id_run, position => $p};
+    $q->{'id_seq_composition'} =
+      t::util::find_or_save_composition($schema_qc, $q);
+    $q->{'id_mqc_outcome'} = 3; #'Accepted final' 
+    push @lane_rows, $rs->create($q);
+  }
+
+  my $rsl = $schema_qc->resultset('MqcLibraryOutcomeEnt');
+  my @compositions = ();
+  for my $i ((1 .. 6)) {
+    my @queries =
+      map { {id_run => $id_run, position => $_, tag_index => $i} }
+      (1 .. 4);
+    my $q = {};
+    $q->{'id_seq_composition'} =
+      t::util::find_or_save_composition($schema_qc, @queries);
+    $q->{'id_mqc_outcome'} = $i; 
+    my $row = $rsl->create($q);
+    push @compositions, $row->composition;   
+  }
+
+  my $mqc  = npg_warehouse::loader::fqc->new( 
+                     schema_qc => $schema_qc);
+
+  for my $c (@compositions) {
+    my $outcomes = {};
+    $outcomes->{qc}     = undef;
+    $outcomes->{qc_seq} = 1;
+    $outcomes->{qc_lib} = undef;
+    my $i = $c->get_component(0)->tag_index;
+    if ($i == 3) {
+      $outcomes->{qc}     = 1;
+      $outcomes->{qc_lib} = 1;
+    } elsif ($i == 4) {
+      $outcomes->{qc}     = 0;
+      $outcomes->{qc_lib} = 0;
+    }
+    is_deeply ($mqc->retrieve_outcomes($c), $outcomes,
+      "correct outcome for plex $i when all lanes pass");    
+  }
+
+  for my $lane (@lane_rows) {
+    $lane->update({'id_mqc_outcome' => 4});
+  }
+  for my $c (@compositions) {
+    my $outcomes = {};
+    $outcomes->{qc}     = 0;
+    $outcomes->{qc_seq} = 0;
+    $outcomes->{qc_lib} = undef;
+    my $i = $c->get_component(0)->tag_index;
+    if ($i == 3) {
+      $outcomes->{qc_lib} = 1;
+    } elsif ($i == 4) {
+      $outcomes->{qc_lib} = 0;
+    }
+    is_deeply ($mqc->retrieve_outcomes($c), $outcomes,
+      "correct outcome for plex $i when all lanes fail");    
+  }
+
+  $lane_rows[0]->update({'id_mqc_outcome' => 3});
+  for my $c (@compositions) {
+    my $outcomes = {};
+    $outcomes->{qc}     = 0;
+    $outcomes->{qc_seq} = 0;
+    $outcomes->{qc_lib} = undef;
+    my $i = $c->get_component(0)->tag_index;
+    if ($i == 3) {
+      $outcomes->{qc_lib} = 1;
+    } elsif ($i == 4) {
+      $outcomes->{qc_lib} = 0;
+    }
+    is_deeply ($mqc->retrieve_outcomes($c), $outcomes,
+      "correct outcome for $i when some lanes fail, some lanes pass");    
+  }
+
+  for my $lane (@lane_rows) {
+    $lane->update({'id_mqc_outcome' => 3});
+  }
+  $lane_rows[1]->update({'id_mqc_outcome' => 1});
+  for my $c (@compositions) {
+    my $outcomes = {};
+    $outcomes->{qc}     = undef;
+    $outcomes->{qc_seq} = undef;
+    $outcomes->{qc_lib} = undef;
+    my $i = $c->get_component(0)->tag_index;
+    if (($i == 3) || ($i == 4)) {
+      throws_ok { $mqc->retrieve_outcomes($c)}
+        qr/Inconsistent qc outcomes/,
+        "error for $i when one lane undef, others pass";
+    } else {
+      is_deeply ($mqc->retrieve_outcomes($c), $outcomes,
+      "correct outcome for $i when one lane undef, others pass");
+    }  
+  }
 };
 
 1;
