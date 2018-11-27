@@ -7,6 +7,8 @@ use List::MoreUtils qw/ any none uniq /;
 use Readonly;
 use Carp;
 
+use npg_tracking::glossary::composition;
+use npg_tracking::glossary::composition::component::illumina;
 use npg_qc::autoqc::qc_store;
 
 use npg_warehouse::loader::autoqc;
@@ -303,8 +305,14 @@ sub _build__data {
     foreach my $column (keys %{ $self->_cluster_density->{$position} || {} }) {
       $values->{$column} = $self->_cluster_density->{$position}->{$column};
     }
-
     $lane_data->{$position} = $values;
+
+    my $lc = npg_tracking::glossary::composition->new(components => [
+      npg_tracking::glossary::composition::component::illumina
+        ->new(id_run => $self->id_run, position => $position)
+    ]);
+    _copy_lane_data($lane_data, $position,
+      $self->_fqc_data_retriever->retrieve_lane_outcome($lc));
   }
 
   my $data_hash = $self->_run_is_cancelled ? {} :
@@ -321,14 +329,10 @@ sub _build__data {
       my $position  = $component->position;
       my $tag_index = $component->tag_index;
       if (!defined $tag_index) { # Lane data
-        while (my ($column_name, $value) = each %{$data}) {
-          $lane_data->{$position}->{$column_name} = $value;
-        }
+         _copy_lane_data($lane_data, $position, $data);
         # If this is lane data for an indexed lane, the lane itself is
         # not the end product.
         if ($data->{'tags_decode_percent'} || $indexed_lanes->{$position}) {
-          $lane_data->{$position}->{'qc_seq'} =
-            $self->_fqc_data_retriever->retrieve_lane_outcome($composition);
           next;
 	}
       }
@@ -363,6 +367,14 @@ sub _build__data {
 
   return { $RUN_LANE_TABLE_NAME => [values %{$lane_data}],
            $PRODUCT_TABLE_NAME  => \@products};
+}
+
+sub _copy_lane_data {
+  my ($lane_data, $p, $h) = @_;
+  while (my ($column_name, $value) = each %{$h}) {
+    $lane_data->{$p}->{$column_name} = $value;
+  }
+  return;
 }
 
 sub _indexed_lanes_hash {
