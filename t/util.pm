@@ -45,4 +45,30 @@ sub find_or_save_composition {
   return $composition_row->id_seq_composition;
 }
 
+sub create_nv_run {
+  my ($schema_npg, $id_run, $folder_glob, $folder_name) = @_;
+
+  $schema_npg->resultset('Run')->create({
+    folder_path_glob => $folder_glob,
+    id_run => $id_run,
+    folder_name => $folder_name,
+    is_paired => 1,
+    id_instrument_format => 12,
+    id_instrument => 90,
+    team => '"joint"',
+    actual_cycle_count => 318,
+    expected_cycle_count => 318    
+  });
+  
+  my $user_id = 7;
+  $schema_npg->resultset('Run')
+    ->find({id_run => $id_run, })->set_tag($user_id, 'staging');
+  for my $p ((1, 2)) {
+    $schema_npg->resultset('RunLane')->create({
+      id_run => $id_run, tile_count => 704, tracks => 1, position => $p});
+  }
+
+  return;
+}
+
 1;
