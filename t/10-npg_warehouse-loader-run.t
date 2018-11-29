@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 18;
+use Test::More tests => 19;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -56,8 +56,6 @@ my $autoqc_store =  npg_qc::autoqc::qc_store->new(use_db => 0);
 
 my $folder_glob = q[t/data/runfolders/];
 my $user_id = 7;
-
-my $plex_key = q[plexes];
 
 my $init = { _autoqc_store => $autoqc_store,
              schema_npg   => $schema_npg, 
@@ -744,32 +742,11 @@ subtest 'gbs run' => sub {
 };
 
 subtest 'run with merged data' => sub {
-  plan tests => 116;
+  plan tests => 113;
 
   my $id_run = 26291;
-
-    'staging tag is set - test prerequisite';
-  lives_ok {$schema_npg->resultset('Run')->create(
-    {folder_path_glob => $folder_glob,
-     id_run => $id_run,
-     folder_name => 'with_merges',
-     is_paired => 1,
-     id_instrument_format => 12,
-     id_instrument => 90,
-     team => '"joint"',
-     actual_cycle_count => 318,
-     expected_cycle_count => 318    
-    })} 'run created - test prerequisite';
-  
-  lives_ok {$schema_npg->resultset('Run')
-     ->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
-    'staging tag assigned - test prerequisite';
-  lives_ok {
-    $schema_npg->resultset('RunLane')->create({
-      id_run => $id_run, tile_count => 704, tracks => 1, position => 1});
-    $schema_npg->resultset('RunLane')->create({
-      id_run => $id_run, tile_count => 704, tracks => 1, position => 2})
-  } 'run-lanes records created - test prerequisite';
+  # Create tracking record for a NovaSeq run with two lanes
+  t::util::create_nv_run($schema_npg, $id_run, $folder_glob, 'with_merges');
 
   my %in = %{$init};
   $in{'id_run'} = $id_run;
@@ -877,6 +854,43 @@ subtest 'run with merged data' => sub {
   is ($row->qc_seq, 1, 'seq qc is a pass');
   is ($row->qc_lib, 1, 'lib qc is a pass');
   is ($row->qc, 1, 'overall qc is a pass');
+};
+
+subtest 'run with merged data - linking to flowcell table' => sub {
+  plan tests => 17;
+
+  my $id_run = 26291;
+
+  my $prs = $schema_wh->resultset($PRODUCT_TABLE_NAME);
+  my $rs = $prs->search({id_run => $id_run});
+  is ($rs->count, 15, "run $id_run number of rows in product table");
+  is ($rs->search({$LIMS_FK_COLUMN_NAME => undef})->count, 15,
+    'none of these rows are linked to the flowcell table');
+
+  $schema_npg->resultset('Run')->find($id_run)->update({batch_id => 14178});
+  $rs = $schema_wh->resultset('IseqFlowcell')
+        ->search({id_flowcell_lims => 14178});
+  while (my $row = $rs->next) {
+    if ($row->position == 1) {
+      my $new_ti = $row->tag_index == 168 ? 888 : ($row->tag_index - 12);
+      $row->update({tag_index => $new_ti});
+    }
+  }
+
+  my %in = %{$init};
+  $in{'id_run'} = $id_run;
+  $in{'verbose'} = 0;
+  my $loader  = npg_warehouse::loader::run->new(\%in);
+  lives_ok {$loader->load()} 'data is loaded';
+
+  $rs = $prs->search({id_run => $id_run});
+  is ($rs->count, 15, "run $id_run number of rows in product table");
+  is ($rs->search({$LIMS_FK_COLUMN_NAME => undef})->count, 3,
+    '3 rows are not linked to the flowcell table');
+  for my $ti (1 .. 11, 888) {
+    my $row = $rs->search({id_run => $id_run, position => 1, tag_index => $ti})->next;
+    ok (defined $row->$LIMS_FK_COLUMN_NAME, "plex $ti is linked");
+  }
 };
 
 1;
