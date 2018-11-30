@@ -365,8 +365,18 @@ sub _build__data {
     push @products, $data;
   }
 
-  return { $RUN_LANE_TABLE_NAME => [values %{$lane_data}],
-           $PRODUCT_TABLE_NAME  => \@products};
+  return { $RUN_LANE_TABLE_NAME =>
+           [sort {$a->{position} <=> $b->{position}} values %{$lane_data}],
+           $PRODUCT_TABLE_NAME  =>
+           [sort {_compare_product_data($a, $b)} @products] };
+}
+
+sub _compare_product_data {
+  my ($a, $b) = @_;
+  # Data for single component first
+  my $r = $a->{'composition'}->num_components <=> $b->{'composition'}->num_components;
+  return $r if $r != 0;
+  return $a->{'composition'}->freeze cmp $b->{'composition'}->freeze;
 }
 
 sub _copy_lane_data {
@@ -521,9 +531,10 @@ sub _load_table {
     }
 
     if ($self->verbose) {
-      my $message = defined $row->{'tag_index'} ? q[tag_index ] . $row->{'tag_index'} : q[];
-      warn sprintf 'Will create record in table %s for run %i position %i %s%s',
-         $table, $self->id_run,  $row->{'position'}, $message, qq[\n];
+      my $description = $table eq $PRODUCT_TABLE_NAME
+                        ? $composition->freeze
+                        : join q[ ], 'run', $row->{'id_run'}, 'position', $row->{'position'};
+      warn "Will create record in table $table for $description\n";
     }
 
     push @rows, $row;
