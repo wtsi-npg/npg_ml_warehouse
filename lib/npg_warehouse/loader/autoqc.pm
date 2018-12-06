@@ -9,7 +9,7 @@ use npg_tracking::glossary::rpt;
 use npg_tracking::glossary::composition;
 use npg_tracking::glossary::composition::component::illumina;
 use npg_qc::autoqc::qc_store;
-use npg_qc::autoqc::qc_store::options qw/$LANES $PLEXES/;
+use npg_qc::autoqc::qc_store::options qw/$ALLALL/;
 use npg_qc::autoqc::qc_store::query;
 use npg_qc::autoqc::results::collection;
 
@@ -442,19 +442,12 @@ Retrieves autoqc results for a run.
 sub retrieve {
     my ($self, $id_run, $npg_schema) = @_;
 
-    my $query1 = npg_qc::autoqc::qc_store::query->new(
+    my $query = npg_qc::autoqc::qc_store::query->new(
                                                 id_run              => $id_run,
-                                                option              => $LANES,
+                                                option              => $ALLALL,
                                                 npg_tracking_schema => $npg_schema
-                                                     );
-    my $query2 = npg_qc::autoqc::qc_store::query->new(
-                                                id_run              => $id_run,
-                                                option              => $PLEXES,
-                                                npg_tracking_schema => $npg_schema
-                                                     );
-    my $collection = npg_qc::autoqc::results::collection->join_collections(
-                     $self->autoqc_store->load($query1),
-                     $self->autoqc_store->load($query2));
+                                                    );
+    my $collection = $self->autoqc_store->load($query);
     $collection->sort_collection(q[check_name]); # tag metrics object are after tag decode stats now
 
     my $i = $collection->size - 1;
