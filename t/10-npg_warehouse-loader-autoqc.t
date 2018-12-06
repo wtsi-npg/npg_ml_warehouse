@@ -46,14 +46,14 @@ subtest 'retrieve yield' => sub {
 
   my $result = npg_qc::autoqc::results::qX_yield->new(
     id_run=>22, position=>1, threshold_quality => 30,);
-  lives_ok {$autoqc->_qX_yield($result)} 'lives with quality 30';
+  lives_ok {$autoqc->_qX_yield($result, {})} 'lives with quality 30';
   $result->yield1(200);
-  my @data = $autoqc->_qX_yield($result);
+  my @data = $autoqc->_qX_yield($result, {});
   is (scalar @data, 1, 'one result');
   is ($data[0]->{q20_yield_kb_forward_read}, 200, 'retrieved q20 for the forward read');
   ok(!exists $data[0]->{q20_yield_kb_reverse_read}, 'reverse slot does not exist');
   $result->yield2(300);
-  @data = $autoqc->_qX_yield($result);
+  @data = $autoqc->_qX_yield($result, {});
   is ($data[0]->{q20_yield_kb_reverse_read}, 300, 'reverse slot filled');
 };
 

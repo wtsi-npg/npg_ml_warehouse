@@ -86,10 +86,11 @@ has 'autoqc_store' =>    ( isa        => 'npg_qc::autoqc::qc_store',
                            required   => 1,
                          );
 
-has '_tag_metrics_cache' => ( isa     => 'HashRef',
-                              is      => 'ro',
-                              default => sub { return {}; },
-		            );
+sub _basic_data {
+    my ($self, $composition) = @_;
+    $composition or croak 'Composition argument needed';
+    return {'composition' => $composition};
+}
 
 sub _truncate_float {
     my ($self, $value) = @_;
@@ -101,18 +102,16 @@ sub _truncate_float {
 }
 
 sub _compositions4tags {
-    my ($self, $lane_composition, $tags) = @_;
+    my ($self, $id_run, $position, $tags) = @_;
 
-    my $c = $lane_composition->get_component(0);
-    my @attrs = (id_run => $c->id_run, position => $c->position);
-    my @compositions =
-    map { npg_tracking::glossary::composition->new(components => [$_]) }
-    map { npg_tracking::glossary::composition::component::illumina->new($_) }
-    ##no critic (BuiltinFunctions::ProhibitComplexMappings)
-    ##no critic (ValuesAndExpressions::ProhibitCommaSeparatedStatements)
-    map { {@attrs, tag_index => $_} }
-    ##use critic
-    @{$tags};
+    my @compositions = ();
+    foreach my $tag (@{$tags}) {
+      push @compositions,
+        npg_tracking::glossary::composition->new(components => [
+          npg_tracking::glossary::composition::component::illumina
+          ->new(id_run => $id_run, position => $position, tag_index => $tag)
+        ]);
+    }
 
     return \@compositions;
 }
@@ -128,16 +127,10 @@ sub _composition_without_subset {
     return npg_tracking::glossary::composition->new(components => \@components);
 }
 
-sub _basic_data {
-    my ($self, $composition) = @_;
-    $composition or die 'Composition argument needed';
-    return {'composition' => $composition};
-}
-
 sub _insert_size {
-    my ($self, $result) = @_;
+    my ($self, $result, $c) = @_;
 
-    my $data = $self->_basic_data($result->composition);
+    my $data = $self->_basic_data($c);
 
     my %h = qw/ insert_size_quartile1 quartile1
                 insert_size_quartile3 quartile3
@@ -148,7 +141,7 @@ sub _insert_size {
         if (defined $value) {
             if ($value > $INSERT_SIZE_QUARTILE_MAX_VALUE) {
                 carp sprintf 'SKIPPING %s for %s: value %i out of range',
-                $attr_name, $result->composition->freeze, $value;
+                $attr_name, $c->freeze, $value;
             }
             $data->{$column_name} = $value;
         }
@@ -169,9 +162,9 @@ sub _insert_size {
 }
 
 sub _qX_yield {
-    my ($self, $result) = @_;
+    my ($self, $result, $c) = @_;
 
-    my $data = $self->_basic_data($result->composition);
+    my $data = $self->_basic_data($c);
     foreach my $read (qw/1 2/) {
         foreach my $quality (qw/20 30 40/) {
             my $autoqc_method_name = sprintf 'yield%s_q%s', $read, $quality;
@@ -188,12 +181,12 @@ sub _qX_yield {
 }
 
 sub _ref_match {
-    my ($self, $result) = @_;
+    my ($self, $result, $c) = @_;
 
     my $organisms = $result->ranked_organisms;
     my $percent_counts = $result->percent_count;
     my $prefix = q[ref_match];
-    my $data = $self->_basic_data($result->composition);
+    my $data = $self->_basic_data($c);
 
     foreach my $count ((1,2)) {
 	if (scalar @{$organisms} >= $count) {
@@ -209,12 +202,12 @@ sub _ref_match {
 }
 
 sub _contamination {
-    my ($self, $result) = @_;
+    my ($self, $result, $c) = @_;
 
     my $organisms = $result->ranked_organisms;
     my $contamination = $result->normalised_contamination;
     my $prefix = q[contaminants_scan_hit];
-    my $data = $self->_basic_data($result->composition);
+    my $data = $self->_basic_data($c);
 
     foreach my $count ((1,2)) {
 	if (scalar @{$organisms} >= $count) {
@@ -228,10 +221,9 @@ sub _contamination {
 }
 
 sub _tag_metrics {
-    my ($self, $result) = @_;
+    my ($self, $result, $composition) = @_;
 
-    my $data = $self->_basic_data($result->composition);
-    $self->_tag_metrics_cache->{$result->composition->freeze} = 1;
+    my $data = $self->_basic_data($composition);
 
     if (defined $result->matches_pf_percent) {
         $data->{'tags_decode_percent'} = $self->_truncate_float(
@@ -250,7 +242,7 @@ sub _tag_metrics {
     my @all = ($data);
 
     foreach my $c ( @{$self->_compositions4tags(
-            $result->composition, [keys %{$result->tags}])} ) {
+            $result->id_run, $result->position, [keys %{$result->tags}])} ) {
         my $d = $self->_basic_data($c);
         my $i = $c->get_component(0)->tag_index;
         if ($i != 0) { # no tag sequence for tag zero
@@ -266,14 +258,9 @@ sub _tag_metrics {
 }
 
 sub _tag_decode_stats {
-    my ($self, $result) = @_;
+    my ($self, $result, $composition) = @_;
 
-    # Do not load tag decode stats if tag metrics data available for the same entity
-    if (exists $self->_tag_metrics_cache->{$result->composition->freeze}) {
-        return ();
-    }
-
-    my $data = $self->_basic_data($result->composition);
+    my $data = $self->_basic_data($composition);
     if (defined $result->decoding_perc_good) {
         $data->{'tags_decode_percent'} =
             $self->_truncate_float($result->decoding_perc_good);
@@ -290,7 +277,7 @@ sub _tag_decode_stats {
 	my $good       = $result->distribution_perc_good;
 	my $good_count = $result->distribution_good;
         foreach my $c ( @{$self->_compositions4tags(
-                $result->composition, [keys %{$tags}])} ) {
+                $result->id_run, $result->position, [keys %{$tags}])} ) {
             my $d = $self->_basic_data($c);
             my $tag_index = $c->get_component(0)->tag_index;
 	    $d->{'tag_sequence'} = $tags->{$tag_index};
@@ -306,18 +293,15 @@ sub _tag_decode_stats {
 }
 
 sub _bam_flagstats {
-    my ($self, $result) = @_;
+    my ($self, $result, $composition) = @_;
 
     my $check_name = $result->check_name;
     if ($check_name =~ /phix/xsmg) {
         return ();
     }
 
-    my $c = $result->composition;
-    if ($c->get_component(0)->subset) {
-      $c = $self->_composition_without_subset($c);
-    }
-
+    my $c = $result->composition->get_component(0)->subset ?
+        $self->_composition_without_subset($composition) : $composition;
     my $data = $self->_basic_data($c);
 
     $check_name =~ s/[ ]flagstats//xsmg;
@@ -356,20 +340,21 @@ sub _bam_flagstats {
 }
 
 sub _upstream_tags {
-    my ($self, $result) = @_;
+    my ($self, $result, $c) = @_;
 
-    my $data = $self->_basic_data($result->composition);
+    my $data = $self->_basic_data($c);
     my $total = $result->total_lane_reads;
-    my $unexpected_tags_percent = $self->_truncate_float($total ? $result->tag0_perfect_match_reads * $HUNDRED / $total : 0.00);
+    my $unexpected_tags_percent = $self->_truncate_float(
+        $total ? $result->tag0_perfect_match_reads * $HUNDRED / $total : 0.00);
     $data->{'unexpected_tags_percent'} = $unexpected_tags_percent;
 
     return ($data);
 }
 
 sub _genotype {
-    my ($self, $result) = @_;
+    my ($self, $result, $composition) = @_;
 
-    my $data = $self->_basic_data($result->composition);
+    my $data = $self->_basic_data($composition);
 
     if (defined $result->sample_name_match) {
         # Probably, the data can be fixed instead of setting to 0 if false
@@ -399,9 +384,9 @@ sub _genotype {
 }
 
 sub _autoqc_check {
-    my ($self, $result) = @_;
+    my ($self, $result, $c) = @_;
 
-    my $data = $self->_basic_data($result->composition);
+    my $data = $self->_basic_data($c);
     my $map = $AUTOQC_MAPPING{$result->class_name};
     foreach my $key (keys %{$map}) {
         my $method = $map->{$key};
@@ -418,10 +403,8 @@ sub _autoqc_check {
 }
 
 sub _add_data {
-    my ($self, $autoqc, $data) = @_;
+    my ($self, $autoqc, $data, $digest) = @_;
 
-    exists $data->{'composition'} or die 'Composition not cached';
-    my $digest = $data->{'composition'}->digest;
     if (exists $autoqc->{$digest}) {
         delete $data->{'composition'};
         while (my ($column_name, $value) = each %{$data}) {
@@ -448,21 +431,39 @@ sub retrieve {
                                                 npg_tracking_schema => $npg_schema
                                                     );
     my $collection = $self->autoqc_store->load($query);
-    $collection->sort_collection(q[check_name]); # tag metrics object are after tag decode stats now
-
-    my $i = $collection->size - 1;
-    my $autoqc = {};
-    while ($i >= 0) { # iterating from tail to head
-        my $result = $collection->get($i);
-        $i--;
-        my $method_name = exists $AUTOQC_MAPPING{$result->class_name}
-                          ? q[_autoqc_check] : q[_] . $result->class_name;
-        if ($self->can($method_name)) {
-            foreach my $d ( $self->$method_name($result) ) {
-	        $self->_add_data($autoqc, $d);
-	    }
-        }
+    my $hashed = {};
+    my $methods = {};
+    foreach my $r (@{$collection->results}) {
+      my $class_name = $r->class_name;
+      my $method_name = exists $AUTOQC_MAPPING{$class_name}
+                        ? q[_autoqc_check] : q[_] . $class_name;
+      if ($self->can($method_name)) {
+        $methods->{$class_name} = $method_name;
+        push @{$hashed->{$r->composition_digest}->{$class_name}}, $r;
+      }
     }
+
+    my $autoqc = {};
+    foreach my $digest (keys %{$hashed}) {
+      if ( $hashed->{$digest}->{'tag_decode_stats'} &&
+           $hashed->{$digest}->{'tag_metrics'} ) {
+        delete $hashed->{$digest}->{'tag_decode_stats'};
+      }
+      my @class_names = keys %{$hashed->{$digest}};
+      my $r = $hashed->{$digest}->{$class_names[0]}->[0];
+      my $composition = $r->composition;
+      foreach my $class_name (@class_names) {
+        my $method_name = $methods->{$class_name};
+        foreach my $result (@{$hashed->{$digest}->{$class_name}}) {
+          foreach my $d ($self->$method_name($result, $composition)) {
+            my $digest4wh = $d->{'composition'} eq $composition ? # the same object
+                            $digest : $d->{'composition'}->digest();
+            $self->_add_data($autoqc, $d, $digest4wh);
+          }
+        }
+      }
+    }
+
     return $autoqc;
 }
 
@@ -471,7 +472,6 @@ __PACKAGE__->meta->make_immutable;
 1;
 
 __END__
-
 
 =head1 DIAGNOSTICS
 

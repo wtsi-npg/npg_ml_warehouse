@@ -586,7 +586,7 @@ subtest 'linking to lims data' => sub {
   $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
         {id_run   => $id_run, position => 4},
         {order_by => 'tag_index'});
-  is ($rs->count, 3, 'three product records for lane 3');
+  is ($rs->count, 3, 'three product records for lane 4');
   $row = $rs->next;
   is ($row->tag_index, 0, 'tag zero row present');
   ok (!defined $row->id_iseq_flowcell_tmp, 'row not linked to the flowcell table');
