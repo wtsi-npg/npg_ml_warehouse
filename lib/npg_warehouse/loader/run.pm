@@ -251,16 +251,6 @@ sub _build__npgqc_data_retriever {
   return npg_warehouse::loader::qc->new(schema_qc => $self->schema_qc);
 }
 
-has '_fqc_data_retriever'     => ( isa        => 'npg_warehouse::loader::fqc',
-                                   is         => 'ro',
-                                   required   => 0,
-                                   lazy_build => 1,
-);
-sub _build__fqc_data_retriever {
-  my $self = shift;
-  return npg_warehouse::loader::fqc->new(schema_qc => $self->schema_qc);
-}
-
 has '_cluster_density'   =>    ( isa        => 'HashRef',
                                  is         => 'ro',
                                  required   => 0,
@@ -283,6 +273,19 @@ sub _build__data {
   my $instr = $self->_npg_data_retriever()->instrument_info;
   my $lane_data = {};
   my $lane_deplexed_flags = {};
+
+  my $data_hash = $self->_run_is_cancelled ? {} :
+    npg_warehouse::loader::autoqc->new(autoqc_store => $self->_autoqc_store)
+                                 ->retrieve($self->id_run, $self->schema_npg);
+  my $indexed_lanes = _indexed_lanes_hash($data_hash);
+
+  my %digests = map { $_ => $data_hash->{$_}->{'composition'} }
+                keys %{$data_hash};
+  my $fqc_retriever = npg_warehouse::loader::fqc->new(
+    schema_qc => $self->schema_qc,
+    digests   => \%digests
+  );
+  $fqc_retriever->retrieve();
 
   foreach my $rs (@{$self->_run_lane_rs})  {
 
@@ -307,29 +310,21 @@ sub _build__data {
     }
     $lane_data->{$position} = $values;
 
-    my $lc = npg_tracking::glossary::composition->new(components => [
-      npg_tracking::glossary::composition::component::illumina
-        ->new(id_run => $self->id_run, position => $position)
-    ]);
     _copy_lane_data($lane_data, $position,
-      $self->_fqc_data_retriever->retrieve_lane_outcome($lc));
+      $fqc_retriever->retrieve_seq_outcome(join q[:], $self->id_run, $position));
   }
-
-  my $data_hash = $self->_run_is_cancelled ? {} :
-    npg_warehouse::loader::autoqc->new(autoqc_store => $self->_autoqc_store)
-                                 ->retrieve($self->id_run, $self->schema_npg);
-  my $indexed_lanes = _indexed_lanes_hash($data_hash);
 
   my @products = ();
 
-  while (my ($product_digest, $data) = each %{$data_hash} ) {
+  while (my ($product_digest, $data) = each %{$data_hash}) {
+
     my $composition = $data->{'composition'};
     if ($composition->num_components == 1) {
       my $component = $composition->get_component(0);
       my $position  = $component->position;
       my $tag_index = $component->tag_index;
       if (!defined $tag_index) { # Lane data
-         _copy_lane_data($lane_data, $position, $data);
+        _copy_lane_data($lane_data, $position, $data);
         # If this is lane data for an indexed lane, the lane itself is
         # not the end product.
         if ($data->{'tags_decode_percent'} || $indexed_lanes->{$position}) {
@@ -342,7 +337,7 @@ sub _build__data {
     } else {
       my @id_runs = uniq map { $_->id_run } $composition->components_list();
       if (scalar @id_runs == 1) {
-        $data->{'id_run'}  = $id_runs[0];
+        $data->{'id_run'} = $id_runs[0];
       }
       my @tis = grep { defined }
                 map  { $_->tag_index }
@@ -355,11 +350,11 @@ sub _build__data {
       }
     }
 
-    my $qc_outcomes =
-      $self->_fqc_data_retriever->retrieve_outcomes($composition);
+    my $qc_outcomes = $fqc_retriever->retrieve_outcomes($product_digest);
     while ( my ($column_name, $value) = each %{$qc_outcomes} ) {
       $data->{$column_name} = $value;
     }
+
     $data->{'id_iseq_product'}      = $composition->digest;
     $data->{'iseq_composition_tmp'} = $composition->freeze();
     push @products, $data;

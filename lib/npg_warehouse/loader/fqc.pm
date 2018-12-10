@@ -1,14 +1,11 @@
 package npg_warehouse::loader::fqc;
 
-use Carp;
 use Moose;
 use MooseX::StrictConstructor;
 use Readonly;
-use List::MoreUtils qw/any/;
+use Carp;
 
-use npg_tracking::glossary::rpt;
 use npg_qc::Schema;
-use npg_qc::mqc::outcomes;
 
 our $VERSION = '0';
 
@@ -22,48 +19,155 @@ npg_warehouse::loader::fqc
 
 =head1 SYNOPSIS
 
+  my $fqc = npg_warehouse::loader::fqc->new(digests => {
+    'digest1' => $c1, 'digest2' => $c2, 'digest3' => $c3
+  });
+  $fqc->retrieve();
+  my $outcomes = $fqc->retrive_outcomes('digest1');
+  my $outcome  = $fqc->retrive_seq_outcome('22:1');
+
 =head1 DESCRIPTION
 
 A retriever for overall, sequencing and library QC outcomes to be
-loaded to the warehouse table.
+loaded to the warehouse table. Only final outcomes are retrieved.
+
+For maximum efficiency create an object giving a hash reference of
+composition digests (keys) and composition objects (values)for all
+entities you will later require QC outcomes for. Outcomes for all
+entities are retrieved in one go and are cached by the object for
+subsequent retrieval requests.
+
+Giving an empty hash to the constructor does not cause an error.
+
+Requesting an outcome for a digest that was not listed in the
+digests hash given to the constructor does not cause an error.
+All QC outcomes will be returned as undefined even if the final
+outcomes are available in the database.
 
 =head1 SUBROUTINES/METHODS
 
-=head2 schema_qc
+=head2 digests
 
-DBIx schema object for the NPG QC database
+A hash reference of composition digests mapped to composition
+objects, required attribute.
 
 =cut
 
-has 'schema_qc' =>   ( isa        => 'npg_qc::Schema',
-                       is         => 'ro',
-                       required   => 0,
-                       lazy_build => 1,
-                     );
+has 'digests' => ( isa        => 'HashRef',
+                   is         => 'ro',
+                   required   => 1,
+);
+
+=head2 schema_qc
+
+DBIx schema object for the NPG QC database. An optional
+attribute, will be built if not supplied.
+
+=cut
+
+has 'schema_qc' => ( isa        => 'npg_qc::Schema',
+                     is         => 'ro',
+                     required   => 0,
+                     lazy_build => 1,
+);
 sub _build_schema_qc {
   return npg_qc::Schema->connect();
 }
 
-has '_retriever' =>   ( isa        => 'npg_qc::mqc::outcomes',
-                        is         => 'bare',
-                        required   => 0,
-                        lazy_build => 1,
-		        handles    => {
-                          '_get_outcomes' => 'get'
-		        },
-                      );
-sub _build__retriever {
+has '_lane_seq_outcomes' => (
+                     isa        => 'HashRef',
+                     is         => 'ro',
+                     required   => 0,
+                     lazy_build => 1,
+
+);
+sub _build__lane_seq_outcomes {
   my $self = shift;
-  return npg_qc::mqc::outcomes->new(qc_schema  => $self->schema_qc);
+  my $h = {};
+  while (my ($digest, $data) = each %{$self->_outcomes}) {
+    if ($data->{'is_single_lane'}) {
+      $h->{$data->{'component_lanes'}->[0]} = $data->{'mqc_outcome_ent'};
+    }
+  }
+  return $h;
+}
+
+has '_outcomes' => ( isa        => 'HashRef',
+                     is         => 'ro',
+                     required   => 0,
+                     lazy_build => 1,
+);
+sub _build__outcomes {
+  my $self = shift;
+
+  my $outcomes = {};
+
+  my $digests = [keys %{$self->digests}];
+  my $rs = $self->schema_qc->resultset('SeqComposition')
+                ->search({digest => $digests});
+
+  my $lanes_from_components = sub {
+    return map { join q[:], $_->id_run, $_->position } @_;
+  };
+  my $is_single_lane = sub {
+    my @components = @_;
+    return (@components == 1 && !defined $components[0]->tag_index) ? 1 : 0;
+  };
+
+  while (my $crow = $rs->next) {
+    my $digest = $crow->digest;
+    for my $related_outcome (qw/
+                                mqc_outcome_ent
+                                mqc_library_outcome_ent
+                               /) {
+      my $orow = $crow->$related_outcome;
+      # It's a pass or a fail, or, for library QC, a final
+      # undefined.
+      if ($orow && $orow->has_final_outcome) {
+        $outcomes->{$digest}->{$related_outcome} =
+          $orow->is_accepted ? 1 :
+         ($orow->is_rejected ? 0 : undef);
+      }
+    }
+    my @components = map {$_->seq_component}
+                     $crow->seq_component_compositions->all();
+    $outcomes->{$crow->digest}->{'is_single_lane'}  = $is_single_lane->(@components);
+    $outcomes->{$crow->digest}->{'component_lanes'} = [$lanes_from_components->(@components)];
+  }
+
+  foreach my $digest (@{$digests}) {
+    if (!exists $outcomes->{$digest}) {
+      my @components  = $self->digests->{$digest}->components_list();
+      $outcomes->{$digest}->{'is_single_lane'}  = $is_single_lane->(@components);
+      $outcomes->{$digest}->{'component_lanes'} = [$lanes_from_components->(@components)];
+    }
+  }
+
+  return $outcomes;
+}
+
+=head2 retrieve
+
+Retrieves and caches qc outcomes. This method should be called prior to
+retrieving outcomes for individual entities.
+
+  $obj->retrieve() 
+
+=cut
+
+sub retrieve {
+  my $self = shift;
+  $self->_outcomes();
+  return;
 }
 
 =head2 retrieve_outcomes
 
 Retrieves qc outcomes for an entity defined by the argument composition
-as a hash in the format expected by the warehouse loader (keys as qc,
-qc_lib and qc_seq and values as 0, 1 or undefined).
+digest. The return is a hash reference in the format expected by the
+warehouse loader (keys as qc, qc_lib and qc_seq and values as 0, 1 or undefined).
 
-  my $qc_outcomes = $obj->retrieve_outcomes($composition);
+  my $qc_outcomes = $obj->retrieve_outcomes('digest1');
 
 Non-final QC outcomes are equivalent to the outcome not being defined.
 A fail on sequencing QC leads to the overall fail. A pass on sequencing QC
@@ -77,122 +181,104 @@ is undefined, the value is undefined.
 =cut
 
 sub retrieve_outcomes {
-  my ($self, $composition) = @_;
+  my ($self, $digest) = @_;
 
-  if (!$composition) {
-    croak 'Composition object is missing';
+  if (!$digest) {
+    croak 'Composition digest is required';
   }
+  ref $digest && croak 'Digest should be a scalar';
 
   my $h = {};
   for my $name (($COL_NAME_QC, $COL_NAME_QC_SEQ, $COL_NAME_QC_LIB)) {
     $h->{$name} = undef;
   }
 
-  my $rpt_list = $composition->freeze2rpt();
-  my $outcomes = $self->_get_outcomes([$rpt_list]);
-  my $lib_qc = $outcomes->{'lib'}->{$rpt_list}->{'mqc_outcome'};
-  $h->{$COL_NAME_QC_LIB} = $self->_outcome_desc2wh_value('lib', $lib_qc);
+  if (exists $self->_outcomes->{$digest}) {
 
-  my @lane_rpts = map { _lane_rpt_from_rpt($_->freeze2rpt()) }
-                  $composition->components_list;
-  my $seq_qc;
-  if (scalar @lane_rpts == 1) {
-    $seq_qc = $outcomes->{'seq'}->{$lane_rpts[0]}->{'mqc_outcome'};
-    $seq_qc = $self->_outcome_desc2wh_value('seq', $seq_qc);
-  } else {
-    my $lo = $self->_get_outcomes(\@lane_rpts)->{'seq'};
-    my @lane_outcomes =
-      map { $self->_outcome_desc2wh_value('seq', $_) }
-      map { $lo->{$_}->{'mqc_outcome'} }
-      @lane_rpts;
-    $seq_qc = 1;
-    if (any { defined $_ && ($_ == 0) } @lane_outcomes) {
-      $seq_qc = 0;
-    } elsif (any { !defined } @lane_outcomes) {
-      $seq_qc = undef;
+    my $outcome = $self->_outcomes->{$digest};
+    $h->{$COL_NAME_QC_LIB} =   $outcome->{'mqc_library_outcome_ent'};
+    $h->{$COL_NAME_QC_SEQ} =   $outcome->{'mqc_outcome_ent'};
+    my $num_components     = @{$outcome->{'component_lanes'}};
+    my $is_single_lane     =   $outcome->{'is_single_lane'};
+
+    if (!defined $h->{$COL_NAME_QC_SEQ} && !$is_single_lane) {
+      $h->{$COL_NAME_QC_SEQ} = $self->_get_lane_seq_outcome($digest);
     }
-  }
 
-  $h->{$COL_NAME_QC_SEQ} = $seq_qc;
-  $h->{$COL_NAME_QC}     = $seq_qc;
-  if ($h->{$COL_NAME_QC}) {
-    if (!defined $h->{$COL_NAME_QC_LIB}) {
+    $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_SEQ};
+    if ($h->{$COL_NAME_QC}) {
       # No overwrite for a single lane.
-      if ((scalar @lane_rpts > 1) || ($lane_rpts[0] ne $rpt_list)) {
-        $h->{$COL_NAME_QC} = undef;
+      if ( defined $h->{$COL_NAME_QC_LIB} || (($num_components > 1) || !$is_single_lane) ) {
+        $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_LIB};
       }
-    } elsif ($h->{$COL_NAME_QC_LIB} == 0) {
-      $h->{$COL_NAME_QC} = 0;
     }
-  } elsif (!defined $h->{$COL_NAME_QC_SEQ} && defined $h->{$COL_NAME_QC_LIB}) {
-    croak 'Inconsistent qc outcomes';
   }
 
   return $h;
 }
 
-=head2 retrieve_lane_outcome
+=head2 retrieve_seq_outcome
 
 Similar to retrieve_outcomes, but retrieves only sequencing
-outcome for the lane represented by the argument composition.
-Takes composition object for a lane as an argument. No check
-is made to ensure that the composition is for a lane.
+outcome for an entity represented by the argument lane rpt key.
 
- my $outcome = $obj->retrieve_lane_outcome($composition);
+If the outcome for this lane is not already cached, an attempt
+to retrieve and cache it will be made.
+
+  my $outcome = $obj->retrieve_seq_outcome('22:1');
 
 =cut
 
-sub retrieve_lane_outcome {
-  my ($self, $composition) = @_;
+sub retrieve_seq_outcome {
+  my ($self, $rpt_key) = @_;
 
-  if (!$composition) {
-    croak 'Composition object is missing';
+  if (!$rpt_key) {
+    croak 'rpt key is required';
   }
-  return {$COL_NAME_QC_SEQ =>
-          $self->_seq_outcome($composition->freeze2rpt())};
-}
+  ref $rpt_key && croak 'Digest should be a scalar';
 
-sub _lane_rpt_from_rpt {
-  my $rpt = shift;
-  my $h = npg_tracking::glossary::rpt->inflate_rpt($rpt);
-  delete $h->{'tag_index'};
-  return npg_tracking::glossary::rpt->deflate_rpt($h);
-}
-
-sub _seq_outcome {
-  my ($self, $rpt) = @_;
-  my $seq_qc = $self->_get_outcomes([$rpt])
-                    ->{'seq'}->{$rpt}->{'mqc_outcome'};
-  if ($seq_qc) {
-    $seq_qc = $self->_outcome_desc2wh_value('seq', $seq_qc);
+  if (!exists $self->_lane_seq_outcomes->{$rpt_key}) {
+    $self->_cache_lane_seq_outcome($rpt_key);
   }
-  return $seq_qc;
+
+  return {$COL_NAME_QC_SEQ => $self->_lane_seq_outcomes->{$rpt_key}};
 }
 
-sub _outcome_desc2wh_value {
-  my ($self, $qc_type, $desc) = @_;
+sub _cache_lane_seq_outcome {
+  my ($self, $lane_key) = @_;
 
-  my $outcome;
-  if ($desc) {
-    $qc_type ||= q[];
-    my $rs_name = $qc_type eq 'lib' ? 'MqcLibraryOutcomeDict' :
-                 ($qc_type eq 'seq' ? 'MqcOutcomeDict'
-                 : croak "Unknown qc type $qc_type");
-    my $row = $self->schema_qc->resultset($rs_name)
-                   ->search({'short_desc' => $desc})->next;
-    if (!$row) {
-      croak "Invalid qc outcome description $desc";
+  my $cached = 0;
+  my @attr = split /:/smx, $lane_key;
+  my $orow = $self->schema_qc->resultset('MqcOutcomeEnt')
+    ->search({id_run => $attr[0], position => $attr[1]})->next;
+  if ($orow && $orow->has_final_outcome) {
+    $self->_lane_seq_outcomes->{$lane_key} = $orow->is_accepted ? 1 : 0;
+    $cached = 1;
+  }
+
+  return $cached;
+}
+
+sub _get_lane_seq_outcome {
+  my ($self, $digest) = @_;
+
+  my $undef_outcome_present = 0;
+
+  foreach my $lane_key (@{$self->_outcomes->{$digest}->{'component_lanes'}}) {
+    if (!exists $self->_lane_seq_outcomes->{$lane_key}) {
+      $self->_cache_lane_seq_outcome($lane_key);
     }
-    if ($row->is_final_outcome) {
-      if ($row->is_accepted) {
-        $outcome = 1;
-      } elsif ($row->is_rejected) {
-        $outcome = 0;
+    my $o = $self->_lane_seq_outcomes->{$lane_key};
+    if (defined $o) {
+      if ($o == 0) {
+        return 0;
       }
-    }
+     } else {
+       $undef_outcome_present = 1;
+     }
   }
 
-  return $outcome;
+  return $undef_outcome_present ? undef : 1;
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -200,7 +286,6 @@ __PACKAGE__->meta->make_immutable;
 1;
 
 __END__
-
 
 =head1 DIAGNOSTICS
 
@@ -217,12 +302,6 @@ __END__
 =item Moose
 
 =item MooseX::StrictConstructor
-
-=item List::MoreUtils
-
-=item npg_tracking::glossary::rpt
-
-=item npg_qc::mqc::outcomes
 
 =item npg_qc::Schema
 
