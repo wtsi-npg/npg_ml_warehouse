@@ -6,6 +6,7 @@ use FindBin qw($Bin);
 use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
 use Getopt::Long;
 use Pod::Usage;
+use DateTime;
 
 use npg_tracking::Schema;
 use npg_qc::Schema;
@@ -71,6 +72,7 @@ foreach my $id (@{$id_run}) {
   if ($verbose) {
     warn "\n******* Calling loader for run $id *******\n";
   }
+  warn DateTime->now() . "******* Calling loader for run $id *******\n";
   $loader = npg_warehouse::loader::run->new(
       verbose     => $verbose,
       explain     => $explain,
