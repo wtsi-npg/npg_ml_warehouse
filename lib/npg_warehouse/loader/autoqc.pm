@@ -142,6 +142,7 @@ sub _insert_size {
             if ($value > $INSERT_SIZE_QUARTILE_MAX_VALUE) {
                 carp sprintf 'SKIPPING %s for %s: value %i out of range',
                 $attr_name, $c->freeze, $value;
+                next;
             }
             $data->{$column_name} = $value;
         }
