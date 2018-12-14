@@ -1,9 +1,13 @@
 LIST OF CHANGES
 
-release 39.11
- - auto QC loader query costruction: do not use invalid option
  - wh loader: refactor to accommodate loading results for
    multi-component entities
+ - autoqc data retriever - stop retrieving data for the old split stats
+   check which is only needed for the old warehouse
+
+release 39.11
+ - auto QC loader query costruction: do not use invalid option
+ - wh loader: skip loading results for multi-component entities
  - to retrieve lane-level results for multi-component entities,
    ask for lanes and plexes separately
  - stop loading Illumina qc data that came from chached_query table
