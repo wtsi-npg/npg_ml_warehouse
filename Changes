@@ -1,7 +1,9 @@
 LIST OF CHANGES
 
- - wh loader: refactor to accommodate loading results for
-   multi-component entities
+ - wh loader:
+     refactor to accommodate loading results for multi-component entities;
+     if multiple runs are loaded, order the latest runs first;
+     create a new option, num_runs, to load a limited number of latest runs
  - stop loading Illumina qc data that came from chached_query table
    of the npg_qc database (pf_cluster_count, raw_cluster_count, pf_bases)
  - load q30 and q40 yields from qX_yield autoqc check results     
