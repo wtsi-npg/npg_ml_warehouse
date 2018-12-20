@@ -9,6 +9,8 @@ LIST OF CHANGES
  - a script to launch warehouse loader script for certain runs
  - autoqc data retriever - stop retrieving data for the old split stats
    check which is only needed for the old warehouse
+ - load instrument_side and workflow_type columns of the
+   iseq_run_lane_metrics table
 
 release 39.10
  - two gbs metrics to be added to the iseq_product_metrics table

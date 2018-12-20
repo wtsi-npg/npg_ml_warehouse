@@ -290,25 +290,24 @@ sub _build__data {
   foreach my $rs (@{$self->_run_lane_rs})  {
 
     my $position                    = $rs->position;
-    my $values = {};
-    $values->{'id_run'}             = $self->id_run;
-    $values->{'flowcell_barcode'}   = $rs->run->flowcell_id;
-    $values->{'position'}           = $position;
-    $values->{'cycles'}             = $rs->run->actual_cycle_count;
-    $values->{'run_priority'}       = $rs->run->priority;
-    $values->{'cancelled'}          = $self->_run_is_cancelled;
-    $values->{'paired_read'}        = $self->_run_is_paired_read;
-    $values->{'instrument_name'}    = $instr->{'name'};
-    $values->{'instrument_model'}   = $instr->{'model'};
+    my %values = %{$instr};
+
+    $values{'id_run'}             = $self->id_run;
+    $values{'flowcell_barcode'}   = $rs->run->flowcell_id;
+    $values{'position'}           = $position;
+    $values{'cycles'}             = $rs->run->actual_cycle_count;
+    $values{'run_priority'}       = $rs->run->priority;
+    $values{'cancelled'}          = $self->_run_is_cancelled;
+    $values{'paired_read'}        = $self->_run_is_paired_read;
 
     foreach my $event_type (keys %{$dates}) {
-      $values->{$event_type} = $dates->{$event_type};
+      $values{$event_type} = $dates->{$event_type};
     }
 
     foreach my $column (keys %{ $self->_cluster_density->{$position} || {} }) {
-      $values->{$column} = $self->_cluster_density->{$position}->{$column};
+      $values{$column} = $self->_cluster_density->{$position}->{$column};
     }
-    $lane_data->{$position} = $values;
+    $lane_data->{$position} = \%values;
 
     _copy_lane_data($lane_data, $position,
       $fqc_retriever->retrieve_seq_outcome(join q[:], $self->id_run, $position));

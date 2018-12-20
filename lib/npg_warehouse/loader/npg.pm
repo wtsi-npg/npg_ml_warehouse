@@ -47,7 +47,6 @@ sub _build_schema_npg {
     return npg_tracking::Schema->connect();
 }
 
-
 =head2 id_run
 
 Run id, optional attribute.
@@ -84,8 +83,7 @@ sub run_is_paired_read {
         { 'me.id_run' => $self->id_run, 'tag.tag' => 'paired_read', },
         { prefetch => 'tag',},
     )->count;
-    my $is_paired_read = $count > 0 ? 1 : 0;
-    return $is_paired_read;
+    return $count > 0 ? 1 : 0;
 }
 
 =head2 run_is_indexed
@@ -154,7 +152,7 @@ sub dates {
 
 =head2 run_is_cancelled
 
-Returns one if the arg run is cancelled, 0 otherwise
+Returns 1 if the run is cancelled, 0 otherwise
 
 =cut
 sub run_is_cancelled {
@@ -164,13 +162,13 @@ sub run_is_cancelled {
        { 'me.id_run' => $self->id_run, 'me.iscurrent' => 1, 'run_status_dict.description' => {'=', ['run cancelled', 'data discarded']}, },
        { prefetch => 'run_status_dict',},
     )->count;
-    my $is_cancelled = $count > 0 ? 1 : 0;
-    return $is_cancelled;
+    return $count > 0 ? 1 : 0;
 }
 
 =head2 instrument_info
 
 Returns information about an instrument on which sequencing was performed
+and the way it was performed.
 
 =cut
 sub instrument_info {
@@ -181,8 +179,10 @@ sub instrument_info {
                { prefetch => ['instrument', 'instrument_format'],},
     );
     if ($row) {
-        $info->{name} = $row->instrument->name;
-        $info->{model} = $row->instrument_format->model;
+        $info->{'instrument_name'}  = $row->instrument->name;
+        $info->{'instrument_model'} = $row->instrument_format->model;
+        $info->{'instrument_side'}  = $row->instrument_side;
+        $info->{'workflow_type'}    = $row->workflow_type;
     }
     return $info;
 }
@@ -226,7 +226,7 @@ Andy Brown and Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2015 Genome Research Limited
+Copyright (C) 2018 Genome Research Limited
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
