@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+release 39.11
  - auto QC loader query costruction: do not use invalid option
  - wh loader: skip loading results for multi-component entities
  - to retrieve lane-level results for multi-component entities,
