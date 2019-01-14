@@ -1,5 +1,16 @@
 LIST OF CHANGES
 
+release 39.11
+ - auto QC loader query costruction: do not use invalid option
+ - wh loader: skip loading results for multi-component entities
+ - to retrieve lane-level results for multi-component entities,
+   ask for lanes and plexes separately
+ - stop loading Illumina qc data that came from chached_query table
+   of the npg_qc database (pf_cluster_count, raw_cluster_count, pf_bases)
+ - load q30 and q40 yields from qX_yield autoqc check results     
+ - load bam_flagstats target metrics into iseq_product_metrics table
+ - a script to launch warehouse loader script for certain runs
+
 release 39.10
  - two gbs metrics to be added to the iseq_product_metrics table
 

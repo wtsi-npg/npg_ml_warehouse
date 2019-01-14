@@ -6,8 +6,9 @@ use MooseX::StrictConstructor;
 use Readonly;
 
 use npg_qc::autoqc::qc_store;
-use npg_qc::autoqc::qc_store::options qw/$ALL/;
+use npg_qc::autoqc::qc_store::options qw/$LANES $PLEXES/;
 use npg_qc::autoqc::qc_store::query;
+use npg_qc::autoqc::results::collection;
 
 our $VERSION = '0';
 
@@ -46,6 +47,7 @@ Readonly::Hash   our %AUTOQC_MAPPING  => {
                            'rna_intronic_rate'             => 'intronic_rate',
                            'rna_transcripts_detected'      => 'transcripts_detected',
                            'rna_globin_percent_tpm'        => 'globin_pct_tpm',
+                           'rna_mitochondrial_percent_tpm'  => 'mt_pct_tpm',
                          },
      genotype_call    => {
                            'gbs_call_rate'                 => 'genotype_call_rate',
@@ -53,8 +55,7 @@ Readonly::Hash   our %AUTOQC_MAPPING  => {
                          },
 };
 
-Readonly::Scalar our $Q_TWENTY => 20;
-Readonly::Scalar our $HUNDRED  => 100;
+Readonly::Scalar my $HUNDRED  => 100;
 
 =head1 NAME
 
@@ -86,20 +87,13 @@ has 'verbose'      => ( isa        => 'Bool',
 
 =head2 autoqc_store
 
-A driver to retrieve autoqc objects. If DB storage is not available,
-it will give no error, so no need to mock DB for this one in tests.
-Just mock the staging area in your tests
+A driver to retrieve autoqc objects, required attribute.
 
 =cut
 has 'autoqc_store' =>    ( isa        => 'npg_qc::autoqc::qc_store',
                            is         => 'ro',
-                           required   => 0,
-                           lazy_build => 1,
+                           required   => 1,
                          );
-sub _build_autoqc_store {
-    my $self = shift;
-    return npg_qc::autoqc::qc_store->new(verbose => $self->verbose);
-}
 
 =head2 plex_key
 
@@ -180,21 +174,21 @@ sub _insert_size {
 sub _qX_yield {
     my ($self, $result, $autoqc) = @_;
 
-    if ($result->threshold_quality != $Q_TWENTY) {
-        croak 'Need Q20 quality, got ' . $result->threshold_quality;
-    }
-
     my $data = {};
-    if (defined $result->yield1) {
-        $data->{q20_yield_kb_forward_read} = $result->yield1;
-    }
-    if (defined $result->yield2) {
-        $data->{q20_yield_kb_reverse_read} = $result->yield2;
+    foreach my $read (qw/1 2/) {
+        foreach my $quality (qw/20 30 40/) {
+            my $autoqc_method_name = sprintf 'yield%s_q%s', $read, $quality;
+            my $wh_column_name     = sprintf 'q%s_yield_kb_%s_read',
+                $quality, ($read eq '1') ? 'forward' : 'reverse';
+            my $value = $result->$autoqc_method_name;
+            if (defined $value) {
+                $data->{$wh_column_name} = $result->$autoqc_method_name;
+            }
+        }
     }
     $self->_copy_fields($data, $autoqc, $result->position, $result->tag_index);
     return;
 }
-
 
 sub _ref_match {
     my ($self, $result, $autoqc) = @_;
@@ -335,6 +329,13 @@ sub _bam_flagstats {
         ? ($result->mate_mapped_defferent_chr_5 * $HUNDRED / $num_reads)
         : 0.00);
     $self->_copy_fields({chimeric_reads_percent => $chimeric_reads}, $autoqc, $position, $tag_index);
+    foreach my $method (qw(target_filter target_length target_mapped_reads 
+           target_proper_pair_mapped_reads target_mapped_bases target_coverage_threshold 
+           target_percent_gt_coverage_threshold)) {
+       if(my $r = $result->$method ) {
+          $self->_copy_fields({$method => $r}, $autoqc, $position, $tag_index);
+       }
+    }
     return;
 }
 
@@ -400,10 +401,6 @@ sub _genotype {
 sub _autoqc_check {
     my ($self, $result, $autoqc) = @_;
 
-    my $num_components = $result->composition->num_components();
-    if ($num_components > 1){
-        croak q[Too many components for check ] . $result->class_name;
-    }
     my $component = $result->composition->get_component(0);
     my $position = $component->position;
     my $tag_index = $component->tag_index;
@@ -428,29 +425,38 @@ sub _autoqc_check {
 
 =head2 retrieve
 
-Retrieves autoqc results for a run
+Retrieves autoqc results for a run. Skips results for multi-component entities.
 
 =cut
 sub retrieve {
     my ($self, $id_run, $npg_schema) = @_;
 
-    my $query = npg_qc::autoqc::qc_store::query->new(
-                                                id_run => $id_run,
-                                                option => $ALL,
-                                                npg_tracking_schema=> $npg_schema,
-                                                propagate_npg_tracking_schema => 1);
-
-    my $autoqc = {};
-    my $collection = $self->autoqc_store->load($query);
+    my $query1 = npg_qc::autoqc::qc_store::query->new(
+                                                id_run              => $id_run,
+                                                option              => $LANES,
+                                                npg_tracking_schema => $npg_schema
+                                                     );
+    my $query2 = npg_qc::autoqc::qc_store::query->new(
+                                                id_run              => $id_run,
+                                                option              => $PLEXES,
+                                                npg_tracking_schema => $npg_schema
+                                                     );
+    my $collection = npg_qc::autoqc::results::collection->join_collections(
+                     $self->autoqc_store->load($query1), $self->autoqc_store->load($query2));
     $collection->sort_collection(q[check_name]); # tag metrics object are after tag decode stats now
+
     my $i = $collection->size - 1;
+    my $autoqc = {};
     while ($i >= 0) { # iterating from tail to head
         my $result = $collection->get($i);
+        $i--;
+        if ($result->composition->num_components() > 1) {
+            next;
+        }
         my $method_name = exists $AUTOQC_MAPPING{$result->class_name} ? q[_autoqc_check] : q[_] . $result->class_name;
         if ($self->can($method_name)) {
             $self->$method_name($result, $autoqc);
         }
-        $i--;
     }
     return $autoqc;
 }

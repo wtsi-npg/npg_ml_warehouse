@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 126;
+use Test::More tests => 137;
 use Test::Exception;
 use Moose::Meta::Class;
 
@@ -13,13 +13,9 @@ my $store = npg_qc::autoqc::qc_store->new(use_db => 0);
 my $plex_key = q[plexes];
 my $util = Moose::Meta::Class->create_anon_class(
     roles => [qw/npg_testing::db/])->new_object({});
-my $schema_npg;
-eval { $schema_npg  = $util->create_test_db(q[npg_tracking::Schema], q[t/data/fixtures/npg]); 1 }
-  or die 'failed to create npg test db - test prerequisite';
+my $schema_npg  = $util->create_test_db(q[npg_tracking::Schema], q[t/data/fixtures/npg]);
 my $folder_glob = q[t/data/runfolders/];
 my $user_id = 7;
-
-local $ENV{TEST_DIR} = q[t];
 
 {
   throws_ok {npg_warehouse::loader::autoqc->new(autoqc_store => $store)}
@@ -40,7 +36,7 @@ local $ENV{TEST_DIR} = q[t];
 
 {
   my $autoqc  = npg_warehouse::loader::autoqc->new( 
-                    autoqc_store => npg_qc::autoqc::qc_store->new(use_db => 0,verbose => 0,),
+                    autoqc_store => npg_qc::autoqc::qc_store->new(use_db => 0),
                     plex_key => $plex_key,);
   throws_ok {$autoqc->retrieve()}
     qr/Attribute \(id_run\) does not pass the type constraint/,
@@ -54,10 +50,7 @@ local $ENV{TEST_DIR} = q[t];
                  );
    my $result = npg_qc::autoqc::results::qX_yield->new(
      path => q[dodo], id_run=>22, position=>1, threshold_quality => 30,);
-   throws_ok {$autoqc->_qX_yield($result, {})}
-     qr/Need Q20 quality, got 30/, 'error when quality is not 20';
-   $result->threshold_quality(20);
-   lives_ok {$autoqc->_qX_yield($result, {})} 'lives with quality 20';
+   lives_ok {$autoqc->_qX_yield($result, {})} 'lives with quality 30';
    $result->yield1(200);
    my $h = {};
    $autoqc->_qX_yield($result, $h);
@@ -78,7 +71,7 @@ local $ENV{TEST_DIR} = q[t];
 
 {
   my $id_run = 4799;
-  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run})->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
   lives_ok {$schema_npg->resultset('Run')
     ->update_or_create({folder_path_glob => $folder_glob, folder_name => '100330_HS21_4799', id_run => $id_run, })}
@@ -114,7 +107,7 @@ local $ENV{TEST_DIR} = q[t];
 
 {
   my $id_run = 4333;
-  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run})->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
   lives_ok {$schema_npg->resultset('Run')
     ->update_or_create({folder_path_glob => $folder_glob, folder_name => '100330_IL21_4333', id_run => $id_run, })}
@@ -150,7 +143,7 @@ local $ENV{TEST_DIR} = q[t];
 
 {
   my $id_run = 6624;
-  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run})->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
   lives_ok {$schema_npg->resultset('Run')
     ->update_or_create({folder_path_glob => $folder_glob, folder_name => '110731_HS17_06624_A_B00T5ACXX', id_run => $id_run, })}
@@ -200,7 +193,7 @@ local $ENV{TEST_DIR} = q[t];
   my $id_run = 6642;
   lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })}
     'forder glob reset lives - test prerequisite';
-  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run})->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
 
   my $auto = npg_warehouse::loader::autoqc->new(autoqc_store => $store,plex_key => $plex_key)->retrieve($id_run, $schema_npg);
@@ -242,6 +235,7 @@ local $ENV{TEST_DIR} = q[t];
   cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_rrna_rate}), q(==), 0.020362793, 'rna - rrna rate');
   cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_transcripts_detected}), q(==), 71321, 'rna - transcripts detected');
   cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_globin_percent_tpm}), q(==), 2.71, 'rna - globin percent tpm');
+  cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{1}->{rna_mitochondrial_percent_tpm}), q(==), 6.56, 'rna - mitochondrial percent tpm');
   ok(! exists $auto->{1}->{$plex_key}->{1}->{rna_rrna}, 'rna - rrna not present');
 }
 
@@ -249,7 +243,7 @@ local $ENV{TEST_DIR} = q[t];
   my $id_run = 25710;
   lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })}
     'folder glob reset lives - test prerequisite';
-  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run})->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
   my $auto;
   lives_ok {$auto = npg_warehouse::loader::autoqc->new(autoqc_store => $store, plex_key => $plex_key )->retrieve($id_run, $schema_npg)}
@@ -258,5 +252,93 @@ local $ENV{TEST_DIR} = q[t];
   cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{60}->{gbs_call_rate}), q(==), 1, 'gbs - call rate');
   cmp_ok(sprintf('%.10f',$auto->{1}->{$plex_key}->{60}->{gbs_pass_rate}), q(==), 0.99, 'gbs - pass rate');
 }
+
+{
+  my $id_run = 27116;
+  lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })}
+    'folder glob reset lives - test prerequisite';
+  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run})->set_tag($user_id, 'staging')}
+    'staging tag is set - test prerequisite';
+  my $auto;
+  lives_ok {$auto = npg_warehouse::loader::autoqc->new(autoqc_store => $store, plex_key => $plex_key )->retrieve($id_run, $schema_npg)}
+    'data for run 27116 retrieved';
+ 
+  is ($auto->{1}->{$plex_key}->{1}->{target_filter}, 'F0xF04_target',  'target - target_filter');
+  cmp_ok(sprintf('%.2f',$auto->{1}->{$plex_key}->{1}->{target_coverage_threshold}), q(==), 15, 'target - target_coverage_threshold');
+  cmp_ok(sprintf('%.2f',$auto->{1}->{$plex_key}->{1}->{target_length}), q(==), '2945869055', 'target - target_length');
+  cmp_ok(sprintf('%.2f',$auto->{1}->{$plex_key}->{1}->{target_mapped_bases}), q(==), 8700474137, 'target - target_mapped_bases');
+  cmp_ok(sprintf('%.2f',$auto->{1}->{$plex_key}->{1}->{target_mapped_reads}), q(==), 58704583, 'target - target_mapped_reads');
+  cmp_ok(sprintf('%.2f',$auto->{1}->{$plex_key}->{1}->{target_percent_gt_coverage_threshold}), q(==), 0.15, 'target - target_percent_gt_coverage_threshold');
+  cmp_ok(sprintf('%.2f',$auto->{1}->{$plex_key}->{1}->{target_proper_pair_mapped_reads}), q(==), 57355728, 'target - target_proper_pair_mapped_reads');
+}
+
+{
+  $schema_npg->resultset('Run')->update_or_create({
+    folder_path_glob     => $folder_glob,
+    id_run               => 26291,
+    folder_name          => 'with_merges',
+    id_instrument_format => 10,
+    team                 => 'A'});
+  $schema_npg->resultset('Run')->find({id_run => 26291})->set_tag($user_id, 'staging');
+  my $auto = npg_warehouse::loader::autoqc->new(autoqc_store => $store, plex_key => $plex_key)
+                                          ->retrieve(26291, $schema_npg);
+
+  my $expected = {
+    '1' => {
+        'tag_hops_power' => 1,
+        'ref_match2_name' => 'Pan troglodytes CHIMP2.1.4',
+        'tags_decode_cv' => '15.14',
+        'tag_hops_percent' => '1.431923',
+        'ref_match1_percent' => '95.5',
+        'ref_match2_percent' => '89.1',
+        'ref_match1_name' => 'Homo sapiens 1000Genomes',
+        'tags_decode_percent' => '93.77',
+        'plexes' => {
+           '7' => {'tag_decode_percent' => '6.90',
+                   'tag_sequence' => 'ACACATTC-CTGTCGGT',
+                   'tag_decode_count' => '68726651'},
+           '9' => {'tag_decode_count' => '110359514',
+                   'tag_decode_percent' => '11.10',
+                   'tag_sequence' => 'ACAGCCTT-CACACGCG'},
+           '12' => {'tag_decode_count' => '66558340',
+                    'tag_sequence' => 'TTGCCATC-ACGCGTCA',
+                    'tag_decode_percent' => '6.70'},
+           '5' => {'tag_decode_percent' => '8',
+                   'tag_sequence' => 'ACACACCT-GGCAACTG',
+                   'tag_decode_count' => '79299831' },
+           '11' => {'tag_decode_percent' => '7.80',
+                    'tag_sequence' => 'ACAGGCAG-AGCAAGTT',
+                    'tag_decode_count' => '77788454'},
+           '888' => {'tag_sequence' => 'ACAACGCA-TCTTTCCC',
+                     'tag_decode_percent' => '0',
+                     'tag_decode_count' => '9'},
+           '3' => {'tag_decode_percent' => '8.70',
+                   'tag_sequence' => 'ACACTAAC-ACAGTGAA',
+                   'tag_decode_count' => '86434858'},
+           '6' => {'tag_decode_count' => '63169296',
+                   'tag_sequence' => 'GGTGTCCG-CAGCGTCT',
+                   'tag_decode_percent' => '6.30'},
+           '0' => {'tag_decode_count' => '62102003',
+                    'tag_decode_percent' => '6.20'},
+           '10' => {'tag_sequence' => 'TTGCAGTA-AGCCAACA',
+                    'tag_decode_percent' => '7.10',
+                    'tag_decode_count' => '70535174'},
+           '8' => {'tag_sequence' => 'TTGCTTAA-TCGGCGTT',
+                   'tag_decode_percent' => '7.30',
+                   'tag_decode_count' => '72387564'},
+           '1' => {'tag_decode_percent' => '8.10',
+                   'tag_sequence' => 'AACACATA-AATTCTAA',
+                   'tag_decode_count' => '81073574'},
+           '4' => {'tag_decode_count' => '81708200',
+                   'tag_decode_percent' => '8.20',
+                   'tag_sequence' => 'TTGTGTTC-AGATGTGA'},
+           '2' => {'tag_sequence' => 'TGGTGTCT-TTCATCTG',
+                   'tag_decode_percent' => '7.70',
+                   'tag_decode_count' => '76726441'}
+     },}
+  };
+ 
+  is_deeply ($auto, $expected, 'lane-level results in, multi-component plex skipped'); 
+} 
 
 1;

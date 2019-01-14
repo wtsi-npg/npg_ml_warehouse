@@ -70,5 +70,6 @@
   "rrna": 38470,
   "rrna_rate": 0.020362793,
   "tag_index": 1,
-  "globin_pct_tpm": 2.71
+  "globin_pct_tpm": 2.71,
+  "mt_pct_tpm": 6.56
 }
