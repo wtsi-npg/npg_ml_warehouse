@@ -7,8 +7,8 @@ use File::Temp qw/tempdir/;
 use File::Copy;
 
 use npg_testing::db;
-
 use npg_qc::autoqc::qc_store;
+use t::util;
 
 my $RUN_LANE_TABLE_NAME      = q[IseqRunLaneMetric];
 my $PRODUCT_TABLE_NAME       = q[IseqProductMetric];
@@ -36,7 +36,7 @@ isa_ok (npg_warehouse::fk_repair->new(), 'npg_warehouse::fk_repair');
 my $util = Moose::Meta::Class->create_anon_class(
   roles => [qw/npg_testing::db/])->new_object({});
 
-# Get full (lim sand npg) set of fixtures
+# Get full (lims and npg) set of fixtures
 my $wh_fix = tempdir(UNLINK => 0);
 foreach my $dir (qw(t/data/fixtures/wh t/data/fixtures/wh_npg)) {
   foreach my $file (glob join(q[/], $dir, '*.yml')) {
@@ -52,6 +52,21 @@ lives_ok{ $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
   q[t/data/fixtures/npg]) } 'npg test db created';
 lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
   q[t/data/fixtures/npgqc]) } 'npgqc test db created';
+
+# Create tracking record for a NovaSeq run with two lanes
+my $id_run_nv = 26291;
+my $folder_glob = q[t/data/runfolders/];
+t::util::create_nv_run($schema_npg, $id_run_nv,
+  q[t/data/runfolders/], 'with_merges');
+# and load it to the warehouse
+npg_warehouse::loader::run->new(
+    schema_npg   => $schema_npg, 
+    schema_qc    => $schema_qc, 
+    schema_wh    => $schema_wh,
+    verbose      => 0,
+    explain      => 0,
+    id_run       => $id_run_nv
+)->load();
 
 {
   my $init = {
@@ -76,9 +91,9 @@ lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
   is ($no_fk_count, $total, 'no record for run 6998 has fk - test prerequisite');
 
   my $r = npg_warehouse::fk_repair->new($init);
-  is (join(q[ ], $r->_runs_with_null_fks()) , '4486 6998', 'runs to repair detected');
+  is (join(q[ ], $r->_runs_with_null_fks()) , '4486 6998 26291', 'runs to repair detected');
   lives_ok {$r->run()} 'repair runs OK';
-  is (join(q[ ], $r->_runs_with_null_fks()) , '4486', 'runs to repair are still detected');
+  is (join(q[ ], $r->_runs_with_null_fks()) , '4486 26291', 'runs to repair are still detected');
 
   my $no_fk_rs = $rs->search({id_run => 4486, id_iseq_flowcell_tmp => undef});
   is ($no_fk_rs->count, 2,

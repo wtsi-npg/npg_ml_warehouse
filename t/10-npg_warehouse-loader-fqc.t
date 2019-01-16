@@ -4,10 +4,15 @@ use Test::More tests => 7;
 use Test::Exception;
 use Moose::Meta::Class;
 
+use npg_tracking::glossary::composition;
+use npg_tracking::glossary::composition::component::illumina;
 use npg_testing::db;
 use t::util;
 
 use_ok('npg_warehouse::loader::fqc');
+
+my $compos_pkg = 'npg_tracking::glossary::composition';
+my $compon_pkg = 'npg_tracking::glossary::composition::component::illumina';
 
 my $util = Moose::Meta::Class->create_anon_class(
   roles => [qw/npg_testing::db/])->new_object({});
@@ -19,296 +24,392 @@ my @qc_types = qw/qc qc_lib qc_seq/;
 lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
   q[t/data/fixtures/npgqc]) } 'qc test db created';
 
- subtest 'object initialization and input checking' => sub {
-  plan tests => 8;
+my $rs = $schema_qc->resultset('MqcOutcomeEnt');
+my $digests = {};
 
-  throws_ok {npg_warehouse::loader::fqc->new(schema_qc => $schema_qc) }
-    qr/Attribute \(plex_key\) is required /,
-    'error if plex_key attr is not set';
+for my $p ((1 .. 6)) {
+  my $q = {id_run => 3, position => $p};
+  $q->{'id_seq_composition'} =
+    t::util::find_or_save_composition($schema_qc, $q);
+  $q->{'id_mqc_outcome'} = 1; #'Accepted preliminary' 
+  my $row = $rs->create($q);
+  $digests->{$row->composition_digest} = $row->composition;
+}
 
-  my $mqc;
-  lives_ok { $mqc  = npg_warehouse::loader::fqc->new( 
-                                             schema_qc => $schema_qc, 
-                                             plex_key => 'plex'
-                                                   )}
-  'object instantiated';
-  isa_ok ($mqc, 'npg_warehouse::loader::fqc');
-  is ($mqc->verbose, 0, 'verbose mode is off by default');
-
-  throws_ok { $mqc->retrieve_lane_outcomes() }
-    qr/Run id is missing/, 'no run id - error';
-  throws_ok { $mqc->retrieve_lane_outcomes(0) }
-    qr/Run id is missing/, 'zero run id - error';
-  throws_ok { $mqc->retrieve_lane_outcomes(1) }
-    qr/Position is missing/, 'no position - error';
-  throws_ok { $mqc->retrieve_lane_outcomes(1, 0) }
-    qr/Position is missing/, 'zero position - error';
-};
-
-subtest 'saving data' => sub {
-  plan tests => 10;
-
-  my $mqc  = npg_warehouse::loader::fqc->new( 
-                                schema_qc => $schema_qc, 
-                                plex_key => 'plex'
-                                           );
-  lives_ok { $mqc->_save_outcomes() } 'no args - nothing to do';
-
-  my $input = {};
-  $mqc->_save_outcomes($input);
-  is_deeply( $input, {}, 'no column names - nothing saved');
-
-  $mqc->_save_outcomes($input, []);
-  is_deeply( $input, {}, 'no column names - nothing saved');
-
-  $mqc->_save_outcomes($input, ['col1']);
-  is_deeply( $input, {'col1' => undef}, 'undefined value saved');
-
-  $mqc->_save_outcomes($input, ['col1'], []);
-  is_deeply( $input, {'col1' => undef}, 'undefined value saved');
-
-  $mqc->_save_outcomes($input, ['col1'], [], 'value1');
-  is_deeply( $input, {'col1' => 'value1'}, 'given value saved');
-
-  $mqc->_save_outcomes($input, ['col1', 'col2'], [], 'value1');
-  is_deeply( $input,
-    {'col1' => 'value1', 'col2' => 'value1'},
-    'given value saved for two columns');
-  
-  $input = {'col1' => 'value1', 'col2' => 'value1'};
-  $mqc->_save_outcomes($input, ['col1'], [], 'value2');
-  is_deeply( $input,
-    {'col1' => 'value2', 'col2' => 'value1'}, 'given value saved');
-
-  $input = {};
-  my @tags = (2 .. 5);
-  foreach my $i ( @tags ) {
-    foreach my $c (qw/c1 c2 c3/) {
-      $input->{'plex'}->{$i}->{$c} = undef;
-    }
-  }
-  my %input_copy = %{$input};
-  my $expected = \%input_copy;
-  $expected->{'plex'}->{2}->{'c1'} = 1;
-  $expected->{'plex'}->{2}->{'c2'} = 1;
-  $expected->{'plex'}->{3}->{'c1'} = 1;
-  $expected->{'plex'}->{3}->{'c2'} = 1;
-
-  $mqc->_save_outcomes($input, [qw/c1 c2/], [2,3], 1);
-  is_deeply( $input, $expected, 'values saved correctly');
-
-  $expected->{'plex'}->{5}->{'c3'} = 1;
-  $mqc->_save_outcomes($input, [qw/c3/], [5], 0);
-  is_deeply( $input, $expected, 'values saved correctly');    
-};
-
-subtest 'retrieve data, seq outcomes only' => sub {
-  plan tests => 6;
-
-  my $rs = $schema_qc->resultset('MqcOutcomeEnt');
-  for my $r ((3, 33, 333)) {
-    for my $p ((1 .. 8)) {
-      my $q = {id_run => $r, position => $p};
-      $q->{'id_seq_composition'} = t::util::find_or_save_composition($schema_qc, $q);
-      $q->{'id_mqc_outcome'} = 1;
-      $rs->create($q);
-    }
-  }
-  
-  my $srs = $rs->search({id_run => 3});
-  while (my $row = $srs->next) {
-    my $id = $row->position < 5 ? 3 : 4; # all final, some pass, some fail
+my $srs = $rs->search({id_run => 3});
+while (my $row = $srs->next) {
+  my $p = $row->position;
+  if ($p ==2 || $p == 5) {
+    my $id = ($p == 2)
+      ? 3  # 'Accepted final'
+      : 4; # 'Rejected final';
     $row->update({id_mqc_outcome => $id, reported => $row->get_time_now()});
   }
+  $digests->{$row->composition_digest} = $row->composition;
+}
 
-  my $expected = {};
-  for my $p ((1 .. 8)) {
-    for my $t (@qc_types) {
-      $expected->{$p}->{$p}->{$t} = undef; 
-    }
-  }
-
-  my $mqc  = npg_warehouse::loader::fqc->new( 
-                                schema_qc => $schema_qc, 
-                                plex_key => 'plex'
-                                           );
-
-  is_deeply ($mqc->retrieve_lane_outcomes(33, 1, []), $expected->{1},
-    'all outcomes undefined');
-
-  my $row = $rs->find({id_run => 33, position => 2});
-  $row->update({id_mqc_outcome => 3, reported => $row->get_time_now()});
-  my $time = $row->reported();
-  is_deeply ($mqc->retrieve_lane_outcomes(33, 1, []), $expected->{1},
-    'all outcomes undefined');
-
-  $rs->find({id_run => 33, position => 1})
-    ->update({id_mqc_outcome => 4, reported => $time});
-  $expected->{1}->{1}->{'qc'} = 0;
-  $expected->{1}->{1}->{'qc_seq'} = 0;
-
-  is_deeply ($mqc->retrieve_lane_outcomes(33, 1, []), $expected->{1},
-    'two fail outcomes defined');
-
-  $expected->{2}->{2}->{'qc'} = 1;
-  $expected->{2}->{2}->{'qc_seq'} = 1;
-  is_deeply ($mqc->retrieve_lane_outcomes(33, 2, []), $expected->{2},
-    'two pass outcomes defined');
-
-  my @tags = (3, 5, 7);
-  for my $p ((1, 2)) {
-    for my $t (@qc_types) {
-      delete $expected->{$p}->{$p}->{$t};
-      for my $tag (@tags) {
-        $expected->{$p}->{$p}->{'plex'}->{$tag}->{$t} =
-          ($t eq 'qc_lib') ? undef : (($p == 1) ? 0 : 1);
-      }
-    }
-  }
-
-  is_deeply ($mqc->retrieve_lane_outcomes(33, 1, \@tags), $expected->{1},
-    'two fail outcomes defined for each plex');
-  is_deeply ($mqc->retrieve_lane_outcomes(33, 2, \@tags), $expected->{2},
-    'two pass outcomes defined for each plex');  
-};
-
-subtest 'retrieve data, seq+lib outcomes for a one lib lane' => sub {
+subtest 'object initialization and input checking' => sub {
   plan tests => 4;
 
-  my $rs = $schema_qc->resultset('MqcLibraryOutcomeEnt');
-  my $f_keys = {};
-  for my $p (qw/1 2 5 6/) {
-    $f_keys->{$p} = t::util::find_or_save_composition(
-      $schema_qc, {id_run => 3, position => $p});
-  }
-  $rs->create({id_run             => 3,
-               position           => 1,
-               id_seq_composition => $f_keys->{1},
-               id_mqc_outcome     => 3}); #final pass
-  $rs->create({id_run             => 3,
-               position           => 2,
-               id_seq_composition => $f_keys->{2},
-               id_mqc_outcome     => 4}); #final fail
-  $rs->create({id_run             => 3,
-               position           => 5,
-               id_seq_composition => $f_keys->{5},
-               id_mqc_outcome     => 5}); #final undefined
-  $rs->create({id_run             => 3,
-               position           => 6,
-               id_seq_composition => $f_keys->{6},
-               id_mqc_outcome     => 1});
-
-  my $expected = {};
-  for my $p ((1, 2, 5, 6)) {
-    for my $t (@qc_types) {
-      $expected->{$p}->{$p}->{$t} = undef; 
-    }
-  }
-
-  $expected->{1}->{1}->{'qc_seq'} = 1;
-  $expected->{2}->{2}->{'qc_seq'} = 1;
-  $expected->{5}->{5}->{'qc_seq'} = 0;
-  $expected->{6}->{6}->{'qc_seq'} = 0;
-
-  $expected->{1}->{1}->{'qc_lib'} = 1;
-  $expected->{2}->{2}->{'qc_lib'} = 0;
-
-  $expected->{1}->{1}->{'qc'} = 1;
-  $expected->{2}->{2}->{'qc'} = 0;
-  $expected->{5}->{5}->{'qc'} = 0;
-  $expected->{6}->{6}->{'qc'} = 0;
-
-  my $mqc  = npg_warehouse::loader::fqc->new( 
-                                schema_qc => $schema_qc, 
-                                plex_key => 'plex'
-                                           );
-
-  foreach my $p ((1, 2, 5, 6)) {
-    is_deeply ($mqc->retrieve_lane_outcomes(3, $p, []), $expected->{$p},
-    'correct outcomes');
-  }
+  my $mqc;
+  lives_ok {$mqc = npg_warehouse::loader::fqc->new(
+                   digests => $digests, schema_qc => $schema_qc)}
+    'object instantiated';
+  isa_ok ($mqc, 'npg_warehouse::loader::fqc');
+  throws_ok { $mqc->retrieve_seq_outcome() }
+    qr/rpt key is required/, 'no composition digest - error';
+  throws_ok { $mqc->retrieve_outcomes() }
+    qr/Composition digest is required/, 'no composition digest - error';
 };
 
-subtest 'retrieve data, seq+lib outcomes for a pool' => sub {
-  plan tests => 6;
+subtest 'retrieve lane seq outcome' => sub {
+  plan tests => 4; 
 
-  my $rs = $schema_qc->resultset('MqcLibraryOutcomeEnt');
-  my @tags = (1, 2, 5, 6);
+  my $mqc  = npg_warehouse::loader::fqc->new( 
+             digests => $digests, schema_qc => $schema_qc);
+  is_deeply ($mqc->retrieve_seq_outcome('3:1'), {qc_seq => undef},
+    'undefined for a non-final outcome');
+  is_deeply ($mqc->retrieve_seq_outcome('3:2'), {qc_seq => 1}, '1 for accepted final');
+  is_deeply ($mqc->retrieve_seq_outcome('3:5'), {qc_seq => 0}, '0 for rejected final');
+  is_deeply ($mqc->retrieve_seq_outcome('3:8'), {qc_seq => undef}, 'undef for no record');  
+};
 
-  foreach my $tag (@tags) {
-    my $outcome = ($tag < 6) ? 3 : 4;
-    my $q1 = { id_run         => 333,
-               position       => 1,
-               tag_index      => $tag
-             };
-    my $q6 = { id_run         => 333,
-               position       => 6,
-               tag_index      => $tag
-             };
-    $q1->{'id_seq_composition'} =
-      t::util::find_or_save_composition($schema_qc, $q1);
-    $q1->{'id_mqc_outcome'} = $outcome;
-    $q6->{'id_seq_composition'} =
-      t::util::find_or_save_composition($schema_qc, $q6);
-    $q6->{'id_mqc_outcome'} = 6;
-    $rs->create($q1);
-    $rs->create($q6);
+subtest 'retrieve outcomes for a lane' => sub {
+  plan tests => 4;
+
+  my $outcomes = {};
+  $outcomes->{qc} = undef;
+  $outcomes->{qc_seq} = undef;
+  $outcomes->{qc_lib} = undef;
+
+  my $mqc = npg_warehouse::loader::fqc->new( 
+            digests => $digests, schema_qc => $schema_qc);
+
+  my $c = $compos_pkg->new(components =>
+      [$compon_pkg->new(id_run => 3, position => 1)]);
+  is_deeply ($mqc->retrieve_outcomes($c->digest), $outcomes,
+    'non-final seq outcome, all undefined');
+
+  $c = $compos_pkg->new(components =>
+      [$compon_pkg->new(id_run => 3, position => 8)]);
+  is_deeply ($mqc->retrieve_outcomes($c->digest), $outcomes,
+    'no record, all undefined');
+
+  $c = $compos_pkg->new(components =>
+      [$compon_pkg->new(id_run => 3, position => 2)]);
+  $outcomes->{qc_seq} = 1;
+  $outcomes->{qc} = 1;
+  is_deeply ($mqc->retrieve_outcomes($c->digest), $outcomes,
+    'accepted final seq outcome result');
+
+  $outcomes->{qc_seq} = 0;
+  $outcomes->{qc} = 0;
+  $c = $compos_pkg->new(components =>
+      [$compon_pkg->new(id_run => 3, position => 5)]);
+  is_deeply ($mqc->retrieve_outcomes($c->digest), $outcomes,
+    'rejected final seq outcome result'); 
+};
+
+subtest 'retrieve outcomes for a one component plex' => sub {
+  plan tests => 19;
+
+  my $rsl = $schema_qc->resultset('MqcLibraryOutcomeEnt');
+
+  my $outcomes = {};
+  $outcomes->{qc} = undef;
+  $outcomes->{qc_seq} = undef;
+  $outcomes->{qc_lib} = undef;
+  my $q = {};
+
+  my $c = $compos_pkg->new(components =>
+      [$compon_pkg->new(id_run => 3, position => 8, tag_index => 1)]);
+  my $digest = $c->digest;
+  $digests->{$digest} = $c;
+
+  my $mqc = npg_warehouse::loader::fqc->new( 
+            digests => $digests, schema_qc => $schema_qc);
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes, 'no record - all undefined');
+
+  $q->{'id_seq_composition'} = t::util::find_or_save_composition(
+        $schema_qc, {id_run => 3, position => 8, tag_index => 1});
+  $q->{'id_mqc_outcome'} = 1; #'Accepted preliminary' 
+  $rsl->create($q);
+  $mqc = npg_warehouse::loader::fqc->new( 
+            digests => $digests, schema_qc => $schema_qc);
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'no record for seq, no final record for lib - all undefined');
+
+  $c = $compos_pkg->new(components =>
+      [$compon_pkg->new(id_run => 3, position => 7, tag_index => 1)]);
+  $digest = $c->digest;
+  $digests->{$digest} = $c;
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes, 'no record - all undefined');
+
+  $q->{'id_seq_composition'} = t::util::find_or_save_composition(
+        $schema_qc, {id_run => 3, position => 7, tag_index => 1});
+  $q->{'id_mqc_outcome'} = 3; #'Accepted final' 
+  $rsl->create($q);
+  $outcomes->{qc_lib} = 1;
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes, 'lib final pass, lane - no record - overall undefined');
+  
+  $outcomes->{qc_lib} = undef;
+  $c = $compos_pkg->new(components =>
+      [$compon_pkg->new(id_run => 3, position => 1, tag_index => 1)]);
+  $digest = $c->digest;
+  $digests->{$digest} = $c;
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'no lib outcome, non-final seq outcome - all undefined');
+
+  $c = $compos_pkg->new(components =>
+      [$compon_pkg->new(id_run => 3, position => 3, tag_index => 1)]);
+  $digest = $c->digest;
+  $digests->{$digest} = $c;
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'no lib outcome, non-final seq outcome - all undefined');
+
+  $q = {};
+  $q->{'id_seq_composition'} = t::util::find_or_save_composition(
+        $schema_qc, {id_run => 3, position => 3, tag_index => 1});
+  $q->{'id_mqc_outcome'} = 1; #'Accepted preliminary' 
+  my $o = $rsl->create($q);
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'both lib and seq outcomes non-final - all undefined');
+
+  $o->delete();
+  $q->{'id_mqc_outcome'} = 3; #'Accepted final'
+  $rsl->create($q);
+  $outcomes->{qc_lib} = 1;
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'lib final, seq outcomes non-final - overall undefined');
+
+  $outcomes->{qc} = undef;
+  $outcomes->{qc_seq} = undef;
+  $outcomes->{qc_lib} = undef;
+  $c = $compos_pkg->new(components =>
+      [$compon_pkg->new(id_run => 3, position => 5, tag_index => 1)]);
+  $digest = $c->digest;
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'all undefined - digest not cached');
+
+  $digests->{$digest} = $c;
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  $outcomes->{qc_seq} = 0;
+  $outcomes->{qc} = 0;
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'final fail seq outcome, no lib outcome - overall undefined');
+
+  $q = {};
+  $q->{'id_seq_composition'} = t::util::find_or_save_composition(
+        $schema_qc, {id_run => 3, position => 5, tag_index => 1});
+  $q->{'id_mqc_outcome'} = 1; #'Accepted preliminary' 
+  $o = $rsl->create($q);
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'seq outcome final, lib not final - overall undefined');
+
+  $o->delete();
+  $q->{'id_mqc_outcome'} = 3; #'Accepted final';
+  $o = $rsl->create($q);
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  $outcomes->{qc_lib} = 1;
+  $outcomes->{qc} = 0;
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'seq and lib outcomes final, but opposite - overall fail');
+
+  $o->delete();
+  $q->{'id_mqc_outcome'} = 4; #'Rejected final';
+  $o = $rsl->create($q);
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  $outcomes->{qc_lib} = 0;
+  $outcomes->{qc} = 0;
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'seq and lib outcomes final all fail - all fail');
+
+  $o->delete();
+  $q->{'id_mqc_outcome'} = 6; #'Undecided final';
+  $o = $rsl->create($q);
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  $outcomes->{qc_lib} = undef;
+  $outcomes->{qc} = 0;
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'seq and lib outcomes final, lib undef - overall fail');
+
+  $c = $compos_pkg->new(components =>
+      [$compon_pkg->new(id_run => 3, position => 2, tag_index => 1)]);
+  $digest = $c->digest;
+  $digests->{$digest} = $c;
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  $outcomes->{qc_seq} = 1;
+  $outcomes->{qc} = undef;
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'final seq outcome, no lib outcome - overall undefined');
+
+  $q = {};
+  $q->{'id_seq_composition'} = t::util::find_or_save_composition(
+        $schema_qc, {id_run => 3, position => 2, tag_index => 1});
+  $q->{'id_mqc_outcome'} = 1; #'Accepted preliminary' 
+  $o = $rsl->create($q);
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'seq outcome pass final, lib not final - overall undefined');
+
+  $o->delete();
+  $q->{'id_mqc_outcome'} = 3; #'Accepted final';
+  $o = $rsl->create($q);
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  $outcomes->{qc_lib} = 1;
+  $outcomes->{qc} = 1;
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'seq and lib outcomes final - all pass');
+
+  $o->delete();
+  $q->{'id_mqc_outcome'} = 4; #'Rejected final';
+  $o = $rsl->create($q);
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  $outcomes->{qc_lib} = 0;
+  $outcomes->{qc} = 0;
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'seq and lib outcomes final, lib fail - lib and qc fail');
+
+  $o->delete();
+  $q->{'id_mqc_outcome'} = 6; #'Undecided final';
+  $o = $rsl->create($q);
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  $outcomes->{qc_lib} = undef;
+  $outcomes->{qc} =undef;
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'seq and lib outcomes final, lib undef - lib and qc undef');
+};
+
+subtest 'retrieve outcomes for a multi-component plex' => sub {
+  plan tests => 24;
+
+  my $id_run = 4;
+  $digests = {};
+  my @lane_rows = ();
+  for my $p ((1 .. 4)) {
+    my $q = {id_run => $id_run, position => $p};
+    $q->{'id_seq_composition'} =
+      t::util::find_or_save_composition($schema_qc, $q);
+    $q->{'id_mqc_outcome'} = 3; #'Accepted final'
+    my $row = $rs->create($q);
+    push @lane_rows, $row;
+    $digests->{$row->composition_digest} = $row->composition;
   }
 
-  $rs = $schema_qc->resultset('MqcOutcomeEnt');
-  $rs->search({id_run => 333, position => 1})
-     ->update({id_mqc_outcome => 3}); # lane final pass
-  $rs->search({id_run => 333, position => 6}) 
-     ->update({id_mqc_outcome => 4}); # lane final fail
-
-  my $expected = {};
-  for my $t (@qc_types) {
-    for my $tag (@tags) {
-      $expected->{1}->{1}->{'plex'}->{$tag}->{$t} = 1;
-    }
-  }
-  $expected->{1}->{1}->{'plex'}->{6}->{'qc'} = 0;
-  $expected->{1}->{1}->{'plex'}->{6}->{'qc_lib'} = 0;
-
-  for my $tag (@tags) {
-    $expected->{6}->{6}->{'plex'}->{$tag}->{'qc_seq'} = 0;
-    $expected->{6}->{6}->{'plex'}->{$tag}->{'qc'}     = 0;
-    $expected->{6}->{6}->{'plex'}->{$tag}->{'qc_lib'} = undef;
+  my $rsl = $schema_qc->resultset('MqcLibraryOutcomeEnt');
+  my @compositions = ();
+  for my $i ((1 .. 6)) {
+    my @queries =
+      map { {id_run => $id_run, position => $_, tag_index => $i} }
+      (1 .. 4);
+    my $q = {};
+    $q->{'id_seq_composition'} =
+      t::util::find_or_save_composition($schema_qc, @queries);
+    $q->{'id_mqc_outcome'} = $i; 
+    my $row = $rsl->create($q);
+    push @compositions, $row->composition;
+    $digests->{$row->composition_digest} = $row->composition; 
   }
 
   my $mqc  = npg_warehouse::loader::fqc->new( 
-                                schema_qc => $schema_qc, 
-                                plex_key => 'plex'
-                                           );
+             digests => $digests, schema_qc => $schema_qc);
 
-  foreach my $p ((1, 6)) {
-    is_deeply ($mqc->retrieve_lane_outcomes(333, $p, \@tags), $expected->{$p},
-      'correct outcomes');
+  for my $c (@compositions) {
+    my $outcomes = {};
+    $outcomes->{qc}     = undef;
+    $outcomes->{qc_seq} = 1;
+    $outcomes->{qc_lib} = undef;
+    my $i = $c->get_component(0)->tag_index;
+    if ($i == 3) {
+      $outcomes->{qc}     = 1;
+      $outcomes->{qc_lib} = 1;
+    } elsif ($i == 4) {
+      $outcomes->{qc}     = 0;
+      $outcomes->{qc_lib} = 0;
+    }
+    is_deeply ($mqc->retrieve_outcomes($c->digest), $outcomes,
+      "correct outcome for plex $i when all lanes pass");    
   }
 
-  for my $tag ((1,2)) {
-    delete $expected->{6}->{6}->{'plex'}->{$tag};
-    delete $expected->{1}->{1}->{'plex'}->{$tag};
+  for my $lane (@lane_rows) {
+    $lane->update({'id_mqc_outcome' => 4});
+  }
+  $mqc  = npg_warehouse::loader::fqc->new( 
+          digests => $digests, schema_qc => $schema_qc);
+
+  for my $c (@compositions) {
+    my $outcomes = {};
+    $outcomes->{qc}     = 0;
+    $outcomes->{qc_seq} = 0;
+    $outcomes->{qc_lib} = undef;
+    my $i = $c->get_component(0)->tag_index;
+    if ($i == 3) {
+      $outcomes->{qc_lib} = 1;
+    } elsif ($i == 4) {
+      $outcomes->{qc_lib} = 0;
+    }
+    is_deeply ($mqc->retrieve_outcomes($c->digest), $outcomes,
+      "correct outcome for plex $i when all lanes fail");    
   }
 
-  foreach my $p ((1, 6)) {
-    is_deeply ($mqc->retrieve_lane_outcomes(333, $p, [5, 6]), $expected->{$p},
-      'correct outcomes with reduces list of tags');
+  $lane_rows[0]->update({'id_mqc_outcome' => 3});
+  $mqc  = npg_warehouse::loader::fqc->new( 
+          digests => $digests, schema_qc => $schema_qc);
+
+  for my $c (@compositions) {
+    my $outcomes = {};
+    $outcomes->{qc}     = 0;
+    $outcomes->{qc_seq} = 0;
+    $outcomes->{qc_lib} = undef;
+    my $i = $c->get_component(0)->tag_index;
+    if ($i == 3) {
+      $outcomes->{qc_lib} = 1;
+    } elsif ($i == 4) {
+      $outcomes->{qc_lib} = 0;
+    }
+    is_deeply ($mqc->retrieve_outcomes($c->digest), $outcomes,
+      "correct outcome for $i when some lanes fail, some lanes pass");    
   }
 
-  delete $expected->{6}->{6}->{'plex'}->{6};
-  delete $expected->{1}->{1}->{'plex'}->{6};
-  $expected->{1}->{1}->{'plex'}->{7}->{'qc_lib'} = undef;
-  $expected->{1}->{1}->{'plex'}->{7}->{'qc_seq'} = 1;
-  $expected->{1}->{1}->{'plex'}->{7}->{'qc'}     = 1;
-  $expected->{6}->{6}->{'plex'}->{7}->{'qc_lib'} = undef;
-  $expected->{6}->{6}->{'plex'}->{7}->{'qc_seq'} = 0;
-  $expected->{6}->{6}->{'plex'}->{7}->{'qc'}     = 0;
+  for my $lane (@lane_rows) {
+    $lane->update({'id_mqc_outcome' => 3});
+  }
+  $lane_rows[1]->update({'id_mqc_outcome' => 1});
+  $mqc  = npg_warehouse::loader::fqc->new( 
+          digests => $digests, schema_qc => $schema_qc);
 
-  foreach my $p ((1, 6)) {
-    is_deeply ($mqc->retrieve_lane_outcomes(333, $p, [5, 7]), $expected->{$p},
-      'correct outcomes with a list of tags that includes a tag without lib outcome');
-  }  
+  for my $c (@compositions) {
+    my $outcomes = {};
+    my $i = $c->get_component(0)->tag_index;
+    $outcomes->{qc}     = undef;
+    $outcomes->{qc_seq} = undef;
+    $outcomes->{qc_lib} = ($i == 3) ? 1 : (($i == 4) ? 0 : undef);
+    is_deeply ($mqc->retrieve_outcomes($c->digest), $outcomes,
+      "correct outcome for $i when one lane undef, others pass"); 
+  }
 };
 
 1;

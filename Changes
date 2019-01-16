@@ -1,5 +1,10 @@
 LIST OF CHANGES
 
+ - wh loader: refactor to accommodate loading results for
+   multi-component entities
+ - autoqc data retriever - stop retrieving data for the old split stats
+   check which is only needed for the old warehouse
+
 release 39.11
  - auto QC loader query costruction: do not use invalid option
  - wh loader: skip loading results for multi-component entities
