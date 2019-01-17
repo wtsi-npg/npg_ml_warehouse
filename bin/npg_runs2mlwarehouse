@@ -15,34 +15,44 @@ use npg_warehouse::loader::run;
 
 our $VERSION = '0';
 
-my $verbose          = 0;
-my $explain          = 0;
-my $help             = q[];
-my $id_run           = [];
-my $dry_run          = 0;
+my $verbose  = 0;
+my $explain  = 0;
+my $help     = q[];
+my $id_run   = [];
+my $dry_run  = 0;
+my $num_runs = 0;
 
 GetOptions ('verbose!'        => \$verbose,
             'explain!'        => \$explain,
             'dry-run!'        => \$dry_run,
+            'num_runs=i'      => \$num_runs,
             'help'            => \$help,
             'id_run=i@'       => \$id_run,
             );
 if ($help) { pod2usage(0); }
+
+if ($num_runs && $num_runs < 0) {
+  die q['num_runs' should be a positive integer];
+}
+if ($num_runs && @{$id_run}) {
+  die q['num_runs' and 'id_run' options are mutually exclusive];
+}
 
 if ($dry_run) {
   $verbose = 1;
 }
 
 if ($verbose) {
-  if ($dry_run) {
-    warn "DRY RUN\n";
-  }
   warn qq[\nwarehouse loader is running with the following options:\n];
   warn qq[  verbose\t$verbose\n];
   warn qq[  explain\t$explain\n];
+  warn qq[  dry_run\t$dry_run\n];
+  if ($num_runs) {
+    warn qq[  num_runs\t$num_runs\n];
+  }
   if (@{$id_run}) {
-    my $runs = join q[ ], sort {$a <=> $b} @{$id_run};
-    warn qq[  id_run\t$runs\n];
+    $id_run = [ reverse sort {$a <=> $b} @{$id_run} ];
+    warn qq[  id_run\t] . join q[, ], @{$id_run} . qq[\n];
   }
   if (defined $ENV{dev} && $ENV{dev}) {
     warn 'Using ' . $ENV{dev} . " ml warehouse database\n";
@@ -60,26 +70,26 @@ my ($npg_schema, $qc_schema);
 }
 
 if (!@{$id_run}) {
-  my $rs = $npg_schema->resultset('Run')->search({});
-  while (my $run = $rs->next) {
-    push @{$id_run}, $run->id_run;
+  $id_run = [ map { $_->id_run() }
+              $npg_schema->resultset('Run')->search(
+                {}, {order_by => {-desc => 'id_run'},
+                     columns  => [qw/id_run/]})->all() ];
+  if ($num_runs && ($num_runs < scalar @{$id_run})) {
+    splice @{$id_run}, $num_runs;
   }
 }
 
 my $loader;
 
 foreach my $id (@{$id_run}) {
-  if ($verbose) {
-    warn "\n******* Calling loader for run $id *******\n";
-  }
   warn DateTime->now() . "******* Calling loader for run $id *******\n";
   $loader = npg_warehouse::loader::run->new(
       verbose     => $verbose,
       explain     => $explain,
       id_run      => $id,
-      schema_npg => $npg_schema,
-      schema_qc  => $qc_schema,
-      schema_wh  => $wh_schema,
+      schema_npg  => $npg_schema,
+      schema_qc   => $qc_schema,
+      schema_wh   => $wh_schema,
   );
   if (!$dry_run) {
     $loader->load();
@@ -89,8 +99,8 @@ foreach my $id (@{$id_run}) {
 if ($verbose) {
   warn "\nCompleted loading, exiting...\n";
 }
-exit 0;
 
+exit 0;
 
 __END__
 
@@ -100,7 +110,13 @@ npg_runs2mlwarehouse
 
 =head1 SYNOPSIS
 
-Script to load sequencing data analysis results to the warehouse.
+Script to load sequencing data analysis results to the ml warehouse.
+
+The order of loading is from the latest run to the oldest.
+
+Regardless of the value of 'dev' environment variable, always sources
+data from production (live) databases. Loads data to the database
+defined by the 'dev' variable.
 
 npg_runs2mlwarehouse [options]
 
@@ -110,7 +126,9 @@ npg_runs2mlwarehouse [options]
 
   npg_runs2mlwarehouse # to load all runs
   npg_runs2mlwarehouse --verbose # to switch on verbose mode
+  npg_runs2mlwarehouse --dry_run # retrieving and loading data is not called
   npg_runs2mlwarehouse --id_run 45 --id_run 78 # to load runs 45 and 78
+  npg_runs2mlwarehouse --num_runs 20 # to load the latest 20 runs
 
 =head1 REQUIRED ARGUMENTS
 
@@ -122,6 +140,7 @@ None
   --verbose  to switch on verbose mode (disabled by default)
   --explain  to switch on verbose mode for linking to LIMs (disabled by default)
   --dry-run  switches on verbose mode and reports what is going to de done
+  --num_runs if given, this number of latest runs will be loaded
   --id_run   to load particular run,
              multiple runs can be specified by repeating this option
 
@@ -169,7 +188,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2014 by Genome Research Limited
+Copyright (C) 2018 by Genome Research Limited
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
