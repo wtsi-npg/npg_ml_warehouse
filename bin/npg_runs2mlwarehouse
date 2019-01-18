@@ -24,7 +24,7 @@ my $num_runs = 0;
 
 GetOptions ('verbose!'        => \$verbose,
             'explain!'        => \$explain,
-            'dry-run!'        => \$dry_run,
+            'dry_run!'        => \$dry_run,
             'num_runs=i'      => \$num_runs,
             'help'            => \$help,
             'id_run=i@'       => \$id_run,
@@ -82,7 +82,7 @@ if (!@{$id_run}) {
 my $loader;
 
 foreach my $id (@{$id_run}) {
-  warn DateTime->now() . "******* Calling loader for run $id *******\n";
+  warn "\n******* " . DateTime->now() . " Calling loader for run $id *******\n";
   $loader = npg_warehouse::loader::run->new(
       verbose     => $verbose,
       explain     => $explain,
