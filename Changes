@@ -4,9 +4,11 @@ LIST OF CHANGES
    multi-component entities
  - autoqc data retriever - stop retrieving data for the old split stats
    check which is only needed for the old warehouse
- - if multiple runs are loaded, load in the decreasign run id order
+ - if multiple runs are loaded, load in the decreasing run id order
  - wh loader script - add a new option, num_runs, to load a limited
    number of latest runs
+ - load instrument_side and workflow_type columns of the
+   iseq_run_lane_metrics table
 
 release 39.11
  - auto QC loader query costruction: do not use invalid option

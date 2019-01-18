@@ -61,8 +61,11 @@ sub create_nv_run {
   });
   
   my $user_id = 7;
-  $schema_npg->resultset('Run')
-    ->find({id_run => $id_run, })->set_tag($user_id, 'staging');
+  my $run = $schema_npg->resultset('Run')->find({id_run => $id_run, });
+  $run->set_tag($user_id, 'staging');
+  $run->set_tag($user_id, 'workflow_NovaSeqXp');
+  $run->set_tag($user_id, 'fc_slotA');
+
   for my $p ((1, 2)) {
     $schema_npg->resultset('RunLane')->create({
       id_run => $id_run, tile_count => 704, tracks => 1, position => $p});
