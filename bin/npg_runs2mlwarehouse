@@ -82,7 +82,7 @@ if (!@{$id_run}) {
 my $loader;
 
 foreach my $id (@{$id_run}) {
-  warn DateTime->now() . "******* Calling loader for run $id *******\n";
+  warn "\n******* " . DateTime->now() . " Calling loader for run $id *******\n";
   $loader = npg_warehouse::loader::run->new(
       verbose     => $verbose,
       explain     => $explain,
