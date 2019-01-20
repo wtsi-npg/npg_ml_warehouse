@@ -207,6 +207,7 @@ subtest 'indexed run' => sub {
   plan tests => 45;
 
   my $id_run = 4333;
+ 
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
   lives_ok {$schema_npg->resultset('Run')
@@ -720,11 +721,14 @@ subtest 'rna run' => sub {
 };
 
 subtest 'gbs run' => sub {
-  plan tests => 6;
+  plan tests => 8;
 
   my $id_run = 25710;
-  lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
+  my $run_row = $schema_npg->resultset('Run')->find({id_run => $id_run, });
+  lives_ok {$run_row->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
+  $run_row->unset_tag('fc_slotA');
+  $run_row->unset_tag('fc_slotB');
   lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, folder_name => '180423_MS7_25710_A_MS6392545-300V2',})}
     'forder glob reset lives - test prerequisite';
 
@@ -739,10 +743,17 @@ subtest 'gbs run' => sub {
 
   cmp_ok(sprintf('%.10f',$r->gbs_call_rate), q(==), 1, 'loaded gbs call rate matches source');
   cmp_ok(sprintf('%.10f',$r->gbs_pass_rate), q(==), 0.99, 'loaded gbs pass rate matches source');
+
+  my @rows = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search(
+    {id_run => $id_run})->all();
+  for my $row (@rows) {
+    is ($row->instrument_side, undef, 'instrument side is undefined');
+    is ($row->workflow_type, undef, 'workflow type is undefined');
+  }
 };
 
-subtest 'run with merged data' => sub {
-  plan tests => 113;
+subtest 'NovaSeq run with merged data' => sub {
+  plan tests => 117;
 
   my $id_run = 26291;
   # Create tracking record for a NovaSeq run with two lanes
@@ -759,6 +770,8 @@ subtest 'run with merged data' => sub {
   is ( scalar @rows, 2, 'two run-lane records created');
   for my $row (@rows) {
     is ($row->qc_seq, undef, 'seq qc undefined');
+    is ($row->instrument_side, 'A', 'instrument side is A');
+    is ($row->workflow_type, 'NovaSeqXp', 'workflow type is NovaSeqXp');
   }
 
   @rows = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
