@@ -24,7 +24,7 @@ my $num_runs = 0;
 
 GetOptions ('verbose!'        => \$verbose,
             'explain!'        => \$explain,
-            'dry-run!'        => \$dry_run,
+            'dry_run!'        => \$dry_run,
             'num_runs=i'      => \$num_runs,
             'help'            => \$help,
             'id_run=i@'       => \$id_run,
@@ -82,7 +82,7 @@ if (!@{$id_run}) {
 my $loader;
 
 foreach my $id (@{$id_run}) {
-  warn DateTime->now() . "******* Calling loader for run $id *******\n";
+  warn "\n******* " . DateTime->now() . " Calling loader for run $id *******\n";
   $loader = npg_warehouse::loader::run->new(
       verbose     => $verbose,
       explain     => $explain,
@@ -139,7 +139,7 @@ None
   --help     brief help message
   --verbose  to switch on verbose mode (disabled by default)
   --explain  to switch on verbose mode for linking to LIMs (disabled by default)
-  --dry-run  switches on verbose mode and reports what is going to de done
+  --dry_run  switches on verbose mode and reports what is going to de done
   --num_runs if given, this number of latest runs will be loaded
   --id_run   to load particular run,
              multiple runs can be specified by repeating this option
