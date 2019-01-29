@@ -313,7 +313,7 @@ subtest 'retrieve gbs data' => sub {
 };
 
 subtest 'retrieve target stats data' => sub {
-  plan tests => 10;
+  plan tests => 11;
 
   my $id_run = 27116;
   lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })}
@@ -333,6 +333,7 @@ subtest 'retrieve target stats data' => sub {
   cmp_ok(sprintf('%.2f',$auto->{$d}->{target_mapped_reads}), q(==), 58704583, 'target - target_mapped_reads');
   cmp_ok(sprintf('%.2f',$auto->{$d}->{target_percent_gt_coverage_threshold}), q(==), 0.15, 'target - target_percent_gt_coverage_threshold');
   cmp_ok(sprintf('%.2f',$auto->{$d}->{target_proper_pair_mapped_reads}), q(==), 57355728, 'target - target_proper_pair_mapped_reads');
+  cmp_ok(sprintf('%.2f',$auto->{$d}->{nrd_percent}), q(==), 0.00, 'nrd');
 };
 
 subtest 'retrieve data for milti-component compositions' => sub {

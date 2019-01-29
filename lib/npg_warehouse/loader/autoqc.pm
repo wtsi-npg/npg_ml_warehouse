@@ -59,6 +59,9 @@ Readonly::Hash   my %AUTOQC_MAPPING  => {
                            'gbs_call_rate'                 => 'genotype_call_rate',
                            'gbs_pass_rate'                 => 'genotype_passed_rate',
                          },
+     bcfstats         => {
+                           'nrd_percent'                   => 'percent_nrd',
+                         },
 };
 
 =head1 NAME
