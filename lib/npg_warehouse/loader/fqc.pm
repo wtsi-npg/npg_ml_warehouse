@@ -171,11 +171,16 @@ warehouse loader (keys as qc, qc_lib and qc_seq and values as 0, 1 or undefined)
 
 Non-final QC outcomes are equivalent to the outcome not being defined.
 A fail on sequencing QC leads to the overall fail. A pass on sequencing QC
-is overwritten by the library QC outcome, meaning that the overall QC
-value would be undefined if the library QC value is undefined. Sequencing QC
-outcome for multi-component entities is composed from sequencing QC outcomes
-for individual lanes. If all of them are a pass, the value is a pass, if one
-of them i a fail, the value is a fail and if none are failed, but one of them
+leads to an overall pass unless the library QC outcome is a fail; then the
+overall value is a fail. It would've been better to set the overall value to
+undefined if the library QC value is undefined. However, we have lots of legacy
+data where library QC values were never set and the overall value was previously
+reported as a pass. Since some customers rely on this, we cannot change this
+feature, however imperfect it is.
+
+Sequencing QC outcome for multi-component entities is composed from sequencing QC
+outcomes for individual lanes. If all of them are a pass, the value is a pass, if
+one of them is a fail, the value is a fail and if none are failed, but one of them
 is undefined, the value is undefined.
   
 =cut
@@ -194,23 +199,17 @@ sub retrieve_outcomes {
   }
 
   if (exists $self->_outcomes->{$digest}) {
-
     my $outcome = $self->_outcomes->{$digest};
-    $h->{$COL_NAME_QC_LIB} =   $outcome->{'mqc_library_outcome_ent'};
-    $h->{$COL_NAME_QC_SEQ} =   $outcome->{'mqc_outcome_ent'};
-    my $num_components     = @{$outcome->{'component_lanes'}};
-    my $is_single_lane     =   $outcome->{'is_single_lane'};
+    $h->{$COL_NAME_QC_LIB} = $outcome->{'mqc_library_outcome_ent'};
+    $h->{$COL_NAME_QC_SEQ} = $outcome->{'mqc_outcome_ent'};
 
-    if (!defined $h->{$COL_NAME_QC_SEQ} && !$is_single_lane) {
+    if (!defined $h->{$COL_NAME_QC_SEQ} && !$outcome->{'is_single_lane'}) {
       $h->{$COL_NAME_QC_SEQ} = $self->_get_lane_seq_outcome($digest);
     }
 
     $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_SEQ};
-    if ($h->{$COL_NAME_QC}) {
-      # No overwrite for a single lane.
-      if ( defined $h->{$COL_NAME_QC_LIB} || (($num_components > 1) || !$is_single_lane) ) {
-        $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_LIB};
-      }
+    if ($h->{$COL_NAME_QC} && defined $h->{$COL_NAME_QC_LIB}) {
+      $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_LIB};
     }
   }
 

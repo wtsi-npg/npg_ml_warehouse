@@ -420,7 +420,7 @@ subtest 'indexed run' => sub {
   my $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->find({id_run=>6624,position=>1,tag_index=>0});
   ok(!defined $plex->tag_sequence4deplexing(), 'index zero tag sequence is not defined');
   is($plex->tag_decode_count(), 1831358, 'lane 1 tag index 0 count');
-  is($plex->qc, undef, 'qc value undefined');
+  is($plex->qc, 1, 'qc value pass');
   is($plex->qc_lib, undef, 'qc lib value undefined');
   is($plex->qc_seq, 1, 'qc seq value pass');
 
@@ -852,9 +852,9 @@ subtest 'NovaSeq run with merged data' => sub {
   is (scalar @all, 15, '15 product records');
   my @qc_ed = grep {$_->qc_seq == 1} @all;
   is(scalar @qc_ed, 15, '15 rows have seq qc value set to 1');
-  @qc_ed = grep {!defined $_->qc && !defined $_->qc_lib} @all;
+  @qc_ed = grep {defined $_->qc && !defined $_->qc_lib} @all;
   is(scalar @qc_ed, 14,
-    '14 rows have both ovarall and lib qc values undefined');
+    '14 rows have overall value pass and lib qc values undefined');
   @qc_ed =
     grep {(defined $_->qc && $_->qc == 1) &&
           (defined $_->qc_seq && $_->qc_seq == 1) &&
