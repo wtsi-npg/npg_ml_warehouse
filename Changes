@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+release 40.0
  - wh loader: refactor to accommodate loading results for
    multi-component entities
  - autoqc data retriever - stop retrieving data for the old split stats
@@ -9,6 +10,7 @@ LIST OF CHANGES
    number of latest runs
  - load instrument_side and workflow_type columns of the
    iseq_run_lane_metrics table
+ - loadnrd_percent column of the iseq_product_metrics table
 
 release 39.11
  - auto QC loader query costruction: do not use invalid option
