@@ -258,9 +258,9 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $mqc = npg_warehouse::loader::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   $outcomes->{qc_seq} = 1;
-  $outcomes->{qc} = undef;
+  $outcomes->{qc} = 1;
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
-    'final seq outcome, no lib outcome - overall undefined');
+    'final seq outcome, no lib outcome - overall pass');
 
   $q = {};
   $q->{'id_seq_composition'} = t::util::find_or_save_composition(
@@ -270,7 +270,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $mqc = npg_warehouse::loader::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
-    'seq outcome pass final, lib not final - overall undefined');
+    'seq outcome pass final, lib not final - overall pass');
 
   $o->delete();
   $q->{'id_mqc_outcome'} = 3; #'Accepted final';
@@ -298,9 +298,9 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $mqc = npg_warehouse::loader::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   $outcomes->{qc_lib} = undef;
-  $outcomes->{qc} =undef;
+  $outcomes->{qc} = 1;
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
-    'seq and lib outcomes final, lib undef - lib and qc undef');
+    'seq and lib outcomes final, lib undef, qc pass');
 };
 
 subtest 'retrieve outcomes for a multi-component plex' => sub {
@@ -339,12 +339,11 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
 
   for my $c (@compositions) {
     my $outcomes = {};
-    $outcomes->{qc}     = undef;
+    $outcomes->{qc}     = 1;
     $outcomes->{qc_seq} = 1;
     $outcomes->{qc_lib} = undef;
     my $i = $c->get_component(0)->tag_index;
     if ($i == 3) {
-      $outcomes->{qc}     = 1;
       $outcomes->{qc_lib} = 1;
     } elsif ($i == 4) {
       $outcomes->{qc}     = 0;
