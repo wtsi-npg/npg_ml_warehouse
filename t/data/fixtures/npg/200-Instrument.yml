@@ -971,3 +971,15 @@
   percent_complete: ~
   serial: ''
   staging_dir: ~
+- external_name: ''
+  id_instrument: 90
+  id_instrument_format: 12
+  instrument_comp: nv6
+  ipaddr: ''
+  iscurrent: 1
+  latest_contact:
+  mirroring_host: ~
+  name: NV6
+  percent_complete: ~
+  serial: ''
+  staging_dir: ~
