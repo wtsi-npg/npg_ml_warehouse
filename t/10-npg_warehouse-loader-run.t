@@ -853,14 +853,14 @@ subtest 'NovaSeq run with merged data' => sub {
   my @qc_ed = grep {$_->qc_seq == 1} @all;
   is(scalar @qc_ed, 15, '15 rows have seq qc value set to 1');
   @qc_ed = grep {defined $_->qc && !defined $_->qc_lib} @all;
-  is(scalar @qc_ed, 14,
-    '14 rows have overall value pass and lib qc values undefined');
+  is(scalar @qc_ed, 13,
+    '13 rows have overall value pass and lib qc values undefined');
   @qc_ed =
     grep {(defined $_->qc && $_->qc == 1) &&
           (defined $_->qc_seq && $_->qc_seq == 1) &&
           (defined $_->qc_lib && $_->qc_lib == 1)}
     @all;
-  is(scalar @qc_ed, 1, '1 row has all qc values set to 1');
+  is(scalar @qc_ed, 2, '2 rows have all qc values set to 1');
   my $row = $qc_ed[0];
   is ($row->id_iseq_product, $d4merged,
     'product with all qc values set is the merged plex 1');
