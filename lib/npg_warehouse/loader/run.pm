@@ -274,9 +274,9 @@ sub _build__data {
   my $lane_data = {};
   my $lane_deplexed_flags = {};
 
-  my $data_hash = $self->_run_is_cancelled ? {} :
-    npg_warehouse::loader::autoqc->new(autoqc_store => $self->_autoqc_store)
-                                 ->retrieve($self->id_run, $self->schema_npg);
+  my $data_hash = npg_warehouse::loader::autoqc
+                  ->new(autoqc_store => $self->_autoqc_store)
+                  ->retrieve($self->id_run, $self->schema_npg);
   my $indexed_lanes = _indexed_lanes_hash($data_hash);
 
   my %digests = map { $_ => $data_hash->{$_}->{'composition'} }
