@@ -187,22 +187,16 @@ sub _qX_yield {
 sub _ref_match {
     my ($self, $result, $c) = @_;
 
-    my $organisms = $result->ranked_organisms;
-    my $percent_counts = $result->percent_count;
-    my $prefix = q[ref_match];
     my $data = $self->_basic_data($c);
-
-    foreach my $count ((1,2)) {
-	if (scalar @{$organisms} >= $count) {
-            my $organism = $organisms->[$count-1];
-            $data->{$prefix.$count.q[_percent]} = $percent_counts->{$organism};
-            my $strain = $result->reference_version->{$organism};
-            $organism =~  s/_/ /xms;
-            $data->{$prefix.$count.q[_name]}  = join q[ ], $organism, $strain;
-	}
+    my $count = 0;
+    foreach my $h ($result->top_two) {
+        $count++;
+        while (my ($key, $value) = each %{$h}) {
+            $data->{q[ref_match] . $count.q[_] . $key} = $value;
+        }
     }
 
-    return ($data);
+    return ($count > 0 ? ($data) : ());
 }
 
 sub _contamination {
