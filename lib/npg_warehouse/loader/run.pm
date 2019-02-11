@@ -309,7 +309,7 @@ sub _build__data {
     }
     $lane_data->{$position} = \%values;
 
-    _copy_lane_data($lane_data, $position,
+    $self->_copy_lane_data($lane_data, $position,
       $fqc_retriever->retrieve_seq_outcome(join q[:], $self->id_run, $position));
   }
 
@@ -323,7 +323,7 @@ sub _build__data {
       my $position  = $component->position;
       my $tag_index = $component->tag_index;
       if (!defined $tag_index) { # Lane data
-        _copy_lane_data($lane_data, $position, $data);
+        $self->_copy_lane_data($lane_data, $position, $data);
         # If this is lane data for an indexed lane, the lane itself is
         # not the end product.
         if ($data->{'tags_decode_percent'} || $indexed_lanes->{$position}) {
@@ -374,9 +374,18 @@ sub _compare_product_data {
 }
 
 sub _copy_lane_data {
-  my ($lane_data, $p, $h) = @_;
+  my ($self, $lane_data, $p, $h) = @_;
   while (my ($column_name, $value) = each %{$h}) {
     $lane_data->{$p}->{$column_name} = $value;
+  }
+  if (!$lane_data->{$p}->{'position'}) {
+    $lane_data->{$p}->{'position'} = $p;
+  }
+  if (!$lane_data->{$p}->{'id_run'}) {
+    $lane_data->{$p}->{'id_run'} = $self->id_run;
+  }
+  if (!$lane_data->{$p}->{'cycles'}) {
+    $lane_data->{$p}->{'cycles'} = 0;
   }
   return;
 }
