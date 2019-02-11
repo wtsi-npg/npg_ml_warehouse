@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use Test::More tests => 7;
 use Test::Exception;
+use Test::Warn;
 use Moose::Meta::Class;
 
 use npg_tracking::glossary::composition;
@@ -304,7 +305,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
 };
 
 subtest 'retrieve outcomes for a multi-component plex' => sub {
-  plan tests => 24;
+  plan tests => 99;
 
   my $id_run = 4;
   $digests = {};
@@ -321,6 +322,7 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
 
   my $rsl = $schema_qc->resultset('MqcLibraryOutcomeEnt');
   my @compositions = ();
+  my @compositions_unmerged;
   for my $i ((1 .. 6)) {
     my @queries =
       map { {id_run => $id_run, position => $_, tag_index => $i} }
@@ -330,14 +332,23 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
       t::util::find_or_save_composition($schema_qc, @queries);
     $q->{'id_mqc_outcome'} = $i; 
     my $row = $rsl->create($q);
-    push @compositions, $row->composition;
-    $digests->{$row->composition_digest} = $row->composition; 
+    my $composition = $row->composition;
+    push @compositions, $composition;
+    $digests->{$row->composition_digest} = $composition;
+
+    my @single_c_compositions = 
+      map { npg_tracking::glossary::composition->new(components=>[$_]) }
+      $composition->components_list();
+    for my $ssc (@single_c_compositions) {
+      $digests->{$ssc->digest} = $ssc;
+    }
+    push @compositions_unmerged, @single_c_compositions; 
   }
 
   my $mqc  = npg_warehouse::loader::fqc->new( 
              digests => $digests, schema_qc => $schema_qc);
 
-  for my $c (@compositions) {
+  for my $c (@compositions, @compositions_unmerged) {
     my $outcomes = {};
     $outcomes->{qc}     = 1;
     $outcomes->{qc_seq} = 1;
@@ -359,7 +370,7 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
   $mqc  = npg_warehouse::loader::fqc->new( 
           digests => $digests, schema_qc => $schema_qc);
 
-  for my $c (@compositions) {
+  for my $c (@compositions, @compositions_unmerged) {
     my $outcomes = {};
     $outcomes->{qc}     = 0;
     $outcomes->{qc_seq} = 0;
@@ -389,6 +400,14 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
     } elsif ($i == 4) {
       $outcomes->{qc_lib} = 0;
     }
+    if ($c->num_components == 1 && $c->get_component(0)->position == 1) {
+      $outcomes->{qc_seq} = 1;
+      if (defined $outcomes->{qc_lib} && $outcomes->{qc_lib} == 0) {
+        $outcomes->{qc} = 0;
+      } else {
+        $outcomes->{qc} = 1;
+      }
+    }
     is_deeply ($mqc->retrieve_outcomes($c->digest), $outcomes,
       "correct outcome for $i when some lanes fail, some lanes pass");    
   }
@@ -400,15 +419,57 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
   $mqc  = npg_warehouse::loader::fqc->new( 
           digests => $digests, schema_qc => $schema_qc);
 
-  for my $c (@compositions) {
+  for my $c (@compositions, @compositions_unmerged) {
     my $outcomes = {};
     my $i = $c->get_component(0)->tag_index;
     $outcomes->{qc}     = undef;
     $outcomes->{qc_seq} = undef;
     $outcomes->{qc_lib} = ($i == 3) ? 1 : (($i == 4) ? 0 : undef);
+
+    if ($c->num_components == 1) {
+      if ($c->get_component(0)->position == 2) {
+        $outcomes->{qc_seq} = undef;
+        $outcomes->{qc}     = undef;
+      } else {
+        $outcomes->{qc_seq} = 1;
+        $outcomes->{qc} = ($i == 4) ? 0 : 1;
+      }
+    }
+
     is_deeply ($mqc->retrieve_outcomes($c->digest), $outcomes,
       "correct outcome for $i when one lane undef, others pass"); 
   }
+
+  my $q = {id_run => $id_run, position => 1, tag_index => 4};
+  $q->{'id_seq_composition'} =
+      t::util::find_or_save_composition($schema_qc, $q);
+  $q->{'id_mqc_outcome'} = 3; #'Accepted final';
+  my $row = $rsl->create($q);
+  my $digest = $row->composition_digest;
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  my $outcomes = {qc_seq => 1, qc_lib => 1, qc => 1};
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+      'existing lib value is not overwritten');
+
+  $q = {};
+  my @qs = ({id_run => $id_run, position => 1, tag_index => 3},
+            {id_run => $id_run, position => 3, tag_index => 3});
+  $q->{'id_seq_composition'} =
+      t::util::find_or_save_composition($schema_qc, @qs);
+  $q->{'id_mqc_outcome'} = 4; #'Regected final';
+  $row = $rsl->create($q);
+  $digest = $row->composition_digest;
+  $digests->{$digest} = $row->composition;
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  my $retrieved;
+  warnings_like {$retrieved = $mqc->retrieve_outcomes($digest)}
+    [qr/Conflicting inferred outcomes for/, qr/Conflicting inferred outcomes for/],
+    'warning about conflicting outcome values';
+  $outcomes = {qc_seq => 1, qc_lib => 0, qc => 0};
+  is_deeply ($retrieved, $outcomes,
+    'lib and overall outcomes are a fail when inferred lib outcomes are in conflict');
 };
 
 1;
