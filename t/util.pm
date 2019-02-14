@@ -34,7 +34,7 @@ sub find_or_save_composition {
     $composition_row = $composition_rs->create(
       {size => $size, digest => $composition_digest});   
     for my $component_h (@components) {
-      my $component_row = $component_rs->create($component_h);
+      my $component_row = $component_rs->update_or_create($component_h);
       $com_com_rs->create(
         {size               => $size,
          id_seq_component   => $component_row->id_seq_component,

@@ -1,5 +1,12 @@
 LIST OF CHANGES
 
+release 40.1
+ - wh loader:
+     add ability to load lanes that do not exists in tracking database,
+     load autoqc data for all statuses (ie including 'data discarded'),
+     push defined library outcomes from merged entities to single plexes
+     if the library outcome for teh latter is not set
+
 release 40.0
  - wh loader: refactor to accommodate loading results for
    multi-component entities

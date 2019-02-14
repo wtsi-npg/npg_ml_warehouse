@@ -6,12 +6,17 @@ use Readonly;
 use Carp;
 
 use npg_qc::Schema;
+use npg_tracking::glossary::composition;
 
 our $VERSION = '0';
 
 Readonly::Scalar my $COL_NAME_QC     => 'qc';
 Readonly::Scalar my $COL_NAME_QC_SEQ => $COL_NAME_QC . '_seq';
 Readonly::Scalar my $COL_NAME_QC_LIB => $COL_NAME_QC . '_lib';
+Readonly::Scalar my $SEQ_OUTCOME_ENT => 'mqc_outcome_ent';
+Readonly::Scalar my $LIB_OUTCOME_ENT => 'mqc_library_outcome_ent';
+Readonly::Scalar my $COMPONENT_LANES => 'component_lanes';
+Readonly::Scalar my $IS_SINGLE_LANE  => 'is_single_lane';
 
 =head1 NAME
 
@@ -114,32 +119,45 @@ sub _build__outcomes {
     return (@components == 1 && !defined $components[0]->tag_index) ? 1 : 0;
   };
 
+  my $lib_outcomes_decomposed = {};
+
   while (my $crow = $rs->next) {
     my $digest = $crow->digest;
-    for my $related_outcome (qw/
-                                mqc_outcome_ent
-                                mqc_library_outcome_ent
-                               /) {
+    for my $related_outcome (($SEQ_OUTCOME_ENT, $LIB_OUTCOME_ENT)) {
       my $orow = $crow->$related_outcome;
-      # It's a pass or a fail, or, for library QC, a final
-      # undefined.
+      # It's a pass or a fail, or, for library QC, a final undefined.
       if ($orow && $orow->has_final_outcome) {
-        $outcomes->{$digest}->{$related_outcome} =
-          $orow->is_accepted ? 1 :
-         ($orow->is_rejected ? 0 : undef);
+        my $o = $orow->is_accepted ? 1 : ($orow->is_rejected ? 0 : undef);
+        $outcomes->{$digest}->{$related_outcome} = $o;
+        if ( (defined $o) && ($related_outcome eq $LIB_OUTCOME_ENT) &&
+             ($self->digests->{$digest}->num_components() > 1) ) {
+          $self->_cache_lib_outcome($lib_outcomes_decomposed, $digest, $o);
+	}
       }
     }
+
     my @components = map {$_->seq_component}
                      $crow->seq_component_compositions->all();
-    $outcomes->{$crow->digest}->{'is_single_lane'}  = $is_single_lane->(@components);
-    $outcomes->{$crow->digest}->{'component_lanes'} = [$lanes_from_components->(@components)];
+    $outcomes->{$crow->digest}->{$IS_SINGLE_LANE}  = $is_single_lane->(@components);
+    $outcomes->{$crow->digest}->{$COMPONENT_LANES} = [$lanes_from_components->(@components)];
   }
 
   foreach my $digest (@{$digests}) {
     if (!exists $outcomes->{$digest}) {
+      #####
+      # Either this entity has not been qc-ed or the outcome is not final yet or
+      # it will never be (had never been) qc-ed. For example, for a Standard workflow
+      # of a NovaSeq run, library QC is performed on a level of merged entities, i.e.
+      # individual plexes are never qc-ed.
       my @components  = $self->digests->{$digest}->components_list();
-      $outcomes->{$digest}->{'is_single_lane'}  = $is_single_lane->(@components);
-      $outcomes->{$digest}->{'component_lanes'} = [$lanes_from_components->(@components)];
+      $outcomes->{$digest}->{$IS_SINGLE_LANE}  = $is_single_lane->(@components);
+      $outcomes->{$digest}->{$COMPONENT_LANES} = [$lanes_from_components->(@components)];
+      #####
+      # If the merged entity for which this entity is a component has a final library
+      # outcome, we will assign this outcome to this component's library outcome.
+      if (defined $lib_outcomes_decomposed->{$digest}) {
+        $outcomes->{$digest}->{$LIB_OUTCOME_ENT} = $lib_outcomes_decomposed->{$digest};
+      }
     }
   }
 
@@ -182,6 +200,10 @@ Sequencing QC outcome for multi-component entities is composed from sequencing Q
 outcomes for individual lanes. If all of them are a pass, the value is a pass, if
 one of them is a fail, the value is a fail and if none are failed, but one of them
 is undefined, the value is undefined.
+
+If a library QC outcome for an individual plex or lane does not exist, but this
+plex/lane is a component of a merged entity that has library QC outcome, the
+latter outcome is assigned to the individual plex or lane.
   
 =cut
 
@@ -200,10 +222,10 @@ sub retrieve_outcomes {
 
   if (exists $self->_outcomes->{$digest}) {
     my $outcome = $self->_outcomes->{$digest};
-    $h->{$COL_NAME_QC_LIB} = $outcome->{'mqc_library_outcome_ent'};
-    $h->{$COL_NAME_QC_SEQ} = $outcome->{'mqc_outcome_ent'};
+    $h->{$COL_NAME_QC_LIB} = $outcome->{$LIB_OUTCOME_ENT};
+    $h->{$COL_NAME_QC_SEQ} = $outcome->{$SEQ_OUTCOME_ENT};
 
-    if (!defined $h->{$COL_NAME_QC_SEQ} && !$outcome->{'is_single_lane'}) {
+    if (!defined $h->{$COL_NAME_QC_SEQ} && !$outcome->{$IS_SINGLE_LANE}) {
       $h->{$COL_NAME_QC_SEQ} = $self->_get_lane_seq_outcome($digest);
     }
 
@@ -243,6 +265,32 @@ sub retrieve_seq_outcome {
   return {$COL_NAME_QC_SEQ => $self->_lane_seq_outcomes->{$rpt_key}};
 }
 
+sub _cache_lib_outcome {
+  my ($self, $lib_outcomes_decomposed, $digest, $o) = @_;
+
+  #####
+  # We will decompose the multi-component compositions, create a single-
+  # component composition from each component and cache the lib outcome
+  # for the original composition against each of these new compositions
+  foreach my $component ($self->digests->{$digest}->components_list()) {
+    my $one_component_composition =
+      npg_tracking::glossary::composition->new(components => [$component]);
+    my $oc_digest = $one_component_composition->digest;
+    if (!exists $lib_outcomes_decomposed->{$oc_digest}) {
+      $lib_outcomes_decomposed->{$oc_digest} = $o;
+    } else {
+      if ($lib_outcomes_decomposed->{$oc_digest} != $o) {
+        # This scenario is unlikely, but just in case...
+        carp 'Conflicting inferred outcomes for ' . $one_component_composition->freeze();
+        # Set ambigious results as fails
+        $lib_outcomes_decomposed->{$oc_digest} = 0;
+      }
+    }
+  }
+
+ return;
+}
+
 sub _cache_lane_seq_outcome {
   my ($self, $lane_key) = @_;
 
@@ -263,7 +311,7 @@ sub _get_lane_seq_outcome {
 
   my $undef_outcome_present = 0;
 
-  foreach my $lane_key (@{$self->_outcomes->{$digest}->{'component_lanes'}}) {
+  foreach my $lane_key (@{$self->_outcomes->{$digest}->{$COMPONENT_LANES}}) {
     if (!exists $self->_lane_seq_outcomes->{$lane_key}) {
       $self->_cache_lane_seq_outcome($lane_key);
     }
@@ -304,6 +352,8 @@ __END__
 
 =item npg_qc::Schema
 
+=item npg_tracking::glossary::composition
+
 =back
 
 =head1 INCOMPATIBILITIES
@@ -316,7 +366,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2018 Genome Research Limited
+Copyright (C) 2018, 2019 Genome Research Limited
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
