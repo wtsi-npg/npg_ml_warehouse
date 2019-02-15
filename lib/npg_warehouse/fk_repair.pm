@@ -117,6 +117,8 @@ has '_history'     =>   ( isa        => 'HashRef',
 
 sub _where_query {
   my $h = {};
+  $h->{'position'}             = {q[!=], undef};
+  $h->{'id_run'}               = {q[!=], undef};
   $h->{'id_iseq_flowcell_tmp'} = undef;
   $h->{'tag_index'}            = [undef, {q[!=], 0}];
   return $h;
@@ -124,9 +126,11 @@ sub _where_query {
 
 sub _runs_with_null_fks {
   my $self = shift;
-  my @runs = sort { $a <=> $b } map {$_->id_run} $self->_pmrs->search(
+  my @runs = map {$_->id_run} $self->_pmrs->search(
        $self->_where_query(),
-       {columns   => 'id_run', distinct  => 1}
+       {columns  => 'id_run',
+        distinct => 1,
+        order_by => 'id_run'}
      );
   return @runs;
 }
@@ -258,7 +262,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2015 Genome Research Limited
+Copyright (C) 2015, 2019 Genome Research Limited
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

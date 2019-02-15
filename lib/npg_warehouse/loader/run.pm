@@ -460,9 +460,8 @@ sub _add_lims_fk {
 
   }
 
-  if ($pk) {
-    $values->{$LIMS_FK_COLUMN_NAME} = $pk;
-  } else {
+  $values->{$LIMS_FK_COLUMN_NAME} = $pk;
+  if (!$pk) {
     $self->_explain_missing($pt_key, $values);
   }
 
@@ -545,24 +544,9 @@ sub _load_table {
 
   if (@rows) {
     my $rs = $self->schema_wh->resultset($table);
-
-    my $transaction;
-    if ($table eq $PRODUCT_TABLE_NAME) {
-      $transaction = sub {
-        $rs->search({'id_run' => $self->id_run,})->delete();
-        # Whithout the assignment this should work as a fast batch load.
-        # However, this does not see to work correctly - we got rows with
-        # some data missing. The assignment forces the per-row loading,
-        # therefore the only advantage of using this notation is not
-        # writing a loop.
-        my $r = $rs->populate(\@rows);
-      };
-    } else {
-      $transaction = sub {
-        map { $rs->update_or_create($_) } @rows;
-      };
-    }
-
+    my $transaction = sub {
+      map { $rs->update_or_create($_) } @rows;
+    };
     $self->schema_wh->txn_do($transaction);
   }
 
@@ -676,7 +660,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2018 Genome Research Limited
+Copyright (C) 2018, 2019 Genome Research Limited
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

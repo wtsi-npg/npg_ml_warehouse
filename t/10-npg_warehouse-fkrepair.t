@@ -93,11 +93,15 @@ npg_warehouse::loader::run->new(
   my $r = npg_warehouse::fk_repair->new($init);
   is (join(q[ ], $r->_runs_with_null_fks()) , '4486 6998 26291', 'runs to repair detected');
   lives_ok {$r->run()} 'repair runs OK';
+
+  # Delete a row that we cannot update - no data
+  $rs->search({id_run => 6998, position => 4, tag_index => 168})->delete();
+
   is (join(q[ ], $r->_runs_with_null_fks()) , '4486 26291', 'runs to repair are still detected');
 
   my $no_fk_rs = $rs->search({id_run => 4486, id_iseq_flowcell_tmp => undef});
   is ($no_fk_rs->count, 2,
-    'two rows for run 4486 are without the fk (lim sdata missing for lane 5)');
+    'two rows for run 4486 are without the fk (lims data missing for lane 5)');
   @lanes = sort map {$_->position} $no_fk_rs->all;
   is (join(q[ ], @lanes), '1 5', 'no fk for lanes 1 and 5');
 
