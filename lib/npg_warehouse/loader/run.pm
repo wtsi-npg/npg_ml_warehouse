@@ -521,11 +521,6 @@ sub _load_table {
     my $composition = delete $row->{'composition'};
 
     $self->_filter_column_names($table, $row);
-    my @test = keys %{$row};
-    @test = grep { ! /\Aid_run|position|tag_index\Z/smx } @test;
-    if (!@test) { # no useful data
-      next;
-    }
 
     if ($table eq $PRODUCT_TABLE_NAME && ($composition->num_components == 1)
         && $self->_flowcell_table_fks_exist) {
@@ -593,13 +588,12 @@ sub load {
   };
 
   if ($data) {
-
     try {
       foreach my $table (($RUN_LANE_TABLE_NAME, $PRODUCT_TABLE_NAME)) {
         my $count = $self->_load_table($table);
         if ($self->verbose) {
           warn qq[Loaded $count rows to table $table for run $id_run\n];
-    }
+        }
       }
     } catch {
       my $err = $_;
