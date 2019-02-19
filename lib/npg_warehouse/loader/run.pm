@@ -86,17 +86,6 @@ sub iseq_flowcell {
   return $self->schema_wh->resultset($FLOWCELL_LIMS_TABLE_NAME);
 }
 
-has '_pt_column_names' => (
-  isa        => 'ArrayRef',
-  is         => 'ro',
-  required   => 0,
-  lazy_build => 1,
-);
-sub _build__pt_column_names {
-  my $self = shift;
-  return [$self->schema_wh->resultset($PRODUCT_TABLE_NAME)->result_source->columns()];
-}
-
 has '_rl_column_names' => (
   isa        => 'ArrayRef',
   is         => 'ro',
@@ -277,8 +266,8 @@ sub _build__data {
   my $lane_deplexed_flags = {};
 
   my $data_hash = npg_warehouse::loader::autoqc
-                  ->new(autoqc_store => $self->_autoqc_store)
-                  ->retrieve($self->id_run, $self->schema_npg);
+    ->new(autoqc_store => $self->_autoqc_store, mlwh => 1)
+    ->retrieve($self->id_run, $self->schema_npg);
   my $indexed_lanes = _indexed_lanes_hash($data_hash);
 
   my %digests = map { $_ => $data_hash->{$_}->{'composition'} }
@@ -499,11 +488,6 @@ sub _filter_column_names {
     if ($count) {
       $values->{$name} = $values->{$old_name};
       delete $values->{$old_name};
-    }
-    if (any {$name eq $_} @{$self->_pt_column_names}) {
-      next;
-    } else {
-      delete $values->{$name};
     }
   }
   return;
