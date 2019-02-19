@@ -3,7 +3,7 @@ package npg_warehouse::loader::run;
 use Moose;
 use MooseX::StrictConstructor;
 use Try::Tiny;
-use List::MoreUtils qw/ any none uniq /;
+use List::MoreUtils qw/ any uniq /;
 use Readonly;
 use Carp;
 
@@ -86,24 +86,26 @@ sub iseq_flowcell {
   return $self->schema_wh->resultset($FLOWCELL_LIMS_TABLE_NAME);
 }
 
-has ['_rlt_column_names', '_pt_column_names'] =>  (
-                           isa        => 'ArrayRef',
-                           is         => 'ro',
-                           required   => 0,
-                           lazy_build => 1,
+has '_pt_column_names' => (
+  isa        => 'ArrayRef',
+  is         => 'ro',
+  required   => 0,
+  lazy_build => 1,
 );
-sub _column_names {
-  my ($self, $table) = @_;
-  my @columns = $self->schema_wh->resultset($table)->result_source->columns();
-  return \@columns;
-}
-sub _build__rlt_column_names {
-  my $self = shift;
-  return $self->_column_names($RUN_LANE_TABLE_NAME);
-}
 sub _build__pt_column_names {
   my $self = shift;
-  return $self->_column_names($PRODUCT_TABLE_NAME);
+  return [$self->schema_wh->resultset($PRODUCT_TABLE_NAME)->result_source->columns()];
+}
+
+has '_rl_column_names' => (
+  isa        => 'ArrayRef',
+  is         => 'ro',
+  required   => 0,
+  lazy_build => 1,
+);
+sub _build__rl_column_names {
+  my $self = shift;
+  return [$self->schema_wh->resultset($RUN_LANE_TABLE_NAME)->result_source->columns()];
 }
 
 has '_flowcell_table_fks' => ( isa        => 'HashRef',
@@ -375,18 +377,20 @@ sub _compare_product_data {
 
 sub _copy_lane_data {
   my ($self, $lane_data, $p, $h) = @_;
+
   while (my ($column_name, $value) = each %{$h}) {
-    $lane_data->{$p}->{$column_name} = $value;
+    if (any { $_ eq $column_name } @{$self->_rl_column_names()}) {
+      $lane_data->{$p}->{$column_name} = $value;
+    }
   }
-  if (!$lane_data->{$p}->{'position'}) {
-    $lane_data->{$p}->{'position'} = $p;
-  }
-  if (!$lane_data->{$p}->{'id_run'}) {
-    $lane_data->{$p}->{'id_run'} = $self->id_run;
-  }
+
+  $lane_data->{$p}->{'position'} = $p;
+  $lane_data->{$p}->{'id_run'} = $self->id_run;
+
   if (!$lane_data->{$p}->{'cycles'}) {
     $lane_data->{$p}->{'cycles'} = 0;
   }
+
   return;
 }
 
@@ -483,7 +487,7 @@ sub _explain_missing {
 }
 
 sub _filter_column_names {
-  my ($self, $table, $values) = @_;
+  my ($self, $values) = @_;
 
   my @columns = keys %{$values};
   foreach my $name (@columns) {
@@ -496,54 +500,61 @@ sub _filter_column_names {
       $values->{$name} = $values->{$old_name};
       delete $values->{$old_name};
     }
-    my @available = $table eq $PRODUCT_TABLE_NAME ?
-      @{$self->_pt_column_names} : @{$self->_rlt_column_names};
-    if (none {$name eq $_} @available) {
+    if (any {$name eq $_} @{$self->_pt_column_names}) {
+      next;
+    } else {
       delete $values->{$name};
     }
   }
   return;
 }
 
-sub _load_table {
-  my ($self, $table) = @_;
-
-  if (!defined $self->_data->{$table} || scalar @{$self->_data->{$table}} == 0) {
-    if ($self->verbose) {
-      warn qq[No data for table $table\n];
+sub _load_iseq_run_lane_metrics_table {
+  my $self = shift;
+  my $transaction = sub {
+    my $count = 0;
+    my $rs = $self->schema_wh->resultset($RUN_LANE_TABLE_NAME);
+    foreach my $row (@{$self->_data->{$RUN_LANE_TABLE_NAME}}) {
+      if ($self->verbose) {
+        warn "Will update/create record in table $RUN_LANE_TABLE_NAME for " .
+        join q[ ], 'run', $row->{'id_run'}, 'position', $row->{'position'} . "\n";
+      }
+      $rs->update_or_create($row);
+      $count++;
     }
-    return 0;
-  }
+    return $count;
+  };
+
+  return $self->schema_wh->txn_do($transaction);
+}
+
+sub _load_iseq_product_metrics_table {
+  my $self = shift;
 
   my @rows = ();
-  foreach my $row (@{$self->_data->{$table}}) {
+  foreach my $row (@{$self->_data->{$PRODUCT_TABLE_NAME}}) {
 
     my $composition = delete $row->{'composition'};
 
-    $self->_filter_column_names($table, $row);
+    $self->_filter_column_names($row);
 
-    if ($table eq $PRODUCT_TABLE_NAME && ($composition->num_components == 1)
-        && $self->_flowcell_table_fks_exist) {
+    if ($composition->num_components == 1 && $self->_flowcell_table_fks_exist) {
       $self->_add_lims_fk($row);
     }
 
     if ($self->verbose) {
-      my $description = $table eq $PRODUCT_TABLE_NAME
-                        ? $composition->freeze
-                        : join q[ ], 'run', $row->{'id_run'}, 'position', $row->{'position'};
-      warn "Will create record in table $table for $description\n";
+      warn "Will update/create record in table $PRODUCT_TABLE_NAME for " .
+           $row->{'iseq_composition_tmp'} . "\n";
     }
 
     push @rows, $row;
   }
 
-  if (@rows) {
-    my $rs = $self->schema_wh->resultset($table);
-    my $transaction = sub {
-      map { $rs->update_or_create($_) } @rows;
-    };
-    $self->schema_wh->txn_do($transaction);
-  }
+  my $rs = $self->schema_wh->resultset($PRODUCT_TABLE_NAME);
+  my $transaction = sub {
+    map { $rs->update_or_create($_) } @rows;
+  };
+  $self->schema_wh->txn_do($transaction);
 
   return scalar @rows;
 }
@@ -587,21 +598,31 @@ sub load {
     warn "$_\n";
   };
 
-  if ($data) {
-    try {
-      foreach my $table (($RUN_LANE_TABLE_NAME, $PRODUCT_TABLE_NAME)) {
-        my $count = $self->_load_table($table);
+  return if !$data;
+
+  foreach my $table (($RUN_LANE_TABLE_NAME, $PRODUCT_TABLE_NAME)) {
+    if (!defined $self->_data->{$table} || scalar @{$self->_data->{$table}} == 0) {
+      if ($self->verbose) {
+        warn qq[No data for table $table\n];
+      }
+    } else {
+      my $count;
+      try {
+        $count = $table eq $RUN_LANE_TABLE_NAME ?
+                 $self->_load_iseq_run_lane_metrics_table() :
+                 $self->_load_iseq_product_metrics_table();
         if ($self->verbose) {
           warn qq[Loaded $count rows to table $table for run $id_run\n];
         }
-      }
-    } catch {
-      my $err = $_;
-      if ($err =~ /Rollback failed/sxm) {
-        croak $err;
-      }
-      warn qq[Failed to load run $id_run: $err\n];
-    };
+      } catch {
+        my $err = $_;
+        if ($err =~ /Rollback failed/sxm) {
+          croak $err;
+        }
+        warn qq[Failed to load run $id_run: $err\n];
+      };
+      defined $count or last;
+    }
   }
 
   return;
