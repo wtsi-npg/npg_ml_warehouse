@@ -514,11 +514,11 @@ subtest 'indexed run' => sub {
   cmp_ok(sprintf('%.2f',$plex->percent_duplicate()), q(==), 6.34, 'bam (nonhuman) duplicate percent');
 };
 
-subtest 'linking to lims data' => sub {
+subtest 'linking to lims data - test 1' => sub {
   plan tests => 44;
 
   $schema_wh->resultset('IseqFlowcell')->find({id_flowcell_lims=>14178, position=>6, tag_index=>168})
-   ->update({entity_type => 'library_indexed' });
+   ->update({entity_type => 'library_indexed'});
   is ($schema_wh->resultset('IseqFlowcell')->find({id_flowcell_lims=>14178, position=>6, tag_index=>168})->entity_type,
       'library_indexed',
       'lane 6: set spiked phix as usual indexed library - test prerequisite');
@@ -527,8 +527,10 @@ subtest 'linking to lims data' => sub {
   $in{'id_run'} = $id_run;
   $in{'_autoqc_store'} = npg_qc::autoqc::qc_store->new(
     use_db => 1, qc_schema => $schema_qc, verbose => 0);
+  $in{'lims_fk_repair'} = 1;
   my $loader  = npg_warehouse::loader::run->new(\%in);
   is ($loader->id_flowcell_lims, 14178, 'id_flowcell_lims populated correctly');
+
   $loader->load();
 
   my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => $id_run},);
@@ -604,13 +606,14 @@ subtest 'linking to lims data' => sub {
   is ($fc->entity_type, 'library_indexed_spike', 'this is a spike');
 };
 
-subtest 'linking to lims data' => sub {
+subtest 'linking to lims data - test 2' => sub {
   plan tests => 23;
 
   my $id_run = 4486;
   my %in = %{$init};
   $in{'id_run'} = $id_run;
   $in{'_autoqc_store'} = npg_qc::autoqc::qc_store->new(use_db => 1, qc_schema => $schema_qc, verbose => 0);
+  $in{'lims_fk_repair'} = 1;
   my $loader  = npg_warehouse::loader::run->new(\%in);
   warnings_exist { $loader->load() }
     [qr/Run 4486: multiple flowcell table records for library, pt key 1/],
@@ -695,7 +698,7 @@ subtest 'rna run' => sub {
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
   lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, folder_name => '180130_MS6_24975_A_MS6073474-300V2',})}
-    'forder glob reset lives - test prerequisite';
+    'folder glob reset lives - test prerequisite';
 
   my %in = %{$init};
   $in{'id_run'} = $id_run;
@@ -730,7 +733,7 @@ subtest 'gbs run' => sub {
   $run_row->unset_tag('fc_slotA');
   $run_row->unset_tag('fc_slotB');
   lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, folder_name => '180423_MS7_25710_A_MS6392545-300V2',})}
-    'forder glob reset lives - test prerequisite';
+    'folder glob reset lives - test prerequisite';
 
   my %in = %{$init};
   $in{'id_run'} = $id_run;
@@ -870,7 +873,7 @@ subtest 'NovaSeq run with merged data' => sub {
 };
 
 subtest 'run with merged data - linking to flowcell table' => sub {
-  plan tests => 17;
+  plan tests => 39;
 
   my $id_run = 26291;
 
@@ -894,16 +897,40 @@ subtest 'run with merged data - linking to flowcell table' => sub {
   $in{'id_run'} = $id_run;
   $in{'verbose'} = 0;
   my $loader  = npg_warehouse::loader::run->new(\%in);
+  ok(!$loader->lims_fk_repair, 'lims_fk_repair flag is false');
   lives_ok {$loader->load()} 'data is loaded';
-
   $rs = $prs->search({id_run => $id_run});
   is ($rs->count, 15, "run $id_run number of rows in product table");
-  is ($rs->search({$LIMS_FK_COLUMN_NAME => undef})->count, 3,
-    '3 rows are not linked to the flowcell table');
-  for my $ti (1 .. 11, 888) {
-    my $row = $rs->search({id_run => $id_run, position => 1, tag_index => $ti})->next;
-    ok (defined $row->$LIMS_FK_COLUMN_NAME, "plex $ti is linked");
-  }
+  is ($rs->search({$LIMS_FK_COLUMN_NAME => undef})->count, 15,
+    'none of these rows are linked to the flowcell table');
+
+  $in{'lims_fk_repair'} = 1;
+  $loader  = npg_warehouse::loader::run->new(\%in);
+  ok($loader->lims_fk_repair, 'lims_fk_repair flag is true');
+  lives_ok {$loader->load()} 'data is loaded';
+
+  my $test_after_loading = sub {
+    my $trs = $prs->search({id_run => $id_run});
+    is ($trs->count, 15, "run $id_run number of rows in product table");
+    is ($trs->search({$LIMS_FK_COLUMN_NAME => undef})->count, 3,
+      '3 rows are not linked to the flowcell table');
+    for my $ti (1 .. 11, 888) {
+      my $row = $trs->search(
+        {id_run => $id_run, position => 1, tag_index => $ti})->next;
+      ok (defined $row->$LIMS_FK_COLUMN_NAME, "plex $ti is linked");
+    }
+  };
+
+  $test_after_loading->();
+
+  $rs->delete();
+  $rs = $prs->search({id_run => $id_run});
+  is ($rs->count, 0, "all rows for run $id_run deleted from the product table");
+  $in{'lims_fk_repair'} = 0;
+  $loader  = npg_warehouse::loader::run->new(\%in);
+  ok(!$loader->lims_fk_repair, 'lims_fk_repair flag is false');
+  lives_ok {$loader->load()} 'data is loaded';
+  $test_after_loading->();
 };
 
 1;

@@ -50,6 +50,17 @@ npg_warehouse::loader::run
 
 =head1 SUBROUTINES/METHODS
 
+=head2 lims_fk_repair
+
+Boolean flag, false by default. Switches on and off
+repair of LIMs foreign key values for update operations.
+
+=cut
+has 'lims_fk_repair' => ( isa      => 'Bool',
+                          is       => 'ro',
+                          required => 0,
+);
+
 =head2 id_run
 
 Run id
@@ -124,34 +135,33 @@ sub _build__flowcell_table_fks {
     return $fks;
   }
 
-  if ($rs && $rs->count) {
-    my @to_delete = ();
-    while (my $row = $rs->next()) {
-      my $entity_type = $row->entity_type;
-      my $position    = $row->position;
-      my $pt_key = _pt_key($position, $row->tag_index);
-      if (exists $fks->{$position}->{$entity_type}->{$pt_key}) {
-        warn sprintf 'Run %i: multiple flowcell table records for %s, pt key %s%s',
-          $self->id_run, $entity_type, $pt_key, qq[\n];
-        push @to_delete, [$position, $entity_type, $pt_key];
-      }
-      $fks->{$position}->{$entity_type}->{$pt_key} = $row->$LIMS_FK_COLUMN_NAME;
+  my @to_delete = ();
+  while (my $row = $rs->next()) {
+    my $entity_type = $row->entity_type;
+    my $position    = $row->position;
+    my $pt_key = _pt_key($position, $row->tag_index);
+    if (exists $fks->{$position}->{$entity_type}->{$pt_key}) {
+      warn sprintf 'Run %i: multiple flowcell table records for %s, pt key %s%s',
+        $self->id_run, $entity_type, $pt_key, qq[\n];
+      push @to_delete, [$position, $entity_type, $pt_key];
     }
-    foreach my $d (@to_delete) {
-      delete $fks->{$d->[0]}->{$d->[1]}->{$d->[2]};
-    }
-  } else {
-    if ($self->explain) {
-      warn q[Flowcell table has no LIMs information for run ] . $self->id_run . qq[\n];
-    }
+    $fks->{$position}->{$entity_type}->{$pt_key} = $row->$LIMS_FK_COLUMN_NAME;
+  }
+
+  foreach my $d (@to_delete) {
+    delete $fks->{$d->[0]}->{$d->[1]}->{$d->[2]};
+  }
+
+  if ($self->explain && (scalar keys %{$fks} == 0)) {
+    warn q[Flowcell table has no LIMs information for run ] . $self->id_run . qq[\n];
   }
 
   return $fks;
 }
 
-has '_flowcell_table_fks_exist' => ( isa => 'Bool',
-                                     is => 'ro',
-                                     required => 0,
+has '_flowcell_table_fks_exist' => ( isa        => 'Bool',
+                                     is         => 'ro',
+                                     required   => 0,
                                      lazy_build => 1,
 );
 sub _build__flowcell_table_fks_exist {
@@ -402,26 +412,36 @@ sub _pt_key {
   return defined $t ? join(q[:], $p, $t) : $p;
 }
 
-sub _add_lims_fk {
-  my ($self, $values) = @_;
+sub _get_lims_fk {
+  my ($self, $row) = @_;
 
-  my $position = $values->{'position'};
+  return if !$self->_flowcell_table_fks_exist;
+
+  my $position;
+  my $ti;
+
+  # The argument $row can be either a hash reference or a DBIx::Class::Row object.
+  if (ref $row eq 'HASH') {
+    $position = $row->{'position'};
+    $ti       = $row->{'tag_index'};
+  } else {
+    $position = $row->position;
+    $ti       = $row->tag_index;
+  }
 
   my @types = exists $self->_flowcell_table_fks->{$position} ?
-    keys %{ $self->_flowcell_table_fks->{$position} } : ();
+              keys %{ $self->_flowcell_table_fks->{$position} } : ();
   if (!@types) {
-    if (scalar keys %{$self->_flowcell_table_fks}) {
-      if ($self->verbose) {
-        warn "Flowcell table has no information for lane $position run " . $self->id_run . "\n";
-      }
+    if ($self->verbose) {
+       warn "Flowcell table has no information for lane $position run " . $self->id_run . "\n";
     }
     return;
   }
 
-  my $pt_key = _pt_key($position, $values->{'tag_index'});
+  my $pt_key = _pt_key($position, $ti);
   my $pk;
 
-  if (!defined $values->{'tag_index'} ) {
+  if (!defined $ti) {
 
     my @lane_types = grep { /^(?: $NON_INDEXED_LIBRARY | $CONTROL_LANE )$/xms } @types;
     if (scalar @lane_types > 1) {
@@ -443,7 +463,7 @@ sub _add_lims_fk {
     $pk = $self->_flowcell_table_fks->{$position}->{$INDEXED_LIBRARY}->{$pt_key};
     if (!$pk) {
       $pk = $self->_flowcell_table_fks->{$position}->{$INDEXED_LIBRARY_SPIKE}->{$pt_key};
-      if (!$pk && $values->{'tag_index'} == $SPIKE_FALLBACK_TAG_INDEX) {
+      if (!$pk && ($ti == $SPIKE_FALLBACK_TAG_INDEX)) {
         my @spikes = keys %{$self->_flowcell_table_fks->{$position}->{$INDEXED_LIBRARY_SPIKE}};
         if (scalar @spikes == 1) {
           $pk = $self->_flowcell_table_fks->{$position}->{$INDEXED_LIBRARY_SPIKE}->{$spikes[0]};
@@ -453,20 +473,19 @@ sub _add_lims_fk {
 
   }
 
-  $values->{$LIMS_FK_COLUMN_NAME} = $pk;
   if (!$pk) {
-    $self->_explain_missing($pt_key, $values);
+    $self->_explain_missing($pt_key, $position, $ti);
   }
 
-  return;
+  return $pk;
 }
 
 sub _explain_missing {
-  my ($self, $pt_key, $values) = @_;
+  my ($self, $pt_key, $position, $ti) = @_;
   if ($self->explain) {
-    if (!defined $values->{'tag_index'} || $values->{'tag_index'} != 0) {
-      my $lib_type = defined $values->{'tag_index'} ? $NON_INDEXED_LIBRARY : $INDEXED_LIBRARY;
-      my @keys = keys %{$self->_flowcell_table_fks->{$values->{'position'}}->{$lib_type}};
+    if (!defined $ti || $ti != 0) {
+      my $lib_type = defined $ti ? $NON_INDEXED_LIBRARY : $INDEXED_LIBRARY;
+      my @keys = keys %{$self->_flowcell_table_fks->{$position}->{$lib_type}};
       my $other_keys = @keys ? join(q[ ], @keys) : 'none';
       warn sprintf 'Flowcell table has no information for pt key %s, run %i; other keys %s%s',
         $pt_key, $self->id_run, $other_keys, qq[\n];
@@ -500,7 +519,7 @@ sub _load_iseq_run_lane_metrics_table {
     my $rs = $self->schema_wh->resultset($RUN_LANE_TABLE_NAME);
     foreach my $row (@{$self->_data->{$RUN_LANE_TABLE_NAME}}) {
       if ($self->verbose) {
-        warn "Will update/create record in table $RUN_LANE_TABLE_NAME for " .
+        warn "Will update or create record in $RUN_LANE_TABLE_NAME for " .
         join q[ ], 'run', $row->{'id_run'}, 'position', $row->{'position'} . "\n";
       }
       $rs->update_or_create($row);
@@ -515,29 +534,52 @@ sub _load_iseq_run_lane_metrics_table {
 sub _load_iseq_product_metrics_table {
   my $self = shift;
 
+  #####
+  # If the row is being updated, we are not going to touch the foreign
+  # key into iseq_flowcell table, unless lims_fk_repair is set to true.
+  # If the row is being created, we will try to assign this foreing key.
+  # value. If the parent row in the iseq_flowcell table has been deleted,
+  # the foreign key value has been set to NULL. Resetting it to a valid
+  # value is the responsibility of the daemon that repairs foreign keys,
+  # which will set the lims_fk_repair flag to true for this object.
+  #
+
   my @rows = ();
   foreach my $row (@{$self->_data->{$PRODUCT_TABLE_NAME}}) {
-
     my $composition = delete $row->{'composition'};
-
     $self->_filter_column_names($row);
-
-    if ($composition->num_components == 1 && $self->_flowcell_table_fks_exist) {
-      $self->_add_lims_fk($row);
+    my $h = {};
+    $h->{'num_components'} = $composition->num_components;
+    if ($self->lims_fk_repair && ($h->{'num_components'} == 1)) {
+      $row->{$LIMS_FK_COLUMN_NAME} = $self->_get_lims_fk($row);
     }
-
-    if ($self->verbose) {
-      warn "Will update/create record in table $PRODUCT_TABLE_NAME for " .
-           $row->{'iseq_composition_tmp'} . "\n";
-    }
-
-    push @rows, $row;
+    $h->{'data'} = $row;
+    push @rows, $h;
   }
 
   my $rs = $self->schema_wh->resultset($PRODUCT_TABLE_NAME);
   my $transaction = sub {
-    map { $rs->update_or_create($_) } @rows;
+    foreach my $h (@rows) {
+      my $action = 'updated';
+      my $result = $rs->update_or_new($h->{'data'});
+      if (!$result->in_storage) {
+        # Try to get the fk value if this has not been already done.
+        if (!$self->lims_fk_repair && ($h->{'num_components'} == 1)) {
+          my $fk = $self->_get_lims_fk($result);
+          if ($fk) {
+            $result->set_column($LIMS_FK_COLUMN_NAME => $fk);
+	  }
+        }
+        $result->insert();
+        $action = 'created';
+      }
+      if ($self->verbose) {
+        warn "$PRODUCT_TABLE_NAME row $action for " .
+           $h->{'data'}->{'iseq_composition_tmp'} . "\n";
+      }
+    }
   };
+
   $self->schema_wh->txn_do($transaction);
 
   return scalar @rows;

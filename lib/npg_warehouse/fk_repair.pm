@@ -197,12 +197,13 @@ sub _run_once {
     $self->_logger->info(qq[Calling loader for run $id]);
 
     my $loader = npg_warehouse::loader::run->new(
-      verbose    => $self->verbose,
-      explain    => $self->explain,
-      id_run     => $id,
-      schema_npg => $self->schema_npg,
-      schema_qc  => $self->schema_qc,
-      schema_wh  => $self->schema_wh,
+      verbose        => $self->verbose,
+      explain        => $self->explain,
+      id_run         => $id,
+      schema_npg     => $self->schema_npg,
+      schema_qc      => $self->schema_qc,
+      schema_wh      => $self->schema_wh,
+      lims_fk_repair => 1
     );
     $loader->load();
 
