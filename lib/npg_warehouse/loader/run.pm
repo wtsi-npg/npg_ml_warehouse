@@ -355,8 +355,9 @@ sub _build__data {
       $data->{$column_name} = $value;
     }
 
-    $data->{'id_iseq_product'}      = $composition->digest;
+    $data->{'id_iseq_product'}      = $composition->digest();
     $data->{'iseq_composition_tmp'} = $composition->freeze();
+    $data->{'num_components'}       = $composition->num_components();
     push @products, $data;
   }
 
@@ -369,9 +370,9 @@ sub _build__data {
 sub _compare_product_data {
   my ($a, $b) = @_;
   # Data for single component first
-  my $r = $a->{'composition'}->num_components <=> $b->{'composition'}->num_components;
+  my $r = $a->{'num_components'} <=> $b->{'num_components'};
   return $r if $r != 0;
-  return $a->{'composition'}->freeze cmp $b->{'composition'}->freeze;
+  return $a->{'iseq_composition_tmp'} cmp $b->{'iseq_composition_tmp'};
 }
 
 sub _copy_lane_data {
@@ -386,7 +387,7 @@ sub _copy_lane_data {
   $lane_data->{$p}->{'position'} = $p;
   $lane_data->{$p}->{'id_run'} = $self->id_run;
 
-  if (!$lane_data->{$p}->{'cycles'}) {
+  if (!defined $lane_data->{$p}->{'cycles'}) {
     $lane_data->{$p}->{'cycles'} = 0;
   }
 
@@ -546,15 +547,14 @@ sub _load_iseq_product_metrics_table {
 
   my @rows = ();
   foreach my $row (@{$self->_data->{$PRODUCT_TABLE_NAME}}) {
-    my $composition = delete $row->{'composition'};
+    my $composition    = delete $row->{'composition'};
+    my $num_components = delete $row->{'num_components'};
     $self->_filter_column_names($row);
-    my $h = {};
-    $h->{'num_components'} = $composition->num_components;
-    if ($self->lims_fk_repair && ($h->{'num_components'} == 1)) {
+    if ($self->lims_fk_repair && ($num_components == 1)) {
       $row->{$LIMS_FK_COLUMN_NAME} = $self->_get_lims_fk($row);
     }
-    $h->{'data'} = $row;
-    push @rows, $h;
+    push @rows, {data           => $row,
+                 num_components => $num_components};
   }
 
   my $rs = $self->schema_wh->resultset($PRODUCT_TABLE_NAME);
