@@ -554,7 +554,8 @@ sub _load_iseq_product_metrics_table {
       $row->{$LIMS_FK_COLUMN_NAME} = $self->_get_lims_fk($row);
     }
     push @rows, {data           => $row,
-                 num_components => $num_components};
+                 num_components => $num_components,
+                 composition    => $composition};
   }
 
   my $rs = $self->schema_wh->resultset($PRODUCT_TABLE_NAME);
@@ -563,6 +564,7 @@ sub _load_iseq_product_metrics_table {
       my $action = 'updated';
       my $result = $rs->update_or_new($h->{'data'});
       if (!$result->in_storage) {
+        $action = 'created';
         # Try to get the fk value if this has not been already done.
         if (!$self->lims_fk_repair && ($h->{'num_components'} == 1)) {
           my $fk = $self->_get_lims_fk($result);
@@ -570,8 +572,9 @@ sub _load_iseq_product_metrics_table {
             $result->set_column($LIMS_FK_COLUMN_NAME => $fk);
 	  }
         }
-        $result->insert();
-        $action = 'created';
+        $result = $result->insert();
+        $self->_create_linking_rows(
+          $result, $h->{'num_components'}, $h->{'composition'});
       }
       if ($self->verbose) {
         warn "$PRODUCT_TABLE_NAME row $action for " .
@@ -583,6 +586,38 @@ sub _load_iseq_product_metrics_table {
   $self->schema_wh->txn_do($transaction);
 
   return scalar @rows;
+}
+
+sub _create_linking_rows {
+  my ($self, $result, $num_components, $composition) = @_;
+
+  my $rs  = $self->schema_wh->resultset($PRODUCT_TABLE_NAME);
+  my $rsl = $self->schema_wh->resultset('IseqProductComponent');
+  my $pk_name = 'id_iseq_pr_metrics_tmp';
+  my $row_pk = $result->$pk_name;
+
+  my $create_row = sub {
+    my $pcid = shift;
+    $rsl->create({id_iseq_pr_tmp           => $row_pk,
+                  id_iseq_pr_component_tmp => $pcid,
+                  num_components           => $num_components});
+  };
+
+  if ($num_components == 1) {
+    $create_row->($row_pk);
+  } else {
+    foreach my $component ($composition->components_list) {
+      my $db_component = $rs->search({
+        id_run    => $component->id_run,
+        position  => $component->position,
+        tag_index => $component->tag_index})->next;
+      $db_component or croak
+        'Failed to find a row for ' . $component->freeze();
+      $create_row->($db_component->$pk_name);
+    }
+  }
+
+  return;
 }
 
 =head2 load
