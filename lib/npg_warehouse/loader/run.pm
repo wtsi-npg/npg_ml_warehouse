@@ -597,15 +597,17 @@ sub _create_linking_rows {
   my $row_pk = $result->$pk_name;
 
   my $create_row = sub {
-    my $pcid = shift;
+    my ($pcid, $i) = @_;
     $rsl->create({id_iseq_pr_tmp           => $row_pk,
                   id_iseq_pr_component_tmp => $pcid,
+                  component_index          => $i,
                   num_components           => $num_components});
   };
 
   if ($num_components == 1) {
-    $create_row->($row_pk);
+    $create_row->($row_pk, 1);
   } else {
+    my $count = 1;
     foreach my $component ($composition->components_list) {
       my $db_component = $rs->search({
         id_run    => $component->id_run,
@@ -613,7 +615,8 @@ sub _create_linking_rows {
         tag_index => $component->tag_index})->next;
       $db_component or croak
         'Failed to find a row for ' . $component->freeze();
-      $create_row->($db_component->$pk_name);
+      $create_row->($db_component->$pk_name, $count);
+      $count++;
     }
   }
 

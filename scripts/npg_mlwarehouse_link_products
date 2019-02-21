@@ -1,0 +1,72 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use FindBin qw($Bin);
+use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
+use JSON qw(from_json);
+use Carp;
+use WTSI::DNAP::Warehouse::Schema;
+
+our $VERSION = '0';
+
+my $schema_wh = WTSI::DNAP::Warehouse::Schema->connect();
+
+my $pk_name = q[id_iseq_pr_metrics_tmp];
+my $rsp = $schema_wh->resultset(q[IseqProductMetric])
+          ->search(
+          {},
+          {
+            columns  => [$pk_name, 'iseq_composition_tmp'],
+            order_by => [qw/id_run position tag_index/]
+          }
+                  );
+my $rsl = $schema_wh->resultset(q[IseqProductComponent]);
+
+while (my $row = $rsp->next) {
+
+  my $row_pk = $row->$pk_name;
+  next if $rsl->search({id_iseq_pr_tmp => $row_pk})->count;
+
+  my $json_string = $row->iseq_composition_tmp;
+  my $composition = from_json($json_string);
+  exists $composition->{components}
+    or croak "Unexpected JSON structure in $json_string";
+  my @components = @{$composition->{components}};
+  my $num_components = scalar @components;
+
+  my $create_row = sub {
+    my ($pcid, $i) = @_;
+    $rsl->create({id_iseq_pr_tmp           => $row_pk,
+                  id_iseq_pr_component_tmp => $pcid,
+                  component_index          => $i,
+                  num_components           => $num_components});
+  };
+
+  my $transaction = sub {
+    if ($num_components == 1) {
+      $create_row->($row_pk, 1);
+    } else {
+      my $i = 1;
+      foreach my $component (@components) {
+        my $rs_components = $rsp->search({
+          id_run    => $component->{id_run},
+          position  => $component->{position},
+          tag_index => $component->{tag_index}
+        });
+        my $count = $rs_components->count;
+        $count > 0 or croak
+          "Failed to find a row for one of components of $json_string";
+        $count == 1 or croak
+          "Multiple rows for one of components of $json_string";
+        $create_row->($rs_components->next->$pk_name, $i);
+        $i++;
+      }
+    }
+  };
+
+  $schema_wh->txn_do($transaction);
+  warn "Created rows for $json_string\n";
+}
+
+exit 0;
