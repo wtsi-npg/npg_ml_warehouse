@@ -16,6 +16,7 @@ my $builder = npg_tracking::util::build->new(
 		 'build_requires'      => {
                     'DBD::SQLite'                       => '1.37',
                     'File::Basename'                    => 0,
+                    'File::Copy::Recursive'             => 0,
                     'File::Temp'                        => 0,
                     'English'                           => 0,
                     'Moose::Meta::Class'                => 0,

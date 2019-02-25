@@ -546,6 +546,7 @@ sub _load_iseq_product_metrics_table {
   #
 
   my @rows = ();
+
   foreach my $row (@{$self->_data->{$PRODUCT_TABLE_NAME}}) {
     my $composition    = delete $row->{'composition'};
     my $num_components = delete $row->{'num_components'};
@@ -614,7 +615,7 @@ sub _create_linking_rows {
         position  => $component->position,
         tag_index => $component->tag_index})->next;
       $db_component or croak
-        'Failed to find a row for ' . $component->freeze();
+        'Failed to find the component product row for ' . $component->freeze();
       $create_row->($db_component->$pk_name, $count);
       $count++;
     }

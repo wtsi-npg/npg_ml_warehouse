@@ -4,7 +4,7 @@ use Test::More tests => 22;
 use Test::Exception;
 use Moose::Meta::Class;
 use File::Temp qw/tempdir/;
-use File::Copy;
+use File::Copy::Recursive qw/dircopy fcopy/;
 
 use npg_testing::db;
 use npg_qc::autoqc::qc_store;
@@ -40,7 +40,7 @@ my $util = Moose::Meta::Class->create_anon_class(
 my $wh_fix = tempdir(UNLINK => 0);
 foreach my $dir (qw(t/data/fixtures/wh t/data/fixtures/wh_npg)) {
   foreach my $file (glob join(q[/], $dir, '*.yml')) {
-    copy $file, $wh_fix;
+    fcopy $file, $wh_fix;
   }
 }
 
@@ -55,9 +55,16 @@ lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
 
 # Create tracking record for a NovaSeq run with two lanes
 my $id_run_nv = 26291;
+my $tdir = tempdir(CLEANUP => 1);
+dircopy('t/data/runfolders/with_merges', "$tdir/with_merges");
+my $archive_dir = 'Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive';
+my $lane_dir = "$tdir/with_merges/${archive_dir}/lane2";
+mkdir $lane_dir;
+mkdir "$lane_dir/qc";
+fcopy join(q[/],'t/data/runfolders/with_merges', $archive_dir, '26291_2.tag_metrics.json'),
+  "$lane_dir/qc";
 my $folder_glob = q[t/data/runfolders/];
-t::util::create_nv_run($schema_npg, $id_run_nv,
-  q[t/data/runfolders/], 'with_merges');
+t::util::create_nv_run($schema_npg, $id_run_nv, $tdir, 'with_merges');
 # and load it to the warehouse
 npg_warehouse::loader::run->new(
     schema_npg   => $schema_npg, 
