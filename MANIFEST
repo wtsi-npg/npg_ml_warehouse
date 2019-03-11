@@ -175,5 +175,6 @@ t/data/runfolders/181008_HX1_27116_B_HNYKNCCXY/Data/Intensities/BAM_basecalls_20
 t/data/runfolders/181008_HX1_27116_B_HNYKNCCXY/Data/Intensities/BAM_basecalls_20181015-171739/no_cal/archive/lane1/qc/27116_1#1.bcfstats.json
 t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive/lane1/qc/26291_1.ref_match.json
 t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive/lane1/qc/26291_1.tag_metrics.json
+t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive/26291_2.tag_metrics.json
 t/perlcriticrc
 t/util.pm

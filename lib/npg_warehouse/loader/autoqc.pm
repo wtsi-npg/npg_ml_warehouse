@@ -84,10 +84,20 @@ Retrieval of autoqc data for loading to the warehouse
 A driver to retrieve autoqc objects, required attribute.
 
 =cut
-has 'autoqc_store' =>    ( isa        => 'npg_qc::autoqc::qc_store',
-                           is         => 'ro',
-                           required   => 1,
-                         );
+has 'autoqc_store' => ( isa      => 'npg_qc::autoqc::qc_store',
+                        is       => 'ro',
+                        required => 1,
+                      );
+
+=head2 mlwh
+
+Boolean flag, false by default.
+
+=cut
+has 'mlwh' => ( isa      => 'Bool',
+                is       => 'ro',
+                required => 0,
+              );
 
 sub _basic_data {
     my ($self, $composition) = @_;
@@ -433,6 +443,7 @@ sub retrieve {
     my $methods = {};
     foreach my $r (@{$collection->results}) {
       my $class_name = $r->class_name;
+      $self->mlwh && ($class_name eq 'contamination') && next;
       my $method_name = exists $AUTOQC_MAPPING{$class_name}
                         ? q[_autoqc_check] : q[_] . $class_name;
       if ($self->can($method_name)) {
