@@ -1,10 +1,12 @@
 use strict;
 use warnings;
-use Test::More tests => 19;
+use Test::More tests => 20;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
 use Moose::Meta::Class;
+use File::Copy::Recursive qw/dircopy fcopy/;
+use File::Temp qw/tempdir/;
 
 use npg_tracking::glossary::composition;
 use npg_tracking::glossary::composition::component::illumina;
@@ -18,6 +20,7 @@ my $compon_pkg = 'npg_tracking::glossary::composition::component::illumina';
 
 my $RUN_LANE_TABLE_NAME      = q[IseqRunLaneMetric];
 my $PRODUCT_TABLE_NAME       = q[IseqProductMetric];
+my $PRODUCTC_TABLE_NAME      = q[IseqProductComponent];
 my $LIMS_FK_COLUMN_NAME      = q[id_iseq_flowcell_tmp];
 my @basic_run_lane_columns = qw/cycles
                                 paired_read
@@ -514,11 +517,11 @@ subtest 'indexed run' => sub {
   cmp_ok(sprintf('%.2f',$plex->percent_duplicate()), q(==), 6.34, 'bam (nonhuman) duplicate percent');
 };
 
-subtest 'linking to lims data' => sub {
+subtest 'linking to lims data - test 1' => sub {
   plan tests => 44;
 
   $schema_wh->resultset('IseqFlowcell')->find({id_flowcell_lims=>14178, position=>6, tag_index=>168})
-   ->update({entity_type => 'library_indexed' });
+   ->update({entity_type => 'library_indexed'});
   is ($schema_wh->resultset('IseqFlowcell')->find({id_flowcell_lims=>14178, position=>6, tag_index=>168})->entity_type,
       'library_indexed',
       'lane 6: set spiked phix as usual indexed library - test prerequisite');
@@ -527,8 +530,10 @@ subtest 'linking to lims data' => sub {
   $in{'id_run'} = $id_run;
   $in{'_autoqc_store'} = npg_qc::autoqc::qc_store->new(
     use_db => 1, qc_schema => $schema_qc, verbose => 0);
+  $in{'lims_fk_repair'} = 1;
   my $loader  = npg_warehouse::loader::run->new(\%in);
   is ($loader->id_flowcell_lims, 14178, 'id_flowcell_lims populated correctly');
+
   $loader->load();
 
   my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => $id_run},);
@@ -604,13 +609,14 @@ subtest 'linking to lims data' => sub {
   is ($fc->entity_type, 'library_indexed_spike', 'this is a spike');
 };
 
-subtest 'linking to lims data' => sub {
+subtest 'linking to lims data - test 2' => sub {
   plan tests => 23;
 
   my $id_run = 4486;
   my %in = %{$init};
   $in{'id_run'} = $id_run;
   $in{'_autoqc_store'} = npg_qc::autoqc::qc_store->new(use_db => 1, qc_schema => $schema_qc, verbose => 0);
+  $in{'lims_fk_repair'} = 1;
   my $loader  = npg_warehouse::loader::run->new(\%in);
   warnings_exist { $loader->load() }
     [qr/Run 4486: multiple flowcell table records for library, pt key 1/],
@@ -695,7 +701,7 @@ subtest 'rna run' => sub {
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
   lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, folder_name => '180130_MS6_24975_A_MS6073474-300V2',})}
-    'forder glob reset lives - test prerequisite';
+    'folder glob reset lives - test prerequisite';
 
   my %in = %{$init};
   $in{'id_run'} = $id_run;
@@ -729,8 +735,11 @@ subtest 'gbs run' => sub {
     'staging tag is set - test prerequisite';
   $run_row->unset_tag('fc_slotA');
   $run_row->unset_tag('fc_slotB');
-  lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, folder_name => '180423_MS7_25710_A_MS6392545-300V2',})}
-    'forder glob reset lives - test prerequisite';
+
+  lives_ok {$schema_npg->resultset('Run')->update_or_create({
+   folder_path_glob => $folder_glob, id_run => $id_run,
+   folder_name => '180423_MS7_25710_A_MS6392545-300V2',})}
+    'folder glob reset lives - test prerequisite';
 
   my %in = %{$init};
   $in{'id_run'} = $id_run;
@@ -753,18 +762,35 @@ subtest 'gbs run' => sub {
 };
 
 subtest 'NovaSeq run with merged data' => sub {
-  plan tests => 117;
+  plan tests => 161;
 
   my $id_run = 26291;
+
+  my $tdir = tempdir(CLEANUP => 1);
+  dircopy('t/data/runfolders/with_merges', "$tdir/with_merges");
+
   # Create tracking record for a NovaSeq run with two lanes
-  t::util::create_nv_run($schema_npg, $id_run, $folder_glob, 'with_merges');
+  t::util::create_nv_run($schema_npg, $id_run, $tdir, 'with_merges');
 
   my %in = %{$init};
   $in{'id_run'} = $id_run;
   $in{'verbose'} = 0;
   my $loader  = npg_warehouse::loader::run->new(\%in);
-  lives_ok {$loader->load()} 'data is loaded';
+  warning_like { $loader->load() }
+    qr/Failed to find the component product row/,
+    'warning when the component product row is not found';
+  is($schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+    {id_run => $id_run})->count, 0, 'no rows loaded');
+  
+  my $archive_dir = 'Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive';
+  my $lane_dir = "$tdir/with_merges/${archive_dir}/lane2";
+  mkdir $lane_dir;
+  mkdir "$lane_dir/qc";
+  fcopy join(q[/],'t/data/runfolders/with_merges', $archive_dir, '26291_2.tag_metrics.json'),
+    "$lane_dir/qc";
 
+  $loader  = npg_warehouse::loader::run->new(\%in);
+  lives_ok {$loader->load()} 'data loaded OK';
   my @rows = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search(
     {id_run => $id_run})->all();
   is ( scalar @rows, 2, 'two run-lane records created');
@@ -776,7 +802,7 @@ subtest 'NovaSeq run with merged data' => sub {
 
   @rows = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
     {id_run => $id_run})->all();
-  is ( scalar @rows, 15, '15 product records created');
+  is ( scalar @rows, 29, '29 product records created');
   is ($schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
     {id_run => $id_run, tag_index => undef})->count, 0,
     'no product record for a lane');
@@ -787,7 +813,9 @@ subtest 'NovaSeq run with merged data' => sub {
     is ($row->qc, undef, 'ovarall qc undefined');
   }
 
-  my %plex_rows = map {$_->tag_index =>  $_} grep { defined $_->position } @rows;
+  my %plex_rows = map {$_->tag_index =>  $_}
+                  grep { defined $_->position && ($_->position == 1) }
+                  @rows;
   is ( scalar keys %plex_rows, 14, '14 records for plexes');
   for my $i ((0 .. 12, 888)) {
     my $c = $compos_pkg->new(components =>
@@ -796,7 +824,7 @@ subtest 'NovaSeq run with merged data' => sub {
     ok (exists $plex_rows{$i}, "record for plex $i created");
     is ($plex_rows{$i}->id_iseq_product, $d, "product id for plex $i");
     is ($plex_rows{$i}->iseq_composition_tmp, $c->freeze,
-      'correct product composition JSON for plex $i');
+      "correct product composition JSON for plex $i");
   }
 
   my %merged_plex_rows = map {$_->tag_index =>  $_} grep { !defined $_->position } @rows;
@@ -849,18 +877,18 @@ subtest 'NovaSeq run with merged data' => sub {
 
   my @all = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
     {id_run => $id_run})->all();
-  is (scalar @all, 15, '15 product records');
+  is (scalar @all, 29, '29 product records');
   my @qc_ed = grep {$_->qc_seq == 1} @all;
-  is(scalar @qc_ed, 15, '15 rows have seq qc value set to 1');
+  is(scalar @qc_ed, 29, '29 rows have seq qc value set to 1');
   @qc_ed = grep {defined $_->qc && !defined $_->qc_lib} @all;
-  is(scalar @qc_ed, 13,
-    '13 rows have overall value pass and lib qc values undefined');
+  is(scalar @qc_ed, 26,
+    '26 rows have overall value pass and lib qc values undefined');
   @qc_ed =
     grep {(defined $_->qc && $_->qc == 1) &&
           (defined $_->qc_seq && $_->qc_seq == 1) &&
           (defined $_->qc_lib && $_->qc_lib == 1)}
     @all;
-  is(scalar @qc_ed, 2, '2 rows have all qc values set to 1');
+  is(scalar @qc_ed, 3, '3 rows have all qc values set to 1');
   my $row = $qc_ed[0];
   is ($row->id_iseq_product, $d4merged,
     'product with all qc values set is the merged plex 1');
@@ -870,14 +898,14 @@ subtest 'NovaSeq run with merged data' => sub {
 };
 
 subtest 'run with merged data - linking to flowcell table' => sub {
-  plan tests => 17;
+  plan tests => 39;
 
   my $id_run = 26291;
 
   my $prs = $schema_wh->resultset($PRODUCT_TABLE_NAME);
   my $rs = $prs->search({id_run => $id_run});
-  is ($rs->count, 15, "run $id_run number of rows in product table");
-  is ($rs->search({$LIMS_FK_COLUMN_NAME => undef})->count, 15,
+  is ($rs->count, 29, "run $id_run number of rows in product table");
+  is ($rs->search({$LIMS_FK_COLUMN_NAME => undef})->count, 29,
     'none of these rows are linked to the flowcell table');
 
   $schema_npg->resultset('Run')->find($id_run)->update({batch_id => 14178});
@@ -894,15 +922,86 @@ subtest 'run with merged data - linking to flowcell table' => sub {
   $in{'id_run'} = $id_run;
   $in{'verbose'} = 0;
   my $loader  = npg_warehouse::loader::run->new(\%in);
+  ok(!$loader->lims_fk_repair, 'lims_fk_repair flag is false');
+  lives_ok {$loader->load()} 'data is loaded';
+  $rs = $prs->search({id_run => $id_run});
+  is ($rs->count, 29, "run $id_run number of rows in product table");
+  is ($rs->search({$LIMS_FK_COLUMN_NAME => undef})->count, 29,
+    'none of these rows are linked to the flowcell table');
+
+  $in{'lims_fk_repair'} = 1;
+  $loader  = npg_warehouse::loader::run->new(\%in);
+  ok($loader->lims_fk_repair, 'lims_fk_repair flag is true');
   lives_ok {$loader->load()} 'data is loaded';
 
+  my $test_after_loading = sub {
+    my $trs = $prs->search({id_run => $id_run});
+    is ($trs->count, 29, "run $id_run number of rows in product table");
+    is ($trs->search({$LIMS_FK_COLUMN_NAME => undef})->count, 16,
+      '16 rows are not linked to the flowcell table');
+    for my $ti (1 .. 11, 888) {
+      my $row = $trs->search(
+        {id_run => $id_run, position => 1, tag_index => $ti})->next;
+      ok (defined $row->$LIMS_FK_COLUMN_NAME, "plex $ti is linked");
+    }
+  };
+
+  $test_after_loading->();
+
+  $schema_wh->resultset($PRODUCTC_TABLE_NAME)->search({})->delete();
+  $rs->delete();
+
   $rs = $prs->search({id_run => $id_run});
-  is ($rs->count, 15, "run $id_run number of rows in product table");
-  is ($rs->search({$LIMS_FK_COLUMN_NAME => undef})->count, 3,
-    '3 rows are not linked to the flowcell table');
-  for my $ti (1 .. 11, 888) {
-    my $row = $rs->search({id_run => $id_run, position => 1, tag_index => $ti})->next;
-    ok (defined $row->$LIMS_FK_COLUMN_NAME, "plex $ti is linked");
+  is ($rs->count, 0, "all rows for run $id_run deleted from the product table");
+  $in{'lims_fk_repair'} = 0;
+  $loader  = npg_warehouse::loader::run->new(\%in);
+  ok(!$loader->lims_fk_repair, 'lims_fk_repair flag is false');
+  lives_ok {$loader->load()} 'data is loaded';
+  $test_after_loading->();
+};
+
+subtest 'run with merged data - linking to product components' => sub {
+  plan tests => 97;
+
+  my $id_run = 26291;
+
+  my $crs = $schema_wh->resultset($PRODUCTC_TABLE_NAME)->search({});
+  is($crs->count, 30, '30 linking rows in total');
+  my $mc_rs = $crs->search({num_components => 2});
+  is ($mc_rs->count, 2, '2 rows for two-component products');
+  my $sc_rs = $crs->search({num_components => 1});
+  is ($sc_rs->count, 28, '28 rows for one-component products');
+  is ($crs->search({component_index => 1})->count, 29, '29 linking rows have component index 1');
+  is ($crs->search({component_index => 2})->count, 1, '1 linking rows has component index 2');
+
+  for my $p ((1, 2)) {
+    my $row = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+      {id_run => $id_run, position => $p, tag_index => 1})->next();
+    is ($row->iseq_products->count(), 1, 'one link for this product');
+    is ($row->iseq_product_components->count(), 2, 'two links for this product as a component');
+
+    for my $ti ((0, 2 .. 12, 888)) {
+      my $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+        {id_run => $id_run, position => $p,tag_index => $ti})->next();
+      is ($r->iseq_products->count(), 1, 'one link for this product');
+      is ($r->iseq_product_components->count(), 1, '1 link for this product as a component');
+      is ($r->iseq_products->next->id_iseq_pr_components_tmp,
+          $r->iseq_product_components->next->id_iseq_pr_components_tmp,
+          'these two links are the same table row');
+    }
+  }
+
+  my $row = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
+    {id_run => $id_run, position => undef, tag_index => 1})->next();
+  is ($row->iseq_product_components->count(), 0, 'no links for this product as a component');
+  is ($row->iseq_products->count(), 2, 'two links for this product');
+  my @prows = $row->iseq_products->search({}, {order_by => 'component_index'})->all();
+  for my $i ((0,1)) {
+    my $component = $prows[$i]->iseq_product_component;
+    isa_ok ($component, 'WTSI::DNAP::Warehouse::Schema::Result::IseqProductMetric');
+    is ($component->id_run, $id_run, 'id_run of the component');
+    is ($component->position, $i+1, 'position of the component');
+    is ($component->tag_index, 1, 'tag_index of the component');
   }
 };
 

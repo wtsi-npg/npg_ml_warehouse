@@ -3,7 +3,7 @@ package npg_warehouse::loader::run;
 use Moose;
 use MooseX::StrictConstructor;
 use Try::Tiny;
-use List::MoreUtils qw/ any none uniq /;
+use List::MoreUtils qw/ any uniq /;
 use Readonly;
 use Carp;
 
@@ -50,6 +50,17 @@ npg_warehouse::loader::run
 
 =head1 SUBROUTINES/METHODS
 
+=head2 lims_fk_repair
+
+Boolean flag, false by default. Switches on and off
+repair of LIMs foreign key values for update operations.
+
+=cut
+has 'lims_fk_repair' => ( isa      => 'Bool',
+                          is       => 'ro',
+                          required => 0,
+);
+
 =head2 id_run
 
 Run id
@@ -86,24 +97,15 @@ sub iseq_flowcell {
   return $self->schema_wh->resultset($FLOWCELL_LIMS_TABLE_NAME);
 }
 
-has ['_rlt_column_names', '_pt_column_names'] =>  (
-                           isa        => 'ArrayRef',
-                           is         => 'ro',
-                           required   => 0,
-                           lazy_build => 1,
+has '_rl_column_names' => (
+  isa        => 'ArrayRef',
+  is         => 'ro',
+  required   => 0,
+  lazy_build => 1,
 );
-sub _column_names {
-  my ($self, $table) = @_;
-  my @columns = $self->schema_wh->resultset($table)->result_source->columns();
-  return \@columns;
-}
-sub _build__rlt_column_names {
+sub _build__rl_column_names {
   my $self = shift;
-  return $self->_column_names($RUN_LANE_TABLE_NAME);
-}
-sub _build__pt_column_names {
-  my $self = shift;
-  return $self->_column_names($PRODUCT_TABLE_NAME);
+  return [$self->schema_wh->resultset($RUN_LANE_TABLE_NAME)->result_source->columns()];
 }
 
 has '_flowcell_table_fks' => ( isa        => 'HashRef',
@@ -133,34 +135,33 @@ sub _build__flowcell_table_fks {
     return $fks;
   }
 
-  if ($rs && $rs->count) {
-    my @to_delete = ();
-    while (my $row = $rs->next()) {
-      my $entity_type = $row->entity_type;
-      my $position    = $row->position;
-      my $pt_key = _pt_key($position, $row->tag_index);
-      if (exists $fks->{$position}->{$entity_type}->{$pt_key}) {
-        warn sprintf 'Run %i: multiple flowcell table records for %s, pt key %s%s',
-          $self->id_run, $entity_type, $pt_key, qq[\n];
-        push @to_delete, [$position, $entity_type, $pt_key];
-      }
-      $fks->{$position}->{$entity_type}->{$pt_key} = $row->$LIMS_FK_COLUMN_NAME;
+  my @to_delete = ();
+  while (my $row = $rs->next()) {
+    my $entity_type = $row->entity_type;
+    my $position    = $row->position;
+    my $pt_key = _pt_key($position, $row->tag_index);
+    if (exists $fks->{$position}->{$entity_type}->{$pt_key}) {
+      warn sprintf 'Run %i: multiple flowcell table records for %s, pt key %s%s',
+        $self->id_run, $entity_type, $pt_key, qq[\n];
+      push @to_delete, [$position, $entity_type, $pt_key];
     }
-    foreach my $d (@to_delete) {
-      delete $fks->{$d->[0]}->{$d->[1]}->{$d->[2]};
-    }
-  } else {
-    if ($self->explain) {
-      warn q[Flowcell table has no LIMs information for run ] . $self->id_run . qq[\n];
-    }
+    $fks->{$position}->{$entity_type}->{$pt_key} = $row->$LIMS_FK_COLUMN_NAME;
+  }
+
+  foreach my $d (@to_delete) {
+    delete $fks->{$d->[0]}->{$d->[1]}->{$d->[2]};
+  }
+
+  if ($self->explain && (scalar keys %{$fks} == 0)) {
+    warn q[Flowcell table has no LIMs information for run ] . $self->id_run . qq[\n];
   }
 
   return $fks;
 }
 
-has '_flowcell_table_fks_exist' => ( isa => 'Bool',
-                                     is => 'ro',
-                                     required => 0,
+has '_flowcell_table_fks_exist' => ( isa        => 'Bool',
+                                     is         => 'ro',
+                                     required   => 0,
                                      lazy_build => 1,
 );
 sub _build__flowcell_table_fks_exist {
@@ -275,8 +276,8 @@ sub _build__data {
   my $lane_deplexed_flags = {};
 
   my $data_hash = npg_warehouse::loader::autoqc
-                  ->new(autoqc_store => $self->_autoqc_store)
-                  ->retrieve($self->id_run, $self->schema_npg);
+    ->new(autoqc_store => $self->_autoqc_store, mlwh => 1)
+    ->retrieve($self->id_run, $self->schema_npg);
   my $indexed_lanes = _indexed_lanes_hash($data_hash);
 
   my %digests = map { $_ => $data_hash->{$_}->{'composition'} }
@@ -354,8 +355,9 @@ sub _build__data {
       $data->{$column_name} = $value;
     }
 
-    $data->{'id_iseq_product'}      = $composition->digest;
+    $data->{'id_iseq_product'}      = $composition->digest();
     $data->{'iseq_composition_tmp'} = $composition->freeze();
+    $data->{'num_components'}       = $composition->num_components();
     push @products, $data;
   }
 
@@ -368,25 +370,27 @@ sub _build__data {
 sub _compare_product_data {
   my ($a, $b) = @_;
   # Data for single component first
-  my $r = $a->{'composition'}->num_components <=> $b->{'composition'}->num_components;
+  my $r = $a->{'num_components'} <=> $b->{'num_components'};
   return $r if $r != 0;
-  return $a->{'composition'}->freeze cmp $b->{'composition'}->freeze;
+  return $a->{'iseq_composition_tmp'} cmp $b->{'iseq_composition_tmp'};
 }
 
 sub _copy_lane_data {
   my ($self, $lane_data, $p, $h) = @_;
+
   while (my ($column_name, $value) = each %{$h}) {
-    $lane_data->{$p}->{$column_name} = $value;
+    if (any { $_ eq $column_name } @{$self->_rl_column_names()}) {
+      $lane_data->{$p}->{$column_name} = $value;
+    }
   }
-  if (!$lane_data->{$p}->{'position'}) {
-    $lane_data->{$p}->{'position'} = $p;
-  }
-  if (!$lane_data->{$p}->{'id_run'}) {
-    $lane_data->{$p}->{'id_run'} = $self->id_run;
-  }
-  if (!$lane_data->{$p}->{'cycles'}) {
+
+  $lane_data->{$p}->{'position'} = $p;
+  $lane_data->{$p}->{'id_run'} = $self->id_run;
+
+  if (!defined $lane_data->{$p}->{'cycles'}) {
     $lane_data->{$p}->{'cycles'} = 0;
   }
+
   return;
 }
 
@@ -409,26 +413,36 @@ sub _pt_key {
   return defined $t ? join(q[:], $p, $t) : $p;
 }
 
-sub _add_lims_fk {
-  my ($self, $values) = @_;
+sub _get_lims_fk {
+  my ($self, $row) = @_;
 
-  my $position = $values->{'position'};
+  return if !$self->_flowcell_table_fks_exist;
+
+  my $position;
+  my $ti;
+
+  # The argument $row can be either a hash reference or a DBIx::Class::Row object.
+  if (ref $row eq 'HASH') {
+    $position = $row->{'position'};
+    $ti       = $row->{'tag_index'};
+  } else {
+    $position = $row->position;
+    $ti       = $row->tag_index;
+  }
 
   my @types = exists $self->_flowcell_table_fks->{$position} ?
-    keys %{ $self->_flowcell_table_fks->{$position} } : ();
+              keys %{ $self->_flowcell_table_fks->{$position} } : ();
   if (!@types) {
-    if (scalar keys %{$self->_flowcell_table_fks}) {
-      if ($self->verbose) {
-        warn "Flowcell table has no information for lane $position run " . $self->id_run . "\n";
-      }
+    if ($self->verbose) {
+       warn "Flowcell table has no information for lane $position run " . $self->id_run . "\n";
     }
     return;
   }
 
-  my $pt_key = _pt_key($position, $values->{'tag_index'});
+  my $pt_key = _pt_key($position, $ti);
   my $pk;
 
-  if (!defined $values->{'tag_index'} ) {
+  if (!defined $ti) {
 
     my @lane_types = grep { /^(?: $NON_INDEXED_LIBRARY | $CONTROL_LANE )$/xms } @types;
     if (scalar @lane_types > 1) {
@@ -450,7 +464,7 @@ sub _add_lims_fk {
     $pk = $self->_flowcell_table_fks->{$position}->{$INDEXED_LIBRARY}->{$pt_key};
     if (!$pk) {
       $pk = $self->_flowcell_table_fks->{$position}->{$INDEXED_LIBRARY_SPIKE}->{$pt_key};
-      if (!$pk && $values->{'tag_index'} == $SPIKE_FALLBACK_TAG_INDEX) {
+      if (!$pk && ($ti == $SPIKE_FALLBACK_TAG_INDEX)) {
         my @spikes = keys %{$self->_flowcell_table_fks->{$position}->{$INDEXED_LIBRARY_SPIKE}};
         if (scalar @spikes == 1) {
           $pk = $self->_flowcell_table_fks->{$position}->{$INDEXED_LIBRARY_SPIKE}->{$spikes[0]};
@@ -460,21 +474,19 @@ sub _add_lims_fk {
 
   }
 
-  if ($pk) {
-    $values->{$LIMS_FK_COLUMN_NAME} = $pk;
-  } else {
-    $self->_explain_missing($pt_key, $values);
+  if (!$pk) {
+    $self->_explain_missing($pt_key, $position, $ti);
   }
 
-  return;
+  return $pk;
 }
 
 sub _explain_missing {
-  my ($self, $pt_key, $values) = @_;
+  my ($self, $pt_key, $position, $ti) = @_;
   if ($self->explain) {
-    if (!defined $values->{'tag_index'} || $values->{'tag_index'} != 0) {
-      my $lib_type = defined $values->{'tag_index'} ? $NON_INDEXED_LIBRARY : $INDEXED_LIBRARY;
-      my @keys = keys %{$self->_flowcell_table_fks->{$values->{'position'}}->{$lib_type}};
+    if (!defined $ti || $ti != 0) {
+      my $lib_type = defined $ti ? $NON_INDEXED_LIBRARY : $INDEXED_LIBRARY;
+      my @keys = keys %{$self->_flowcell_table_fks->{$position}->{$lib_type}};
       my $other_keys = @keys ? join(q[ ], @keys) : 'none';
       warn sprintf 'Flowcell table has no information for pt key %s, run %i; other keys %s%s',
         $pt_key, $self->id_run, $other_keys, qq[\n];
@@ -484,7 +496,7 @@ sub _explain_missing {
 }
 
 sub _filter_column_names {
-  my ($self, $table, $values) = @_;
+  my ($self, $values) = @_;
 
   my @columns = keys %{$values};
   foreach my $name (@columns) {
@@ -497,76 +509,119 @@ sub _filter_column_names {
       $values->{$name} = $values->{$old_name};
       delete $values->{$old_name};
     }
-    my @available = $table eq $PRODUCT_TABLE_NAME ?
-      @{$self->_pt_column_names} : @{$self->_rlt_column_names};
-    if (none {$name eq $_} @available) {
-      delete $values->{$name};
-    }
   }
   return;
 }
 
-sub _load_table {
-  my ($self, $table) = @_;
-
-  if (!defined $self->_data->{$table} || scalar @{$self->_data->{$table}} == 0) {
-    if ($self->verbose) {
-      warn qq[No data for table $table\n];
+sub _load_iseq_run_lane_metrics_table {
+  my $self = shift;
+  my $transaction = sub {
+    my $count = 0;
+    my $rs = $self->schema_wh->resultset($RUN_LANE_TABLE_NAME);
+    foreach my $row (@{$self->_data->{$RUN_LANE_TABLE_NAME}}) {
+      if ($self->verbose) {
+        warn "Will update or create record in $RUN_LANE_TABLE_NAME for " .
+        join q[ ], 'run', $row->{'id_run'}, 'position', $row->{'position'} . "\n";
+      }
+      $rs->update_or_create($row);
+      $count++;
     }
-    return 0;
-  }
+    return $count;
+  };
+
+  return $self->schema_wh->txn_do($transaction);
+}
+
+sub _load_iseq_product_metrics_table {
+  my $self = shift;
+
+  #####
+  # If the row is being updated, we are not going to touch the foreign
+  # key into iseq_flowcell table, unless lims_fk_repair is set to true.
+  # If the row is being created, we will try to assign this foreing key.
+  # value. If the parent row in the iseq_flowcell table has been deleted,
+  # the foreign key value has been set to NULL. Resetting it to a valid
+  # value is the responsibility of the daemon that repairs foreign keys,
+  # which will set the lims_fk_repair flag to true for this object.
+  #
 
   my @rows = ();
-  foreach my $row (@{$self->_data->{$table}}) {
 
-    my $composition = delete $row->{'composition'};
-
-    $self->_filter_column_names($table, $row);
-    my @test = keys %{$row};
-    @test = grep { ! /\Aid_run|position|tag_index\Z/smx } @test;
-    if (!@test) { # no useful data
-      next;
+  foreach my $row (@{$self->_data->{$PRODUCT_TABLE_NAME}}) {
+    my $composition    = delete $row->{'composition'};
+    my $num_components = delete $row->{'num_components'};
+    $self->_filter_column_names($row);
+    if ($self->lims_fk_repair && ($num_components == 1)) {
+      $row->{$LIMS_FK_COLUMN_NAME} = $self->_get_lims_fk($row);
     }
-
-    if ($table eq $PRODUCT_TABLE_NAME && ($composition->num_components == 1)
-        && $self->_flowcell_table_fks_exist) {
-      $self->_add_lims_fk($row);
-    }
-
-    if ($self->verbose) {
-      my $description = $table eq $PRODUCT_TABLE_NAME
-                        ? $composition->freeze
-                        : join q[ ], 'run', $row->{'id_run'}, 'position', $row->{'position'};
-      warn "Will create record in table $table for $description\n";
-    }
-
-    push @rows, $row;
+    push @rows, {data           => $row,
+                 num_components => $num_components,
+                 composition    => $composition};
   }
 
-  if (@rows) {
-    my $rs = $self->schema_wh->resultset($table);
-
-    my $transaction;
-    if ($table eq $PRODUCT_TABLE_NAME) {
-      $transaction = sub {
-        $rs->search({'id_run' => $self->id_run,})->delete();
-        # Whithout the assignment this should work as a fast batch load.
-        # However, this does not see to work correctly - we got rows with
-        # some data missing. The assignment forces the per-row loading,
-        # therefore the only advantage of using this notation is not
-        # writing a loop.
-        my $r = $rs->populate(\@rows);
-      };
-    } else {
-      $transaction = sub {
-        map { $rs->update_or_create($_) } @rows;
-      };
+  my $rs = $self->schema_wh->resultset($PRODUCT_TABLE_NAME);
+  my $transaction = sub {
+    foreach my $h (@rows) {
+      my $action = 'updated';
+      my $result = $rs->update_or_new($h->{'data'});
+      if (!$result->in_storage) {
+        $action = 'created';
+        # Try to get the fk value if this has not been already done.
+        if (!$self->lims_fk_repair && ($h->{'num_components'} == 1)) {
+          my $fk = $self->_get_lims_fk($result);
+          if ($fk) {
+            $result->set_column($LIMS_FK_COLUMN_NAME => $fk);
+	  }
+        }
+        $result = $result->insert();
+        $self->_create_linking_rows(
+          $result, $h->{'num_components'}, $h->{'composition'});
+      }
+      if ($self->verbose) {
+        warn "$PRODUCT_TABLE_NAME row $action for " .
+           $h->{'data'}->{'iseq_composition_tmp'} . "\n";
+      }
     }
+  };
 
-    $self->schema_wh->txn_do($transaction);
-  }
+  $self->schema_wh->txn_do($transaction);
 
   return scalar @rows;
+}
+
+sub _create_linking_rows {
+  my ($self, $result, $num_components, $composition) = @_;
+
+  my $rs  = $self->schema_wh->resultset($PRODUCT_TABLE_NAME);
+  my $rsl = $self->schema_wh->resultset('IseqProductComponent');
+  my $pk_name = 'id_iseq_pr_metrics_tmp';
+  my $row_pk = $result->$pk_name;
+
+  my $create_row = sub {
+    my ($pcid, $i) = @_;
+    $rsl->create({id_iseq_pr_tmp           => $row_pk,
+                  id_iseq_pr_component_tmp => $pcid,
+                  component_index          => $i,
+                  num_components           => $num_components});
+  };
+
+  if ($num_components == 1) {
+    $create_row->($row_pk, 1);
+  } else {
+    my $count = 1;
+    foreach my $component ($composition->components_list) {
+      my $db_component = $rs->search({
+        id_run    => $component->id_run,
+        position  => $component->position,
+        tag_index => $component->tag_index})->next;
+      $db_component or croak
+        'Failed to find the component product row for ' . $component->freeze();
+      $create_row->($db_component->$pk_name, $count);
+      $count++;
+    }
+  }
+
+  return;
 }
 
 =head2 load
@@ -608,22 +663,31 @@ sub load {
     warn "$_\n";
   };
 
-  if ($data) {
+  return if !$data;
 
-    try {
-      foreach my $table (($RUN_LANE_TABLE_NAME, $PRODUCT_TABLE_NAME)) {
-        my $count = $self->_load_table($table);
+  foreach my $table (($RUN_LANE_TABLE_NAME, $PRODUCT_TABLE_NAME)) {
+    if (!defined $self->_data->{$table} || scalar @{$self->_data->{$table}} == 0) {
+      if ($self->verbose) {
+        warn qq[No data for table $table\n];
+      }
+    } else {
+      my $count;
+      try {
+        $count = $table eq $RUN_LANE_TABLE_NAME ?
+                 $self->_load_iseq_run_lane_metrics_table() :
+                 $self->_load_iseq_product_metrics_table();
         if ($self->verbose) {
           warn qq[Loaded $count rows to table $table for run $id_run\n];
+        }
+      } catch {
+        my $err = $_;
+        if ($err =~ /Rollback failed/sxm) {
+          croak $err;
+        }
+        warn qq[Failed to load run $id_run: $err\n];
+      };
+      defined $count or last;
     }
-      }
-    } catch {
-      my $err = $_;
-      if ($err =~ /Rollback failed/sxm) {
-        croak $err;
-      }
-      warn qq[Failed to load run $id_run: $err\n];
-    };
   }
 
   return;
@@ -676,7 +740,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2018 Genome Research Limited
+Copyright (C) 2018, 2019 Genome Research Limited
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

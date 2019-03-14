@@ -84,10 +84,20 @@ Retrieval of autoqc data for loading to the warehouse
 A driver to retrieve autoqc objects, required attribute.
 
 =cut
-has 'autoqc_store' =>    ( isa        => 'npg_qc::autoqc::qc_store',
-                           is         => 'ro',
-                           required   => 1,
-                         );
+has 'autoqc_store' => ( isa      => 'npg_qc::autoqc::qc_store',
+                        is       => 'ro',
+                        required => 1,
+                      );
+
+=head2 mlwh
+
+Boolean flag, false by default.
+
+=cut
+has 'mlwh' => ( isa      => 'Bool',
+                is       => 'ro',
+                required => 0,
+              );
 
 sub _basic_data {
     my ($self, $composition) = @_;
@@ -187,22 +197,16 @@ sub _qX_yield {
 sub _ref_match {
     my ($self, $result, $c) = @_;
 
-    my $organisms = $result->ranked_organisms;
-    my $percent_counts = $result->percent_count;
-    my $prefix = q[ref_match];
     my $data = $self->_basic_data($c);
-
-    foreach my $count ((1,2)) {
-	if (scalar @{$organisms} >= $count) {
-            my $organism = $organisms->[$count-1];
-            $data->{$prefix.$count.q[_percent]} = $percent_counts->{$organism};
-            my $strain = $result->reference_version->{$organism};
-            $organism =~  s/_/ /xms;
-            $data->{$prefix.$count.q[_name]}  = join q[ ], $organism, $strain;
-	}
+    my $count = 0;
+    foreach my $h ($result->top_two) {
+        $count++;
+        while (my ($key, $value) = each %{$h}) {
+            $data->{q[ref_match] . $count.q[_] . $key} = $value;
+        }
     }
 
-    return ($data);
+    return ($count > 0 ? ($data) : ());
 }
 
 sub _contamination {
@@ -439,6 +443,7 @@ sub retrieve {
     my $methods = {};
     foreach my $r (@{$collection->results}) {
       my $class_name = $r->class_name;
+      $self->mlwh && ($class_name eq 'contamination') && next;
       my $method_name = exists $AUTOQC_MAPPING{$class_name}
                         ? q[_autoqc_check] : q[_] . $class_name;
       if ($self->can($method_name)) {

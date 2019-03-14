@@ -1,5 +1,18 @@
 LIST OF CHANGES
 
+release 41.0
+ - autoqc retriever:
+     use special function for retrieval of ref_match result,
+     do not process old contamination autoqc results for ml warehouse
+ - wh loader changes following ml warehouse schema update in
+   https://github.com/wtsi-npg/ml_warehouse/pull/10:
+     update existing row instead of deleting and re-inserting them,
+     on insert to product table create rows in the product components table,
+     on product table row update do not assign LIMs fk values unless
+     lims_fk_repair flag is true
+ - a new script for back-populating product components table
+ - a new script for deleting run data from ml warehouse
+
 release 40.1
  - wh loader:
      add ability to load lanes that do not exists in tracking database,

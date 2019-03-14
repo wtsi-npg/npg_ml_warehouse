@@ -16,6 +16,7 @@ my $builder = npg_tracking::util::build->new(
 		 'build_requires'      => {
                     'DBD::SQLite'                       => '1.37',
                     'File::Basename'                    => 0,
+                    'File::Copy::Recursive'             => 0,
                     'File::Temp'                        => 0,
                     'English'                           => 0,
                     'Moose::Meta::Class'                => 0,
@@ -31,6 +32,7 @@ my $builder = npg_tracking::util::build->new(
                     'npg_testing::db'                   => 0,
                     'npg_tracking::util::build'         => 0,
                     'npg_tracking::util::abs_path'      => 0,
+                    'npg_tracking::glossary::composition::factory::rpt_list' => 0,
                     'npg_qc::autoqc::results::qX_yield' => 0,
                  },
 
