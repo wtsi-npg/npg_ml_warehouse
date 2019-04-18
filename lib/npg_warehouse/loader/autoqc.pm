@@ -337,7 +337,10 @@ sub _bam_flagstats {
         foreach my $method ( map { 'target_' . $_ } qw(
                 filter length mapped_reads mapped_bases
                 proper_pair_mapped_reads coverage_threshold 
-                percent_gt_coverage_threshold)) {
+                percent_gt_coverage_threshold
+                autosome_coverage_threshold
+                autosome_percent_gt_coverage_threshold
+                )) {
             if (my $r = $result->$method ) {
                 $data->{$method} = $r;
             }
