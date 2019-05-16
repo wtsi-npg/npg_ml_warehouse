@@ -139,7 +139,15 @@ override 'count' => sub {
 
 =cut
 
-override 'children' => sub {
+has '_lchildren' => ( isa         => 'ArrayRef',
+                      traits      => ['Array'],
+                      is          => 'ro',
+                      init_arg    => undef,
+                      lazy_build  => 1,
+                      clearer     => 'free_children',
+                      handles     => { children => 'elements'},
+);
+sub _build__lchildren {
   my $self = shift;
 
   my @children = ();
@@ -170,8 +178,8 @@ override 'children' => sub {
     }
   }
 
-  return @children;
-};
+  return \@children;
+}
 
 =head2 is_pool
 
