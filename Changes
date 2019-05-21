@@ -1,5 +1,40 @@
 LIST OF CHANGES
 
+ - add target autosome stats to autoqc loader
+
+release 41.0
+ - autoqc retriever:
+     use special function for retrieval of ref_match result,
+     do not process old contamination autoqc results for ml warehouse
+ - wh loader changes following ml warehouse schema update in
+   https://github.com/wtsi-npg/ml_warehouse/pull/10:
+     update existing row instead of deleting and re-inserting them,
+     on insert to product table create rows in the product components table,
+     on product table row update do not assign LIMs fk values unless
+     lims_fk_repair flag is true
+ - a new script for back-populating product components table
+ - a new script for deleting run data from ml warehouse
+
+release 40.1
+ - wh loader:
+     add ability to load lanes that do not exists in tracking database,
+     load autoqc data for all statuses (ie including 'data discarded'),
+     push defined library outcomes from merged entities to single plexes
+     if the library outcome for teh latter is not set
+
+release 40.0
+ - wh loader: refactor to accommodate loading results for
+   multi-component entities
+ - autoqc data retriever - stop retrieving data for the old split stats
+   check which is only needed for the old warehouse
+ - if multiple runs are loaded, load in the decreasing run id order
+ - wh loader script - add a new option, num_runs, to load a limited
+   number of latest runs
+ - load instrument_side and workflow_type columns of the
+   iseq_run_lane_metrics table
+ - loadnrd_percent column of the iseq_product_metrics table
+
+release 39.11
  - auto QC loader query costruction: do not use invalid option
  - wh loader: skip loading results for multi-component entities
  - to retrieve lane-level results for multi-component entities,
@@ -8,6 +43,7 @@ LIST OF CHANGES
    of the npg_qc database (pf_cluster_count, raw_cluster_count, pf_bases)
  - load q30 and q40 yields from qX_yield autoqc check results     
  - load bam_flagstats target metrics into iseq_product_metrics table
+ - a script to launch warehouse loader script for certain runs
 
 release 39.10
  - two gbs metrics to be added to the iseq_product_metrics table

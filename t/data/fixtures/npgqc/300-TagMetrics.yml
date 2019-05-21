@@ -46,7 +46,7 @@
   reads_pf_count: '{"152":"119330228","0":"1620819","888":"1401268"}'
   spiked_control_index: ~
   tag_index: ~
-  tags: '{"152":"ACCTCTGG","0":"NNNNNNNN","888":"ACAACGCA"}'
+  tags: '{"152":"ACCTCTGG","0":"NNNNNNNN"}'
 - barcode_tag_name: BC
   comments: ~
   id_run: 6998

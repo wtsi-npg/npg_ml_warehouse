@@ -4,11 +4,11 @@ use Test::More tests => 22;
 use Test::Exception;
 use Moose::Meta::Class;
 use File::Temp qw/tempdir/;
-use File::Copy;
+use File::Copy::Recursive qw/dircopy fcopy/;
 
 use npg_testing::db;
-
 use npg_qc::autoqc::qc_store;
+use t::util;
 
 my $RUN_LANE_TABLE_NAME      = q[IseqRunLaneMetric];
 my $PRODUCT_TABLE_NAME       = q[IseqProductMetric];
@@ -36,11 +36,11 @@ isa_ok (npg_warehouse::fk_repair->new(), 'npg_warehouse::fk_repair');
 my $util = Moose::Meta::Class->create_anon_class(
   roles => [qw/npg_testing::db/])->new_object({});
 
-# Get full (lim sand npg) set of fixtures
+# Get full (lims and npg) set of fixtures
 my $wh_fix = tempdir(UNLINK => 0);
 foreach my $dir (qw(t/data/fixtures/wh t/data/fixtures/wh_npg)) {
   foreach my $file (glob join(q[/], $dir, '*.yml')) {
-    copy $file, $wh_fix;
+    fcopy $file, $wh_fix;
   }
 }
 
@@ -52,6 +52,28 @@ lives_ok{ $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
   q[t/data/fixtures/npg]) } 'npg test db created';
 lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
   q[t/data/fixtures/npgqc]) } 'npgqc test db created';
+
+# Create tracking record for a NovaSeq run with two lanes
+my $id_run_nv = 26291;
+my $tdir = tempdir(CLEANUP => 1);
+dircopy('t/data/runfolders/with_merges', "$tdir/with_merges");
+my $archive_dir = 'Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive';
+my $lane_dir = "$tdir/with_merges/${archive_dir}/lane2";
+mkdir $lane_dir;
+mkdir "$lane_dir/qc";
+fcopy join(q[/],'t/data/runfolders/with_merges', $archive_dir, '26291_2.tag_metrics.json'),
+  "$lane_dir/qc";
+my $folder_glob = q[t/data/runfolders/];
+t::util::create_nv_run($schema_npg, $id_run_nv, $tdir, 'with_merges');
+# and load it to the warehouse
+npg_warehouse::loader::run->new(
+    schema_npg   => $schema_npg, 
+    schema_qc    => $schema_qc, 
+    schema_wh    => $schema_wh,
+    verbose      => 0,
+    explain      => 0,
+    id_run       => $id_run_nv
+)->load();
 
 {
   my $init = {
@@ -76,13 +98,17 @@ lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
   is ($no_fk_count, $total, 'no record for run 6998 has fk - test prerequisite');
 
   my $r = npg_warehouse::fk_repair->new($init);
-  is (join(q[ ], $r->_runs_with_null_fks()) , '4486 6998', 'runs to repair detected');
+  is (join(q[ ], $r->_runs_with_null_fks()) , '4486 6998 26291', 'runs to repair detected');
   lives_ok {$r->run()} 'repair runs OK';
-  is (join(q[ ], $r->_runs_with_null_fks()) , '4486', 'runs to repair are still detected');
+
+  # Delete a row that we cannot update - no data
+  $rs->search({id_run => 6998, position => 4, tag_index => 168})->delete();
+
+  is (join(q[ ], $r->_runs_with_null_fks()) , '4486 26291', 'runs to repair are still detected');
 
   my $no_fk_rs = $rs->search({id_run => 4486, id_iseq_flowcell_tmp => undef});
   is ($no_fk_rs->count, 2,
-    'two rows for run 4486 are without the fk (lim sdata missing for lane 5)');
+    'two rows for run 4486 are without the fk (lims data missing for lane 5)');
   @lanes = sort map {$_->position} $no_fk_rs->all;
   is (join(q[ ], @lanes), '1 5', 'no fk for lanes 1 and 5');
 

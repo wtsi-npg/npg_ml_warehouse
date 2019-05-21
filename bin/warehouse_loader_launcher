@@ -1,0 +1,186 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use FindBin qw($Bin);
+use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
+use DateTime;
+use DateTime::Duration;
+use Getopt::Long;
+use Pod::Usage;
+use Readonly;
+
+use npg_tracking::Schema;
+
+our $VERSION = '0';
+
+Readonly::Scalar my $ML_WH_LOADER_COMMAND => 'npg_runs2mlwarehouse';
+Readonly::Scalar my $SS_WH_LOADER_COMMAND => 'warehouse_loader';
+Readonly::Array  my @RUN_STATUSES =>
+                 ('secondary analysis in progress', 'qc review pending');
+Readonly::Scalar my $NUM_HOURS_LOOK_BACK  => 3;
+
+my $look_back    = $NUM_HOURS_LOOK_BACK;
+my $run_statuses = \@RUN_STATUSES;
+my $dry_run      = 0;
+my $old_wh       = 0;
+my $help;
+
+GetOptions (
+            'help'          => \$help,
+            'dry_run!'      => \$dry_run,
+            'sswh!'         => \$old_wh,
+            'num_hours=i'   => \$look_back,
+            'run_status=s@' => \$run_statuses,
+           );
+
+if ($help) { pod2usage(0); }
+
+my $date = DateTime->now();
+my $script_name = $old_wh ? $SS_WH_LOADER_COMMAND : $ML_WH_LOADER_COMMAND;
+
+warn "$date == Running warehouse_loader_launcher, looking back " .
+               ($look_back ? "$look_back hours" : 'without limit') . qq[\n];
+warn 'Considering statuses: ' . join(q[, ], @{$run_statuses}) . qq[\n];
+warn "Will use $script_name warehouse loader\n";
+if ($dry_run) {
+  warn "DRY RUN\n";
+}
+
+my $query =   { 'run_status_dict.description' => $run_statuses,
+                'run_statuses.iscurrent'      => 1 };
+if ($look_back) {
+  $date->subtract(DateTime::Duration->new(hours => $look_back));
+  $date = sprintf q[%s], $date;
+  $query->{'run_statuses.date'} = {q[>], $date};
+}
+
+my @rows = npg_tracking::Schema->connect()
+                               ->resultset('Run')
+                               ->search( $query,
+  { join => { 'run_statuses' => 'run_status_dict' } } )->all();
+
+my @id_runs = ();
+foreach my $run (@rows) {
+  my @dirs = glob $run->folder_path_glob;
+  if (@dirs) {
+    my $id_run = $run->id_run;
+    warn "Run $id_run: found " . join(q[, ], @dirs) . qq[\n];
+    push @id_runs, $id_run;
+  }
+}
+
+if (@id_runs) {
+  # This script might be run as a cron job. If we srecify a full path
+  # to the wh loader, we do not need to set PATH for the job.
+  my $command = join q[ --id_run ],
+                "$Bin/$script_name  --verbose",
+                sort {$a <=> $b} @id_runs;
+  warn qq[Will run command:\n"$command"\n];
+  if (!$dry_run) {
+    system($command) == 0 or die 'Failed to execute comand';
+  }
+} else {
+  warn "No eligible runs\n";
+}
+
+0;
+
+__END__
+
+=head1 NAME
+
+warehouse_loader_launcher
+
+=head1 SYNOPSIS
+
+Finds runs that recently reached "secondary analysis in progress"
+or "qc review pending" status and calls ml warehouse loader (default)
+or the sequencescape (old) warehouse loader for those runs whose
+run folder location is visible on the host where this script is running.
+
+By default looks at statuses with dates within last 3 hours.
+
+=head1 USAGE
+
+  warehouse_loader_launcher
+  warehouse_loader_launcher --dry_run
+  warehouse_loader_launcher --num_hours 24
+  warehouse_loader_launcher --num_hours 0  # no time limit on status
+  warehouse_loader_launcher --run_status 'archival pending' --run_status 'archival in progress'
+  warehouse_loader_launcher --sswh  # to launch the old warehouse loader
+
+=head1 DESCRIPTION
+  
+=head1 REQUIRED ARGUMENTS
+
+None
+
+=head1 OPTIONS
+
+  --help       - brief help message
+  --dry_run    - a boolean flag; if true, the script prints what will
+                 happen and exists
+  --num_hours  - number of hours to look back at status dates
+  --run_status - an array of run status descriptions
+  --sswh       - a boolean flag, switching from ml to ss warehouse
+
+=head1 EXIT STATUS
+
+0
+
+=head1 CONFIGURATION
+
+=head1 DIAGNOSTICS
+
+=head1 DEPENDENCIES
+
+=over
+
+=item strict
+
+=item warnings
+
+=item lib
+
+=item FindBin
+
+=item Getopt::Long
+
+=item Pod::Usage
+
+=item npg_tracking::Schema
+
+=item DateTime
+
+=item DateTime::Duration
+
+=item Readonly
+
+=back
+
+=head1 INCOMPATIBILITIES
+
+=head1 BUGS AND LIMITATIONS
+
+=head1 AUTHOR
+
+Marina Gourtovaia
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (C) 2018 by Genome Research Limited
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
