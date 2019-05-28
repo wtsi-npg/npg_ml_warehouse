@@ -1,6 +1,8 @@
 LIST OF CHANGES
 
  - add target autosome stats to autoqc loader
+ - correct retrieval of split and non-split data for bam_flagstats
+   autoqc results
 
 release 41.0
  - autoqc retriever:
