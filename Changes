@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - add target autosome stats to autoqc loader
+
 release 41.0
  - autoqc retriever:
      use special function for retrieval of ref_match result,
