@@ -161,6 +161,7 @@ t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/PB_basecalls_20
 t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/PB_basecalls_20110813-160456/no_cal/archive/lane2/qc/6642_2#4.bam_flagstats.json
 t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/PB_basecalls_20110813-160456/no_cal/archive/lane2/qc/6642_2#4_human.bam_flagstats.json
 t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/PB_basecalls_20110813-160456/no_cal/archive/lane2/qc/6642_2#5_xahuman.bam_flagstats.json
+t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/PB_basecalls_20110813-160456/no_cal/archive/lane2/qc/6642_2#5.bam_flagstats.json
 t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/PB_basecalls_20110813-160456/no_cal/archive/lane2/qc/6642_2#6_yhuman.bam_flagstats.json
 t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/PB_basecalls_20110813-160456/no_cal/archive/qc/6642_1.bam_flagstats.json
 t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/PB_basecalls_20110813-160456/no_cal/archive/qc/6642_2.tag_metrics.json
