@@ -303,30 +303,32 @@ sub _tag_decode_stats {
 sub _bam_flagstats {
     my ($self, $result, $composition) = @_;
 
-    my $check_name = $result->check_name;
-    if ($check_name =~ /phix/xsmg) {
-        return ();
+    my $subset = $composition->get_component(0)->subset();
+
+    if ($subset && ($subset !~ /human/xsm)) {
+      return ();
     }
 
-    my $c = $result->composition->get_component(0)->subset ?
+    # Only no subset or flavours of human subset below
+    my $c = $subset ?
         $self->_composition_without_subset($composition) : $composition;
     my $data = $self->_basic_data($c);
+    #####
+    # Separate columns for a 'human' split data might have been originally
+    # created for pathogen studies. Eventually the data for y and xa
+    # splits got saved to these columns. So the names of these colums
+    # are now slightly misleading.
+    my $column_name_prefix = $subset ? 'human_' : q[];
+    $column_name_prefix = q[bam_] . $column_name_prefix;
 
-    $check_name =~ s/[ ]flagstats//xsmg;
-    $check_name =~ s/[ ]/_/xsmg;
-    foreach my $method (qw(percent_mapped_reads percent_duplicate_reads)) {
+    foreach my $m (qw(percent_mapped percent_duplicate)) {
+        my $method = join q[_], $m, 'reads';
         if (my $r = $result->$method ) {
-            my $m = $method;
-            $m =~ s/_reads\z//xsmg;
-            my $check = $check_name;
-            $check =~ s/_nonhuman//xsmg;
-            $check =~ s/_xahuman/_human/xsmg;
-            $check =~ s/_yhuman/_human/xsmg;
-            $data->{$check.q[_].$m} = $r;
+            $data->{$column_name_prefix . $m} = $r;
         }
     }
 
-    if ($check_name !~ /_human/xsmg) {
+    if (not $subset) { # No splits below here
         my $num_reads = $result->total_reads;
         $data->{'bam_num_reads'} = $num_reads;
         my $chimeric_reads = $self->_truncate_float(
@@ -337,7 +339,10 @@ sub _bam_flagstats {
         foreach my $method ( map { 'target_' . $_ } qw(
                 filter length mapped_reads mapped_bases
                 proper_pair_mapped_reads coverage_threshold 
-                percent_gt_coverage_threshold)) {
+                percent_gt_coverage_threshold
+                autosome_coverage_threshold
+                autosome_percent_gt_coverage_threshold
+                )) {
             if (my $r = $result->$method ) {
                 $data->{$method} = $r;
             }

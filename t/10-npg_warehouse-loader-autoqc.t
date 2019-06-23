@@ -227,7 +227,7 @@ subtest 'retrieve data for run 6624' => sub {
 };
 
 subtest 'retrieve data for run 6642' => sub {
-  plan tests => 16;
+  plan tests => 20;
 
   my $id_run = 6642;
   lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })}
@@ -259,12 +259,16 @@ subtest 'retrieve data for run 6642' => sub {
   $d = $compos_pkg->new(components =>
     [$compon_pkg->new(id_run => $id_run, position => 2, tag_index => 5)])->digest;
   cmp_ok(sprintf('%.2f',$auto->{$d}->{bam_human_percent_mapped}), q(==), 55.3, 'bam xahuman mapped percent as human');
-  cmp_ok(sprintf('%.2f',$auto->{$d}->{bam_human_percent_duplicate}), q(==), 68.09, 'bam xahuman duplicate percent as human');
+  cmp_ok(sprintf('%.2f',$auto->{$d}->{bam_human_percent_duplicate}), q(==), 68.09, 'bam duplicate percent as human');
+  cmp_ok(sprintf('%.2f',$auto->{$d}->{bam_percent_mapped}), q(==), 96.3, 'bam xahuman mapped percent as human');
+  cmp_ok(sprintf('%.2f',$auto->{$d}->{bam_percent_duplicate}), q(==), 6.34, 'bam duplicate percent as human');
 
   $d = $compos_pkg->new(components =>
     [$compon_pkg->new(id_run => $id_run, position => 2, tag_index => 6)])->digest;
   cmp_ok(sprintf('%.2f',$auto->{$d}->{bam_human_percent_mapped}), q(==), 55.3, 'bam yhuman mapped percent as human');
   cmp_ok(sprintf('%.2f',$auto->{$d}->{bam_human_percent_duplicate}), q(==), 68.09, 'bam yhuman duplicate percent as human');
+  is ($auto->{$d}->{bam_percent_mapped}, undef, 'data not set');
+  is ($auto->{$d}->{bam_percent_duplicate}, undef, 'data not set');
 };
 
 subtest 'retrieve rna data' => sub {
@@ -313,7 +317,7 @@ subtest 'retrieve gbs data' => sub {
 };
 
 subtest 'retrieve target stats data' => sub {
-  plan tests => 11;
+  plan tests => 13;
 
   my $id_run = 27116;
   lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })}
@@ -333,6 +337,8 @@ subtest 'retrieve target stats data' => sub {
   cmp_ok(sprintf('%.2f',$auto->{$d}->{target_mapped_reads}), q(==), 58704583, 'target - target_mapped_reads');
   cmp_ok(sprintf('%.2f',$auto->{$d}->{target_percent_gt_coverage_threshold}), q(==), 0.15, 'target - target_percent_gt_coverage_threshold');
   cmp_ok(sprintf('%.2f',$auto->{$d}->{target_proper_pair_mapped_reads}), q(==), 57355728, 'target - target_proper_pair_mapped_reads');
+  cmp_ok(sprintf('%.2f',$auto->{$d}->{target_autosome_coverage_threshold}), q(==), 15, 'target - target_autosome_coverage_threshold');
+  cmp_ok(sprintf('%.2f',$auto->{$d}->{target_autosome_percent_gt_coverage_threshold}), q(==), 0.17, 'target - target_autosome_percent_gt_coverage_threshold');
   cmp_ok(sprintf('%.2f',$auto->{$d}->{nrd_percent}), q(==), 0.00, 'nrd');
 };
 
