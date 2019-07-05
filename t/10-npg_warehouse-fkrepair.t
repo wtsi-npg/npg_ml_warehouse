@@ -107,8 +107,9 @@ npg_warehouse::loader::run->new(
   is (join(q[ ], $r->_runs_with_null_fks()) , '4486 26291', 'runs to repair are still detected');
 
   my $no_fk_rs = $rs->search({id_run => 4486, id_iseq_flowcell_tmp => undef});
-  is ($no_fk_rs->count, 2,
-    'two rows for run 4486 are without the fk (lims data missing for lane 5)');
+  # multiple flowcell table records for lane 1
+  # lims data missing for lane 5
+  is ($no_fk_rs->count, 2, 'two rows for run 4486 are without the fk');
   @lanes = sort map {$_->position} $no_fk_rs->all;
   is (join(q[ ], @lanes), '1 5', 'no fk for lanes 1 and 5');
 
