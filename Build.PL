@@ -39,6 +39,7 @@ my $builder = npg_tracking::util::build->new(
                  'requires'            => {
                     'Carp'                      => 0,
                     'DBIx::Class::ResultClass::HashRefInflator' => 0,
+                    'File::Slurp'               => 0,
                     'List::MoreUtils'           => 0,
                     'Math::Round'               => 0,
                     'Moose'                     => 0,
