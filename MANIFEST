@@ -1,5 +1,5 @@
 bin/npg_mlwarehouse_fkrepair
-bin/npg_products2ml_warehouse
+bin/npg_products2mlwarehouse
 bin/npg_run_statuses2mlwarehouse
 bin/npg_runs2mlwarehouse
 bin/warehouse_loader_launcher

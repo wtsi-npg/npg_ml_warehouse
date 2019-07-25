@@ -17,7 +17,7 @@ __END__
 
 =head1 NAME
 
-npg_products2ml_warehouse
+npg_products2mlwarehouse
 
 =head1 SYNOPSIS
 
@@ -30,12 +30,12 @@ for details.
 =head1 USAGE
  
  # Load autoqc results from the given paths:
- npg_products2ml_warehouse --autoqc_path path1 --autoqc_path path2
+ npg_products2mlwarehouse --autoqc_path path1 --autoqc_path path2
 
  # Use the QC database as a source of autoqc results:
- npg_products2ml_warehouse --composition_path path1 \
+ npg_products2mlwarehouse --composition_path path1 \
                            --composition_path path2
- npg_products2ml_warehouse --rpt_list '1234:1:2;1235:2:4' \
+ npg_products2mlwarehouse --rpt_list '1234:1:2;1235:2:4' \
                            --rpt_list '3234:1:2;3235:2:4'
 
 =head1 REQUIRED ARGUMENTS
