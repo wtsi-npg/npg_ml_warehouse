@@ -34,9 +34,9 @@ for details.
 
  # Use the QC database as a source of autoqc results:
  npg_products2mlwarehouse --composition_path path1 \
-                           --composition_path path2
+                          --composition_path path2
  npg_products2mlwarehouse --rpt_list '1234:1:2;1235:2:4' \
-                           --rpt_list '3234:1:2;3235:2:4'
+                          --rpt_list '3234:1:2;3235:2:4'
 
 =head1 REQUIRED ARGUMENTS
 
@@ -44,11 +44,11 @@ None
 
 =head1 OPTIONS
 
-  --help        brief help message
-  --verbose     to switch on verbose mode (disabled by default)
-  --rpt_list    a list of rpt_list strings, optional
-  --autoqc_path a list of directories, optional
-  --composition_path a list of directories, optional
+  --help              brief help message
+  --verbose           to switch on verbose mode (disabled by default)
+  --rpt_list          a list of rpt_list strings, optional
+  --autoqc_path       a list of directories, optional
+  --composition_path  a list of directories, optional
 
 =head1 EXIT STATUS
 
