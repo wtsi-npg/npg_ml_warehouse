@@ -5,12 +5,15 @@ language: perl
 perl:
   - "5.22-shrplib"
 
+dist:
+  - precise
+
 env:
   global:
     - WTSI_NPG_GITHUB_URL=https://github.com/wtsi-npg
 install:
- - ./.travis/install.sh
+  - ./.travis/install.sh
 
 addons:
-    apt:
-      update: true
+  apt:
+    update: true
