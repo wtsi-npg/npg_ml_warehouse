@@ -353,7 +353,7 @@ sub _load_iseq_run_lane_metrics_table {
 
  If the row is being updated, we are not going to touch the foreign
  key into iseq_flowcell table, unless lims_fk_repair is set to true.
- If the row is being created, we will try to assign this foreing key.
+ If the row is being created, we will try to assign this foreign key.
  value. If the parent row in the iseq_flowcell table has been deleted,
  the foreign key value has been set to NULL. Resetting it to a valid
  value is the responsibility of the daemon that repairs foreign keys,

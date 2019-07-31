@@ -444,6 +444,17 @@ sub retrieve {
                                                 npg_tracking_schema => $npg_schema
                                                     );
     my $collection = $self->autoqc_store->load($query);
+    return $self->process($collection);
+}
+
+=head2 process
+
+Process collection to produce data suitable for loading to the warehouse. 
+
+=cut
+sub process {
+    my ($self, $collection) = @_;
+
     my $hashed = {};
     my $methods = {};
     foreach my $r (@{$collection->results}) {
@@ -529,7 +540,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2018 Genome Research Limited
+Copyright (C) 2018, 2019 Genome Research Limited
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

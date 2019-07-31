@@ -1,4 +1,5 @@
 bin/npg_mlwarehouse_fkrepair
+bin/npg_products2mlwarehouse
 bin/npg_run_statuses2mlwarehouse
 bin/npg_runs2mlwarehouse
 bin/warehouse_loader_launcher
@@ -11,6 +12,7 @@ lib/npg_warehouse/loader/base.pm
 lib/npg_warehouse/loader/fqc.pm
 lib/npg_warehouse/loader/npg.pm
 lib/npg_warehouse/loader/product.pm
+lib/npg_warehouse/loader/product_limited.pm
 lib/npg_warehouse/loader/qc.pm
 lib/npg_warehouse/loader/run.pm
 lib/npg_warehouse/loader/run_status.pm
@@ -29,6 +31,7 @@ t/10-npg_warehouse-fkrepair.t
 t/10-npg_warehouse-loader-autoqc.t
 t/10-npg_warehouse-loader-fqc.t
 t/10-npg_warehouse-loader-npg.t
+t/10-npg_warehouse-loader-product_limited.t
 t/10-npg_warehouse-loader-qc.t
 t/10-npg_warehouse-loader-run.t
 t/10-npg_warehouse-loader-run_status.t
