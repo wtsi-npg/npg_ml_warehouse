@@ -1,8 +1,11 @@
 LIST OF CHANGES
 
+release 41.2
  - a new role - npg_warehouse::loader::product - consolidates
    methods for retrieving autoqc data for compositions and
    loading this data to the iseq_product_metrics table
+ - a new script - npg_products2mlwarehouse - for loading product
+   autoqc data to the iseq_product_metrics table
 
 release 41.1
  - add target autosome stats to autoqc loader
