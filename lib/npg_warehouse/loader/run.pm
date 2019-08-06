@@ -21,15 +21,16 @@ extends 'npg_warehouse::loader::base';
 with qw/
   npg_tracking::glossary::run
   npg_tracking::glossary::flowcell
+  npg_warehouse::loader::product
        /;
 with 'WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell';
 
 our $VERSION  = '0';
 
-Readonly::Scalar my $NON_INDEXED_LIBRARY      => $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::NON_INDEXED_LIBRARY;
-Readonly::Scalar my $CONTROL_LANE             => $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::CONTROL_LANE;
-Readonly::Scalar my $INDEXED_LIBRARY          => $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::INDEXED_LIBRARY;
-Readonly::Scalar my $INDEXED_LIBRARY_SPIKE    => $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::INDEXED_LIBRARY_SPIKE;
+Readonly::Scalar my $NON_INDEXED_LIBRARY   => $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::NON_INDEXED_LIBRARY;
+Readonly::Scalar my $CONTROL_LANE          => $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::CONTROL_LANE;
+Readonly::Scalar my $INDEXED_LIBRARY       => $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::INDEXED_LIBRARY;
+Readonly::Scalar my $INDEXED_LIBRARY_SPIKE => $WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell::INDEXED_LIBRARY_SPIKE;
 
 Readonly::Scalar my $FLOWCELL_LIMS_TABLE_NAME => q[IseqFlowcell];
 Readonly::Scalar my $RUN_LANE_TABLE_NAME      => q[IseqRunLaneMetric];
@@ -95,17 +96,6 @@ DBIx result set from which relevant flowcell rows can be retrieved
 sub iseq_flowcell {
   my $self = shift;
   return $self->schema_wh->resultset($FLOWCELL_LIMS_TABLE_NAME);
-}
-
-has '_rl_column_names' => (
-  isa        => 'ArrayRef',
-  is         => 'ro',
-  required   => 0,
-  lazy_build => 1,
-);
-sub _build__rl_column_names {
-  my $self = shift;
-  return [$self->schema_wh->resultset($RUN_LANE_TABLE_NAME)->result_source->columns()];
 }
 
 has '_flowcell_table_fks' => ( isa        => 'HashRef',
@@ -273,20 +263,6 @@ sub _build__data {
   my $dates = $self->_npg_data_retriever()->dates();
   my $instr = $self->_npg_data_retriever()->instrument_info;
   my $lane_data = {};
-  my $lane_deplexed_flags = {};
-
-  my $data_hash = npg_warehouse::loader::autoqc
-    ->new(autoqc_store => $self->_autoqc_store, mlwh => 1)
-    ->retrieve($self->id_run, $self->schema_npg);
-  my $indexed_lanes = _indexed_lanes_hash($data_hash);
-
-  my %digests = map { $_ => $data_hash->{$_}->{'composition'} }
-                keys %{$data_hash};
-  my $fqc_retriever = npg_warehouse::loader::fqc->new(
-    schema_qc => $self->schema_qc,
-    digests   => \%digests
-  );
-  $fqc_retriever->retrieve();
 
   foreach my $rs (@{$self->_run_lane_rs})  {
 
@@ -309,103 +285,30 @@ sub _build__data {
       $values{$column} = $self->_cluster_density->{$position}->{$column};
     }
     $lane_data->{$position} = \%values;
-
-    $self->_copy_lane_data($lane_data, $position,
-      $fqc_retriever->retrieve_seq_outcome(join q[:], $self->id_run, $position));
   }
 
-  my @products = ();
+  my $data_hash = npg_warehouse::loader::autoqc
+    ->new(autoqc_store => $self->_autoqc_store, mlwh => 1)
+    ->retrieve($self->id_run, $self->schema_npg);
+  my $product_data = $self->product_data($data_hash, $lane_data);
 
-  while (my ($product_digest, $data) = each %{$data_hash}) {
+  my %known_column_names = map { $_ => 1 }
+    $self->schema_wh->resultset($RUN_LANE_TABLE_NAME)->result_source->columns();
 
-    my $composition = $data->{'composition'};
-    if ($composition->num_components == 1) {
-      my $component = $composition->get_component(0);
-      my $position  = $component->position;
-      my $tag_index = $component->tag_index;
-      if (!defined $tag_index) { # Lane data
-        $self->_copy_lane_data($lane_data, $position, $data);
-        # If this is lane data for an indexed lane, the lane itself is
-        # not the end product.
-        if ($data->{'tags_decode_percent'} || $indexed_lanes->{$position}) {
-          next;
-	}
-      }
-      $data->{'id_run'}    = $component->id_run;
-      $data->{'position'}  = $position;
-      $data->{'tag_index'} = $tag_index;
-    } else {
-      my @id_runs = uniq map { $_->id_run } $composition->components_list();
-      if (scalar @id_runs == 1) {
-        $data->{'id_run'} = $id_runs[0];
-      }
-      my @tis = grep { defined }
-                map  { $_->tag_index }
-                $composition->components_list();
-      if (scalar @tis == $composition->num_components) {
-        @tis = uniq @tis;
-        if (scalar @tis == 1) {
-          $data->{'tag_index'} = $tis[0];
-	}
-      }
+  my @lane_data_list = ();
+  foreach my $lane (values %{$lane_data}) {
+    foreach my $column_name (keys %{$lane}) {
+      exists $known_column_names{$column_name} or delete $lane->{$column_name};
     }
+    $lane->{'id_run'} //= $self->id_run;
+    $lane->{'cycles'} //= 0;
 
-    my $qc_outcomes = $fqc_retriever->retrieve_outcomes($product_digest);
-    while ( my ($column_name, $value) = each %{$qc_outcomes} ) {
-      $data->{$column_name} = $value;
-    }
-
-    $data->{'id_iseq_product'}      = $composition->digest();
-    $data->{'iseq_composition_tmp'} = $composition->freeze();
-    $data->{'num_components'}       = $composition->num_components();
-    push @products, $data;
+    push @lane_data_list, $lane;
   }
+  @lane_data_list = sort {$a->{position} <=> $b->{position}} @lane_data_list;
 
-  return { $RUN_LANE_TABLE_NAME =>
-           [sort {$a->{position} <=> $b->{position}} values %{$lane_data}],
-           $PRODUCT_TABLE_NAME  =>
-           [sort {_compare_product_data($a, $b)} @products] };
-}
-
-sub _compare_product_data {
-  my ($a, $b) = @_;
-  # Data for single component first
-  my $r = $a->{'num_components'} <=> $b->{'num_components'};
-  return $r if $r != 0;
-  return $a->{'iseq_composition_tmp'} cmp $b->{'iseq_composition_tmp'};
-}
-
-sub _copy_lane_data {
-  my ($self, $lane_data, $p, $h) = @_;
-
-  while (my ($column_name, $value) = each %{$h}) {
-    if (any { $_ eq $column_name } @{$self->_rl_column_names()}) {
-      $lane_data->{$p}->{$column_name} = $value;
-    }
-  }
-
-  $lane_data->{$p}->{'position'} = $p;
-  $lane_data->{$p}->{'id_run'} = $self->id_run;
-
-  if (!defined $lane_data->{$p}->{'cycles'}) {
-    $lane_data->{$p}->{'cycles'} = 0;
-  }
-
-  return;
-}
-
-sub _indexed_lanes_hash {
-  my $data_hash = shift;
-  my %pools =
-      map  {$_ => 1 }
-      uniq
-      map  { $_->position }
-      grep { defined $_->tag_index }
-      map  { $_->get_component(0) }
-      grep { $_->num_components == 1 }
-      map  { $_->{'composition'} }
-      values %{$data_hash};
-  return \%pools;
+  return { $RUN_LANE_TABLE_NAME => \@lane_data_list,
+	   $PRODUCT_TABLE_NAME  => $product_data };
 }
 
 sub _pt_key {
@@ -413,22 +316,59 @@ sub _pt_key {
   return defined $t ? join(q[:], $p, $t) : $p;
 }
 
-sub _get_lims_fk {
+sub _explain_missing {
+  my ($self, $pt_key, $position, $ti) = @_;
+  if ($self->explain) {
+    if (!defined $ti || $ti != 0) {
+      my $lib_type = defined $ti ? $NON_INDEXED_LIBRARY : $INDEXED_LIBRARY;
+      my @keys = keys %{$self->_flowcell_table_fks->{$position}->{$lib_type}};
+      my $other_keys = @keys ? join(q[ ], @keys) : 'none';
+      warn sprintf 'Flowcell table has no information for pt key %s, run %i; other keys %s%s',
+        $pt_key, $self->id_run, $other_keys, qq[\n];
+    }
+  }
+  return;
+}
+
+sub _load_iseq_run_lane_metrics_table {
+  my $self = shift;
+  my $transaction = sub {
+    my $count = 0;
+    my $rs = $self->schema_wh->resultset($RUN_LANE_TABLE_NAME);
+    foreach my $row (@{$self->_data->{$RUN_LANE_TABLE_NAME}}) {
+      if ($self->verbose) {
+        warn "Will update or create record in $RUN_LANE_TABLE_NAME for " .
+        join q[ ], 'run', $row->{'id_run'}, 'position', $row->{'position'} . "\n";
+      }
+      $rs->update_or_create($row);
+      $count++;
+    }
+    return $count;
+  };
+
+  return $self->schema_wh->txn_do($transaction);
+}
+
+=head2 get_lims_fk
+
+ If the row is being updated, we are not going to touch the foreign
+ key into iseq_flowcell table, unless lims_fk_repair is set to true.
+ If the row is being created, we will try to assign this foreign key.
+ value. If the parent row in the iseq_flowcell table has been deleted,
+ the foreign key value has been set to NULL. Resetting it to a valid
+ value is the responsibility of the daemon that repairs foreign keys,
+ which will set the lims_fk_repair flag to true for this object.
+
+=cut
+
+sub get_lims_fk {
   my ($self, $row) = @_;
 
+  return if ($row->in_storage && !$self->lims_fk_repair);
   return if !$self->_flowcell_table_fks_exist;
 
-  my $position;
-  my $ti;
-
-  # The argument $row can be either a hash reference or a DBIx::Class::Row object.
-  if (ref $row eq 'HASH') {
-    $position = $row->{'position'};
-    $ti       = $row->{'tag_index'};
-  } else {
-    $position = $row->position;
-    $ti       = $row->tag_index;
-  }
+  my $position = $row->position;
+  my $ti       = $row->tag_index;
 
   my @types = exists $self->_flowcell_table_fks->{$position} ?
               keys %{ $self->_flowcell_table_fks->{$position} } : ();
@@ -479,149 +419,6 @@ sub _get_lims_fk {
   }
 
   return $pk;
-}
-
-sub _explain_missing {
-  my ($self, $pt_key, $position, $ti) = @_;
-  if ($self->explain) {
-    if (!defined $ti || $ti != 0) {
-      my $lib_type = defined $ti ? $NON_INDEXED_LIBRARY : $INDEXED_LIBRARY;
-      my @keys = keys %{$self->_flowcell_table_fks->{$position}->{$lib_type}};
-      my $other_keys = @keys ? join(q[ ], @keys) : 'none';
-      warn sprintf 'Flowcell table has no information for pt key %s, run %i; other keys %s%s',
-        $pt_key, $self->id_run, $other_keys, qq[\n];
-    }
-  }
-  return;
-}
-
-sub _filter_column_names {
-  my ($self, $values) = @_;
-
-  my @columns = keys %{$values};
-  foreach my $name (@columns) {
-    my $old_name = $name;
-    my $count = $name =~ s/\Atag_sequence\Z/tag_sequence4deplexing/xms;
-    if (!$count) {
-      $count = $name =~ s/\Abam_//xms;
-    }
-    if ($count) {
-      $values->{$name} = $values->{$old_name};
-      delete $values->{$old_name};
-    }
-  }
-  return;
-}
-
-sub _load_iseq_run_lane_metrics_table {
-  my $self = shift;
-  my $transaction = sub {
-    my $count = 0;
-    my $rs = $self->schema_wh->resultset($RUN_LANE_TABLE_NAME);
-    foreach my $row (@{$self->_data->{$RUN_LANE_TABLE_NAME}}) {
-      if ($self->verbose) {
-        warn "Will update or create record in $RUN_LANE_TABLE_NAME for " .
-        join q[ ], 'run', $row->{'id_run'}, 'position', $row->{'position'} . "\n";
-      }
-      $rs->update_or_create($row);
-      $count++;
-    }
-    return $count;
-  };
-
-  return $self->schema_wh->txn_do($transaction);
-}
-
-sub _load_iseq_product_metrics_table {
-  my $self = shift;
-
-  #####
-  # If the row is being updated, we are not going to touch the foreign
-  # key into iseq_flowcell table, unless lims_fk_repair is set to true.
-  # If the row is being created, we will try to assign this foreing key.
-  # value. If the parent row in the iseq_flowcell table has been deleted,
-  # the foreign key value has been set to NULL. Resetting it to a valid
-  # value is the responsibility of the daemon that repairs foreign keys,
-  # which will set the lims_fk_repair flag to true for this object.
-  #
-
-  my @rows = ();
-
-  foreach my $row (@{$self->_data->{$PRODUCT_TABLE_NAME}}) {
-    my $composition    = delete $row->{'composition'};
-    my $num_components = delete $row->{'num_components'};
-    $self->_filter_column_names($row);
-    if ($self->lims_fk_repair && ($num_components == 1)) {
-      $row->{$LIMS_FK_COLUMN_NAME} = $self->_get_lims_fk($row);
-    }
-    push @rows, {data           => $row,
-                 num_components => $num_components,
-                 composition    => $composition};
-  }
-
-  my $rs = $self->schema_wh->resultset($PRODUCT_TABLE_NAME);
-  my $transaction = sub {
-    foreach my $h (@rows) {
-      my $action = 'updated';
-      my $result = $rs->update_or_new($h->{'data'});
-      if (!$result->in_storage) {
-        $action = 'created';
-        # Try to get the fk value if this has not been already done.
-        if (!$self->lims_fk_repair && ($h->{'num_components'} == 1)) {
-          my $fk = $self->_get_lims_fk($result);
-          if ($fk) {
-            $result->set_column($LIMS_FK_COLUMN_NAME => $fk);
-	  }
-        }
-        $result = $result->insert();
-        $self->_create_linking_rows(
-          $result, $h->{'num_components'}, $h->{'composition'});
-      }
-      if ($self->verbose) {
-        warn "$PRODUCT_TABLE_NAME row $action for " .
-           $h->{'data'}->{'iseq_composition_tmp'} . "\n";
-      }
-    }
-  };
-
-  $self->schema_wh->txn_do($transaction);
-
-  return scalar @rows;
-}
-
-sub _create_linking_rows {
-  my ($self, $result, $num_components, $composition) = @_;
-
-  my $rs  = $self->schema_wh->resultset($PRODUCT_TABLE_NAME);
-  my $rsl = $self->schema_wh->resultset('IseqProductComponent');
-  my $pk_name = 'id_iseq_pr_metrics_tmp';
-  my $row_pk = $result->$pk_name;
-
-  my $create_row = sub {
-    my ($pcid, $i) = @_;
-    $rsl->create({id_iseq_pr_tmp           => $row_pk,
-                  id_iseq_pr_component_tmp => $pcid,
-                  component_index          => $i,
-                  num_components           => $num_components});
-  };
-
-  if ($num_components == 1) {
-    $create_row->($row_pk, 1);
-  } else {
-    my $count = 1;
-    foreach my $component ($composition->components_list) {
-      my $db_component = $rs->search({
-        id_run    => $component->id_run,
-        position  => $component->position,
-        tag_index => $component->tag_index})->next;
-      $db_component or croak
-        'Failed to find the component product row for ' . $component->freeze();
-      $create_row->($db_component->$pk_name, $count);
-      $count++;
-    }
-  }
-
-  return;
 }
 
 =head2 load
@@ -675,7 +472,7 @@ sub load {
       try {
         $count = $table eq $RUN_LANE_TABLE_NAME ?
                  $self->_load_iseq_run_lane_metrics_table() :
-                 $self->_load_iseq_product_metrics_table();
+                 $self->load_iseq_product_metrics_table($self->_data->{$table});
         if ($self->verbose) {
           warn qq[Loaded $count rows to table $table for run $id_run\n];
         }

@@ -1,5 +1,6 @@
 package npg_warehouse::loader::base;
 
+use namespace::autoclean;
 use Moose;
 
 use WTSI::DNAP::Warehouse::Schema;
@@ -93,8 +94,6 @@ sub _build_schema_qc {
   return npg_qc::Schema->connect();
 }
 
-__PACKAGE__->meta->make_immutable;
-
 1;
 
 __END__
@@ -109,6 +108,8 @@ __END__
 =over
 
 =item Moose
+
+=item namespace::autoclean
 
 =item WTSI::DNAP::Warehouse::Schema
 
@@ -128,7 +129,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2015 Genome Research Limited
+Copyright (C) 2015,2019 Genome Research Limited
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
