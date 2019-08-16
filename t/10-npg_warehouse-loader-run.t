@@ -921,6 +921,7 @@ subtest 'run with merged data - linking to flowcell table' => sub {
   my %in = %{$init};
   $in{'id_run'} = $id_run;
   $in{'verbose'} = 0;
+  $in{'lims_fk_repair'} = 0;
   my $loader  = npg_warehouse::loader::run->new(\%in);
   ok(!$loader->lims_fk_repair, 'lims_fk_repair flag is false');
   lives_ok {$loader->load()} 'data is loaded';
