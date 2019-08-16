@@ -105,6 +105,24 @@ sub product_data {
 
 =head2 load_iseq_product_metrics_table
 
+ If the row is being updated, we are not going to touch the foreign
+ key into iseq_flowcell table, unless we have a method to do this
+ (get_lims_fk) and the value of the lims_fk_repair attribute is set
+ to true.
+
+ If get_lims_fk exists and the row is being created, we will try to
+ assign the foreign key value regardless of the value of the
+ lims_fk_repair attribute.
+
+ Multi-component entities do not have a corresponding entry in
+ iseq_flowcell table, no attempt is made to set the value of the
+ foreign key for them.
+
+ If the parent row in the iseq_flowcell table has been deleted,
+ the foreign key value has been set to NULL. Resetting it to a valid
+ value is the responsibility of the daemon that repairs foreign keys,
+ which will set the lims_fk_repair flag to true for this object.
+
 =cut
 
 sub load_iseq_product_metrics_table {
@@ -126,16 +144,23 @@ sub load_iseq_product_metrics_table {
     foreach my $h (@rows) {
       my $action = 'updated';
       my $result = $rs->find_or_new($h->{'data'});
-      my $fk = ($h->{'num_components'} == 1 && $self->can('get_lims_fk'))
-	       ? $self->get_lims_fk($result) : undef;
+      # Multi-component entities do not have a corresponding entry in LIMs
+      my $calc_fk = ($h->{'num_components'} == 1) && $self->can('get_lims_fk');
       if (!$result->in_storage) {
         $action = 'created';
-        $fk && $result->set_column($LIMS_FK_COLUMN_NAME => $fk);
+        if ($calc_fk) {
+          my $fk = $self->get_lims_fk($result);
+          $fk && $result->set_column($LIMS_FK_COLUMN_NAME => $fk);
+	}
         $result = $result->insert();
         $self->_create_linking_rows(
           $result, $h->{'num_components'}, $h->{'composition'});
       } else {
-        $h->{'data'}->{$LIMS_FK_COLUMN_NAME} = $fk;
+        if ($calc_fk && $self->lims_fk_repair) {
+          # There might be a legitimate reason to set the value of the
+          # foreign key to NULL, so we do this unconditionally.
+          $h->{'data'}->{$LIMS_FK_COLUMN_NAME} = $self->get_lims_fk($result);
+        }
         $result->update($h->{'data'});
       }
       if ($self->verbose) {

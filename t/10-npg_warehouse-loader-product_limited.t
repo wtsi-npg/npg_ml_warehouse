@@ -21,7 +21,7 @@ lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
   q[t/data/fixtures/npgqc]) } 'npgqc test db created';
 
 subtest 'object construction, presence of attributes' => sub {
-  plan tests => 6;
+  plan tests => 9;
 
   throws_ok { npg_warehouse::loader::product_limited->new(schema_qc => $schema_qc,
                                                           schema_wh => $schema_wh)
@@ -45,6 +45,9 @@ subtest 'object construction, presence of attributes' => sub {
   isa_ok ($l, 'npg_warehouse::loader::product_limited');
   ok (!$l->can('schema_npg'), 'schema_npg accessor is not available');
   ok (!$l->can('explain'), 'explain accessor is not available');
+  ok (!$l->can('get_lims_fk'), 'get_lims_fk method is not available');
+  ok ($l->can('lims_fk_repair'), 'lims_fk_repair accessor is available');
+  ok (!$l->lims_fk_repair, 'lims_fk_repair value is false');
 };
 
 subtest 'autoqc results from path' => sub {

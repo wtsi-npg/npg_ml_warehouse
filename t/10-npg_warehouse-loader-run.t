@@ -953,11 +953,8 @@ subtest 'run with merged data - linking to flowcell table' => sub {
   $in{'lims_fk_repair'} = 0;
   $loader  = npg_warehouse::loader::run->new(\%in);
   ok(!$loader->lims_fk_repair, 'lims_fk_repair flag is false');
-  lives_ok {$loader->load()} 'data is loaded';
-  TODO: {
-    local $TODO = 'Failure because of a bug, see Changes note for release 41.2.1';
-    $test_after_loading->();
-  };
+  lives_ok {$loader->load()} 'data is loaded again';
+  $test_after_loading->();
 
   $schema_wh->resultset($PRODUCTC_TABLE_NAME)->search({})->delete();
   $rs->delete();

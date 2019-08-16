@@ -51,17 +51,6 @@ npg_warehouse::loader::run
 
 =head1 SUBROUTINES/METHODS
 
-=head2 lims_fk_repair
-
-Boolean flag, false by default. Switches on and off
-repair of LIMs foreign key values for update operations.
-
-=cut
-has 'lims_fk_repair' => ( isa      => 'Bool',
-                          is       => 'ro',
-                          required => 0,
-);
-
 =head2 id_run
 
 Run id
@@ -351,20 +340,19 @@ sub _load_iseq_run_lane_metrics_table {
 
 =head2 get_lims_fk
 
- If the row is being updated, we are not going to touch the foreign
- key into iseq_flowcell table, unless lims_fk_repair is set to true.
- If the row is being created, we will try to assign this foreign key.
- value. If the parent row in the iseq_flowcell table has been deleted,
- the foreign key value has been set to NULL. Resetting it to a valid
- value is the responsibility of the daemon that repairs foreign keys,
- which will set the lims_fk_repair flag to true for this object.
+This method tries to compute a value for the foreign key into
+iseq_flowcell table for the argument iseq_product_metrics table
+row. If does not try to evaluate whether it's appropriate for
+the argument row to have this value set.
+
+Undefined value is returned if no matching single(!) row is found
+in iseq_flowcell table
 
 =cut
 
 sub get_lims_fk {
   my ($self, $row) = @_;
 
-  return if ($row->in_storage && !$self->lims_fk_repair);
   return if !$self->_flowcell_table_fks_exist;
 
   my $position = $row->position;
