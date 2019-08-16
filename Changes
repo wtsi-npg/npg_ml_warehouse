@@ -1,5 +1,12 @@
 LIST OF CHANGES
 
+release 41.2.1
+ - change lims_fk_repair flag default from false to true to
+   mitigate code regression in release 41.2, which erases value of
+   the foreign key into iseq_flowcelt table on subsequent runs of
+   the loader for a particular run (is the foreign key is set
+   correctly only if no data exist in the product table)
+
 release 41.2
  - a new role - npg_warehouse::loader::product - consolidates
    methods for retrieving autoqc data for compositions and
