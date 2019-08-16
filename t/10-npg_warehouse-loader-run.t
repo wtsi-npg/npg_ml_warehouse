@@ -898,7 +898,7 @@ subtest 'NovaSeq run with merged data' => sub {
 };
 
 subtest 'run with merged data - linking to flowcell table' => sub {
-  plan tests => 39;
+  plan tests => 55;
 
   my $id_run = 26291;
 
@@ -921,7 +921,7 @@ subtest 'run with merged data - linking to flowcell table' => sub {
   my %in = %{$init};
   $in{'id_run'} = $id_run;
   $in{'verbose'} = 0;
-  $in{'lims_fk_repair'} = 0;
+
   my $loader  = npg_warehouse::loader::run->new(\%in);
   ok(!$loader->lims_fk_repair, 'lims_fk_repair flag is false');
   lives_ok {$loader->load()} 'data is loaded';
@@ -933,6 +933,7 @@ subtest 'run with merged data - linking to flowcell table' => sub {
   $in{'lims_fk_repair'} = 1;
   $loader  = npg_warehouse::loader::run->new(\%in);
   ok($loader->lims_fk_repair, 'lims_fk_repair flag is true');
+
   lives_ok {$loader->load()} 'data is loaded';
 
   my $test_after_loading = sub {
@@ -948,6 +949,15 @@ subtest 'run with merged data - linking to flowcell table' => sub {
   };
 
   $test_after_loading->();
+
+  $in{'lims_fk_repair'} = 0;
+  $loader  = npg_warehouse::loader::run->new(\%in);
+  ok(!$loader->lims_fk_repair, 'lims_fk_repair flag is false');
+  lives_ok {$loader->load()} 'data is loaded';
+  TODO: {
+    local $TODO = 'Failure because of a bug, see Changes note for release 41.2.1';
+    $test_after_loading->();
+  };
 
   $schema_wh->resultset($PRODUCTC_TABLE_NAME)->search({})->delete();
   $rs->delete();

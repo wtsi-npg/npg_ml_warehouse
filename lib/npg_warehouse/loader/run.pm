@@ -53,14 +53,13 @@ npg_warehouse::loader::run
 
 =head2 lims_fk_repair
 
-Boolean flag, true by default. Switches on and off
+Boolean flag, false by default. Switches on and off
 repair of LIMs foreign key values for update operations.
 
 =cut
 has 'lims_fk_repair' => ( isa      => 'Bool',
                           is       => 'ro',
                           required => 0,
-                          default  => 1,
 );
 
 =head2 id_run
