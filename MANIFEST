@@ -23,8 +23,6 @@ lib/st/api/lims/ml_warehouse_auto.pm
 lib/st/api/lims/ml_warehouse_fc_cache.pm
 MANIFEST			This list of files
 README
-scripts/npg_mlwarehouse_link_products
-scripts/whloader_tests.pl
 t/00-critic.t
 t/00-distribution.t
 t/00-pod.t
