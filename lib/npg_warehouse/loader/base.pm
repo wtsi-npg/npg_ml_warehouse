@@ -25,6 +25,17 @@ A base class for warehouse-related code. Defines common attributes.
 
 =head1 SUBROUTINES/METHODS
 
+=head2 lims_fk_repair
+
+Boolean flag, false by default. Switches on and off
+repair of LIMs foreign key values for update operations.
+
+=cut
+has 'lims_fk_repair' => ( isa      => 'Bool',
+                          is       => 'ro',
+                          required => 0,
+);
+
 =head2 explain
 
 Boolean flag activating logging of linking to the flowcell table problems

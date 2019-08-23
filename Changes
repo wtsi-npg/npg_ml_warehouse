@@ -1,5 +1,10 @@
 LIST OF CHANGES
 
+release 41.3
+ - run folders for test data restructured to reflect new-style
+product hierarchy
+ - bug fix for setting (or not) foreign keys on update
+
 release 41.2.1
  - change lims_fk_repair flag default from false to true to
    mitigate code regression in release 41.2, which erases value of
