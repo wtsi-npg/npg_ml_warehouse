@@ -771,13 +771,15 @@ subtest 'NovaSeq run with merged data' => sub {
 
   # Create tracking record for a NovaSeq run with two lanes
   t::util::create_nv_run($schema_npg, $id_run, $tdir, 'with_merges');
+  symlink 'Data/Intensities/BAM_basecalls_20180805-013153/no_cal',
+          "$tdir/with_merges/Latest_Summary";
 
   my %in = %{$init};
   $in{'id_run'} = $id_run;
   $in{'verbose'} = 0;
   my $loader  = npg_warehouse::loader::run->new(\%in);
-  warning_like { $loader->load() }
-    qr/Failed to find the component product row/,
+  warnings_like { $loader->load() }
+    [qr/Failed to find the component product row/],
     'warning when the component product row is not found';
   is($schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
     {id_run => $id_run})->count, 0, 'no rows loaded');
