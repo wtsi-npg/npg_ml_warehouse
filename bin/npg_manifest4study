@@ -1,0 +1,336 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use FindBin qw($Bin);
+use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
+use Log::Log4perl qw(:levels);
+use DateTime;
+use DateTime::Duration;
+use Getopt::Long;
+use Pod::Usage;
+use Readonly;
+use Try::Tiny;
+use Carp;
+use File::Slurp;
+
+use WTSI::DNAP::Warehouse::Schema;
+
+our $VERSION = '0';
+
+Readonly::Scalar my $NUM_DAYS           => 7;
+Readonly::Scalar my $DATE_FORMAT        => '%Y%m%d';
+Readonly::Scalar my $STATUS_IN_PROGRESS => 'IN PROGRESS';
+Readonly::Scalar my $STATUS_SUCCESS     => 'SUCCESS';
+Readonly::Scalar my $STATUS_FAIL        => 'FAIL';
+
+Readonly::Scalar my $MANIFEST_DELIM     => qq[\t];
+
+Readonly::Scalar my $STUDY_ID => 5902;
+
+my $dry_run;
+my $help;
+
+GetOptions (
+            'help'          => \$help,
+            'dry_run!'      => \$dry_run
+           );
+
+if ($help) { pod2usage(0); }
+
+my $layout = '%d %-5p %c - %m%n';
+Log::Log4perl->easy_init({layout => $layout,
+                          level  => $INFO,
+                          utf8   => 1});
+my $logger = Log::Log4perl->get_logger();
+
+my $schema_wh = WTSI::DNAP::Warehouse::Schema->connect();
+
+##################################
+# TODO: cope with XP data products
+##################################
+exit main();
+
+##############################################################
+
+sub main {
+
+  my @dates = _dates();
+
+  my $files = _uploaded_files(@dates);
+  $files    = _newly_uploaded_files($files);
+  if (! keys %{$files} ) {
+    $logger->warn('No unreported remote files are found, exiting');
+    return 0;
+  }
+
+  my $transaction = sub {
+    foreach my $file (keys %{$files}) {
+      _create_record($files, $file);
+      _set_status($files->{$file}->{'remote_path'}, $STATUS_IN_PROGRESS);
+    }
+  };
+  my $error;
+  try {
+    $schema_wh->txn_do($transaction);
+    $logger->info(q[Manifest upload status is set to 'IN PROGRESS' for all products]);
+  } catch {
+    $error = $_;
+    $logger->error(qq[Error changing manifest upload status to 'IN PROGRESS': $error]);
+  };
+
+  if ($error) {
+    $logger->info('Exiting');
+    return 1;
+  }
+
+
+  foreach my $file (sort keys %{$files}) {
+    try {
+      if (_get_staging_md5($file) ne $files->{$file}->{'remote_md5'}) {
+        croak 'md5 mismatch';
+      }
+      $files->{$file}->{'lims'} = _get_lims_data($file);
+      ###########################################################
+      # TODO: check sample id in database matches bucket location
+      ###########################################################
+    } catch {
+      $logger->error(qq[Product ${file}: $_]);
+      _set_status($files->{$file}->{'remote_path'}, $STATUS_FAIL);
+      delete $files->{$file}; # remove this product from our cache
+    };
+  }
+
+  if (! keys %{$files} ) {
+    $logger->warn('Due to previous errors, nothing to report, exiting');
+    return 1;
+  }
+
+  my $status = $STATUS_SUCCESS;
+  try {
+    my $path = _generate_manifest($files);
+    _upload_manifest($path);
+    $logger->info('Manifest sent for ' . join qq[\n], sort keys %{$files});
+  } catch {
+    $logger->error($_);
+    $status = $STATUS_FAIL;
+  };
+
+  $transaction = sub {
+    foreach my $file (keys %{$files}) {
+      _set_status($files->{$file}->{'remote_path'}, $status);
+      _update_record($files, $files->{$file}->{'remote_path'});
+    }
+  };
+  $error = 0;
+  try {
+    $schema_wh->txn_do($transaction);
+    $logger->info('Manifest upload status is set to SUCCESS for all products');
+  } catch {
+    $error = 1;
+    $logger->error(qq[Error changing manifest upload status to SUCCESS: $_]);
+  };
+
+  return $error;
+}
+
+sub _current_date {
+  return DateTime->now(time_zone => 'local');
+}
+
+sub _dates {
+
+  my $date = _current_date();
+  my @dates = ($date->strftime($DATE_FORMAT));
+  for ( 1 .. $NUM_DAYS) {
+    push @dates, $date->subtract(DateTime::Duration->new(days => 1))
+                      ->strftime($DATE_FORMAT);
+  }
+
+  # Dates in accending order
+  @dates = reverse @dates;
+  $logger->info('Looking at dates ' . join q[, ], @dates);
+  
+  return @dates;
+}
+
+sub _uploaded_files {
+  my @dates = @_;
+
+  # Files for the same product might be present in different
+  # dated directories. We should take the latest data.
+
+  my $files = {};
+  # Get a list of all product files in remote dated directories
+  # for the given dates
+  my @remote_files = map {$files->{$_}->{'remote_path'} } keys %{$files};
+  if (@remote_files) {
+    $logger->warn('Remote files ' . join qq[\n], @remote_files);
+  } else {
+    $logger->error('No remote files are found');
+  }
+
+  return $files;
+}
+
+sub _newly_uploaded_files {
+  my ($files) = @_;
+  # Prune the products that have been already reported
+  # or are in the process of being reported, try again
+  # the files that previously errored.
+
+  my @remote_files = map {$files->{$_}->{'remote_path'} } keys %{$files};
+  if (@remote_files) {
+    $logger->warn('Unreported remote files ' . join qq[\n], @remote_files);
+  }
+
+  return $files;
+}
+
+sub _set_status {
+  my ($path, $status) = @_;
+  $dry_run and return;
+  # Set manifest_upload_status and manifest_upload_date
+  return;
+}
+
+sub _create_record {
+  my ($files, $file) = @_;
+  $dry_run and return;
+  # Create record if it does not exist.
+  # Currently, need file name, path, plate_id_wsi, supplier_sample_name_wsi, md5_wsi
+  return;
+}
+
+sub _update_record {
+  my ($files, $file) = @_;
+  $dry_run and return;
+  return;
+}
+
+sub _get_staging_md5 {
+  my $file = shift;
+  #####################################################
+  # TODO: how will we work with both lus113 and lus120?
+  #####################################################
+  my $md5;
+  return $md5
+}
+
+sub _get_lims_data {
+ my $file = shift;
+ my $meta;
+ return $meta;
+}
+
+sub _generate_manifest {
+  my ($files) = @_;
+  my @lines = ();
+  push @lines, join $MANIFEST_DELIM, qw(ukb_sample_id plate_id library_id path md5);
+  foreach my $file (sort keys %{$files}) {
+    push @lines, join $MANIFEST_DELIM, $files->{$file}->{'sample_id'},
+                                       $files->{$file}->{'plate_id'},
+                                       $files->{$file}->{'library_id'},
+                                       $files->{$file}->{'remote_path'},
+                                       $files->{$file}->{'remote_md5'};
+  }
+  my $path = 'some_path';
+  write_file($path, @lines);
+  $logger->info(qq[Saved manifest to $path]);
+  return $path;
+}
+
+sub _upload_manifest {
+  my ($path) = @_;
+  $dry_run and return;
+  # Upload manifest
+  return;
+}
+
+__END__
+
+=head1 NAME
+
+npg_manifest4study
+
+=head1 SYNOPSIS
+
+=head1 USAGE
+
+=head1 DESCRIPTION
+  
+=head1 REQUIRED ARGUMENTS
+
+None
+
+=head1 OPTIONS
+
+  --help       - brief help message
+  --dry_run    - a boolean flag; if true, the script prints what will
+                 happen and exists
+
+=head1 EXIT STATUS
+
+0
+
+=head1 CONFIGURATION
+
+=head1 DIAGNOSTICS
+
+=head1 DEPENDENCIES
+
+=over
+
+=item strict
+
+=item warnings
+
+=item lib
+
+=item FindBin
+
+=item Getopt::Long
+
+=item Pod::Usage
+
+=item WTSI::DNAP::Warehouse::Schema
+
+=item DateTime
+
+=item DateTime::Duration
+
+=item Readonly
+
+=item Carp
+
+=item Try::Tiny
+
+=item File::Slurp
+
+=back
+
+=head1 INCOMPATIBILITIES
+
+=head1 BUGS AND LIMITATIONS
+
+=head1 AUTHOR
+
+Marina Gourtovaia
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (C) 2019 by Genome Research Limited
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
