@@ -13,6 +13,8 @@ use Readonly;
 use Try::Tiny;
 use Carp;
 use File::Slurp;
+use MIME::Base64 qw( decode_base64 );
+use English qw(-no_match_vars);
 
 use WTSI::DNAP::Warehouse::Schema;
 
@@ -26,14 +28,14 @@ Readonly::Scalar my $STATUS_FAIL        => 'FAIL';
 
 Readonly::Scalar my $MANIFEST_DELIM     => qq[\t];
 
-Readonly::Scalar my $STUDY_ID => 5902;
-
-my $dry_run;
+my $dry_run = 1;
 my $help;
+my $bucket_url;
 
 GetOptions (
-            'help'          => \$help,
-            'dry_run!'      => \$dry_run
+            'help'         => \$help,
+            'dry_run!'     => \$dry_run,
+            'bucket_url=s' => \$bucket_url
            );
 
 if ($help) { pod2usage(0); }
@@ -43,6 +45,9 @@ Log::Log4perl->easy_init({layout => $layout,
                           level  => $INFO,
                           utf8   => 1});
 my $logger = Log::Log4perl->get_logger();
+$dry_run and $logger->info('DRY RUN');
+
+$bucket_url or ($logger->fatal('--bucket_url argument is required') and exit 1);
 
 my $schema_wh = WTSI::DNAP::Warehouse::Schema->connect();
 
@@ -70,10 +75,13 @@ sub main {
       _set_status($files->{$file}->{'remote_path'}, $STATUS_IN_PROGRESS);
     }
   };
+
   my $error;
   try {
-    $schema_wh->txn_do($transaction);
-    $logger->info(q[Manifest upload status is set to 'IN PROGRESS' for all products]);
+    if (not $dry_run) {
+      $schema_wh->txn_do($transaction);
+      $logger->info(q[Manifest upload status is set to 'IN PROGRESS' for all products]);
+    }
   } catch {
     $error = $_;
     $logger->error(qq[Error changing manifest upload status to 'IN PROGRESS': $error]);
@@ -84,20 +92,20 @@ sub main {
     return 1;
   }
 
-
   foreach my $file (sort keys %{$files}) {
     try {
-      if (_get_staging_md5($file) ne $files->{$file}->{'remote_md5'}) {
+      if (_get_staging_md5($files, $file) ne $files->{$file}->{'remote_md5'}) {
         croak 'md5 mismatch';
       }
-      $files->{$file}->{'lims'} = _get_lims_data($file);
+      $files->{$file}->{'lims'} = _get_lims_data($files, $file);
       ###########################################################
       # TODO: check sample id in database matches bucket location
       ###########################################################
     } catch {
       $logger->error(qq[Product ${file}: $_]);
       _set_status($files->{$file}->{'remote_path'}, $STATUS_FAIL);
-      delete $files->{$file}; # remove this product from our cache
+      # Do we want to save md5 to a database for this file if we have it?
+      delete $files->{$file}; # Remove this product from our cache
     };
   }
 
@@ -110,7 +118,7 @@ sub main {
   try {
     my $path = _generate_manifest($files);
     _upload_manifest($path);
-    $logger->info('Manifest sent for ' . join qq[\n], sort keys %{$files});
+    $logger->info('Manifest sent');
   } catch {
     $logger->error($_);
     $status = $STATUS_FAIL;
@@ -122,10 +130,13 @@ sub main {
       _update_record($files, $files->{$file}->{'remote_path'});
     }
   };
+
   $error = 0;
   try {
-    $schema_wh->txn_do($transaction);
-    $logger->info('Manifest upload status is set to SUCCESS for all products');
+    if (not $dry_run) {
+      $schema_wh->txn_do($transaction);
+      $logger->info('Manifest upload status is set to SUCCESS for all products');
+    }
   } catch {
     $error = 1;
     $logger->error(qq[Error changing manifest upload status to SUCCESS: $_]);
@@ -150,7 +161,7 @@ sub _dates {
   # Dates in accending order
   @dates = reverse @dates;
   $logger->info('Looking at dates ' . join q[, ], @dates);
-  
+
   return @dates;
 }
 
@@ -160,7 +171,41 @@ sub _uploaded_files {
   # Files for the same product might be present in different
   # dated directories. We should take the latest data.
 
+  my $command = join q[ ], 'gsutil ls -L',
+                map { "gs://sb-ukbiobankinput-europe-west2/$_/**.cram" }
+                @dates;
+  local $INPUT_RECORD_SEPARATOR ="\]\n";
+  ## no critic (InputOutput::RequireBriefOpen)
+  open my $fh, q(-|), $command or croak "Failed to open a pipe to '$command'";
+
   my $files = {};
+
+  while (<$fh>) {
+    ###################################
+    # TODO - cope with XP data products
+    ###################################
+    ##no critic (RegularExpressions::RequireExtendedFormatting RegularExpressions::ProhibitEscapedMetacharacters)
+    if ( m{(\S+/(\d+)/((\d+)#(\d+)[.]cram)):.*Hash \(md5\):\s+(\S+)}sm ) {
+      my $path      = $1;
+      my $sample    = $2;
+      my $file_name = $3;
+      my $id_run    = $4;
+      my $tag_index = $5;
+      my $md5       = $6;
+      croak "repeat for $1" if exists $files->{$file_name}->{'remote_path'}->{$path};
+      $files->{$file_name}->{'remote_path'} = $path;
+      $files->{$file_name}->{'remote_md5'}  = unpack q(H*), decode_base64 $md5;
+      $files->{$file_name}->{'id_run'}      = $id_run;
+      $files->{$file_name}->{'tag_index'}   = $tag_index;
+      $files->{$file_name}->{'remote_sample'} = $sample;
+    }
+  }
+  # Error exit code and failure to close pipe if one if the paths
+  # we give does not exists. Listing does not stop on an invalid path,
+  # ie we get a fll listing for all valid paths.
+  close $fh or $logger->warn('Failed to close the pipe handle');
+  #use critic
+
   # Get a list of all product files in remote dated directories
   # for the given dates
   my @remote_files = map {$files->{$_}->{'remote_path'} } keys %{$files};
@@ -188,7 +233,7 @@ sub _newly_uploaded_files {
 }
 
 sub _set_status {
-  my ($path, $status) = @_;
+  my ($path, $status, $date) = @_;
   $dry_run and return;
   # Set manifest_upload_status and manifest_upload_date
   return;
@@ -198,7 +243,7 @@ sub _create_record {
   my ($files, $file) = @_;
   $dry_run and return;
   # Create record if it does not exist.
-  # Currently, need file name, path, plate_id_wsi, supplier_sample_name_wsi, md5_wsi
+  # Cache fount/created row object in $files?
   return;
 }
 
@@ -209,17 +254,22 @@ sub _update_record {
 }
 
 sub _get_staging_md5 {
-  my $file = shift;
+  my ($files, $file) = @_;
   #####################################################
   # TODO: how will we work with both lus113 and lus120?
   #####################################################
   my $md5;
-  return $md5
+  # raise error here if needed, it will be captured in the
+  # calling code.
+  return $md5;
 }
 
 sub _get_lims_data {
- my $file = shift;
- my $meta;
+ my ($files, $file) = @_;
+ my $meta = {};
+ #############################################################
+ # TODO: compare sample name from LIMs with remote sample name
+ #############################################################
  return $meta;
 }
 
@@ -228,13 +278,16 @@ sub _generate_manifest {
   my @lines = ();
   push @lines, join $MANIFEST_DELIM, qw(ukb_sample_id plate_id library_id path md5);
   foreach my $file (sort keys %{$files}) {
-    push @lines, join $MANIFEST_DELIM, $files->{$file}->{'sample_id'},
-                                       $files->{$file}->{'plate_id'},
-                                       $files->{$file}->{'library_id'},
+    push @lines, join $MANIFEST_DELIM, $files->{$file}->{'remote_sample'},
+                                       $files->{$file}->{'lims'}->{'plate_barcode'},
+                                       $files->{$file}->{'lims'}->{'library_id'},
                                        $files->{$file}->{'remote_path'},
                                        $files->{$file}->{'remote_md5'};
   }
-  my $path = 'some_path';
+  @lines = map { "$_\n" } @lines;
+
+  my $manifest_upload_date = _current_date()->strftime(join q[-], $DATE_FORMAT, q[%T]);
+  my $path = join q[/], q[/tmp], $manifest_upload_date . '.csv';
   write_file($path, @lines);
   $logger->info(qq[Saved manifest to $path]);
   return $path;
@@ -243,7 +296,8 @@ sub _generate_manifest {
 sub _upload_manifest {
   my ($path) = @_;
   $dry_run and return;
-  # Upload manifest
+  (0 == system "gsutil cp $path $bucket_url") or
+    croak "Failed to upload the manifest from $path to $bucket_url";
   return;
 }
 
@@ -306,6 +360,10 @@ None
 =item Try::Tiny
 
 =item File::Slurp
+
+=item MIME::Base64
+
+=item English
 
 =back
 
