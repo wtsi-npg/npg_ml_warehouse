@@ -102,9 +102,6 @@ sub main {
         croak 'md5 mismatch';
       }
       $files->{$file}->{'lims'} = _get_lims_data($files, $file);
-      ###########################################################
-      # TODO: check sample id in database matches bucket location
-      ###########################################################
     } catch {
       $logger->error(qq[Product ${file}: $_]);
       not $dry_run and $schema_wh->resultset($EXT_METRICS_RS_NAME)
@@ -204,10 +201,11 @@ sub _uploaded_files {
       my $tag_index = $6;
       my $md5       = $7;
       croak "repeat for $1" if exists $files->{$file_name}->{'remote_path'}->{$path};
-      $files->{$file_name}->{'remote_path'} = $path;
-      $files->{$file_name}->{'remote_md5'}  = unpack q(H*), decode_base64 $md5;
-      $files->{$file_name}->{'id_run'}      = $id_run;
-      $files->{$file_name}->{'tag_index'}   = $tag_index;
+      $files->{$file_name}->{'remote_path'}   = $path;
+      $files->{$file_name}->{'remote_md5'}    = unpack q(H*), decode_base64 $md5;
+      $files->{$file_name}->{'id_run'}        = $id_run;
+      $files->{$file_name}->{'position'}      = $position;
+      $files->{$file_name}->{'tag_index'}     = $tag_index;
       $files->{$file_name}->{'remote_sample'} = $sample;
     }
   }
