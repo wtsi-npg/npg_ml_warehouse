@@ -15,6 +15,7 @@ use Carp;
 use File::Slurp;
 use MIME::Base64 qw( decode_base64 );
 use English qw(-no_match_vars);
+use List::MoreUtils qw(any);
 
 use WTSI::DNAP::Warehouse::Schema;
 
@@ -27,6 +28,8 @@ Readonly::Scalar my $STATUS_SUCCESS     => 'SUCCESS';
 Readonly::Scalar my $STATUS_FAIL        => 'FAIL';
 
 Readonly::Scalar my $MANIFEST_DELIM     => qq[\t];
+
+Readonly::Scalar my $EXT_METRICS_RS_NAME => 'IseqExternalProductMetric';
 
 my $dry_run = 1;
 my $help;
@@ -63,25 +66,21 @@ sub main {
   my @dates = _dates();
 
   my $files = _uploaded_files(@dates);
-  $files    = _newly_uploaded_files($files);
-  if (! keys %{$files} ) {
-    $logger->warn('No unreported remote files are found, exiting');
-    return 0;
-  }
 
   my $transaction = sub {
-    foreach my $file (keys %{$files}) {
-      _create_record($files, $file);
-      _set_status($files->{$file}->{'remote_path'}, $STATUS_IN_PROGRESS);
+    $files = _unreported_files($files);
+    if (not $dry_run) {
+      foreach my $file ( keys %{$files} ) {
+        _create_record($files, $file);
+        _set_status($files->{$file}->{'remote_path'}, $STATUS_IN_PROGRESS);
+      }
     }
+    return $files;
   };
 
   my $error;
   try {
-    if (not $dry_run) {
-      $schema_wh->txn_do($transaction);
-      $logger->info(q[Manifest upload status is set to 'IN PROGRESS' for all products]);
-    }
+    $files = $schema_wh->txn_do($transaction);
   } catch {
     $error = $_;
     $logger->error(qq[Error changing manifest upload status to 'IN PROGRESS': $error]);
@@ -90,6 +89,14 @@ sub main {
   if ($error) {
     $logger->info('Exiting');
     return 1;
+  }
+
+  if ( keys %{$files} ) {
+    not $dry_run and $logger->info(
+      q[Manifest upload status is set to 'IN PROGRESS' for all products]);
+  } else {
+     $logger->warn('No unreported remote files are found, exiting');
+     return 0;
   }
 
   foreach my $file (sort keys %{$files}) {
@@ -218,15 +225,30 @@ sub _uploaded_files {
   return $files;
 }
 
-sub _newly_uploaded_files {
+sub _unreported_files {
   my ($files) = @_;
+
   # Prune the products that have been already reported
   # or are in the process of being reported, try again
   # the files that previously errored.
 
-  my @remote_files = map {$files->{$_}->{'remote_path'} } keys %{$files};
-  if (@remote_files) {
-    $logger->warn('Unreported remote files ' . join qq[\n], @remote_files);
+  my @reported = $schema_wh->resultset($EXT_METRICS_RS_NAME)->search(
+    {
+      file_path => [map {$files->{$_}->{'remote_path'} } keys %{$files}],
+      manifest_upload_status => [$STATUS_IN_PROGRESS, $STATUS_SUCCESS]
+    },
+    {column => 'file_path'}
+  )->all();
+  @reported = map { $_->file_path } @reported;
+
+  for my $file (keys %{$files}) {
+    if ( any { $_ eq $files->{$file}->{'remote_path'} } @reported ) {
+      delete $files->{$file};
+    }
+  }
+  my @unreported = sort map { $files->{$_}->{'remote_path'} } keys %{$files};
+  if (@unreported) {
+    $logger->debug('Unreported remote files ' . join qq[\n], @unreported);
   }
 
   return $files;
@@ -364,6 +386,8 @@ None
 =item MIME::Base64
 
 =item English
+
+=item List::MoreUtils
 
 =back
 
