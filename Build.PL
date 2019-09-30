@@ -65,6 +65,7 @@ my $builder = npg_tracking::util::build->new(
                     'npg_tracking::glossary::tag'             => 0,
                     'npg_tracking::glossary::composition'     => 0,
                     'npg_tracking::glossary::composition::component::illumina' => 0,
+                    'npg_tracking::illumina::runfolder'       => 0,
                     'npg_tracking::Schema'                    => 0,
                  },
 );
