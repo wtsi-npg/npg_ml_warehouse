@@ -7,6 +7,7 @@ use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
 use Log::Log4perl qw(:levels);
 use DateTime;
 use DateTime::Duration;
+use File::Slurp qw(read_file);
 use Getopt::Long;
 use Pod::Usage;
 use Readonly;
@@ -18,6 +19,7 @@ use English qw(-no_match_vars);
 use List::MoreUtils qw(any);
 
 use WTSI::DNAP::Warehouse::Schema;
+use npg_tracking::illumina::runfolder;
 
 our $VERSION = '0';
 
@@ -277,12 +279,15 @@ sub _update_record {
 
 sub _get_staging_md5 {
   my ($files, $file) = @_;
-  #####################################################
+  ######################################################################
   # TODO: how will we work with both lus113 and lus120?
-  #####################################################
-  my $md5;
-  # raise error here if needed, it will be captured in the
-  # calling code.
+  # i.e. if runfolders are spread across filesystems with no common host
+  ######################################################################
+  my $id_run = $files->{$file}->{id_run} or croak "Require id_run for $file to find its archive path\n";
+  my $rf = npg_tracking::illumina::runfolder->new(id_run => $id_run); # should we cache this, and/or the DB connection?
+  my ($md5file) = glob $rf->archive_path.q(/{*/,}*/).$file.q(.md5);
+  my $md5 = read_file($md5file);
+  ($md5) = $md5=~m{\A(\S{32})\b}smx; # expect 32 char hex representation
   return $md5;
 }
 
