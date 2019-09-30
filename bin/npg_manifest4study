@@ -285,12 +285,40 @@ sub _get_staging_md5 {
 }
 
 sub _get_lims_data {
- my ($files, $file) = @_;
- my $meta = {};
- #############################################################
- # TODO: compare sample name from LIMs with remote sample name
- #############################################################
- return $meta;
+  my ($files, $file) = @_;
+
+  #########################################
+  # TODO - position should not be hardcoded
+  #########################################
+  my $row = $schema_wh->resultset('IseqProductMetric')->serach(
+    { id_run    => $files->{$file}->{'id_run'},
+      position  => 1, # TODO - position should not be hardcoded
+      tag_index => $files->{$file}->{'id_run'}
+    },
+    {join=>'iseq_flowcell'}
+  )->first;
+  $row or croak qq(iseq_product_metrics record not found for $file);
+  $row = $row->iseq_flowcell;
+  my $sample_row = $row->sample;
+
+  my $meta = {};
+  #############################################
+  # TODO: choose the earliest created plate, 
+  #       likely to be the supplier stock plate
+  #############################################
+  $meta->{'plate_barcode'} =
+    $sample_row->stock_resources->get_column('labware_human_barcode')->single;
+  $meta->{'library_id'} = $row->legacy_library_id;
+  $meta->{'sample'} = $sample_row->supplier_sample_name;
+
+  ($meta->{'plate_barcode'} and $meta->{'library_id'} and  $meta->{'sample'}) or
+    croak "Failed to retrieve some LIMs data for $file";
+
+  ($meta->{'sample'} eq $files->{$file}->{'remote_sample'}) or
+    croak sprintf 'Remote sample name %s differs from db sample name %s',
+      $files->{$file}->{'remote_sample'}, $meta->{'sample'};
+
+  return $meta;
 }
 
 sub _generate_manifest {
