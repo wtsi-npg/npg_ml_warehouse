@@ -64,17 +64,11 @@ exit main();
 sub main {
 
   my @dates = _dates();
-
   my $files = _uploaded_files(@dates);
 
   my $transaction = sub {
     $files = _unreported_files($files);
-    if (not $dry_run) {
-      foreach my $file ( keys %{$files} ) {
-        _create_record($files, $file);
-        _set_status($files->{$file}->{'remote_path'}, $STATUS_IN_PROGRESS);
-      }
-    }
+    _create_records($files);
     return $files;
   };
 
@@ -261,11 +255,16 @@ sub _set_status {
   return;
 }
 
-sub _create_record {
-  my ($files, $file) = @_;
+sub _create_records {
+  my ($files) = @_;
   $dry_run and return;
   # Create record if it does not exist.
-  # Cache fount/created row object in $files?
+  # Set status as in progress, whether the record is new or old.
+  foreach my $file ( keys %{$files} ) {
+    my $row = $schema_wh->resultset($EXT_METRICS_RS_NAME)
+      ->find_or_create({file_path => $files->{$file}->{'remote_path'}});
+    $row->update({manifest_upload_status => $STATUS_IN_PROGRESS});
+  }
   return;
 }
 
