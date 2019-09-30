@@ -19,6 +19,7 @@ use English qw(-no_match_vars);
 use List::MoreUtils qw(any);
 
 use WTSI::DNAP::Warehouse::Schema;
+use npg_tracking::Schema;
 use npg_tracking::illumina::runfolder;
 
 our $VERSION = '0';
@@ -54,7 +55,8 @@ $dry_run and $logger->info('DRY RUN');
 
 $bucket_url or ($logger->fatal('--bucket_url argument is required') and exit 1);
 
-my $schema_wh = WTSI::DNAP::Warehouse::Schema->connect();
+my $schema_wh       = WTSI::DNAP::Warehouse::Schema->connect();
+my $schema_tracking = npg_tracking::Schema->connect();
 
 ##################################
 # TODO: cope with XP data products
@@ -282,10 +284,13 @@ sub _get_staging_md5 {
   # i.e. if runfolders are spread across filesystems with no common host
   ######################################################################
   my $id_run = $files->{$file}->{id_run} or croak "Require id_run for $file to find its archive path\n";
-  my $rf = npg_tracking::illumina::runfolder->new(id_run => $id_run); # should we cache this, and/or the DB connection?
+  my $rf = npg_tracking::illumina::runfolder->new(
+    id_run => $id_run, npg_tracking_schema => $schema_tracking); # should we cache the run folder?
   my ($md5file) = glob $rf->archive_path.q(/{*/,}*/).$file.q(.md5);
+  $md5file or croak "Failed to locate dtaging md5 file for $file";
   my $md5 = read_file($md5file);
   ($md5) = $md5=~m{\A(\S{32})\b}smx; # expect 32 char hex representation
+  $md5 or croak "Failed to read md5 from $md5file file";
   return $md5;
 }
 
@@ -399,6 +404,10 @@ None
 =item Pod::Usage
 
 =item WTSI::DNAP::Warehouse::Schema
+
+=item npg_tracking::Schema
+
+=item npg_tracking::illumina::runfolder
 
 =item DateTime
 
