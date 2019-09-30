@@ -31,6 +31,7 @@ Readonly::Scalar my $STATUS_SUCCESS     => 'SUCCESS';
 Readonly::Scalar my $STATUS_FAIL        => 'FAIL';
 
 Readonly::Scalar my $MANIFEST_DELIM     => qq[\t];
+Readonly::Scalar my $MANIFEST_DIR_NAME  => 'manifests';
 
 Readonly::Scalar my $EXT_METRICS_RS_NAME => 'IseqExternalProductMetric';
 
@@ -353,7 +354,7 @@ sub _generate_manifest {
 
 sub _upload_manifest {
   my ($path) = @_;
-  (0 == system "gsutil cp $path $bucket_url/") or
+  (0 == system "gsutil cp $path $bucket_url/$MANIFEST_DIR_NAME/") or
     croak "Failed to upload the manifest from $path to $bucket_url";
   return;
 }
@@ -436,7 +437,13 @@ None
 
 =head1 AUTHOR
 
-Marina Gourtovaia
+=over
+
+=item Marina Gourtovaia
+
+=item David Jackson
+
+=back
 
 =head1 LICENSE AND COPYRIGHT
 
