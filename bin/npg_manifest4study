@@ -367,9 +367,19 @@ npg_manifest4study
 
 =head1 SYNOPSIS
 
+  Generates a manifest that lists uploaded files that were not included
+  in previous manifests. Uploads the manifest to a pre-defined location.
+
 =head1 USAGE
 
+  npg_manifest4study --help
+  npg_manifest4study --bucket_url 'gs://some_bucket' # dry run
+  npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry-run
+
 =head1 DESCRIPTION
+
+  Generates a manifest that lists uploaded files that were not included
+  in previous manifests. Uploads the manifest to a pre-defined location.
   
 =head1 REQUIRED ARGUMENTS
 
@@ -378,14 +388,21 @@ None
 =head1 OPTIONS
 
   --help       - brief help message
-  --dry_run    - a boolean flag; if true, the script prints what will
-                 happen and exists
+  --dry_run    - a boolean flag, true by default; no database
+                 updates and no manifest upload
+  --bucket_url - bucket url, no trailin gforward slash, required
 
 =head1 EXIT STATUS
 
-0
+  0 if manifest was uploaded successfully.
+  1 if manifest was not uploaded successfully or a manifest could
+    not be generated because necessary data could not be obtained
+    for any products.
 
 =head1 CONFIGURATION
+
+  If GCP bucket is used, BOTO_CONFIG variable sould be set in the
+  environment.
 
 =head1 DIAGNOSTICS
 
