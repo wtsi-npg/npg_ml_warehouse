@@ -289,7 +289,7 @@ sub _get_staging_md5 {
   my $rf = npg_tracking::illumina::runfolder->new(
     id_run => $id_run, npg_tracking_schema => $schema_tracking); # should we cache the run folder?
   my ($md5file) = glob $rf->archive_path.q(/{*/,}*/).$file.q(.md5);
-  $md5file or croak "Failed to locate dtaging md5 file for $file";
+  $md5file or croak "Failed to locate staging md5 file for $file";
   my $md5 = read_file($md5file);
   ($md5) = $md5=~m{\A(\S{32})\b}smx; # expect 32 char hex representation
   $md5 or croak "Failed to read md5 from $md5file file";
@@ -299,32 +299,30 @@ sub _get_staging_md5 {
 sub _get_lims_data {
   my ($files, $file) = @_;
 
-  #########################################
-  # TODO - position should not be hardcoded
-  #########################################
+  my $position = $files->{$file}->{'position'};
+  $position ||= 1;
   my $row = $schema_wh->resultset('IseqProductMetric')->search(
     { id_run    => $files->{$file}->{'id_run'},
-      position  => 1, # TODO - position should not be hardcoded
-      tag_index => $files->{$file}->{'tag_index'}
-    },
-    {join=>'iseq_flowcell'}
+      position  => $position,
+      tag_index => $files->{$file}->{'tag_index'} },
+    {join => 'iseq_flowcell'}
   )->first;
   $row or croak qq(iseq_product_metrics record not found for $file);
   $row = $row->iseq_flowcell;
+  $row or croak qq(linked iseq_flowcell record not found for $file);
   my $sample_row = $row->sample;
 
   my $meta = {};
-  #############################################
-  # TODO: choose the earliest created plate, 
-  #       likely to be the supplier stock plate
-  #############################################
-  $meta->{'plate_barcode'} =
-    $sample_row->stock_resources->get_column('labware_human_barcode')->first;
-  $meta->{'library_id'} = $row->legacy_library_id;
-  $meta->{'sample'} = $sample_row->supplier_name;
+  # Choose the earliest created plate, likely to be the original stock plate
+  $meta->{'plate_barcode'} = $sample_row->stock_resources->search({},
+    { column => [qw(created, labware_human_barcode)],
+      order_by => { -asc => 'created' } }
+  )->first->labware_human_barcode();
+  $meta->{'library_id'}   = $row->legacy_library_id;
+  $meta->{'sample'}       = $sample_row->supplier_name;
 
   ($meta->{'plate_barcode'} and $meta->{'library_id'} and  $meta->{'sample'}) or
-    croak "Failed to retrieve some LIMs data for $file";
+    croak qq(Failed to retrieve some LIMs data for $file);
 
   ($meta->{'sample'} eq $files->{$file}->{'remote_sample'}) or
     croak sprintf 'Remote sample name %s differs from db sample name %s',
