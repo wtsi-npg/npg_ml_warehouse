@@ -59,9 +59,6 @@ $bucket_url or ($logger->fatal('--bucket_url argument is required') and exit 1);
 my $schema_wh       = WTSI::DNAP::Warehouse::Schema->connect();
 my $schema_tracking = npg_tracking::Schema->connect();
 
-##################################
-# TODO: cope with XP data products
-##################################
 exit main();
 
 ##############################################################
@@ -197,17 +194,15 @@ sub _uploaded_files {
   my $files = {};
 
   while (<$fh>) {
-    ###################################
-    # TODO - cope with XP data products
-    ###################################
-    ##no critic (RegularExpressions::RequireExtendedFormatting RegularExpressions::ProhibitEscapedMetacharacters)
-    if ( m{(\S+/(\d+)/((\d+)#(\d+)[.]cram)):.*Hash \(md5\):\s+(\S+)}sm ) {
+    ##no critic (RegularExpressions::RequireExtendedFormatting RegularExpressions::ProhibitEscapedMetacharacters ProhibitComplexRegexes)
+    if ( m{(\S+/(\d+)/((\d+)(?:_(\d))?#(\d+)[.]cram)):.*Hash \(md5\):\s+(\S+)}sm ) {
       my $path      = $1;
       my $sample    = $2;
       my $file_name = $3;
       my $id_run    = $4;
-      my $tag_index = $5;
-      my $md5       = $6;
+      my $position  = $5;
+      my $tag_index = $6;
+      my $md5       = $7;
       croak "repeat for $1" if exists $files->{$file_name}->{'remote_path'}->{$path};
       $files->{$file_name}->{'remote_path'} = $path;
       $files->{$file_name}->{'remote_md5'}  = unpack q(H*), decode_base64 $md5;
@@ -220,7 +215,7 @@ sub _uploaded_files {
   # we give does not exists. Listing does not stop on an invalid path,
   # ie we get a fll listing for all valid paths.
   close $fh or $logger->warn('Failed to close the pipe handle');
-  #use critic
+  ## use critic
 
   # Get a list of all product files in remote dated directories
   # for the given dates
