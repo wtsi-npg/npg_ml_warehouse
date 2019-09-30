@@ -171,7 +171,7 @@ sub _uploaded_files {
   # dated directories. We should take the latest data.
 
   my $command = join q[ ], 'gsutil ls -L',
-                map { "gs://sb-ukbiobankinput-europe-west2/$_/**.cram" }
+                map { "$bucket_url/$_/**.cram" }
                 @dates;
   local $INPUT_RECORD_SEPARATOR ="\]\n";
   ## no critic (InputOutput::RequireBriefOpen)
@@ -352,7 +352,7 @@ sub _generate_manifest {
 
 sub _upload_manifest {
   my ($path) = @_;
-  (0 == system "gsutil cp $path $bucket_url") or
+  (0 == system "gsutil cp $path $bucket_url/") or
     croak "Failed to upload the manifest from $path to $bucket_url";
   return;
 }
