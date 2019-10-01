@@ -40,7 +40,6 @@ my $builder = npg_tracking::util::build->new(
                     'Carp'                       => 0,
                     'DateTime'                   => 0,
                     'DateTime::Duration'         => 0,
-                    'DateTime::Format::Strptime' => 0,
                     'DBIx::Class::ResultClass::HashRefInflator' => 0,
                     'English'                    => 0,
                     'File::Slurp'                => 0,

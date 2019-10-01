@@ -7,7 +7,6 @@ use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
 use Log::Log4perl qw(:levels);
 use DateTime;
 use DateTime::Duration;
-use File::Slurp qw(read_file);
 use Getopt::Long;
 use Pod::Usage;
 use Readonly;
@@ -24,16 +23,19 @@ use npg_tracking::illumina::runfolder;
 
 our $VERSION = '0';
 
-Readonly::Scalar my $NUM_DAYS           => 7;
-Readonly::Scalar my $DATE_FORMAT        => '%Y%m%d';
-Readonly::Scalar my $STATUS_IN_PROGRESS => 'IN PROGRESS';
-Readonly::Scalar my $STATUS_SUCCESS     => 'SUCCESS';
-Readonly::Scalar my $STATUS_FAIL        => 'FAIL';
+Readonly::Scalar my $NUM_DAYS             => 7;
+Readonly::Scalar my $DATE_FORMAT          => '%Y%m%d';
+Readonly::Scalar my $STATUS_IN_PROGRESS   => 'IN PROGRESS';
+Readonly::Scalar my $STATUS_SUCCESS       => 'SUCCESS';
+Readonly::Scalar my $STATUS_FAIL          => 'FAIL';
 
-Readonly::Scalar my $MANIFEST_DELIM     => qq[\t];
-Readonly::Scalar my $MANIFEST_DIR_NAME  => 'manifests';
+Readonly::Scalar my $MANIFEST_DELIM       => qq[\t];
+Readonly::Scalar my $MANIFEST_DIR_NAME    => 'manifests';
 
-Readonly::Scalar my $EXT_METRICS_RS_NAME => 'IseqExternalProductMetric';
+Readonly::Scalar my $EXT_METRICS_RS_NAME  => 'IseqExternalProductMetric';
+
+Readonly::Scalar my $KEY_DUPLICATES       => 'duplicates';
+Readonly::Scalar my $EXIT_CODE_DUPLICATES => 277;
 
 my $dry_run = 1;
 my $help;
@@ -67,6 +69,8 @@ sub main {
 
   my @dates = _dates();
   my $files = _uploaded_files(@dates);
+  my $duplicates = delete $files->{$KEY_DUPLICATES};
+  $duplicates ||= {};
 
   my $transaction = sub {
     $files = _unreported_files($files);
@@ -152,6 +156,13 @@ sub main {
     $logger->error(qq[Error changing manifest upload status to SUCCESS: $_]);
   };
 
+  foreach my $file (sort keys %{$duplicates}) {
+    $logger->error("File $file not reported, duplicates present:");
+    $logger->error(qq[\t\t] . join q[ ], @{$duplicates->{$file}});
+  }
+
+  (not $error and keys %{$duplicates}) and exit $EXIT_CODE_DUPLICATES;
+
   return $error;
 }
 
@@ -178,9 +189,6 @@ sub _dates {
 sub _uploaded_files {
   my @dates = @_;
 
-  # Files for the same product might be present in different
-  # dated directories. We should take the latest data.
-
   my $command = join q[ ], 'gsutil ls -L',
                 map { "$bucket_url/$_/**.cram" }
                 @dates;
@@ -200,15 +208,28 @@ sub _uploaded_files {
       my $position  = $5;
       my $tag_index = $6;
       my $md5       = $7;
-      croak "repeat for $1" if exists $files->{$file_name}->{'remote_path'}->{$path};
-      $files->{$file_name}->{'remote_path'}   = $path;
-      $files->{$file_name}->{'remote_md5'}    = unpack q(H*), decode_base64 $md5;
-      $files->{$file_name}->{'id_run'}        = $id_run;
-      $files->{$file_name}->{'position'}      = $position;
-      $files->{$file_name}->{'tag_index'}     = $tag_index;
-      $files->{$file_name}->{'remote_sample'} = $sample;
+
+      # Files for the same product might be present in directories
+      # with different dates.
+      if ( exists $files->{$file_name} or exists $files->{$KEY_DUPLICATES}->{$file_name} ) {
+        push @{$files->{$KEY_DUPLICATES}->{$file_name}}, $path;
+        if ( exists $files->{$file_name} ) {
+	  push @{$files->{$KEY_DUPLICATES}->{$file_name}},
+	    $files->{$file_name}->{'remote_path'}->{$path};
+          delete $files->{$file_name};
+	}
+      } else {
+        # Cache info about the remote product.
+        $files->{$file_name}->{'remote_path'}   = $path;
+        $files->{$file_name}->{'remote_md5'}    = unpack q(H*), decode_base64 $md5;
+        $files->{$file_name}->{'id_run'}        = $id_run;
+        $files->{$file_name}->{'position'}      = $position;
+        $files->{$file_name}->{'tag_index'}     = $tag_index;
+        $files->{$file_name}->{'remote_sample'} = $sample;
+      }
     }
   }
+
   # Error exit code and failure to close pipe if one if the paths
   # we give does not exists. Listing does not stop on an invalid path,
   # ie we get a fll listing for all valid paths.
@@ -385,10 +406,11 @@ None
 
 =head1 EXIT STATUS
 
-  0 if manifest was uploaded successfully.
-  1 if manifest was not uploaded successfully or a manifest could
-    not be generated because necessary data could not be obtained
-    for any products.
+  0   if manifest was uploaded successfully.
+  1   if manifest was not uploaded successfully or a manifest could
+      not be generated because necessary data could not be obtained
+      for any products.
+  277 if manifest is sent, but duplicates are found
 
 =head1 CONFIGURATION
 
