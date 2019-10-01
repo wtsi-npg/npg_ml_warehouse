@@ -308,7 +308,7 @@ sub _get_lims_data {
   my $meta = {};
   # Choose the earliest created plate, likely to be the original stock plate
   $meta->{'plate_barcode'} = $sample_row->stock_resources->search({},
-    { column => [qw(created, labware_human_barcode)],
+    { column => [qw(created labware_human_barcode)],
       order_by => { -asc => 'created' } }
   )->first->labware_human_barcode();
   $meta->{'library_id'}   = $row->legacy_library_id;
