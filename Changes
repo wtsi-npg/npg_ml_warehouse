@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+release 41.5.0
+ - script to generate and upload a manifest for a study
+
 release 41.4.0
  - test data enhancement to ensure forward compatibility
 
