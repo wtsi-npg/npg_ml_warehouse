@@ -187,8 +187,9 @@ sub _map_db_columns2list_indexes {
   my %map = map { $_ => q[] } values %MONIKER_MAP;
   my $count = 0;
   foreach my $name (@column_names) {
-    exists $MONIKER_MAP{$name} or next;
-    $map{$MONIKER_MAP{$name}} = $count;
+    if (exists $MONIKER_MAP{$name}) {
+      $map{$MONIKER_MAP{$name}} = $count;
+    }
     $count++;
   }
 
@@ -272,7 +273,7 @@ sub _save_line2db {
       ($row->$column_name eq $data4update->{$column_name}) or croak
 	sprintf 'Mismatch between report %s and db value %s %s for %s',
           $row->$column_name, $data4update->{$column_name}, $column_name, $path;
-      # Master value exists in the db - no need to update
+      # Master value exists in the db - no need to update this value
       delete $data4update->{$column_name};
     }
 
