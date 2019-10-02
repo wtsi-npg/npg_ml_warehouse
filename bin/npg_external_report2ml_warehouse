@@ -115,6 +115,7 @@ sub main {
   my $column2index_map = _map_db_columns2list_indexes(shift @{$lines});
   my $count = 0;
   my $num_updated = 0;
+  my $error_count = 0;
 
   foreach my $line (@{$lines}) {
     $count++;
@@ -123,6 +124,7 @@ sub main {
       $num_updated++;
     } catch {
       $logger->error("Report line ${count}: $_");
+      $error_count++;
     };
   }
 
@@ -134,7 +136,7 @@ sub main {
     $logger->error('No rows updated in the database');
   }
 
-  return not $num_updated;
+  return $error_count ? 2 : 0;
 }
 
 sub _get_lines {
