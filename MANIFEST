@@ -1,3 +1,4 @@
+bin/npg_external_report2ml_warehouse
 bin/npg_manifest4study
 bin/npg_mlwarehouse_fkrepair
 bin/npg_mlwarehouse_run_delete
