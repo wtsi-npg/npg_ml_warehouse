@@ -9,7 +9,7 @@ use DateTime::Format::Strptime q(strptime);
 use Getopt::Long;
 use Pod::Usage;
 use Readonly;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any uniq);
 use Try::Tiny;
 use Carp;
 use Perl6::Slurp;
@@ -19,32 +19,98 @@ use WTSI::DNAP::Warehouse::Schema;
 our $VERSION = '0';
 
 # Mapping of database column names to report column names
-
 Readonly::Hash my %MONIKER_MAP => {
-  UKB_sampleID                => 'supplier_sample_name',
-  uCRAM_filenames             => 'file_name',
-  uCRAM_full_paths            => 'file_path',
+
+  UKB_sampleID => 'supplier_sample_name',
+  plateID => 'plate_barcode',
+  uCRAM_filenames => 'file_name',
+  uCRAM_full_paths => 'file_path',
   uCRAM_Sanger_validation_MD5 => 'md5_staging',
-  uCRAM_SBG_validation_MD5    => 'md5',
-  uCRAM_MD5_validation        => 'md5_validation',
-  uCRAM_validation_date       => 'md5_validation_date',
-  uCRAM_format_validation     => 'format_validation',
-  uCRAM_upload_date           => 'upload_date',
-  Upload_status               => 'upload_status',
-  Sample_data_annotation      => 'annotation',
+  uCRAM_SBG_validation_MD5 => 'md5',
+  uCRAM_MD5_validation => 'md5_validation',
+  uCRAM_validation_date => 'md5_validation_date',
+  uCRAM_format_validation => 'format_validation',
+  uCRAM_upload_date => 'upload_date',
+  Upload_status => 'upload_status',
+  Seq_Start_date => 'sequencing_start_date',
+  Instrument_ID => 'instrument_id',
+  Flowcell_ID => 'flowcell_id',
+  Sample_data_annotation => 'annotation',
+  QC_date => 'processing_start_date',
+  'Fractional_coverage_at_>=_15X' => 'target_autosome_gt_coverage_threshold',
+  'Fractional_coverage_at_>=_15X_pass' => 'target_autosome_gt_coverage_threshold_assessment',
+  FREEMIX_fraction => 'verify_bam_id_score',
+  FREEMIX_pass =>  'verify_bam_id_score_assessment',
+  Minimum_read_length => 'min_read_length',
+  Yield => 'yield',
+  Read_count => 'num_reads',
+  GC_fraction_first_read => 'gc_fraction_forward_read',
+  GC_fraction_second_read => 'gc_fraction_reverse_read',
+  PreAdapter_minimum_TOTAL_QSCORE => 'pre_adapter_min_total_qscore',
+  BaitBias_minimum_TOTAL_QSCORE => 'ref_bias_min_total_qscore',
+  Fraction_properly_paired_reads_pass => 'target_proper_pair_mapped_reads_assessment',
+  Fraction_properly_paired_reads => 'target_proper_pair_mapped_reads_fraction',
+  Insert_size_mean => 'insert_size_mean',
+  Insert_size_SD => 'insert_size_std',
+  Adapter_contamination_fraction => 'adapter_contamination',
+  Adapter_content_pass => 'adapter_contamination_assessment',
+  Basecall_qualities_q20_yield => 'yield_q20',
+  Basecall_qualities_q30_yield => 'yield_q30',
+  Basic_Statistics => 'basic_statistics_assessement',
+  Overrepresented_Sequences => 'overrepresented_sequences_assessement',
+  Per_Base_N_Content => 'n_content_per_base_assessement',
+  Per_Base_Sequence_Content => 'sequence_content_per_base_assessement',
+  Per_Base_Sequence_Quality => 'sequence_quality_per_base_assessement',
+  Per_Sequence_GC_Content => 'gc_content_per_sequence_assessement',
+  Per_Sequence_Quality_Scores => 'quality_scores_per_sequence_assessement',
+  Sequence_Duplication_Levels => 'sequence_duplication_levels_assessement',
+  Sequence_Length_Distribution => 'sequence_length_distribution_assessement',
+  Fractional_sequence_error_rate => 'sequence_error_rate',
+  Analysis_start_date => 'analysis_start_date',
+  FastQC_assessment => 'fastqc_overall_assessment',
+  Double_Error_Fraction => 'double_error_fraction',
+  Two_test_contamination_pass => 'contamination_assessment',
+  Fractional_NRD => 'nrd',
+  NRD_pass => 'nrd_assessment',
+  Analysis_end_date => 'analysis_end_date',
+  Computed_sex => 'sex_computed',
+  Reported_sex => 'sex_supplier',
+  Data_QC_status => 'qc',
+  Processing_Status => 'processing_status',
+  Transfer_Date => 'archival_date',
+  Data_archive_confirmed_date => 'archive_conformation_date',
+  Archive_ID_for_data_product => 'id_archive_product',
 };
 
 Readonly::Hash my %DICTIONARY_VALUES => {
-  md5_validation    => [qw(PASS FAIL)],
-  format_validation => [qw(PASS FAIL)],
-  upload_status     => [qw(PASS FAIL)],
+  md5_validation                             => [qw(PASS FAIL)],
+  format_validation                          => [qw(PASS FAIL)],
+  upload_status                              => [qw(PASS FAIL)],
+  processing_status                          => [qw(PASS HOLD INSUFFICIENT FAIL)],
+  qc                                         => [qw(PASS FAIL)],
+  contamination_assessment                   => [qw(PASS FAIL)],
+  target_proper_pair_mapped_reads_assessment => [qw(PASS FAIL)],
+  verify_bam_id_score_assessment             => [qw(PASS FAIL)],
+  nrd_assessment                             => [qw(PASS FAIL)],
+  fastqc_overall_assessment                  => [qw(PASS FAIL)],
+  adapter_contamination_assessment           => [qw(PASS FAIL WARN)],
+  basic_statistics_assessement               => [qw(PASS FAIL WARN)],
+  overrepresented_sequences_assessement      => [qw(PASS FAIL WARN)],
+  n_content_per_base_assessement             => [qw(PASS FAIL WARN)],
+  sequence_quality_per_base_assessement      => [qw(PASS FAIL WARN)],
+  gc_content_per_sequence_assessement        => [qw(PASS FAIL WARN)],
+  quality_scores_per_sequence_assessement    => [qw(PASS FAIL WARN)],
+  sequence_duplication_levels_assessement    => [qw(PASS FAIL WARN)],
+  sequence_length_distribution_assessement   => [qw(PASS FAIL WARN)]
 };
 
 Readonly::Array my @MUST_HAVE => qw(
   supplier_sample_name
   file_name
   file_path
-  md5_staging
+);
+
+Readonly::Array my @MUST_HAVE4UPLOADED => qw(
   md5
   md5_validation
   md5_validation_date
@@ -55,12 +121,17 @@ Readonly::Array my @MUST_HAVE => qw(
 
 Readonly::Array my @MUST_MATCH => qw(
   supplier_sample_name
+);
+
+Readonly::Array my @MUST_MATCH4UPLOADED => qw(
   file_name
   md5_staging
+  plate_barcode
 );
 
 Readonly::Scalar my $REPORT_COLUMN_DELIM => qq[\t];
 Readonly::Scalar my $REPORT_DATA_DELIM   => q[,];
+Readonly::Scalar my $REPORT_READ_NAME_DELIM   => q[/]; # or read
 Readonly::Scalar my $REPORT_DATE_FORMAT  => q[%Y%m%d];
 
 Readonly::Scalar my $EXT_METRICS_RS_NAME => q[IseqExternalProductMetric];
@@ -201,49 +272,73 @@ sub _map_db_columns2list_indexes {
   return \%map;
 }
 
-sub _save_line2db {
-  my ($line, $column2index_map, $line_num) = @_;
-  my @data = _split_line($line);
-
-  my $error = sub {
-    my $name = shift;
-    return "$name is undefined in line ${line_num}: $line";
-  };
-
-  my $data4update = {};
-  foreach my $must_have_name (@MUST_HAVE) {
-    my $value = $data[$column2index_map->{$must_have_name}];
-    $value or croak
-      "$must_have_name is undefined in line ${line_num}: $line";
-    $data4update->{$must_have_name} = $value;
-  }
-  $data4update->{'annotation'} = $data[$column2index_map->{'annotation'}];
-
-  my @paths = _split_record($data4update->{'file_path'});
-  #################################
-  # TODO: deal with merged products
-  #################################
-  (@paths == 1) or croak
-    "Loading records for merged data is not implemented, line ${line_num}";
-
-  my @file_names = _split_record($data4update->{'file_name'});
-
-  # Consistency checks betwen values in different columns
-  (@file_names == @paths) or croak
-    "Discrepancy in number of products in line ${line_num}: $line";
-  ($data4update->{'md5_staging'} eq $data4update->{'md5'}) or
-    croak "md5 mismatch in line ${line_num}: $line";
+sub _validate_restricted_values {
+  my $data4update = shift;
 
   # Validation of report flag values.
   for my $restricted (%DICTIONARY_VALUES) {
     exists $data4update->{$restricted} or next;
-    (any { $_ eq $data4update->{$restricted} } @{$DICTIONARY_VALUES{$restricted}})
-     or croak sprintf 'Invalid value %s for %s in line %i',
-    $data4update->{$restricted}, $restricted, $line_num;
+    my @read_data = split $REPORT_READ_NAME_DELIM, $data4update->{$restricted};
+    foreach my $d (@read_data) {
+      (any { $_ eq $d } @{$DICTIONARY_VALUES{$restricted}})
+        or croak sprintf 'Invalid value %s for %s',
+                         $data4update->{$restricted}, $restricted;
+    }
+  }
+  return;
+}
+
+sub _validate_must_have {
+  my ($data, @must_haves) = @_;
+  foreach my $must_have_name (uniq @must_haves) {
+    (defined $data->{$must_have_name}) or
+      croak "$must_have_name is undefined";
+  }
+  return;
+}
+
+sub _prune_master_values {
+  my ($row, $data4update, @must_match) = @_;
+
+  for my $column_name (@must_match) {
+    ($row->$column_name eq $data4update->{$column_name}) or croak
+      sprintf 'Mismatch between report %s and db value %s %s for %s',
+        $row->$column_name, $data4update->{$column_name},
+        $column_name, $row->file_path;
+    # Master value exists in the db - no need to update this value
+    delete $data4update->{$column_name};
   }
 
-  # Reformat data
-  my @temp = (); # reformatting file names might be dropped for later reports
+  return;
+}
+
+sub _values4update {
+  my ($data, $column2index_map) = @_;
+
+  my $data4update = {};
+  foreach my $column (keys %{$column2index_map}) {
+    my $value = $data->[$column2index_map->{$column}];
+    defined $value and ($value ne q[]) and $data4update->{$column} = $value;
+  }
+
+  return $data4update;
+}
+
+sub _save_line2db {
+  my ($line, $column2index_map, $line_num) = @_;
+
+  my @data = _split_line($line);
+  my $data4update = _values4update(\@data, $column2index_map);
+  _validate_must_have($data4update, @MUST_HAVE);
+
+  my @paths = _split_record($data4update->{'file_path'});
+  $data4update->{'file_path'} = _concat_record(@paths);
+
+  my @file_names = _split_record($data4update->{'file_name'});
+  (@file_names == @paths) or croak
+    "Discrepancy in number of products in line ${line_num}: $line";
+  # Reformat file names,  might be dropped for later reports
+  my @temp = ();
   for my $f (@file_names) {
     ##no critic (RegularExpressions::RequireExtendedFormatting)
     $f =~ s/\A(.*\/)?//sm;
@@ -252,37 +347,82 @@ sub _save_line2db {
   }
   @file_names = @temp;
   $data4update->{'file_name'} = _concat_record(@file_names);
-  $data4update->{'md5_validation_date'} =
-    _parse_date($data4update->{'md5_validation_date'});
-  $data4update->{'file_path'} = _concat_record(@paths);
+
+  foreach my $date_column_name ( grep { m{_date\Z}xms } keys %{$data4update} ) {
+    $data4update->{$date_column_name} =
+      _parse_date($data4update->{$date_column_name});
+  }
+
+  _validate_restricted_values($data4update);
+
+  try {
+    my $transaction = (@paths == 1) ?
+      _update_record4uploaded_product($data4update, $column2index_map) :
+      _update_create_external_product($data4update, $column2index_map);
+    $schema_wh->txn_do($transaction);
+  } catch {
+    croak "Report line ${line_num}: $_";
+  };
+
+  return;
+}
+
+sub _find_row {
+  my $path = shift;
+  my $row = $schema_wh->resultset($EXT_METRICS_RS_NAME)
+                        ->search({file_path => $path})->next;
+  return $row;
+}
+
+sub _update_record4uploaded_product {
+  my ($data4update, $column2index_map) = @_;
+
+  _validate_must_have($data4update, @MUST_HAVE4UPLOADED, @MUST_MATCH4UPLOADED);
+
+  ($data4update->{'md5_staging'} eq $data4update->{'md5'}) or
+    croak 'md5 mismatch';
 
   my $path = delete $data4update->{'file_path'};
 
   my $transaction = sub {
-    my $row = $schema_wh->resultset($EXT_METRICS_RS_NAME)
-                        ->search({file_path => $path})->next;
-    $row or croak "Database record for report line ${line_num} does not exist";
+    my $row = _find_row($path);
+    $row or croak 'Database record for this report line does not exist';
 
     # Consistency check between the product status in the db and in the report. 
     ($row->manifest_upload_status eq $MANIFEST_UPLOAD_STATUS_SUCCESS) or
-      croak 'Upload validated externally for product not flagged as uploaded ' .
-            "line ${line_num}";
+      croak 'Upload validated externally for product not flagged as uploaded';
 
     # Consistency check between existing db values and report values
-    for my $column_name (@MUST_MATCH) {
-      ($row->$column_name eq $data4update->{$column_name}) or croak
-	sprintf 'Mismatch between report %s and db value %s %s for %s',
-          $row->$column_name, $data4update->{$column_name}, $column_name, $path;
-      # Master value exists in the db - no need to update this value
-      delete $data4update->{$column_name};
-    }
+    _prune_master_values($row, $data4update, @MUST_MATCH, @MUST_MATCH4UPLOADED);
 
     $dry_run or $row->update($data4update);
   };
 
-  $schema_wh->txn_do($transaction);
+  return $transaction;
+}
 
-  return;
+sub _update_create_external_product {
+  my ($data4update, $column2index_map) = @_;
+
+  foreach my $column_name (@MUST_HAVE4UPLOADED ) {
+    exists $data4update->{$column_name} and croak
+      "$column_name report column should not have a value for an external product";
+  }
+
+  my $transaction = sub {
+    my $row = _find_row($data4update->{'file_path'});
+    if ($row) {
+      (defined $row->manifest_upload_status) and croak
+        'manifest_upload_status db column should not have a value for an external product';
+      delete $data4update->{'file_path'};
+      _prune_master_values($row, $data4update, @MUST_MATCH);
+      $dry_run or $row->update($data4update);
+    } else {
+      $dry_run or $row->insert($data4update);
+    }
+  };
+
+  return $transaction;
 }
 
 __END__
