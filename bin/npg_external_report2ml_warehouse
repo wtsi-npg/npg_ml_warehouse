@@ -1,0 +1,393 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use FindBin qw($Bin);
+use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
+use Log::Log4perl qw(:levels);
+use DateTime::Format::Strptime q(strptime);
+use Getopt::Long;
+use Pod::Usage;
+use Readonly;
+use List::MoreUtils qw(any);
+use Try::Tiny;
+use Carp;
+use Perl6::Slurp;
+
+use WTSI::DNAP::Warehouse::Schema;
+
+our $VERSION = '0';
+
+# Mapping of database column names to report column names
+
+Readonly::Hash my %MONIKER_MAP => {
+  UKB_sampleID                => 'supplier_sample_name',
+  uCRAM_filenames             => 'file_name',
+  uCRAM_full_paths            => 'file_path',
+  uCRAM_Sanger_validation_MD5 => 'md5_staging',
+  uCRAM_SBG_validation_MD5    => 'md5',
+  uCRAM_MD5_validation        => 'md5_validation',
+  uCRAM_validation_date       => 'md5_validation_date',
+  uCRAM_format_validation     => 'format_validation',
+  uCRAM_upload_date           => 'upload_date',
+  Upload_status               => 'upload_status',
+  Sample_data_annotation      => 'annotation',
+};
+
+Readonly::Hash my %DICTIONARY_VALUES => {
+  md5_validation    => [qw(PASS FAIL)],
+  format_validation => [qw(PASS FAIL)],
+  upload_status     => [qw(PASS FAIL)],
+};
+
+Readonly::Array my @MUST_HAVE => qw(
+  supplier_sample_name
+  file_name
+  file_path
+  md5_staging
+  md5
+  md5_validation
+  md5_validation_date
+  format_validation
+  upload_date
+  upload_status
+);
+
+Readonly::Array my @MUST_MATCH => qw(
+  supplier_sample_name
+  file_name
+  md5_staging
+);
+
+Readonly::Scalar my $REPORT_COLUMN_DELIM => qq[\t];
+Readonly::Scalar my $REPORT_DATA_DELIM   => q[,];
+Readonly::Scalar my $REPORT_DATE_FORMAT  => q[%Y%m%d];
+
+Readonly::Scalar my $EXT_METRICS_RS_NAME => q[IseqExternalProductMetric];
+Readonly::Scalar my $MANIFEST_UPLOAD_STATUS_SUCCESS => 'SUCCESS';
+
+my $dry_run = 1;
+my $help;
+my $report_url;
+my $report_path;
+
+GetOptions (
+            'help'          => \$help,
+            'dry_run!'      => \$dry_run,
+            'report_url=s'  => \$report_url,
+            'report_path=s' => \$report_path,
+           );
+
+if ($help) { pod2usage(0); }
+
+my $layout = '%d %-5p %c - %m%n';
+Log::Log4perl->easy_init({layout => $layout,
+                          level  => $INFO,
+                          utf8   => 1});
+my $logger = Log::Log4perl->get_logger();
+$dry_run and $logger->info('DRY RUN');
+
+if ($report_url and $report_path) {
+  $logger->fatal('Both --report_url and --report_path cannot be set');
+  exit 1;
+}
+if (not ($report_url or $report_path)) {
+  $logger->fatal('Either --report_url or --report_path should be set');
+  exit 1;
+}
+
+my $schema_wh = WTSI::DNAP::Warehouse::Schema->connect();
+
+my $exit_code = 0;
+try {
+  $exit_code = main();
+} catch {
+  $logger->error($_);
+  $exit_code = 1;
+};
+
+exit $exit_code;
+
+sub main {
+
+  my $lines = _get_lines();
+  # Remove and parse the header
+  my $column2index_map = _map_db_columns2list_indexes(shift @{$lines});
+  my $count = 0;
+  my $num_updated = 0;
+  my $error_count = 0;
+
+  foreach my $line (@{$lines}) {
+    $count++;
+    try {
+      _save_line2db($line, $column2index_map, $count);
+      $num_updated++;
+    } catch {
+      $logger->error("Report line ${count}: $_");
+      $error_count++;
+    };
+  }
+
+  $logger->info("$count lines in the report");
+  if ($num_updated) {
+    $dry_run and $logger->info('Database update disabled');
+    $logger->info("$num_updated rows updated in the database");
+  } else {
+    $logger->error('No rows updated in the database');
+  }
+
+  return $error_count ? 2 : 0;
+}
+
+sub _get_lines {
+  my @lines;
+  if ($report_path) {
+    @lines = slurp $report_path, {chomp=>1};
+  } else {
+    @lines = slurp "gsutil cat $report_url |", {chomp=>1};
+  }
+
+  return \@lines;
+}
+
+sub _split_line {
+  my $line = shift;
+  my @temp = split $REPORT_COLUMN_DELIM, $line;
+  my @data = ();
+  foreach my $d (@temp) {
+    $d and $d =~ s/\A\s+//smx;
+    $d and $d =~ s/\s+\Z//smx;
+    push @data, $d;
+  }
+  return @data;
+}
+
+sub _split_record {
+  my $r = shift;
+  ##no critic (RegularExpressions::RequireExtendedFormatting)
+  my @data = split /$REPORT_DATA_DELIM/sm, $r;
+  return @data;
+}
+
+sub _concat_record {
+  my @data = @_;
+  return join $REPORT_DATA_DELIM, sort @data;
+}
+
+sub _parse_date {
+  my $date_string = shift;
+  return strptime($REPORT_DATE_FORMAT, $date_string);
+}
+
+sub _map_db_columns2list_indexes {
+  my $header = shift;
+
+  my @column_names = _split_line($header);
+
+  my %map = map { $_ => q[] } values %MONIKER_MAP;
+  my $count = 0;
+  foreach my $name (@column_names) {
+    if (exists $MONIKER_MAP{$name}) {
+      $map{$MONIKER_MAP{$name}} = $count;
+    }
+    $count++;
+  }
+
+  my @missing_columns = grep { $map{$_} eq q[] } keys %map;
+  @missing_columns and croak
+    'Report colums are missing for the following database columns: ' .
+    join q[, ], @missing_columns;
+
+  return \%map;
+}
+
+sub _save_line2db {
+  my ($line, $column2index_map, $line_num) = @_;
+  my @data = _split_line($line);
+
+  my $error = sub {
+    my $name = shift;
+    return "$name is undefined in line ${line_num}: $line";
+  };
+
+  my $data4update = {};
+  foreach my $must_have_name (@MUST_HAVE) {
+    my $value = $data[$column2index_map->{$must_have_name}];
+    $value or croak
+      "$must_have_name is undefined in line ${line_num}: $line";
+    $data4update->{$must_have_name} = $value;
+  }
+  $data4update->{'annotation'} = $data[$column2index_map->{'annotation'}];
+
+  my @paths = _split_record($data4update->{'file_path'});
+  #################################
+  # TODO: deal with merged products
+  #################################
+  (@paths == 1) or croak
+    "Loading records for merged data is not implemented, line ${line_num}";
+
+  my @file_names = _split_record($data4update->{'file_name'});
+
+  # Consistency checks betwen values in different columns
+  (@file_names == @paths) or croak
+    "Discrepancy in number of products in line ${line_num}: $line";
+  ($data4update->{'md5_staging'} eq $data4update->{'md5'}) or
+    croak "md5 mismatch in line ${line_num}: $line";
+
+  # Validation of report flag values.
+  for my $restricted (%DICTIONARY_VALUES) {
+    exists $data4update->{$restricted} or next;
+    (any { $_ eq $data4update->{$restricted} } @{$DICTIONARY_VALUES{$restricted}})
+     or croak sprintf 'Invalid value %s for %s in line %i',
+    $data4update->{$restricted}, $restricted, $line_num;
+  }
+
+  # Reformat data
+  my @temp = (); # reformatting file names might be dropped for later reports
+  for my $f (@file_names) {
+    ##no critic (RegularExpressions::RequireExtendedFormatting)
+    $f =~ s/\A(.*\/)?//sm;
+    # use critic
+    push @temp, $f;
+  }
+  @file_names = @temp;
+  $data4update->{'file_name'} = _concat_record(@file_names);
+  $data4update->{'md5_validation_date'} =
+    _parse_date($data4update->{'md5_validation_date'});
+  $data4update->{'file_path'} = _concat_record(@paths);
+
+  my $path = delete $data4update->{'file_path'};
+
+  my $transaction = sub {
+    my $row = $schema_wh->resultset($EXT_METRICS_RS_NAME)
+                        ->search({file_path => $path})->next;
+    $row or croak "Database record for report line ${line_num} does not exist";
+
+    # Consistency check between the product status in the db and in the report. 
+    ($row->manifest_upload_status eq $MANIFEST_UPLOAD_STATUS_SUCCESS) or
+      croak 'Upload validated externally for product not flagged as uploaded ' .
+            "line ${line_num}";
+
+    # Consistency check between existing db values and report values
+    for my $column_name (@MUST_MATCH) {
+      ($row->$column_name eq $data4update->{$column_name}) or croak
+	sprintf 'Mismatch between report %s and db value %s %s for %s',
+          $row->$column_name, $data4update->{$column_name}, $column_name, $path;
+      # Master value exists in the db - no need to update this value
+      delete $data4update->{$column_name};
+    }
+
+    $dry_run or $row->update($data4update);
+  };
+
+  $schema_wh->txn_do($transaction);
+
+  return;
+}
+
+__END__
+
+=head1 NAME
+
+  npg_external_report2ml_warhouse
+
+=head1 SYNOPSIS
+
+  Loads data from a progressive external report to ml warehouse.
+
+=head1 USAGE
+
+  npg_external_report2ml_warhouse --help
+  npg_external_report2ml_warhouse --report_url [--no-dry_run]
+  npg_external_report2ml_warhouse --report_path [--no-dry_run]
+
+  --dry-run flag is set by default, no ml warehouse database
+  update is performed.
+
+=head1 DESCRIPTION
+
+ Loads data from a progressive external report to ml warehouse.
+  
+=head1 REQUIRED ARGUMENTS
+
+  either --report_backet_url or --report_path should be set
+
+=head1 OPTIONS
+
+  --help        - brief help message
+  --dry_run     - boolean flag, true by default
+  --report_path - full path of the report on a local file system
+  --report_url  - full report URL
+
+=head1 EXIT STATUS
+
+=head1 CONFIGURATION
+
+  If GCP bucket is used, BOTO_CONFIG variable sould be set in the
+  environment.
+
+=head1 DIAGNOSTICS
+
+=head1 DEPENDENCIES
+
+=over
+
+=item strict
+
+=item warnings
+
+=item lib
+
+=item FindBin
+
+=item Getopt::Long
+
+=item Pod::Usage
+
+=item WTSI::DNAP::Warehouse::Schema
+
+=item DateTime::Format::Strptime
+
+=item Readonly
+
+=item Carp
+
+=item Try::Tiny
+
+=item File::Slurp
+
+=item List::MoreUtils
+
+=item Perl6::Slurp
+
+=back
+
+=head1 INCOMPATIBILITIES
+
+=head1 BUGS AND LIMITATIONS
+
+=head1 AUTHOR
+
+=over
+
+=item Marina Gourtovaia
+
+=back
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (C) 2019 by Genome Research Limited
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ 

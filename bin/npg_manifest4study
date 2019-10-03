@@ -1,0 +1,494 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use FindBin qw($Bin);
+use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
+use Log::Log4perl qw(:levels);
+use DateTime;
+use DateTime::Duration;
+use Getopt::Long;
+use Pod::Usage;
+use Readonly;
+use Try::Tiny;
+use Carp;
+use File::Slurp;
+use MIME::Base64 qw( decode_base64 );
+use English qw(-no_match_vars);
+use List::MoreUtils qw(any);
+
+use WTSI::DNAP::Warehouse::Schema;
+use npg_tracking::Schema;
+use npg_tracking::illumina::runfolder;
+
+our $VERSION = '0';
+
+Readonly::Scalar my $NUM_DAYS             => 7;
+Readonly::Scalar my $DATE_FORMAT          => '%Y%m%d';
+Readonly::Scalar my $STATUS_IN_PROGRESS   => 'IN PROGRESS';
+Readonly::Scalar my $STATUS_SUCCESS       => 'SUCCESS';
+Readonly::Scalar my $STATUS_FAIL          => 'FAIL';
+
+Readonly::Scalar my $MANIFEST_DELIM       => qq[\t];
+Readonly::Scalar my $MANIFEST_DIR_NAME    => 'manifests';
+
+Readonly::Scalar my $EXT_METRICS_RS_NAME  => 'IseqExternalProductMetric';
+
+Readonly::Scalar my $KEY_DUPLICATES       => 'duplicates';
+Readonly::Scalar my $EXIT_CODE_DUPLICATES => 277;
+
+my $dry_run = 1;
+my $help;
+my $bucket_url;
+
+GetOptions (
+            'help'         => \$help,
+            'dry_run!'     => \$dry_run,
+            'bucket_url=s' => \$bucket_url
+           );
+
+if ($help) { pod2usage(0); }
+
+my $layout = '%d %-5p %c - %m%n';
+Log::Log4perl->easy_init({layout => $layout,
+                          level  => $INFO,
+                          utf8   => 1});
+my $logger = Log::Log4perl->get_logger();
+$dry_run and $logger->info('DRY RUN');
+
+$bucket_url or ($logger->fatal('--bucket_url argument is required') and exit 1);
+
+my $schema_wh       = WTSI::DNAP::Warehouse::Schema->connect();
+my $schema_tracking = npg_tracking::Schema->connect();
+
+exit main();
+
+##############################################################
+
+sub main {
+
+  my @dates = _dates();
+  my $files = _uploaded_files(@dates);
+  my $duplicates = delete $files->{$KEY_DUPLICATES};
+  $duplicates ||= {};
+
+  my $transaction = sub {
+    $files = _unreported_files($files);
+    not $dry_run and _create_records($files);
+    return $files;
+  };
+
+  my $error;
+  try {
+    $files = $schema_wh->txn_do($transaction);
+  } catch {
+    $error = $_;
+    $logger->error(qq[Error changing manifest upload status to 'IN PROGRESS': $error]);
+  };
+
+  if ($error) {
+    $logger->info('Exiting');
+    return 1;
+  }
+
+  if ( keys %{$files} ) {
+    not $dry_run and $logger->info(
+      q[Manifest upload status is set to 'IN PROGRESS' for all products]);
+  } else {
+     $logger->warn('No unreported remote files are found, exiting');
+     return 0;
+  }
+
+  my $fdate = _current_date();
+  foreach my $file (sort keys %{$files}) {
+    try {
+      if (_get_staging_md5($files, $file) ne $files->{$file}->{'remote_md5'}) {
+        croak 'md5 mismatch';
+      }
+      $files->{$file}->{'lims'} = _get_lims_data($files, $file);
+    } catch {
+      $logger->error(qq[Product ${file}: $_]);
+      not $dry_run and $schema_wh->resultset($EXT_METRICS_RS_NAME)
+        ->single({file_path => $files->{$file}->{'remote_path'}})
+        ->update({manifest_upload_status => $STATUS_FAIL,
+                  manifest_upload_status_change_date => $fdate});
+      # Do we want to save md5 to a database for this file if we have it?
+      delete $files->{$file}; # Remove this product from our cache
+    };
+  }
+
+  if (! keys %{$files} ) {
+    $logger->warn('Due to previous errors, nothing to report, exiting');
+    return 1;
+  }
+
+  my $status = $STATUS_SUCCESS;
+  try {
+    my $path = _generate_manifest($files);
+    $logger->info(qq[Saved manifest to $path]);
+    not $dry_run and _upload_manifest($path) and $logger->info('Manifest uploaded');
+  } catch {
+    $logger->error($_);
+    $status = $STATUS_FAIL;
+  };
+
+  $error = 0;
+  $transaction = sub {
+    my $rs = $schema_wh->resultset($EXT_METRICS_RS_NAME);
+    my $date = _current_date();
+    foreach my $file (keys %{$files}) {
+      $rs->single({file_path => $files->{$file}->{'remote_path'}})
+         ->update({
+           manifest_upload_status => $status,
+           manifest_upload_status_change_date => $date,
+           md5_staging            => $files->{$file}->{'remote_md5'},
+           supplier_sample_name   => $files->{$file}->{'lims'}->{'sample'},
+           plate_barcode          => $files->{$file}->{'lims'}->{'plate_barcode'},
+           library_id             => $files->{$file}->{'lims'}->{'library_id'},
+                 });
+    }
+  };
+  try {
+    not $dry_run and $schema_wh->txn_do($transaction) and
+      $logger->info('Manifest upload status is set to SUCCESS for all products');
+  } catch {
+    $error = 1;
+    $logger->error(qq[Error changing manifest upload status to SUCCESS: $_]);
+  };
+
+  foreach my $file (sort keys %{$duplicates}) {
+    $logger->error("File $file not reported, duplicates present:");
+    $logger->error(qq[\t\t] . join q[ ], @{$duplicates->{$file}});
+  }
+
+  (not $error and keys %{$duplicates}) and exit $EXIT_CODE_DUPLICATES;
+
+  return $error;
+}
+
+sub _current_date {
+  return DateTime->now(time_zone => 'local');
+}
+
+sub _dates {
+
+  my $date = _current_date();
+  my @dates = ($date->strftime($DATE_FORMAT));
+  for ( 1 .. $NUM_DAYS) {
+    push @dates, $date->subtract(DateTime::Duration->new(days => 1))
+                      ->strftime($DATE_FORMAT);
+  }
+
+  # Dates in accending order
+  @dates = reverse @dates;
+  $logger->info('Looking at dates ' . join q[, ], @dates);
+
+  return @dates;
+}
+
+sub _uploaded_files {
+  my @dates = @_;
+
+  my $command = join q[ ], 'gsutil ls -L',
+                map { "$bucket_url/$_/**.cram" }
+                @dates;
+  local $INPUT_RECORD_SEPARATOR ="\]\n";
+  ## no critic (InputOutput::RequireBriefOpen)
+  open my $fh, q(-|), $command or croak "Failed to open a pipe to '$command'";
+
+  my $files = {};
+
+  while (<$fh>) {
+    ##no critic (RegularExpressions::RequireExtendedFormatting RegularExpressions::ProhibitEscapedMetacharacters ProhibitComplexRegexes)
+    if ( m{(\S+/(\d+)/((\d+)(?:_(\d))?#(\d+)[.]cram)):.*Hash \(md5\):\s+(\S+)}sm ) {
+      my $path      = $1;
+      my $sample    = $2;
+      my $file_name = $3;
+      my $id_run    = $4;
+      my $position  = $5;
+      my $tag_index = $6;
+      my $md5       = $7;
+
+      # Files for the same product might be present in directories
+      # with different dates.
+      if ( exists $files->{$file_name} or exists $files->{$KEY_DUPLICATES}->{$file_name} ) {
+        push @{$files->{$KEY_DUPLICATES}->{$file_name}}, $path;
+        if ( exists $files->{$file_name} ) {
+	  push @{$files->{$KEY_DUPLICATES}->{$file_name}},
+	    $files->{$file_name}->{'remote_path'}->{$path};
+          delete $files->{$file_name};
+	}
+      } else {
+        # Cache info about the remote product.
+        $files->{$file_name}->{'remote_path'}   = $path;
+        $files->{$file_name}->{'remote_md5'}    = unpack q(H*), decode_base64 $md5;
+        $files->{$file_name}->{'id_run'}        = $id_run;
+        $files->{$file_name}->{'position'}      = $position;
+        $files->{$file_name}->{'tag_index'}     = $tag_index;
+        $files->{$file_name}->{'remote_sample'} = $sample;
+      }
+    }
+  }
+
+  # Error exit code and failure to close pipe if one if the paths
+  # we give does not exists. Listing does not stop on an invalid path,
+  # ie we get a fll listing for all valid paths.
+  close $fh or $logger->warn('Failed to close the pipe handle');
+  ## use critic
+
+  # Get a list of all product files in remote dated directories
+  # for the given dates
+  my @remote_files = map {$files->{$_}->{'remote_path'} } keys %{$files};
+  if (@remote_files) {
+    $logger->warn('Remote files ' . join qq[\n], @remote_files);
+  } else {
+    $logger->error('No remote files are found');
+  }
+
+  return $files;
+}
+
+sub _unreported_files {
+  my ($files) = @_;
+
+  # Prune the products that have been already reported
+  # or are in the process of being reported, try again
+  # the files that previously errored.
+
+  my @reported = $schema_wh->resultset($EXT_METRICS_RS_NAME)->search(
+    {
+      file_path => [map {$files->{$_}->{'remote_path'} } keys %{$files}],
+      manifest_upload_status => [$STATUS_IN_PROGRESS, $STATUS_SUCCESS]
+    },
+    {column => 'file_path'}
+  )->all();
+  @reported = map { $_->file_path } @reported;
+
+  for my $file (keys %{$files}) {
+    if ( any { $_ eq $files->{$file}->{'remote_path'} } @reported ) {
+      delete $files->{$file};
+    }
+  }
+  my @unreported = sort map { $files->{$_}->{'remote_path'} } keys %{$files};
+  if (@unreported) {
+    $logger->debug('Unreported remote files ' . join qq[\n], @unreported);
+  }
+
+  return $files;
+}
+
+sub _create_records {
+  my ($files) = @_;
+  # Create record if it does not exist.
+  # Set status as in progress, whether the record is new or old.
+  my $rs = $schema_wh->resultset($EXT_METRICS_RS_NAME);
+  my $date = _current_date();
+  foreach my $file ( keys %{$files} ) {
+    my $row = $rs->find_or_create(
+              {file_path => $files->{$file}->{'remote_path'},
+               file_name => $file});
+    $row->update({manifest_upload_status => $STATUS_IN_PROGRESS,
+                  manifest_upload_status_change_date => $date});
+  }
+  return;
+}
+
+sub _get_staging_md5 {
+  my ($files, $file) = @_;
+  ######################################################################
+  # TODO: how will we work with both lus113 and lus120?
+  # i.e. if runfolders are spread across filesystems with no common host
+  ######################################################################
+  my $id_run = $files->{$file}->{id_run} or croak "Require id_run for $file to find its archive path\n";
+  my $rf = npg_tracking::illumina::runfolder->new(
+    id_run => $id_run, npg_tracking_schema => $schema_tracking); # should we cache the run folder?
+  my ($md5file) = glob $rf->archive_path.q(/{*/,}*/).$file.q(.md5);
+  $md5file or croak "Failed to locate staging md5 file for $file";
+  my $md5 = read_file($md5file);
+  ($md5) = $md5=~m{\A(\S{32})\b}smx; # expect 32 char hex representation
+  $md5 or croak "Failed to read md5 from $md5file file";
+  return $md5;
+}
+
+sub _get_lims_data {
+  my ($files, $file) = @_;
+
+  my $position = $files->{$file}->{'position'};
+  $position ||= 1;
+  my $row = $schema_wh->resultset('IseqProductMetric')->search(
+    { id_run    => $files->{$file}->{'id_run'},
+      position  => $position,
+      tag_index => $files->{$file}->{'tag_index'} },
+    {join => 'iseq_flowcell'}
+  )->first;
+  $row or croak qq(iseq_product_metrics record not found for $file);
+  $row = $row->iseq_flowcell;
+  $row or croak qq(linked iseq_flowcell record not found for $file);
+  my $sample_row = $row->sample;
+
+  my $meta = {};
+  # Choose the earliest created plate, likely to be the original stock plate
+  $meta->{'plate_barcode'} = $sample_row->stock_resources->search({},
+    { column => [qw(created labware_human_barcode)],
+      order_by => { -asc => 'created' } }
+  )->first->labware_human_barcode();
+  $meta->{'library_id'}   = $row->legacy_library_id;
+  $meta->{'sample'}       = $sample_row->supplier_name;
+
+  ($meta->{'plate_barcode'} and $meta->{'library_id'} and  $meta->{'sample'}) or
+    croak qq(Failed to retrieve some LIMs data for $file);
+
+  ($meta->{'sample'} eq $files->{$file}->{'remote_sample'}) or
+    croak sprintf 'Remote sample name %s differs from db sample name %s',
+      $files->{$file}->{'remote_sample'}, $meta->{'sample'};
+
+  return $meta;
+}
+
+sub _generate_manifest {
+  my ($files) = @_;
+  my @lines = ();
+  push @lines, join $MANIFEST_DELIM, qw(ukb_sample_id plate_id library_id path md5);
+  foreach my $file (sort keys %{$files}) {
+    push @lines, join $MANIFEST_DELIM, $files->{$file}->{'remote_sample'},
+                                       $files->{$file}->{'lims'}->{'plate_barcode'},
+                                       $files->{$file}->{'lims'}->{'library_id'},
+                                       $files->{$file}->{'remote_path'},
+                                       $files->{$file}->{'remote_md5'};
+  }
+  @lines = map { "$_\n" } @lines;
+
+  my $manifest_upload_date = _current_date()->strftime(join q[-], $DATE_FORMAT, q[%T]);
+  my $path = join q[/], q[/tmp], $manifest_upload_date . '.csv';
+  write_file($path, @lines);
+  return $path;
+}
+
+sub _upload_manifest {
+  my ($path) = @_;
+  (0 == system "gsutil cp $path $bucket_url/$MANIFEST_DIR_NAME/") or
+    croak "Failed to upload the manifest from $path to $bucket_url";
+  return;
+}
+
+__END__
+
+=head1 NAME
+
+npg_manifest4study
+
+=head1 SYNOPSIS
+
+  Generates a manifest that lists uploaded files that were not included
+  in previous manifests. Uploads the manifest to a pre-defined location.
+
+=head1 USAGE
+
+  npg_manifest4study --help
+  npg_manifest4study --bucket_url 'gs://some_bucket' # dry run
+  npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry-run
+
+=head1 DESCRIPTION
+
+  Generates a manifest that lists uploaded files that were not included
+  in previous manifests. Uploads the manifest to a pre-defined location.
+  
+=head1 REQUIRED ARGUMENTS
+
+None
+
+=head1 OPTIONS
+
+  --help       - brief help message
+  --dry_run    - a boolean flag, true by default; no database
+                 updates and no manifest upload
+  --bucket_url - bucket url, no trailin gforward slash, required
+
+=head1 EXIT STATUS
+
+  0   if manifest was uploaded successfully.
+  1   if manifest was not uploaded successfully or a manifest could
+      not be generated because necessary data could not be obtained
+      for any products.
+  277 if manifest is sent, but duplicates are found
+
+=head1 CONFIGURATION
+
+  If GCP bucket is used, BOTO_CONFIG variable sould be set in the
+  environment.
+
+=head1 DIAGNOSTICS
+
+=head1 DEPENDENCIES
+
+=over
+
+=item strict
+
+=item warnings
+
+=item lib
+
+=item FindBin
+
+=item Getopt::Long
+
+=item Pod::Usage
+
+=item WTSI::DNAP::Warehouse::Schema
+
+=item npg_tracking::Schema
+
+=item npg_tracking::illumina::runfolder
+
+=item DateTime
+
+=item DateTime::Duration
+
+=item Readonly
+
+=item Carp
+
+=item Try::Tiny
+
+=item File::Slurp
+
+=item MIME::Base64
+
+=item English
+
+=item List::MoreUtils
+
+=back
+
+=head1 INCOMPATIBILITIES
+
+=head1 BUGS AND LIMITATIONS
+
+=head1 AUTHOR
+
+=over
+
+=item Marina Gourtovaia
+
+=item David Jackson
+
+=back
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (C) 2019 by Genome Research Limited
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
