@@ -9,7 +9,7 @@ use DateTime::Format::Strptime q(strptime);
 use Getopt::Long;
 use Pod::Usage;
 use Readonly;
-use List::MoreUtils qw(any uniq);
+use List::MoreUtils qw(any);
 use Try::Tiny;
 use Carp;
 use Perl6::Slurp;
@@ -17,6 +17,14 @@ use Perl6::Slurp;
 use WTSI::DNAP::Warehouse::Schema;
 
 our $VERSION = '0';
+
+Readonly::Scalar my $REPORT_COLUMN_DELIM    => qq[\t];
+Readonly::Scalar my $REPORT_DATA_DELIM      => q[,];
+Readonly::Scalar my $REPORT_READ_NAME_DELIM => q[/];
+Readonly::Scalar my $REPORT_DATE_FORMAT     => q[%Y%m%d];
+
+Readonly::Scalar my $EXT_METRICS_RS_NAME    => q[IseqExternalProductMetric];
+Readonly::Scalar my $MANIFEST_UPLOAD_STATUS_SUCCESS => 'SUCCESS';
 
 # Mapping of database column names to report column names
 Readonly::Hash my %MONIKER_MAP => {
@@ -111,6 +119,7 @@ Readonly::Array my @MUST_HAVE => qw(
 );
 
 Readonly::Array my @MUST_HAVE4UPLOADED => qw(
+  plate_barcode
   md5
   md5_validation
   md5_validation_date
@@ -121,21 +130,13 @@ Readonly::Array my @MUST_HAVE4UPLOADED => qw(
 
 Readonly::Array my @MUST_MATCH => qw(
   supplier_sample_name
+  file_name
 );
 
 Readonly::Array my @MUST_MATCH4UPLOADED => qw(
-  file_name
   md5_staging
   plate_barcode
 );
-
-Readonly::Scalar my $REPORT_COLUMN_DELIM => qq[\t];
-Readonly::Scalar my $REPORT_DATA_DELIM   => q[,];
-Readonly::Scalar my $REPORT_READ_NAME_DELIM   => q[/];
-Readonly::Scalar my $REPORT_DATE_FORMAT  => q[%Y%m%d];
-
-Readonly::Scalar my $EXT_METRICS_RS_NAME => q[IseqExternalProductMetric];
-Readonly::Scalar my $MANIFEST_UPLOAD_STATUS_SUCCESS => 'SUCCESS';
 
 my $dry_run = 1;
 my $help;
@@ -278,7 +279,7 @@ sub _validate_restricted_values {
   # Validation of report flag values.
   for my $restricted (%DICTIONARY_VALUES) {
     exists $data4update->{$restricted} or next;
-    my @read_data = split /$REPORT_DATA_DELIM | $REPORT_READ_NAME_DELIM/,
+    my @read_data = split /$REPORT_DATA_DELIM | $REPORT_READ_NAME_DELIM/smx,
                     $data4update->{$restricted};
     foreach my $d (@read_data) {
       (any { $_ eq $d } @{$DICTIONARY_VALUES{$restricted}})
@@ -291,9 +292,8 @@ sub _validate_restricted_values {
 
 sub _validate_must_have {
   my ($data, @must_haves) = @_;
-  foreach my $must_have_name (uniq @must_haves) {
-    (defined $data->{$must_have_name}) or
-      croak "$must_have_name is undefined";
+  foreach my $must_have_name (@must_haves) {
+    defined $data->{$must_have_name} or croak "$must_have_name is undefined";
   }
   return;
 }
@@ -362,7 +362,7 @@ sub _save_line2db {
 sub _find_row {
   my $path = shift;
   my $row = $schema_wh->resultset($EXT_METRICS_RS_NAME)
-                        ->search({file_path => $path})->next;
+                      ->search({file_path => $path})->next;
   return $row;
 }
 
