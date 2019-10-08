@@ -131,7 +131,7 @@ Readonly::Array my @MUST_MATCH4UPLOADED => qw(
 
 Readonly::Scalar my $REPORT_COLUMN_DELIM => qq[\t];
 Readonly::Scalar my $REPORT_DATA_DELIM   => q[,];
-Readonly::Scalar my $REPORT_READ_NAME_DELIM   => q[/]; # or read
+Readonly::Scalar my $REPORT_READ_NAME_DELIM   => q[/];
 Readonly::Scalar my $REPORT_DATE_FORMAT  => q[%Y%m%d];
 
 Readonly::Scalar my $EXT_METRICS_RS_NAME => q[IseqExternalProductMetric];
@@ -278,7 +278,8 @@ sub _validate_restricted_values {
   # Validation of report flag values.
   for my $restricted (%DICTIONARY_VALUES) {
     exists $data4update->{$restricted} or next;
-    my @read_data = split $REPORT_READ_NAME_DELIM, $data4update->{$restricted};
+    my @read_data = split /$REPORT_DATA_DELIM | $REPORT_READ_NAME_DELIM/,
+                    $data4update->{$restricted};
     foreach my $d (@read_data) {
       (any { $_ eq $d } @{$DICTIONARY_VALUES{$restricted}})
         or croak sprintf 'Invalid value %s for %s',
