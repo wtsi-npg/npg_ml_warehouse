@@ -337,15 +337,6 @@ sub _save_line2db {
   my @file_names = _split_record($data4update->{'file_name'});
   (@file_names == @paths) or croak
     "Discrepancy in number of products in line ${line_num}: $line";
-  # Reformat file names,  might be dropped for later reports
-  my @temp = ();
-  for my $f (@file_names) {
-    ##no critic (RegularExpressions::RequireExtendedFormatting)
-    $f =~ s/\A(.*\/)?//sm;
-    # use critic
-    push @temp, $f;
-  }
-  @file_names = @temp;
   $data4update->{'file_name'} = _concat_record(@file_names);
 
   foreach my $date_column_name ( grep { m{_date\Z}xms } keys %{$data4update} ) {
