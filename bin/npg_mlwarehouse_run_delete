@@ -34,6 +34,8 @@ my $transaction = sub {
     }
   }
   $rs->delete();
+  $schema_wh->resultset(q[IseqProductMetric])
+            ->search({id_run => $id_run})->delete;
 };
 
 $schema_wh->txn_do($transaction);
