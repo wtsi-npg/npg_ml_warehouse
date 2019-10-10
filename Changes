@@ -1,5 +1,11 @@
 LIST OF CHANGES
 
+release 41.6.0
+ - run data deletion from ml warehouse - bug fix
+   (product rows for merged data were not deleted)
+ - loader for an external report:
+    deal with externally merged data and external QC data
+
 release 41.5.0
  - script to generate and upload a manifest for a study
  - script to load external report to ml warehouse
