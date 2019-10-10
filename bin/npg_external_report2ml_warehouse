@@ -22,6 +22,7 @@ Readonly::Scalar my $REPORT_COLUMN_DELIM    => qq[\t];
 Readonly::Scalar my $REPORT_DATA_DELIM      => q[,];
 Readonly::Scalar my $REPORT_READ_NAME_DELIM => q[/];
 Readonly::Scalar my $REPORT_DATE_FORMAT     => q[%Y%m%d];
+Readonly::Scalar my $REPORT_NA_STRING       => q[NA];
 
 Readonly::Scalar my $EXT_METRICS_RS_NAME    => q[IseqExternalProductMetric];
 Readonly::Scalar my $MANIFEST_UPLOAD_STATUS_SUCCESS => 'SUCCESS';
@@ -322,6 +323,13 @@ sub _values4update {
   foreach my $column (keys %{$column2index_map}) {
     my $value = $data->[$column2index_map->{$column}];
     defined $value and ($value ne q[]) and $data4update->{$column} = $value;
+  }
+
+  my $def_column_name = q[double_error_fraction];
+  # Column type is float, cannot accept strings.
+  if ( $data4update->{$def_column_name} &&
+      ($data4update->{$def_column_name} eq $REPORT_NA_STRING) ) {
+    delete $data4update->{$def_column_name};
   }
 
   return $data4update;
