@@ -102,7 +102,7 @@ Readonly::Hash my %DICTIONARY_VALUES => {
   contamination_assessment                   => [qw(PASS FAIL)],
   target_proper_pair_mapped_reads_assessment => [qw(PASS FAIL)],
   verify_bam_id_score_assessment             => [qw(PASS FAIL)],
-  nrd_assessment                             => [qw(PASS FAIL)],
+  nrd_assessment                             => [qw(PASS FAIL), $REPORT_NA_STRING],
   fastqc_overall_assessment                  => [qw(PASS FAIL)],
   adapter_contamination_assessment           => [qw(PASS FAIL WARN)],
   basic_statistics_assessement               => [qw(PASS FAIL WARN)],
@@ -215,12 +215,10 @@ sub main {
 }
 
 sub _get_lines {
-  my @lines;
-  if ($report_path) {
-    @lines = slurp $report_path, {chomp=>1};
-  } else {
-    @lines = slurp "gsutil cat $report_url |", {chomp=>1};
-  }
+
+  my $what = $report_path ? $report_path : "gsutil cat $report_url |";
+  $logger->info("Parsing '$what'");
+  my @lines = slurp $what, {chomp=>1};
 
   return \@lines;
 }
@@ -325,11 +323,12 @@ sub _values4update {
     defined $value and ($value ne q[]) and $data4update->{$column} = $value;
   }
 
-  my $def_column_name = q[double_error_fraction];
-  # Column type is float, cannot accept strings.
-  if ( $data4update->{$def_column_name} &&
-      ($data4update->{$def_column_name} eq $REPORT_NA_STRING) ) {
-    delete $data4update->{$def_column_name};
+  foreach my $column_name (qw(double_error_fraction nrd)) {
+    # Column type is float, cannot accept strings.
+    if ( $data4update->{$column_name} &&
+        ($data4update->{$column_name} eq $REPORT_NA_STRING) ) {
+      delete $data4update->{$column_name};
+    }
   }
 
   return $data4update;
