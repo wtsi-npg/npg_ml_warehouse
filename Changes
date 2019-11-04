@@ -1,6 +1,7 @@
 LIST OF CHANGES
 
  - manifest generation: exclude annulled products
+ - flag-driven creation of an empty manifest for external products
 
 release 42.7
  - external product report loader:

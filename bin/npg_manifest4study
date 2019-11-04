@@ -38,26 +38,33 @@ Readonly::Scalar my $EXT_METRICS_RS_NAME  => 'IseqExternalProductMetric';
 Readonly::Scalar my $KEY_DUPLICATES       => 'duplicates';
 Readonly::Scalar my $EXIT_CODE_DUPLICATES => 277;
 
-my $dry_run = 1;
+my $dry_run    = 1;
+my $send_empty = 0;
 my $help;
 my $bucket_url;
 
 GetOptions (
             'help'         => \$help,
             'dry_run!'     => \$dry_run,
-            'bucket_url=s' => \$bucket_url
+            'bucket_url=s' => \$bucket_url,
+            'send_empty!'  => \$send_empty,
            );
 
 if ($help) { pod2usage(0); }
+
+# Ensure the flag values are defined
+$dry_run      ||= 0;
+$send_empty ||= 0;
 
 my $layout = '%d %-5p %c - %m%n';
 Log::Log4perl->easy_init({layout => $layout,
                           level  => $INFO,
                           utf8   => 1});
 my $logger = Log::Log4perl->get_logger();
-$dry_run and $logger->info('DRY RUN');
 
 $bucket_url or ($logger->fatal('--bucket_url argument is required') and exit 1);
+$dry_run    and $logger->info('DRY RUN');
+$send_empty and $logger->info('SEND EMPTY MANIFEST');
 
 my $schema_wh       = WTSI::DNAP::Warehouse::Schema->connect();
 my $schema_tracking = npg_tracking::Schema->connect();
@@ -87,8 +94,17 @@ sub main {
     $logger->error(qq[Error changing manifest upload status to 'IN PROGRESS': $error]);
   };
 
-  if ($error) {
+  my $send_empty_manifest = sub {
+    try {
+      _send_manifest({}, $dry_run, $send_empty);
+    } catch {
+      $logger->error('Failed to send an empty manifest: ' . $_);
+    };
     $logger->info('Exiting');
+  };
+
+  if ($error) {
+    $send_empty_manifest->();
     return 1;
   }
 
@@ -96,8 +112,9 @@ sub main {
     not $dry_run and $logger->info(
       q[Manifest upload status is set to 'IN PROGRESS' for all products]);
   } else {
-     $logger->warn('No unreported remote files are found, exiting');
-     return 0;
+    $logger->warn('No unreported remote files are found');
+    $send_empty_manifest->();
+    return 0;
   }
 
   my $fdate = _current_date();
@@ -118,16 +135,15 @@ sub main {
     };
   }
 
-  if (! keys %{$files} ) {
-    $logger->warn('Due to previous errors, nothing to report, exiting');
+  if (not keys %{$files} ) {
+    $logger->warn('Due to previous errors, nothing to report');
+    $send_empty_manifest->();
     return 1;
   }
 
   my $status = $STATUS_SUCCESS;
   try {
-    my $path = _generate_manifest($files);
-    $logger->info(qq[Saved manifest to $path]);
-    not $dry_run and _upload_manifest($path) and $logger->info('Manifest uploaded');
+    _send_manifest($files, $dry_run, $send_empty);
   } catch {
     $logger->error($_);
     $status = $STATUS_FAIL;
@@ -149,13 +165,16 @@ sub main {
                  });
     }
   };
-  try {
-    not $dry_run and $schema_wh->txn_do($transaction) and
+
+  if (not $dry_run) {
+    try {
+      $schema_wh->txn_do($transaction);
       $logger->info('Manifest upload status is set to SUCCESS for all products');
-  } catch {
-    $error = 1;
-    $logger->error(qq[Error changing manifest upload status to SUCCESS: $_]);
-  };
+    } catch {
+      $error = 1;
+      $logger->error('Error changing manifest upload status to SUCCESS: ' . $_);
+    };
+  }
 
   foreach my $file (sort keys %{$duplicates}) {
     $logger->error("File $file not reported, duplicates present:");
@@ -241,7 +260,7 @@ sub _uploaded_files {
   # for the given dates
   my @remote_files = map {$files->{$_}->{'remote_path'} } keys %{$files};
   if (@remote_files) {
-    $logger->warn('Remote files ' . join qq[\n], @remote_files);
+    $logger->warn('Number of remote files: ' . scalar @remote_files);
   } else {
     $logger->error('No remote files are found');
   }
@@ -374,6 +393,19 @@ sub _upload_manifest {
   return;
 }
 
+sub _send_manifest {
+  my ($files, $dry, $empty) = @_;
+
+  my $path = _generate_manifest($files);
+  $logger->info(qq[Saved manifest to $path]);
+
+  if (not $dry and (keys %{$files} or $empty)) {
+    _upload_manifest($path);
+    $logger->info('Manifest uploaded');
+  }
+  return;
+}
+
 __END__
 
 =head1 NAME
@@ -390,6 +422,7 @@ npg_manifest4study
   npg_manifest4study --help
   npg_manifest4study --bucket_url 'gs://some_bucket' # dry run
   npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry-run
+  npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry-run --send_empty
 
 =head1 DESCRIPTION
 
@@ -402,10 +435,14 @@ None
 
 =head1 OPTIONS
 
-  --help       - brief help message
-  --dry_run    - a boolean flag, true by default; no database
-                 updates and no manifest upload
-  --bucket_url - bucket url, no trailin gforward slash, required
+  --help        - brief help message
+  --dry_run     - a boolean flag, true by default; no database
+                  updates and no manifest upload
+  --csend_empty - a boolean flag, false by default, i.e.
+                  empty manifests are not created; if set to true,
+                  an empty manifest is created, its upload follows
+                  logic for the --dry_run argument                 
+  --bucket_url  - bucket url, no trailin gforward slash, required
 
 =head1 EXIT STATUS
 
