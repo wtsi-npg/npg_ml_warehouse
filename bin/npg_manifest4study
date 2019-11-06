@@ -53,7 +53,7 @@ GetOptions (
 if ($help) { pod2usage(0); }
 
 # Ensure the flag values are defined
-$dry_run      ||= 0;
+$dry_run    ||= 0;
 $send_empty ||= 0;
 
 my $layout = '%d %-5p %c - %m%n';
@@ -427,7 +427,10 @@ npg_manifest4study
 =head1 DESCRIPTION
 
   Generates a manifest that lists uploaded files that were not included
-  in previous manifests. Uploads the manifest to a pre-defined location.
+  in previous manifests and saves it to a temporary location. Uploads
+  the manifest to a location defined by the --bucket_url argument.
+  If no rows are to be included into the manifest, the file is still
+  created and contains a header row only. 
   
 =head1 REQUIRED ARGUMENTS
 
@@ -438,10 +441,10 @@ None
   --help        - brief help message
   --dry_run     - a boolean flag, true by default; no database
                   updates and no manifest upload
-  --csend_empty - a boolean flag, false by default, i.e.
-                  empty manifests are not created; if set to true,
-                  an empty manifest is created, its upload follows
-                  logic for the --dry_run argument                 
+  --send_empty  - a boolean flag, false by default, i.e.
+                  empty manifests are not sent; if set to true,
+                  upload of the manifest follows logic for the
+                  --dry_run argument                 
   --bucket_url  - bucket url, no trailin gforward slash, required
 
 =head1 EXIT STATUS
