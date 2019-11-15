@@ -88,8 +88,9 @@ Readonly::Hash my %MONIKER_MAP => {
   Processing_Status => 'processing_status',
   QC_status => 'qc_status',
   Transfer_Date => 'archival_date',
-  Data_archive_confirmed_date => 'archive_conformation_date',
+  Data_archive_confirmed_date => 'archive_confirmation_date',
   Archive_ID_for_data_product => 'id_archive_product',
+  Phase2_end_date => 'phase2_end_date',
 };
 
 Readonly::Hash my %DICTIONARY_VALUES => {
@@ -405,7 +406,7 @@ sub _update_record4uploaded_product {
 sub _update_create_external_product {
   my ($data4update, $column2index_map) = @_;
 
-  foreach my $column_name (@MUST_HAVE4UPLOADED ) {
+  foreach my $column_name (grep { $_ ne 'plate_barcode' } @MUST_HAVE4UPLOADED ) {
     exists $data4update->{$column_name} and croak
       "$column_name report column should not have a value for an external product";
   }
@@ -419,7 +420,7 @@ sub _update_create_external_product {
       _prune_master_values($row, $data4update, @MUST_MATCH);
       $dry_run or $row->update($data4update);
     } else {
-      $dry_run or $row->insert($data4update);
+      $dry_run or $schema_wh->resultset($EXT_METRICS_RS_NAME)->create($data4update);
     }
   };
 
