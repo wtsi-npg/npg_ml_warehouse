@@ -3,10 +3,10 @@ sudo: required
 language: perl
 
 perl:
-  - "5.22-shrplib"
+  - "5.26"
 
 dist:
-  - precise
+  - bionic
 
 env:
   global:

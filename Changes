@@ -1,5 +1,9 @@
 LIST OF CHANGES
 
+release 42.7
+ - column mapping update
+ - bug fixes for merged top-up data 
+
 release 41.6.1
  - recognise 'NA' string as a valid value for Fractional_NRD and
    NRD_pass report columns; meaning - the array data for that sample
