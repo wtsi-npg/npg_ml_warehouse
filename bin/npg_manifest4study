@@ -40,11 +40,13 @@ Readonly::Scalar my $EXIT_CODE_DUPLICATES => 277;
 my $dry_run = 1;
 my $help;
 my $bucket_url;
+my $staging_md5 = 1;
 
 GetOptions (
             'help'         => \$help,
             'dry_run!'     => \$dry_run,
-            'bucket_url=s' => \$bucket_url
+            'staging_md5!' => \$staging_md5,
+            'bucket_url=s' => \$bucket_url,
            );
 
 if ($help) { pod2usage(0); }
@@ -55,6 +57,7 @@ Log::Log4perl->easy_init({layout => $layout,
                           utf8   => 1});
 my $logger = Log::Log4perl->get_logger();
 $dry_run and $logger->info('DRY RUN');
+$logger->info('Will ' .  $staging_md5 ? q[] : 'not ' . 'check staging md5');
 
 $bucket_url or ($logger->fatal('--bucket_url argument is required') and exit 1);
 
@@ -102,7 +105,8 @@ sub main {
   my $fdate = _current_date();
   foreach my $file (sort keys %{$files}) {
     try {
-      if (_get_staging_md5($files, $file) ne $files->{$file}->{'remote_md5'}) {
+      if ($staging_md5 &&
+        (_get_staging_md5($files, $file) ne $files->{$file}->{'remote_md5'})) {
         croak 'md5 mismatch';
       }
       $files->{$file}->{'lims'} = _get_lims_data($files, $file);
@@ -387,6 +391,7 @@ npg_manifest4study
   npg_manifest4study --help
   npg_manifest4study --bucket_url 'gs://some_bucket' # dry run
   npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry-run
+  npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry-run --no-staging_md5
 
 =head1 DESCRIPTION
 
@@ -399,10 +404,15 @@ None
 
 =head1 OPTIONS
 
-  --help       - brief help message
-  --dry_run    - a boolean flag, true by default; no database
-                 updates and no manifest upload
-  --bucket_url - bucket url, no trailin gforward slash, required
+  --help        - brief help message
+  --dry_run     - a boolean flag, true by default; no database
+                  updates and no manifest upload
+  --staging_md5 - a boolean flag, defaults to true; if true, md5
+                  value of a cram file is read from staging and
+                  compared to md5 value of this file retrieved from
+                  the remote file system, an error is raised in
+                  case of md5 mismatch
+  --bucket_url  - bucket url, no trailin gforward slash, required
 
 =head1 EXIT STATUS
 
