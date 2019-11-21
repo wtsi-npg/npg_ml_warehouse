@@ -1,10 +1,11 @@
 LIST OF CHANGES
 
+ - manifest generation: exclude annulled products
+
 release 42.7
  - external product report loader:
      column mapping update,
      bug fixes for merged top-up data
- - manifest generation: exclude annulled products 
 
 release 41.6.1
  - recognise 'NA' string as a valid value for Fractional_NRD and
