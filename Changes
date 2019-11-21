@@ -1,11 +1,7 @@
 LIST OF CHANGES
 
  - manifest generation: exclude annulled products
- - flag-driven creation of an empty manifest for external products
-
-release 42.7
- - column mapping update
- - bug fixes for merged top-up data 
+ - flag-driven upload of an empty manifest for external products
 
 release 42.7
  - external product report loader:
