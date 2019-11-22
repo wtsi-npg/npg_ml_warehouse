@@ -25,7 +25,8 @@ Readonly::Scalar my $REPORT_DATE_FORMAT     => q[%Y%m%d];
 Readonly::Scalar my $REPORT_NA_STRING       => q[NA];
 
 Readonly::Scalar my $EXT_METRICS_RS_NAME    => q[IseqExternalProductMetric];
-Readonly::Scalar my $MANIFEST_UPLOAD_STATUS_SUCCESS => 'SUCCESS';
+Readonly::Scalar my $MANIFEST_UPLOAD_STATUS_SUCCESS  => 'SUCCESS';
+Readonly::Scalar my $MANIFEST_UPLOAD_STATUS_ANNULLED => 'ANNULLED';
 
 # Mapping of database column names to report column names
 Readonly::Hash my %MONIKER_MAP => {
@@ -392,6 +393,7 @@ sub _update_record4uploaded_product {
 
     # Consistency check between the product status in the db and in the report. 
     ($row->manifest_upload_status eq $MANIFEST_UPLOAD_STATUS_SUCCESS) or
+      ($row->manifest_upload_status eq $MANIFEST_UPLOAD_STATUS_ANNULLED) or
       croak 'Upload validated externally for product not flagged as uploaded';
 
     # Consistency check between existing db values and report values
