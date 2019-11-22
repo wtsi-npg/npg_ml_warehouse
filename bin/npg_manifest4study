@@ -28,6 +28,7 @@ Readonly::Scalar my $DATE_FORMAT          => '%Y%m%d';
 Readonly::Scalar my $STATUS_IN_PROGRESS   => 'IN PROGRESS';
 Readonly::Scalar my $STATUS_SUCCESS       => 'SUCCESS';
 Readonly::Scalar my $STATUS_FAIL          => 'FAIL';
+Readonly::Scalar my $STATUS_ANNULLED      => 'ANNULLED';
 
 Readonly::Scalar my $MANIFEST_DELIM       => qq[\t];
 Readonly::Scalar my $MANIFEST_DIR_NAME    => 'manifests';
@@ -252,13 +253,15 @@ sub _unreported_files {
   my ($files) = @_;
 
   # Prune the products that have been already reported
-  # or are in the process of being reported, try again
-  # the files that previously errored.
+  # or are in the process of being reported, or have been
+  # annulled, try again the files that previously errored.
 
   my @reported = $schema_wh->resultset($EXT_METRICS_RS_NAME)->search(
     {
       file_path => [map {$files->{$_}->{'remote_path'} } keys %{$files}],
-      manifest_upload_status => [$STATUS_IN_PROGRESS, $STATUS_SUCCESS]
+      manifest_upload_status => [ $STATUS_IN_PROGRESS,
+                                  $STATUS_SUCCESS,
+                                  $STATUS_ANNULLED ]
     },
     {column => 'file_path'}
   )->all();
