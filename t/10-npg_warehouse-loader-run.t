@@ -178,7 +178,7 @@ subtest 'old paired (two runfolders) run' => sub {
 };
 
 subtest 'old paired (two runfolders) run' => sub {
-  plan tests => 8;
+  plan tests => 10;
 
   my %in = %{$init};
   $in{'id_run'} = 4138;
@@ -194,9 +194,11 @@ subtest 'old paired (two runfolders) run' => sub {
   is ($r->paired_read, 1, 'paired read flag updated correctly');
   is ($r->tags_decode_percent, undef, 'tags_decode_percent NULL where not loaded');
   is ($r->instrument_name, q[IL36] , 'instr name');
+  is ($r->instrument_external_name, q[PQKLP], 'instr name given by the manufacturer');
   is ($r->instrument_model, q[HK] , 'instr model');
   $r = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 3965,position=>2},)->next;
   is ($r->instrument_name, q[IL36] , 'instr name');
+  is ($r->instrument_external_name, q[PQKLP], 'instr name given by the manufacturer');
   is ($r->instrument_model, q[HK] , 'instr model');
 
   $in{'id_run'} = 3323;

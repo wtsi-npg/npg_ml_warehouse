@@ -419,7 +419,7 @@
   percent_complete: ~
   serial: ''
   staging_dir: /staging/IL35/incoming
-- external_name: ''
+- external_name: 'PQKLP'
   id_instrument: 41
   id_instrument_format: 4
   instrument_comp: il36
@@ -491,7 +491,7 @@
   percent_complete: ~
   serial: ''
   staging_dir: staging/IL41/incoming
-- external_name: ''
+- external_name: 'XYZWK'
   id_instrument: 47
   id_instrument_format: 4
   instrument_comp: il42win

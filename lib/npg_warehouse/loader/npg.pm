@@ -179,7 +179,9 @@ sub instrument_info {
                { prefetch => ['instrument', 'instrument_format'],},
     );
     if ($row) {
+        my $inm = $row->instrument->external_name;
         $info->{'instrument_name'}  = $row->instrument->name;
+        $info->{'instrument_external_name'} = $inm ? $inm : undef;
         $info->{'instrument_model'} = $row->instrument_format->model;
         $info->{'instrument_side'}  = $row->instrument_side;
         $info->{'workflow_type'}    = $row->workflow_type;

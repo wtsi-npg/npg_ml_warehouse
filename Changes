@@ -1,5 +1,9 @@
 LIST OF CHANGES
 
+release 42.8.0
+ - warehouse loader - add loading manufacturer's instrument
+   name
+
 release 42.7.1
  - manifest generation: exclude annulled products
 
