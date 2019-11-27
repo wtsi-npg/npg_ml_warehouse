@@ -50,12 +50,14 @@ lives_ok{ $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
   is($n->run_is_cancelled(), 0, 'run 1272 is not cancelled');
   cmp_deeply($n->instrument_info,
     {instrument_name => q[IL20], instrument_model => q[1G],
-     instrument_side => undef, workflow_type => undef}, 'instr info for run 1272');
+     instrument_side => undef, workflow_type => undef,
+     instrument_external_name => undef}, 'instr info for run 1272');
 
   $n = npg_warehouse::loader::npg->new(schema_npg => $schema_npg, id_run => 3519);
   is($n->run_is_cancelled(), 1, 'run 3519 is cancelled');
   cmp_deeply($n->instrument_info,
    {instrument_name => q[IL42], instrument_model => q[HK],
+    instrument_external_name => q[XYZWK],
     instrument_side => undef, workflow_type => undef}, 'instr info for run 3519');
 
   my $run = $schema_npg->resultset('Run')->find(3519);
