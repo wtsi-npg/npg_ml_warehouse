@@ -137,7 +137,7 @@ sub main {
 
   if (not keys %{$files} ) {
     $logger->warn('Due to previous errors, nothing to report');
-    $send_empty_manifest->();
+    $logger->info('Exiting');
     return 1;
   }
 
