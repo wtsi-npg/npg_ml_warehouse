@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - flag-driven upload of an empty manifest for external products
+
 release 42.8.0
  - warehouse loader - add loading manufacturer's instrument
    name
