@@ -262,7 +262,9 @@ sub _uploaded_files {
 
   # Get a list of all product files in remote dated directories
   # for the given dates
-  my @remote_files = map {$files->{$_}->{'remote_path'} } keys %{$files};
+  my @remote_files = map { $files->{$_}->{'remote_path'} }
+                     grep { $_ ne $KEY_DUPLICATES }
+                     keys %{$files};
   if (@remote_files) {
     $logger->warn('Number of remote files: ' . scalar @remote_files);
   } else {
