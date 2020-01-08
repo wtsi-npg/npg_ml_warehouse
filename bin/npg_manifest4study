@@ -262,7 +262,9 @@ sub _uploaded_files {
 
   # Get a list of all product files in remote dated directories
   # for the given dates
-  my @remote_files = map {$files->{$_}->{'remote_path'} } keys %{$files};
+  my @remote_files = map { $files->{$_}->{'remote_path'} }
+                     grep { $_ ne $KEY_DUPLICATES }
+                     keys %{$files};
   if (@remote_files) {
     $logger->warn('Number of remote files: ' . scalar @remote_files);
   } else {
@@ -425,9 +427,9 @@ npg_manifest4study
 
   npg_manifest4study --help
   npg_manifest4study --bucket_url 'gs://some_bucket' # dry run
-  npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry-run
-  npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry-run --send_empty
-  npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry-run --no-staging_md5
+  npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry_run
+  npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry_run --send_empty
+  npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry_run --no-staging_md5
 
 =head1 DESCRIPTION
 
