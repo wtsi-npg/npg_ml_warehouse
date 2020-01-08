@@ -1,6 +1,10 @@
 LIST OF CHANGES
 
- - flag-driven upload of an empty manifest for external products
+release 42.9.0
+ - manifest generation:
+     flag-driven upload of an empty manifest for external products
+     flag-driven skipping of validation against staging md5 
+     a bug in counting the number of remote files is fixed
 
 release 42.8.0
  - warehouse loader - add loading manufacturer's instrument
