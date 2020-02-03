@@ -1,4 +1,4 @@
-package npg_warehouse::loader::run;
+
 
 use Moose;
 use MooseX::StrictConstructor;
@@ -276,13 +276,18 @@ sub _build__data {
     $lane_data->{$position} = \%values;
   }
 
+  my @run_lane_columns = $self->schema_wh
+    ->resultset($RUN_LANE_TABLE_NAME)->result_source->columns();
+  my @interop_column_names = grep { /\Ainterop_/xms } @run_lane_columns;
+
   my $data_hash = npg_warehouse::loader::autoqc
-    ->new(autoqc_store => $self->_autoqc_store, mlwh => 1)
+    ->new(mlwh => 1,
+          autoqc_store => $self->_autoqc_store,
+          interop_data_column_names => \@interop_column_names)
     ->retrieve($self->id_run, $self->schema_npg);
   my $product_data = $self->product_data($data_hash, $lane_data);
 
-  my %known_column_names = map { $_ => 1 }
-    $self->schema_wh->resultset($RUN_LANE_TABLE_NAME)->result_source->columns();
+  my %known_column_names = map { $_ => 1 } @run_lane_columns;
 
   my @lane_data_list = ();
   foreach my $lane (values %{$lane_data}) {
@@ -525,7 +530,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2018, 2019 Genome Research Limited
+Copyright (C) 2018,2019,2020 Genome Research Ltd.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

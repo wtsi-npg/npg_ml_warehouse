@@ -764,7 +764,7 @@ subtest 'gbs run' => sub {
 };
 
 subtest 'NovaSeq run with merged data' => sub {
-  plan tests => 161;
+  plan tests => 174;
 
   my $id_run = 26291;
 
@@ -803,6 +803,27 @@ subtest 'NovaSeq run with merged data' => sub {
     is ($row->instrument_side, 'A', 'instrument side is A');
     is ($row->workflow_type, 'NovaSeqXp', 'workflow type is NovaSeqXp');
   }
+  @rows = grep { $_->position == 1 } @rows;
+  my $row1 = $rows[0];
+  ok ($row1, 'row for lane 1 exists');
+  my $expected = {
+                   "interop_cluster_count_mean" =>  4091904,
+                   "interop_cluster_count_pf_mean" =>  3121136.52840909,
+                   "interop_cluster_count_pf_stdev" =>  35124.2526587081,
+                   "interop_cluster_count_pf_total" =>  2197280116,
+                   "interop_cluster_count_stdev" =>  0,
+                   "interop_cluster_count_total" =>  2880700416,
+                   "interop_cluster_density_mean" =>  2961263.95700836,
+                   "interop_cluster_density_pf_mean" =>  2258730.68050473,
+                   "interop_cluster_density_pf_stdev" =>  25419.018485059,
+                   "interop_cluster_density_stdev" =>  4.65992365406662e-09,
+                   "interop_cluster_pf_mean" =>  76.2758981737863,
+                   "interop_cluster_pf_stdev" =>  0.85838408375925,
+                 };
+
+  for my $name (keys %{$expected}) {
+    is ($row1->$name, $expected->{$name}, "value for $name is correct");
+  } 
 
   @rows = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
     {id_run => $id_run})->all();
