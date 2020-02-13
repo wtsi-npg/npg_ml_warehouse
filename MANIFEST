@@ -60,6 +60,7 @@ t/data/fixtures/npgqc/300-TagMetrics.yml
 t/data/fixtures/npgqc/ClusterDensity.yml
 t/data/fixtures/npgqc/MqcLibraryOutcomeDict.yml
 t/data/fixtures/npgqc/MqcOutcomeDict.yml
+t/data/fixtures/npgqc/UqcOutcomeDict.yml
 t/data/fixtures/wh/000-Sample.yml
 t/data/fixtures/wh/000-Study.yml
 t/data/fixtures/wh/100-IseqFlowcell.yml
