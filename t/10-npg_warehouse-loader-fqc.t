@@ -320,14 +320,14 @@ subtest 'retrieve outcomes for a one component plex' => sub {
          digests => $digests, schema_qc => $schema_qc);
   $outcomes->{qc_user} = 0;
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
-    'as above, uqc pass');
+    'as above, uqc fail');
 
   $o->update({'id_uqc_outcome' => 3}); # undecided
   $mqc = npg_warehouse::loader::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   delete $outcomes->{qc_user};
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
-    'as above, uqc pass is not set'); 
+    'as above, uqc outcome is not set'); 
 };
 
 subtest 'retrieve outcomes for a multi-component plex' => sub {
@@ -496,14 +496,14 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
          digests => $digests, schema_qc => $schema_qc);
   $outcomes->{qc_user} = 0;
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
-    'as above, uqc pass');
+    'as above, uqc fail');
 
   $row->update({'id_uqc_outcome' => 3}); # undecided
   $mqc = npg_warehouse::loader::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   delete $outcomes->{qc_user};
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
-    'as above, uqc pass is not set');
+    'as above, uqc outcome is not set');
 
   $q = {};
   my @qs = ({id_run => $id_run, position => 1, tag_index => 3},
