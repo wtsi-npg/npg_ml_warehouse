@@ -112,7 +112,7 @@ subtest 'retrieve outcomes for a lane' => sub {
 };
 
 subtest 'retrieve outcomes for a one component plex' => sub {
-  plan tests => 19;
+  plan tests => 22;
 
   my $rsl = $schema_qc->resultset('MqcLibraryOutcomeEnt');
 
@@ -302,10 +302,36 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $outcomes->{qc} = 1;
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
     'seq and lib outcomes final, lib undef, qc pass');
+
+  delete $q->{'id_mqc_outcome'};
+  $q->{'id_uqc_outcome'} = 1; # accepted
+  $q->{'rationale'} = 'RT#456789';
+  $q->{'username'} = 'cat';
+  $q->{'modified_by'} = 'cat';
+  $o = $schema_qc->resultset('UqcOutcomeEnt')->create($q);
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  $outcomes->{qc_user} = 1;
+    is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'as above, uqc pass');
+
+  $o->update({'id_uqc_outcome' => 2}); # rejected
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  $outcomes->{qc_user} = 0;
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'as above, uqc fail');
+
+  $o->update({'id_uqc_outcome' => 3}); # undecided
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  delete $outcomes->{qc_user};
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'as above, uqc outcome is not set'); 
 };
 
 subtest 'retrieve outcomes for a multi-component plex' => sub {
-  plan tests => 99;
+  plan tests => 102;
 
   my $id_run = 4;
   $digests = {};
@@ -451,6 +477,33 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
   my $outcomes = {qc_seq => 1, qc_lib => 1, qc => 1};
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
       'existing lib value is not overwritten');
+
+  $q = {};
+  $q->{'id_uqc_outcome'} = 1; # accepted
+  $q->{'rationale'} = 'RT#456789';
+  $q->{'username'} = 'cat';
+  $q->{'modified_by'} = 'cat';
+  $q->{'id_seq_composition'} = $row->id_seq_composition;
+  $row = $schema_qc->resultset('UqcOutcomeEnt')->create($q);
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  $outcomes->{qc_user} = 1;
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'as above, uqc pass');
+
+  $row->update({'id_uqc_outcome' => 2}); # rejected
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  $outcomes->{qc_user} = 0;
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'as above, uqc fail');
+
+  $row->update({'id_uqc_outcome' => 3}); # undecided
+  $mqc = npg_warehouse::loader::fqc->new( 
+         digests => $digests, schema_qc => $schema_qc);
+  delete $outcomes->{qc_user};
+  is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
+    'as above, uqc outcome is not set');
 
   $q = {};
   my @qs = ({id_run => $id_run, position => 1, tag_index => 3},
