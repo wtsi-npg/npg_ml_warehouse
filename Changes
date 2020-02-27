@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - load uqc outcomes to iseq_product_metrics table
+
 release 42.9.0
  - manifest generation:
      flag-driven upload of an empty manifest for external products

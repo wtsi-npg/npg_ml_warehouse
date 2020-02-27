@@ -764,7 +764,7 @@ subtest 'gbs run' => sub {
 };
 
 subtest 'NovaSeq run with merged data' => sub {
-  plan tests => 174;
+  plan tests => 176;
 
   my $id_run = 26291;
 
@@ -887,9 +887,16 @@ subtest 'NovaSeq run with merged data' => sub {
     t::util::find_or_save_composition($schema_qc, @queries);
   $q->{'id_mqc_outcome'} = 3; #'Accepted final'
   $schema_qc->resultset('MqcLibraryOutcomeEnt')->create($q);
+  my $id = $q->{'id_seq_composition'};
+  $q = {};
+  $q->{'id_uqc_outcome'} = 2; # rejected
+  $q->{'rationale'} = 'RT#456789';
+  $q->{'username'} = 'cat';
+  $q->{'modified_by'} = 'cat';
+  $q->{'id_seq_composition'} = $id;
+  my $uqc = $schema_qc->resultset('UqcOutcomeEnt')->create($q);
 
   # Load data again
-
   $loader = npg_warehouse::loader::run->new(\%in);
   lives_ok {$loader->load()} 'data is loaded';
 
@@ -908,6 +915,7 @@ subtest 'NovaSeq run with merged data' => sub {
   @qc_ed = grep {defined $_->qc && !defined $_->qc_lib} @all;
   is(scalar @qc_ed, 26,
     '26 rows have overall value pass and lib qc values undefined');
+  is(scalar(grep {defined $_->qc_user} @qc_ed), 0, 'none have qc_user valuer set');
   @qc_ed =
     grep {(defined $_->qc && $_->qc == 1) &&
           (defined $_->qc_seq && $_->qc_seq == 1) &&
@@ -920,6 +928,8 @@ subtest 'NovaSeq run with merged data' => sub {
   is ($row->qc_seq, 1, 'seq qc is a pass');
   is ($row->qc_lib, 1, 'lib qc is a pass');
   is ($row->qc, 1, 'overall qc is a pass');
+  is ($row->qc_user, 0, 'user qc is a fail');
+  $uqc->delete();
 };
 
 subtest 'run with merged data - linking to flowcell table' => sub {

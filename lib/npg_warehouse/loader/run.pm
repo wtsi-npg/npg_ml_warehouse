@@ -1,4 +1,4 @@
-
+package npg_warehouse::loader::run;
 
 use Moose;
 use MooseX::StrictConstructor;
