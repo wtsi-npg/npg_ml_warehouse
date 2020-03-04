@@ -210,9 +210,14 @@ If a library QC outcome for an individual plex or lane does not exist, but this
 plex/lane is a component of a merged entity that has library QC outcome, the
 latter outcome is assigned to the individual plex or lane.
 
-User QC outcome has no bearing on the overall qc value and has no dependency on
-either sequencing or library QC outcome.
-  
+User QC outcome has no dependency on either sequencing or library QC outcome.
+It's purpose is to flag data as usable by end user when manual QC process resulted
+in an overall fail and other way around. Therefore, the user QC outcome, when
+defined either as a pass or a fail, overwrites the overall QC outcome for a product.
+User QC outcome is applicable only to a product and affects only the overall QC
+outcome for this product. The notion of preliminary or final outcome is not
+applicable to use QC outcome, it's value is subject to change at any post-archival.
+
 =cut
 
 sub retrieve_outcomes {
@@ -232,17 +237,19 @@ sub retrieve_outcomes {
     my $outcome = $self->_outcomes->{$digest};
     $h->{$COL_NAME_QC_LIB}  = $outcome->{$LIB_OUTCOME_ENT};
     $h->{$COL_NAME_QC_SEQ}  = $outcome->{$SEQ_OUTCOME_ENT};
-    if (defined $outcome->{$UQC_OUTCOME_ENT}) {
-      $h->{$COL_NAME_QC_USER} = $outcome->{$UQC_OUTCOME_ENT};
-    }
 
     if (!defined $h->{$COL_NAME_QC_SEQ} && !$outcome->{$IS_SINGLE_LANE}) {
       $h->{$COL_NAME_QC_SEQ} = $self->_get_lane_seq_outcome($digest);
     }
 
-    $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_SEQ};
-    if ($h->{$COL_NAME_QC} && defined $h->{$COL_NAME_QC_LIB}) {
-      $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_LIB};
+    if (defined $outcome->{$UQC_OUTCOME_ENT}) {
+      $h->{$COL_NAME_QC_USER} = $outcome->{$UQC_OUTCOME_ENT};
+      $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_USER};
+    } else {
+      $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_SEQ};
+      if ($h->{$COL_NAME_QC} && defined $h->{$COL_NAME_QC_LIB}) {
+        $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_LIB};
+      }
     }
   }
 

@@ -764,7 +764,7 @@ subtest 'gbs run' => sub {
 };
 
 subtest 'NovaSeq run with merged data' => sub {
-  plan tests => 163;
+  plan tests => 164;
 
   my $id_run = 26291;
 
@@ -900,13 +900,21 @@ subtest 'NovaSeq run with merged data' => sub {
           (defined $_->qc_seq && $_->qc_seq == 1) &&
           (defined $_->qc_lib && $_->qc_lib == 1)}
     @all;
-  is(scalar @qc_ed, 3, '3 rows have all qc values set to 1');
+  is(scalar @qc_ed, 2, '2 rows have all qc values set to 1');
   my $row = $qc_ed[0];
+
+  my @qcfrom_uqc =
+    grep {(defined $_->qc && $_->qc == 0) &&
+          (defined $_->qc_seq && $_->qc_seq == 1) &&
+          (defined $_->qc_lib && $_->qc_lib == 1)}
+    @all;
+  is(scalar @qcfrom_uqc, 1, 'one row have qc value set from uqc');
+  $row = $qcfrom_uqc[0];
   is ($row->id_iseq_product, $d4merged,
     'product with all qc values set is the merged plex 1');
   is ($row->qc_seq, 1, 'seq qc is a pass');
   is ($row->qc_lib, 1, 'lib qc is a pass');
-  is ($row->qc, 1, 'overall qc is a pass');
+  is ($row->qc, 0, 'overall qc is a fail');
   is ($row->qc_user, 0, 'user qc is a fail');
   $uqc->delete();
 };
