@@ -163,7 +163,7 @@
   requested_insert_size_from: 400
   requested_insert_size_to: 400
   reverse_read_length: 108
-  tag_index: ~
+  tag_index: 1
   tag_sequence: ~
   tag_set_id_lims: ~
   tag_set_name: ~
