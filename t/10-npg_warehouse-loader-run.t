@@ -764,7 +764,7 @@ subtest 'gbs run' => sub {
 };
 
 subtest 'NovaSeq run with merged data' => sub {
-  plan tests => 161;
+  plan tests => 177;
 
   my $id_run = 26291;
 
@@ -803,6 +803,27 @@ subtest 'NovaSeq run with merged data' => sub {
     is ($row->instrument_side, 'A', 'instrument side is A');
     is ($row->workflow_type, 'NovaSeqXp', 'workflow type is NovaSeqXp');
   }
+  @rows = grep { $_->position == 1 } @rows;
+  my $row1 = $rows[0];
+  ok ($row1, 'row for lane 1 exists');
+  my $expected = {
+                   "interop_cluster_count_mean" =>  4091904,
+                   "interop_cluster_count_pf_mean" =>  3121136.52840909,
+                   "interop_cluster_count_pf_stdev" =>  35124.2526587081,
+                   "interop_cluster_count_pf_total" =>  2197280116,
+                   "interop_cluster_count_stdev" =>  0,
+                   "interop_cluster_count_total" =>  2880700416,
+                   "interop_cluster_density_mean" =>  2961263.95700836,
+                   "interop_cluster_density_pf_mean" =>  2258730.68050473,
+                   "interop_cluster_density_pf_stdev" =>  25419.018485059,
+                   "interop_cluster_density_stdev" =>  4.65992365406662e-09,
+                   "interop_cluster_pf_mean" =>  76.2758981737863,
+                   "interop_cluster_pf_stdev" =>  0.85838408375925,
+                 };
+
+  for my $name (keys %{$expected}) {
+    is ($row1->$name, $expected->{$name}, "value for $name is correct");
+  } 
 
   @rows = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
     {id_run => $id_run})->all();
@@ -866,9 +887,16 @@ subtest 'NovaSeq run with merged data' => sub {
     t::util::find_or_save_composition($schema_qc, @queries);
   $q->{'id_mqc_outcome'} = 3; #'Accepted final'
   $schema_qc->resultset('MqcLibraryOutcomeEnt')->create($q);
+  my $id = $q->{'id_seq_composition'};
+  $q = {};
+  $q->{'id_uqc_outcome'} = 2; # rejected
+  $q->{'rationale'} = 'RT#456789';
+  $q->{'username'} = 'cat';
+  $q->{'modified_by'} = 'cat';
+  $q->{'id_seq_composition'} = $id;
+  my $uqc = $schema_qc->resultset('UqcOutcomeEnt')->create($q);
 
   # Load data again
-
   $loader = npg_warehouse::loader::run->new(\%in);
   lives_ok {$loader->load()} 'data is loaded';
 
@@ -887,18 +915,29 @@ subtest 'NovaSeq run with merged data' => sub {
   @qc_ed = grep {defined $_->qc && !defined $_->qc_lib} @all;
   is(scalar @qc_ed, 26,
     '26 rows have overall value pass and lib qc values undefined');
+  is(scalar(grep {defined $_->qc_user} @qc_ed), 0, 'none have qc_user valuer set');
   @qc_ed =
     grep {(defined $_->qc && $_->qc == 1) &&
           (defined $_->qc_seq && $_->qc_seq == 1) &&
           (defined $_->qc_lib && $_->qc_lib == 1)}
     @all;
-  is(scalar @qc_ed, 3, '3 rows have all qc values set to 1');
+  is(scalar @qc_ed, 2, '2 rows have all qc values set to 1');
   my $row = $qc_ed[0];
+
+  my @qcfrom_uqc =
+    grep {(defined $_->qc && $_->qc == 0) &&
+          (defined $_->qc_seq && $_->qc_seq == 1) &&
+          (defined $_->qc_lib && $_->qc_lib == 1)}
+    @all;
+  is(scalar @qcfrom_uqc, 1, 'one row have qc value set from uqc');
+  $row = $qcfrom_uqc[0];
   is ($row->id_iseq_product, $d4merged,
     'product with all qc values set is the merged plex 1');
   is ($row->qc_seq, 1, 'seq qc is a pass');
   is ($row->qc_lib, 1, 'lib qc is a pass');
-  is ($row->qc, 1, 'overall qc is a pass');
+  is ($row->qc, 0, 'overall qc is a fail');
+  is ($row->qc_user, 0, 'user qc is a fail');
+  $uqc->delete();
 };
 
 subtest 'run with merged data - linking to flowcell table' => sub {

@@ -342,8 +342,8 @@ subtest 'retrieve target stats data' => sub {
   cmp_ok(sprintf('%.2f',$auto->{$d}->{nrd_percent}), q(==), 0.00, 'nrd');
 };
 
-subtest 'retrieve data for milti-component compositions' => sub {
-  plan tests => 18;
+subtest 'retrieve data for multi-component compositions' => sub {
+  plan tests => 19;
 
   my $id_run = 26291;
   $schema_npg->resultset('Run')->update_or_create({
@@ -354,11 +354,46 @@ subtest 'retrieve data for milti-component compositions' => sub {
     team                 => 'A'});
   $schema_npg->resultset('Run')
              ->find({id_run => $id_run})->set_tag($user_id, 'staging');
-  my $auto = npg_warehouse::loader::autoqc->new(autoqc_store => $store)
-                                          ->retrieve($id_run, $schema_npg);
+
+  throws_ok { npg_warehouse::loader::autoqc->new(mlwh => 1, autoqc_store => $store)
+                                           ->retrieve($id_run, $schema_npg) }
+    qr/Interop column names should be set/, 'errow when interop column names are not set';
+ 
+  my @column_names =   qw/
+    cluster_count_mean
+    cluster_count_pf_mean
+    cluster_count_pf_stdev
+    cluster_count_pf_total
+    cluster_count_stdev
+    cluster_count_total
+    cluster_density_mean
+    cluster_density_pf_mean
+    cluster_density_pf_stdev
+    cluster_density_stdev
+    cluster_pf_mean
+    cluster_pf_stdev
+  /;
+
+  my $auto = npg_warehouse::loader::autoqc->new(
+     mlwh => 1,
+     autoqc_store => $store,
+     interop_data_column_names => [map { 'interop_' . $_ } @column_names]
+  )->retrieve($id_run, $schema_npg);
 
   my $expected = {
            '1' => {
+                   "interop_cluster_count_mean" =>  4091904,
+                   "interop_cluster_count_pf_mean" =>  3121136.52840909,
+                   "interop_cluster_count_pf_stdev" =>  35124.2526587081,
+                   "interop_cluster_count_pf_total" =>  2197280116,
+                   "interop_cluster_count_stdev" =>  0,
+                   "interop_cluster_count_total" =>  2880700416,
+                   "interop_cluster_density_mean" =>  2961263.95700836,
+                   "interop_cluster_density_pf_mean" =>  2258730.68050473,
+                   "interop_cluster_density_pf_stdev" =>  25419.018485059,
+                   "interop_cluster_density_stdev" =>  4.65992365406662e-09,
+                   "interop_cluster_pf_mean" =>  76.2758981737863,
+                   "interop_cluster_pf_stdev" =>  0.85838408375925,
                    'tag_hops_power' => 1,
                    'ref_match2_name' => 'Pan troglodytes CHIMP2.1.4',
                    'tags_decode_cv' => '15.14',

@@ -10,13 +10,15 @@ use npg_tracking::glossary::composition;
 
 our $VERSION = '0';
 
-Readonly::Scalar my $COL_NAME_QC     => 'qc';
-Readonly::Scalar my $COL_NAME_QC_SEQ => $COL_NAME_QC . '_seq';
-Readonly::Scalar my $COL_NAME_QC_LIB => $COL_NAME_QC . '_lib';
-Readonly::Scalar my $SEQ_OUTCOME_ENT => 'mqc_outcome_ent';
-Readonly::Scalar my $LIB_OUTCOME_ENT => 'mqc_library_outcome_ent';
-Readonly::Scalar my $COMPONENT_LANES => 'component_lanes';
-Readonly::Scalar my $IS_SINGLE_LANE  => 'is_single_lane';
+Readonly::Scalar my $COL_NAME_QC      => 'qc';
+Readonly::Scalar my $COL_NAME_QC_SEQ  => $COL_NAME_QC . '_seq';
+Readonly::Scalar my $COL_NAME_QC_LIB  => $COL_NAME_QC . '_lib';
+Readonly::Scalar my $COL_NAME_QC_USER => $COL_NAME_QC . '_user';
+Readonly::Scalar my $SEQ_OUTCOME_ENT  => 'mqc_outcome_ent';
+Readonly::Scalar my $LIB_OUTCOME_ENT  => 'mqc_library_outcome_ent';
+Readonly::Scalar my $UQC_OUTCOME_ENT  => 'uqc_outcome_ent';
+Readonly::Scalar my $COMPONENT_LANES  => 'component_lanes';
+Readonly::Scalar my $IS_SINGLE_LANE   => 'is_single_lane';
 
 =head1 NAME
 
@@ -33,8 +35,8 @@ npg_warehouse::loader::fqc
 
 =head1 DESCRIPTION
 
-A retriever for overall, sequencing and library QC outcomes to be
-loaded to the warehouse table. Only final outcomes are retrieved.
+A retriever for overall, sequencing, library and user QC outcomes to
+be loaded to the warehouse table. Only final outcomes are retrieved.
 
 For maximum efficiency create an object giving a hash reference of
 composition digests (keys) and composition objects (values)for all
@@ -123,16 +125,19 @@ sub _build__outcomes {
 
   while (my $crow = $rs->next) {
     my $digest = $crow->digest;
-    for my $related_outcome (($SEQ_OUTCOME_ENT, $LIB_OUTCOME_ENT)) {
+    for my $related_outcome (($SEQ_OUTCOME_ENT, $LIB_OUTCOME_ENT, $UQC_OUTCOME_ENT)) {
       my $orow = $crow->$related_outcome;
       # It's a pass or a fail, or, for library QC, a final undefined.
-      if ($orow && $orow->has_final_outcome) {
+      if ($orow) {
+        if (($related_outcome ne $UQC_OUTCOME_ENT) && !$orow->has_final_outcome) {
+          next;
+        }
         my $o = $orow->is_accepted ? 1 : ($orow->is_rejected ? 0 : undef);
         $outcomes->{$digest}->{$related_outcome} = $o;
         if ( (defined $o) && ($related_outcome eq $LIB_OUTCOME_ENT) &&
-             ($self->digests->{$digest}->num_components() > 1) ) {
+            ($self->digests->{$digest}->num_components() > 1) ) {
           $self->_cache_lib_outcome($lib_outcomes_decomposed, $digest, $o);
-	}
+        }
       }
     }
 
@@ -146,7 +151,7 @@ sub _build__outcomes {
     if (!exists $outcomes->{$digest}) {
       #####
       # Either this entity has not been qc-ed or the outcome is not final yet or
-      # it will never be (had never been) qc-ed. For example, for a Standard workflow
+      # it will never be (has never been) qc-ed. For example, for a Standard workflow
       # of a NovaSeq run, library QC is performed on a level of merged entities, i.e.
       # individual plexes are never qc-ed.
       my @components  = $self->digests->{$digest}->components_list();
@@ -204,7 +209,15 @@ is undefined, the value is undefined.
 If a library QC outcome for an individual plex or lane does not exist, but this
 plex/lane is a component of a merged entity that has library QC outcome, the
 latter outcome is assigned to the individual plex or lane.
-  
+
+User QC outcome has no dependency on either sequencing or library QC outcome.
+It's purpose is to flag data as usable by end user when manual QC process resulted
+in an overall fail and other way around. Therefore, the user QC outcome, when
+defined either as a pass or a fail, overwrites the overall QC outcome for a product.
+User QC outcome is applicable only to a product and affects only the overall QC
+outcome for this product. The notion of preliminary or final outcome is not
+applicable to use QC outcome, it's value is subject to change at any post-archival.
+
 =cut
 
 sub retrieve_outcomes {
@@ -222,16 +235,21 @@ sub retrieve_outcomes {
 
   if (exists $self->_outcomes->{$digest}) {
     my $outcome = $self->_outcomes->{$digest};
-    $h->{$COL_NAME_QC_LIB} = $outcome->{$LIB_OUTCOME_ENT};
-    $h->{$COL_NAME_QC_SEQ} = $outcome->{$SEQ_OUTCOME_ENT};
+    $h->{$COL_NAME_QC_LIB}  = $outcome->{$LIB_OUTCOME_ENT};
+    $h->{$COL_NAME_QC_SEQ}  = $outcome->{$SEQ_OUTCOME_ENT};
 
     if (!defined $h->{$COL_NAME_QC_SEQ} && !$outcome->{$IS_SINGLE_LANE}) {
       $h->{$COL_NAME_QC_SEQ} = $self->_get_lane_seq_outcome($digest);
     }
 
-    $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_SEQ};
-    if ($h->{$COL_NAME_QC} && defined $h->{$COL_NAME_QC_LIB}) {
-      $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_LIB};
+    if (defined $outcome->{$UQC_OUTCOME_ENT}) {
+      $h->{$COL_NAME_QC_USER} = $outcome->{$UQC_OUTCOME_ENT};
+      $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_USER};
+    } else {
+      $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_SEQ};
+      if ($h->{$COL_NAME_QC} && defined $h->{$COL_NAME_QC_LIB}) {
+        $h->{$COL_NAME_QC} = $h->{$COL_NAME_QC_LIB};
+      }
     }
   }
 
@@ -366,7 +384,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2018, 2019 Genome Research Limited
+Copyright (C) 2015,2017,2018,2019,2020 Genome Research Ltd.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

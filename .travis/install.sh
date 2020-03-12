@@ -7,7 +7,7 @@
 
 set -e -x
 
-sudo apt-get install libgd2-xpm-dev # for npg_tracking
+sudo apt-get install libgd-dev # for npg_tracking
 cpanm --quiet --notest Alien::Tidyp # for npg_qc
 cpanm --quiet --notest LWP::Protocol::https
 cpanm --quiet --notest https://github.com/chapmanb/vcftools-cpan/archive/v0.953.tar.gz

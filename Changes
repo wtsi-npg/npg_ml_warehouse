@@ -1,5 +1,11 @@
 LIST OF CHANGES
 
+release 42.10.0
+ - load uqc outcomes to iseq_product_metrics table and use
+   this value, if defined, to set the overall qc outcome
+   for a product
+ - load interop autoqc check results to iseq_run_lane_metrics table
+
 release 42.9.0
  - manifest generation:
      flag-driven upload of an empty manifest for external products

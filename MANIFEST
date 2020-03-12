@@ -60,6 +60,7 @@ t/data/fixtures/npgqc/300-TagMetrics.yml
 t/data/fixtures/npgqc/ClusterDensity.yml
 t/data/fixtures/npgqc/MqcLibraryOutcomeDict.yml
 t/data/fixtures/npgqc/MqcOutcomeDict.yml
+t/data/fixtures/npgqc/UqcOutcomeDict.yml
 t/data/fixtures/wh/000-Sample.yml
 t/data/fixtures/wh/000-Study.yml
 t/data/fixtures/wh/100-IseqFlowcell.yml
@@ -182,6 +183,7 @@ t/data/runfolders/180423_MS7_25710_A_MS6392545-300V2/Data/Intensities/BAM_baseca
 t/data/runfolders/181008_HX1_27116_B_HNYKNCCXY/Data/Intensities/BAM_basecalls_20181015-171739/no_cal/archive/lane1/plex1/qc/27116_1#1.bam_flagstats.json
 t/data/runfolders/181008_HX1_27116_B_HNYKNCCXY/Data/Intensities/BAM_basecalls_20181015-171739/no_cal/archive/lane1/plex1/qc/27116_1#1.bcfstats.json
 t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive/26291_2.tag_metrics.json
+t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive/lane1/qc/26291_1.interop.json
 t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive/lane1/qc/26291_1.ref_match.json
 t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive/lane1/qc/26291_1.tag_metrics.json
 t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive/plex1/qc/26291#1.insert_size.json

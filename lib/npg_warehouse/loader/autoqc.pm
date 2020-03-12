@@ -99,6 +99,16 @@ has 'mlwh' => ( isa      => 'Bool',
                 required => 0,
               );
 
+=head2 interop_data_column_names
+
+An array reference of column names for Illumina InterOp data.
+
+=cut
+has 'interop_data_column_names' => ( isa     => 'ArrayRef',
+                                     is      => 'ro',
+                                     default => sub {return []},
+                                   );
+
 sub _basic_data {
     my ($self, $composition) = @_;
     $composition or croak 'Composition argument needed';
@@ -138,6 +148,28 @@ sub _composition_without_subset {
         $composition->components_list();
 
     return npg_tracking::glossary::composition->new(components => \@components);
+}
+
+sub _interop {
+    my ($self, $result, $c) = @_;
+
+    (not $self->mlwh) and return ();
+
+    @{$self->interop_data_column_names()} or croak 'Interop column names should be set';
+
+    my $data = $self->_basic_data($c);
+    for my $name (@{$self->interop_data_column_names()}) {
+        my $method_name = $name;
+        $method_name =~ s/\Ainterop_//xms;
+        my $value = $result->$method_name;
+        # Some of the values are hashes, they'll have to be transformed.
+        # Error for no so that we do not populate the database with addresses
+        # of hash references.
+        ref $value and croak "Cannot copy non-scalar $method_name value";
+        $data->{$name} = $value;
+    }
+
+    return ($data);
 }
 
 sub _insert_size {
@@ -540,7 +572,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2018, 2019 Genome Research Limited
+Copyright (C) 2018,2019,2020 Genome Research Limited
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
