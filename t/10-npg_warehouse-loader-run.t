@@ -612,7 +612,7 @@ subtest 'linking to lims data - test 1' => sub {
 };
 
 subtest 'linking to lims data - test 2' => sub {
-  plan tests => 23;
+  plan tests => 29;
 
   my $id_run = 4486;
   my %in = %{$init};
@@ -660,6 +660,15 @@ subtest 'linking to lims data - test 2' => sub {
   $row = $rows[4];
   is ($row->position, 5, 'lane five present');
   ok(!defined $row->$LIMS_FK_COLUMN_NAME, 'lane 5 is not in the flowcell table; foreign key for the flowcell table is absent');
+
+  $row = $rows[6];
+  is ($row->position, 7, 'lane seven present');
+  $fc = $row->iseq_flowcell;
+  is (ref $fc, 'WTSI::DNAP::Warehouse::Schema::Result::IseqFlowcell', 'retrieved flowcell row');
+  is ($fc->id_flowcell_lims, 5992, 'batch id correct');
+  is ($fc->position, 7, 'position correct');
+  is ($fc->tag_index, 1, 'tag_index is 1 - special case');
+  is ($fc->entity_type, 'library', 'this is a library');
 };
 
 subtest 'loading mode data for insert size' => sub {
