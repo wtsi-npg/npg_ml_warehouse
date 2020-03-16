@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+ - manifest for study generation - an option to read file listing
+     from STDIN
+
 release 42.10.0
  - load uqc outcomes to iseq_product_metrics table and use
    this value, if defined, to set the overall qc outcome
