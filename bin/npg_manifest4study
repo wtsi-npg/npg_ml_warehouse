@@ -66,10 +66,8 @@ Log::Log4perl->easy_init({layout => $layout,
                           utf8   => 1});
 my $logger = Log::Log4perl->get_logger();
 
-$bucket_url or $files_info_from_stdin or
+$bucket_url or
   ($logger->fatal('--bucket_url argument is required') and exit 1);
-$bucket_url and $files_info_from_stdin and
-  ($logger->fatal('--bucket_url and --files_info_from_stdin are mutually exclusive') and exit 1);
 $files_info_from_stdin and $logger->info('FILES INFO FROM STDIN IS ENABLED');
 $dry_run    and $logger->info('DRY RUN');
 $send_empty and $logger->info('SEND EMPTY MANIFEST');
@@ -440,7 +438,7 @@ npg_manifest4study
 
   npg_manifest4study --help
   npg_manifest4study --bucket_url 'gs://some_bucket' # dry run
-  npg_manifest4study --files_info_from_stdin         # dry run
+  npg_manifest4study --files_info_from_stdin --bucket_url 'gs://some_bucket' # dry run
   npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry_run
   npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry_run --send_empty
   npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry_run --no-staging_md5
@@ -472,7 +470,6 @@ None
                   the remote file system, an error is raised in
                   case of md5 mismatch
   --bucket_url  - bucket url, no trailing forward slash, required
-                  unless --files_info_from_stdin flag is set
   --files_info_from_stdin - a boolean flag, false by default,
                   switches the code to read files info from STDIN
                   rather than to do a live lookup in the remote
