@@ -1,7 +1,8 @@
 LIST OF CHANGES
 
- - manifest for study generation - an option to read file listing
-     from STDIN
+ - new options in manifest for study generation:
+     --files_info_from_stdin - to read file listing from STDIN;
+     --manifest_name_suffix - to customise manifest name
  - wh loader: when linking to LIMS data, for whole lane libraries
    disregard superfluous tag_index value in the iseq_flowcell table
 

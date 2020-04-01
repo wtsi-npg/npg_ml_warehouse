@@ -43,6 +43,7 @@ my $send_empty = 0;
 my $files_info_from_stdin = 0;
 my $help;
 my $bucket_url;
+my $manifest_name_suffix;
 my $staging_md5 = 1;
 
 GetOptions (
@@ -51,6 +52,7 @@ GetOptions (
             'send_empty!'  => \$send_empty,
             'staging_md5!' => \$staging_md5,
             'bucket_url=s' => \$bucket_url,
+            'manifest_name_suffix=s' => \$manifest_name_suffix,
             'files_info_from_stdin!' => \$files_info_from_stdin,
            );
 
@@ -398,7 +400,8 @@ sub _generate_manifest {
   @lines = map { "$_\n" } @lines;
 
   my $manifest_upload_date = _current_date()->strftime(join q[-], $DATE_FORMAT, q[%T]);
-  my $path = join q[/], q[/tmp], $manifest_upload_date . '.csv';
+  my $suffix = $manifest_name_suffix ? q[-] . $manifest_name_suffix : q[];
+  my $path = join q[/], q[/tmp], $manifest_upload_date . $suffix . '.csv';
   write_file($path, @lines);
   return $path;
 }
@@ -470,6 +473,8 @@ None
                   the remote file system, an error is raised in
                   case of md5 mismatch
   --bucket_url  - bucket url, no trailing forward slash, required
+
+  --manifest_name_suffix  - custom suffix for the manifest file name
   --files_info_from_stdin - a boolean flag, false by default,
                   switches the code to read files info from STDIN
                   rather than to do a live lookup in the remote
