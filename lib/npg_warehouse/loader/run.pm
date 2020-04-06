@@ -390,6 +390,12 @@ sub get_lims_fk {
       }
     } else {
       $pk = $self->_flowcell_table_fks->{$position}->{$lane_types[0]}->{$pt_key};
+      if (!$pk && ($lane_types[0] eq $NON_INDEXED_LIBRARY)) {
+        # Check for a crazy case of a library with tag index 1 -
+        # some sort of artifact of loading iseq_flowcell table.
+        $pt_key = _pt_key($position, 1);
+        $pk = $self->_flowcell_table_fks->{$position}->{$lane_types[0]}->{$pt_key};
+      }
     }
 
   } else {

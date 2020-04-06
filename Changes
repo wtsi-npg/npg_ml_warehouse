@@ -1,5 +1,12 @@
 LIST OF CHANGES
 
+release 42.11.0
+ - new options in manifest for study generation:
+     --files_info_from_stdin - to read file listing from STDIN;
+     --manifest_name_suffix - to customise manifest name
+ - wh loader: when linking to LIMS data, for whole lane libraries
+   disregard superfluous tag_index value in the iseq_flowcell table
+
 release 42.10.0
  - load uqc outcomes to iseq_product_metrics table and use
    this value, if defined, to set the overall qc outcome

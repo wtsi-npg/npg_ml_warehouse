@@ -40,8 +40,10 @@ Readonly::Scalar my $EXIT_CODE_DUPLICATES => 277;
 
 my $dry_run    = 1;
 my $send_empty = 0;
+my $files_info_from_stdin = 0;
 my $help;
 my $bucket_url;
+my $manifest_name_suffix;
 my $staging_md5 = 1;
 
 GetOptions (
@@ -50,6 +52,8 @@ GetOptions (
             'send_empty!'  => \$send_empty,
             'staging_md5!' => \$staging_md5,
             'bucket_url=s' => \$bucket_url,
+            'manifest_name_suffix=s' => \$manifest_name_suffix,
+            'files_info_from_stdin!' => \$files_info_from_stdin,
            );
 
 if ($help) { pod2usage(0); }
@@ -64,7 +68,9 @@ Log::Log4perl->easy_init({layout => $layout,
                           utf8   => 1});
 my $logger = Log::Log4perl->get_logger();
 
-$bucket_url or ($logger->fatal('--bucket_url argument is required') and exit 1);
+$bucket_url or
+  ($logger->fatal('--bucket_url argument is required') and exit 1);
+$files_info_from_stdin and $logger->info('FILES INFO FROM STDIN IS ENABLED');
 $dry_run    and $logger->info('DRY RUN');
 $send_empty and $logger->info('SEND EMPTY MANIFEST');
 $logger->info('WILL ' .  $staging_md5 ? q[] : 'NOT ' . 'CHECK STAGING md5');
@@ -196,6 +202,7 @@ sub _current_date {
 
 sub _dates {
 
+  $files_info_from_stdin and return;
   my $date = _current_date();
   my @dates = ($date->strftime($DATE_FORMAT));
   for ( 1 .. $NUM_DAYS) {
@@ -217,8 +224,13 @@ sub _uploaded_files {
                 map { "$bucket_url/$_/**.cram" }
                 @dates;
   local $INPUT_RECORD_SEPARATOR ="\]\n";
-  ## no critic (InputOutput::RequireBriefOpen)
-  open my $fh, q(-|), $command or croak "Failed to open a pipe to '$command'";
+  ## no critic (InputOutput::ProhibitTwoArgOpen InputOutput::RequireBriefOpen)
+  my $fh;
+  if ($files_info_from_stdin) {
+    open $fh, q[-] or croak 'Failed to open a file handle to STDIN';
+  } else {
+    open $fh, q(-|), $command or croak "Failed to open a pipe to '$command'";
+  }
 
   my $files = {};
 
@@ -257,7 +269,8 @@ sub _uploaded_files {
   # Error exit code and failure to close pipe if one if the paths
   # we give does not exists. Listing does not stop on an invalid path,
   # ie we get a fll listing for all valid paths.
-  close $fh or $logger->warn('Failed to close the pipe handle');
+  close $fh or $logger->warn(
+    sprintf 'Failed to close the %s handle', $files_info_from_stdin ? 'STDIN' : 'pipe');
   ## use critic
 
   # Get a list of all product files in remote dated directories
@@ -387,7 +400,8 @@ sub _generate_manifest {
   @lines = map { "$_\n" } @lines;
 
   my $manifest_upload_date = _current_date()->strftime(join q[-], $DATE_FORMAT, q[%T]);
-  my $path = join q[/], q[/tmp], $manifest_upload_date . '.csv';
+  my $suffix = $manifest_name_suffix ? q[-] . $manifest_name_suffix : q[];
+  my $path = join q[/], q[/tmp], $manifest_upload_date . $suffix . '.csv';
   write_file($path, @lines);
   return $path;
 }
@@ -427,6 +441,7 @@ npg_manifest4study
 
   npg_manifest4study --help
   npg_manifest4study --bucket_url 'gs://some_bucket' # dry run
+  npg_manifest4study --files_info_from_stdin --bucket_url 'gs://some_bucket' # dry run
   npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry_run
   npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry_run --send_empty
   npg_manifest4study --bucket_url 'gs://some_bucket' --no-dry_run --no-staging_md5
@@ -457,7 +472,13 @@ None
                   compared to md5 value of this file retrieved from
                   the remote file system, an error is raised in
                   case of md5 mismatch
-  --bucket_url  - bucket url, no trailin gforward slash, required
+  --bucket_url  - bucket url, no trailing forward slash, required
+
+  --manifest_name_suffix  - custom suffix for the manifest file name
+  --files_info_from_stdin - a boolean flag, false by default,
+                  switches the code to read files info from STDIN
+                  rather than to do a live lookup in the remote
+                  bucket defined by the --bucket_url option
 
 =head1 EXIT STATUS
 
@@ -532,7 +553,7 @@ None
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2019 by Genome Research Limited
+Copyright (C) 2019,2020 by Genome Research Ltd.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
