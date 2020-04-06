@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+release 42.11.0
  - new options in manifest for study generation:
      --files_info_from_stdin - to read file listing from STDIN;
      --manifest_name_suffix - to customise manifest name
