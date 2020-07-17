@@ -103,7 +103,7 @@ sub product_data {
   return [sort {_compare_product_data($a, $b)} @products];
 }
 
-=head2 load_iseq_product_metrics_table
+=head2 load_iseqproductmetric_table
 
  If the row is being updated, we are not going to touch the foreign
  key into iseq_flowcell table, unless we have a method to do this
@@ -125,7 +125,7 @@ sub product_data {
 
 =cut
 
-sub load_iseq_product_metrics_table {
+sub load_iseqproductmetric_table {
   my ($self, $data_list) = @_;
 
   my @rows = ();

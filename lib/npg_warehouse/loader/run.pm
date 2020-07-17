@@ -321,12 +321,19 @@ sub _explain_missing {
   return;
 }
 
-sub _load_iseq_run_lane_metrics_table {
-  my $self = shift;
+=head2 load_iseqrunlanemetric_table
+
+Loads data for one sequencing run to the
+load_iseq_run_lane_metrics table of the warehouse.
+
+=cut
+
+sub load_iseqrunlanemetric_table {
+  my ($self, $table_data) = @_;
   my $transaction = sub {
     my $count = 0;
     my $rs = $self->schema_wh->resultset($RUN_LANE_TABLE_NAME);
-    foreach my $row (@{$self->_data->{$RUN_LANE_TABLE_NAME}}) {
+    foreach my $row (@{$table_data}) {
       $self->info(
         "Will update or create record in $RUN_LANE_TABLE_NAME for " .
         join q[ ], 'run', $row->{'id_run'}, 'position', $row->{'position'}
@@ -418,7 +425,7 @@ sub get_lims_fk {
 
 =head2 load
 
-Loads data for one sequencing run to the warehouse
+Loads data for one sequencing run to the warehouse.
 
 =cut
 
@@ -452,15 +459,17 @@ sub load {
   };
   $data or return;
 
-  foreach my $table (($RUN_LANE_TABLE_NAME, $PRODUCT_TABLE_NAME)) {
+  my @tables = ($RUN_LANE_TABLE_NAME, $PRODUCT_TABLE_NAME);
+  my %callbacks = map { $_ => join q[_], q[load], lc $_, q[table] } @tables;
+
+  foreach my $table (@tables) {
     if (!defined $self->_data->{$table} || scalar @{$self->_data->{$table}} == 0) {
       $self->info(qq[No data for table $table]);
     } else {
       my $count;
       try {
-        $count = $table eq $RUN_LANE_TABLE_NAME ?
-                 $self->_load_iseq_run_lane_metrics_table() :
-                 $self->load_iseq_product_metrics_table($self->_data->{$table});
+        my $method_name = %callbacks{$table};
+        $count = $self->$method_name($self->_data->{$table});
         $self->info(qq[Loaded $count rows to table $table for run $id_run]);
       } catch {
         my $err = $_;
