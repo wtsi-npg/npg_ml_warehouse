@@ -3,8 +3,10 @@ package npg_warehouse::loader::product;
 use Moose::Role;
 use Readonly;
 use Carp;
+use Clone qw/clone/;
 
 use npg_warehouse::loader::fqc;
+use npg_warehouse::loader::autoqc;
 
 requires qw/schema_qc schema_wh/;
 
@@ -130,7 +132,8 @@ sub load_iseqproductmetric_table {
 
   my @rows = ();
 
-  foreach my $row (@{$data_list}) {
+  foreach my $original_row (@{$data_list}) {
+    my $row = clone($original_row);
     my $composition    = delete $row->{'composition'};
     my $num_components = delete $row->{'num_components'};
     $self->_filter_column_names($row);
@@ -208,8 +211,13 @@ sub _indexed_lanes_hash {
 sub _filter_column_names {
   my ($self, $values) = @_;
 
+  my $pp_prefix = $npg_warehouse::loader::autoqc::PP_PREFIX;
   my @columns = keys %{$values};
   foreach my $name (@columns) {
+    if ($name =~ /\A$pp_prefix/smx) {
+      delete $values->{$name};
+      next;
+    }
     my $old_name = $name;
     my $count = $name =~ s/\Atag_sequence\Z/tag_sequence4deplexing/xms;
     if (!$count) {
@@ -264,7 +272,6 @@ no Moose::Role;
 
 __END__
 
-
 =head1 DIAGNOSTICS
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -278,6 +285,8 @@ __END__
 =item Readonly
 
 =item Moose::Role
+
+=item Clone
 
 =back
 

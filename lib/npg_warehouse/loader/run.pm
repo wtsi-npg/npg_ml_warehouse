@@ -34,6 +34,7 @@ Readonly::Scalar my $INDEXED_LIBRARY_SPIKE => $WTSI::DNAP::Warehouse::Schema::Qu
 Readonly::Scalar my $FLOWCELL_LIMS_TABLE_NAME => q[IseqFlowcell];
 Readonly::Scalar my $RUN_LANE_TABLE_NAME      => q[IseqRunLaneMetric];
 Readonly::Scalar my $PRODUCT_TABLE_NAME       => q[IseqProductMetric];
+Readonly::Scalar my $HERON_PRODUCT_TABLE_NAME => q[IseqHeronProductMetric];
 Readonly::Scalar my $LIMS_FK_COLUMN_NAME      => q[id_iseq_flowcell_tmp];
 
 Readonly::Scalar my $SPIKE_FALLBACK_TAG_INDEX => 888;
@@ -297,8 +298,9 @@ sub _build__data {
   }
   @lane_data_list = sort {$a->{position} <=> $b->{position}} @lane_data_list;
 
-  return { $RUN_LANE_TABLE_NAME => \@lane_data_list,
-	   $PRODUCT_TABLE_NAME  => $product_data };
+  return { $RUN_LANE_TABLE_NAME      => \@lane_data_list,
+           $PRODUCT_TABLE_NAME       => $product_data,
+           $HERON_PRODUCT_TABLE_NAME => $product_data };
 }
 
 sub _pt_key {
@@ -330,6 +332,7 @@ load_iseq_run_lane_metrics table of the warehouse.
 
 sub load_iseqrunlanemetric_table {
   my ($self, $table_data) = @_;
+
   my $transaction = sub {
     my $count = 0;
     my $rs = $self->schema_wh->resultset($RUN_LANE_TABLE_NAME);
@@ -339,6 +342,56 @@ sub load_iseqrunlanemetric_table {
         join q[ ], 'run', $row->{'id_run'}, 'position', $row->{'position'}
       );
       $rs->update_or_create($row);
+      $count++;
+    }
+    return $count;
+  };
+
+  return $self->schema_wh->txn_do($transaction);
+}
+
+=head2 load_iseqheronproductmetric_table
+
+Loads data for one sequencing run to the
+load_iseq_run_lane_metrics table of the warehouse.
+
+=cut
+
+sub load_iseqheronproductmetric_table {
+  my ($self, $table_data) = @_;
+
+  my $rs = $self->schema_wh->resultset($HERON_PRODUCT_TABLE_NAME);
+  my %known_columns = map {$_ => 1}
+                      $rs->result_source->columns();
+
+  # The rows contain more data that the heron table can take.
+  my $aqc_retriever = q[npg_warehouse::loader::autoqc];
+  my $prefix = npg_warehouse::loader::autoqc->
+    get_column_prefix4pp_name(
+      $npg_warehouse::loader::autoqc::ARTIC_PP_NAME);
+  my $re = qr/\A$prefix/smx;
+
+  my $transaction = sub {
+    my $count = 0;
+    foreach my $row (@{$table_data}) {
+      my @names = keys %{$row};
+      (any { /$re/smx } @names) or next;
+      my $heron_row = {};
+      foreach my $key (@names) {
+        my $clean = $key;
+        $clean =~ s/$re//smx; # drop the prefix
+        # The heron product and the product tables share some
+        # columns, so a set of data that will be loaded to the table
+        # is larger that the set of prefixed data.
+        if (exists $known_columns{$clean}) {
+          $heron_row->{$clean} = $row->{$key};
+        }
+      }
+      $self->info(
+        "Will update or create record in $HERON_PRODUCT_TABLE_NAME for " .
+        join q[ ], 'sample', $heron_row->{'supplier_sample_name'}
+      );
+      $rs->update_or_create($heron_row);
       $count++;
     }
     return $count;
@@ -459,7 +512,9 @@ sub load {
   };
   $data or return;
 
-  my @tables = ($RUN_LANE_TABLE_NAME, $PRODUCT_TABLE_NAME);
+  my @tables = ($RUN_LANE_TABLE_NAME,
+                $PRODUCT_TABLE_NAME,
+                $HERON_PRODUCT_TABLE_NAME,);
   my %callbacks = map { $_ => join q[_], q[load], lc $_, q[table] } @tables;
 
   foreach my $table (@tables) {
@@ -468,7 +523,7 @@ sub load {
     } else {
       my $count;
       try {
-        my $method_name = %callbacks{$table};
+        my $method_name = $callbacks{$table};
         $count = $self->$method_name($self->_data->{$table});
         $self->info(qq[Loaded $count rows to table $table for run $id_run]);
       } catch {
