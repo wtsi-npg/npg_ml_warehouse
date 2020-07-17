@@ -6,7 +6,7 @@ use FindBin qw($Bin);
 use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
 use Getopt::Long;
 use Pod::Usage;
-use DateTime;
+use Log::Log4perl qw(:easy :levels);
 
 use npg_tracking::Schema;
 use npg_qc::Schema;
@@ -28,7 +28,7 @@ GetOptions ('verbose!'        => \$verbose,
             'num_runs=i'      => \$num_runs,
             'help'            => \$help,
             'id_run=i@'       => \$id_run,
-            );
+           );
 if ($help) { pod2usage(0); }
 
 if ($num_runs && $num_runs < 0) {
@@ -42,21 +42,29 @@ if ($dry_run) {
   $verbose = 1;
 }
 
+my $layout = '%d %-5p %c - %m%n';
+my $level  = $verbose ? $INFO : $WARN;
+Log::Log4perl->easy_init({layout => $layout,
+                          level  => $level,
+                          utf8   => 1});
+
 if ($verbose) {
-  warn qq[\nwarehouse loader is running with the following options:\n];
-  warn qq[  verbose\t$verbose\n];
-  warn qq[  explain\t$explain\n];
-  warn qq[  dry_run\t$dry_run\n];
+  my @m = (qq[\nWarehouse loader is running with the following options:],
+           qq[  verbose\t$verbose],
+           qq[  explain\t$explain],
+           qq[  dry_run\t$dry_run],);
   if ($num_runs) {
-    warn qq[  num_runs\t$num_runs\n];
+    push @m, qq[  num_runs\t$num_runs];
   }
   if (@{$id_run}) {
     $id_run = [ reverse sort {$a <=> $b} @{$id_run} ];
-    warn qq[  id_run\t] . join q[, ], @{$id_run} . qq[\n];
+    push @m, qq[  id_run\t] . join q[, ], @{$id_run};
   }
-  if (defined $ENV{dev} && $ENV{dev}) {
-    warn 'Using ' . $ENV{dev} . " ml warehouse database\n";
-  }
+  INFO(join qq[\n], @m);
+}
+
+if (defined $ENV{dev} && $ENV{dev}) {
+  WARN(join q[ ], q[Using], $ENV{dev}, q[ml warehouse database]);
 }
 
 my $wh_schema = WTSI::DNAP::Warehouse::Schema->connect();
@@ -79,26 +87,20 @@ if (!@{$id_run}) {
   }
 }
 
-my $loader;
-
 foreach my $id (@{$id_run}) {
-  warn "\n******* " . DateTime->now() . " Calling loader for run $id *******\n";
-  $loader = npg_warehouse::loader::run->new(
-      verbose     => $verbose,
-      explain     => $explain,
-      id_run      => $id,
-      schema_npg  => $npg_schema,
-      schema_qc   => $qc_schema,
-      schema_wh   => $wh_schema,
+  my $loader = npg_warehouse::loader::run->new(
+    verbose    => $verbose,
+    explain    => $explain,
+    id_run     => $id,
+    schema_npg => $npg_schema,
+    schema_qc  => $qc_schema,
+    schema_wh  => $wh_schema,
   );
-  if (!$dry_run) {
-    $loader->load();
-  }
+  ALWAYS("********** Calling loader for run $id");
+  $dry_run or $loader->load();
 }
 
-if ($verbose) {
-  warn "\nCompleted loading, exiting...\n";
-}
+INFO(q[********** Completed loading, exiting...]);
 
 exit 0;
 
@@ -167,6 +169,8 @@ None
 =item Getopt::Long
 
 =item Pod::Usage
+
+=item Log::Log4perl
 
 =item npg_tracking::Schema
 

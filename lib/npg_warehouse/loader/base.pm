@@ -7,6 +7,8 @@ use WTSI::DNAP::Warehouse::Schema;
 use npg_tracking::Schema;
 use npg_qc::Schema;
 
+with 'WTSI::DNAP::Utilities::Loggable';
+
 our $VERSION  = '0';
 
 =head1 NAME
@@ -128,6 +130,8 @@ __END__
 
 =item npg_qc::Schema
 
+=item WTSI::DNAP::Utilities::Loggable
+
 =back
 
 =head1 INCOMPATIBILITIES
@@ -140,7 +144,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2015,2019 Genome Research Limited
+Copyright (C) 2015,2019,2020 Genome Research Ltd
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
