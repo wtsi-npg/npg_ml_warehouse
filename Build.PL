@@ -74,6 +74,7 @@ my $builder = npg_tracking::util::build->new(
                     'npg_tracking::glossary::composition::component::illumina' => 0,
                     'npg_tracking::illumina::runfolder'       => 0,
                     'npg_tracking::Schema'                    => 0,
+                    'WTSI::DNAP::Utilities::Loggable'         => 0,
                  },
 );
 

@@ -6,7 +6,7 @@ use Carp;
 
 use npg_warehouse::loader::fqc;
 
-requires qw/schema_qc schema_wh verbose/;
+requires qw/schema_qc schema_wh/;
 
 our $VERSION  = '0';
 
@@ -163,10 +163,9 @@ sub load_iseq_product_metrics_table {
         }
         $result->update($h->{'data'});
       }
-      if ($self->verbose) {
-        warn "$PRODUCT_TABLE_NAME row $action for " .
-           $h->{'data'}->{'iseq_composition_tmp'} . "\n";
-      }
+      my $m = "$PRODUCT_TABLE_NAME row $action for " .
+              $h->{'data'}->{'iseq_composition_tmp'};
+      $self->can('info') ? $self->info($m) : warn "$m\n";
     }
   };
 
@@ -292,7 +291,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2019 Genome Research Limited
+Copyright (C) 2019,2020 Genome Research Ltd.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

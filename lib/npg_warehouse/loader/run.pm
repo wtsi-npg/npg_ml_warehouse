@@ -5,7 +5,6 @@ use MooseX::StrictConstructor;
 use Try::Tiny;
 use List::MoreUtils qw/ any uniq /;
 use Readonly;
-use Carp;
 
 use npg_tracking::glossary::composition;
 use npg_tracking::glossary::composition::component::illumina;
@@ -100,17 +99,14 @@ sub _build__flowcell_table_fks {
   try {
     $rs = $self->query_resultset;
   } catch {
-    my $allowed_error = qr/id_flowcell_lims\sor\sflowcell_barcode/xms;
     my $error = $_;
-    if ($error !~ $allowed_error) {
-      croak $error;
-    }
+    my $allowed_error = qr/id_flowcell_lims\sor\sflowcell_barcode/xms;
+    ($error !~ $allowed_error) and $self->logcroak($error);
   };
 
   if (!$rs) {
-    if ($self->explain) {
-      warn q[Tracking database has no flowcell information for run ] . $self->id_run . qq[\n];
-    }
+    $self->explain and $self->logwarn(
+      q[Tracking database has no flowcell information for run ] . $self->id_run);
     return $fks;
   }
 
@@ -120,8 +116,8 @@ sub _build__flowcell_table_fks {
     my $position    = $row->position;
     my $pt_key = _pt_key($position, $row->tag_index);
     if (exists $fks->{$position}->{$entity_type}->{$pt_key}) {
-      warn sprintf 'Run %i: multiple flowcell table records for %s, pt key %s%s',
-        $self->id_run, $entity_type, $pt_key, qq[\n];
+      $self->logwarn(sprintf 'Run %i: multiple flowcell table records for %s, pt key %s',
+                              $self->id_run, $entity_type, $pt_key);
       push @to_delete, [$position, $entity_type, $pt_key];
     }
     $fks->{$position}->{$entity_type}->{$pt_key} = $row->$LIMS_FK_COLUMN_NAME;
@@ -132,7 +128,7 @@ sub _build__flowcell_table_fks {
   }
 
   if ($self->explain && (scalar keys %{$fks} == 0)) {
-    warn q[Flowcell table has no LIMs information for run ] . $self->id_run . qq[\n];
+    self->warn(q[Flowcell table has no LIMs information for run ] . $self->id_run);
   }
 
   return $fks;
@@ -317,8 +313,9 @@ sub _explain_missing {
       my $lib_type = defined $ti ? $NON_INDEXED_LIBRARY : $INDEXED_LIBRARY;
       my @keys = keys %{$self->_flowcell_table_fks->{$position}->{$lib_type}};
       my $other_keys = @keys ? join(q[ ], @keys) : 'none';
-      warn sprintf 'Flowcell table has no information for pt key %s, run %i; other keys %s%s',
-        $pt_key, $self->id_run, $other_keys, qq[\n];
+      $self->warn(sprintf
+        'Flowcell table has no information for pt key %s, run %i; other keys %s',
+        $pt_key, $self->id_run, $other_keys);
     }
   }
   return;
@@ -330,10 +327,10 @@ sub _load_iseq_run_lane_metrics_table {
     my $count = 0;
     my $rs = $self->schema_wh->resultset($RUN_LANE_TABLE_NAME);
     foreach my $row (@{$self->_data->{$RUN_LANE_TABLE_NAME}}) {
-      if ($self->verbose) {
-        warn "Will update or create record in $RUN_LANE_TABLE_NAME for " .
-        join q[ ], 'run', $row->{'id_run'}, 'position', $row->{'position'} . "\n";
-      }
+      $self->info(
+        "Will update or create record in $RUN_LANE_TABLE_NAME for " .
+        join q[ ], 'run', $row->{'id_run'}, 'position', $row->{'position'}
+      );
       $rs->update_or_create($row);
       $count++;
     }
@@ -366,9 +363,8 @@ sub get_lims_fk {
   my @types = exists $self->_flowcell_table_fks->{$position} ?
               keys %{ $self->_flowcell_table_fks->{$position} } : ();
   if (!@types) {
-    if ($self->verbose) {
-       warn "Flowcell table has no information for lane $position run " . $self->id_run . "\n";
-    }
+    $self->warn("Flowcell table has no information for lane $position run " .
+                $self->id_run);
     return;
   }
 
@@ -379,7 +375,7 @@ sub get_lims_fk {
 
     my @lane_types = grep { /^(?: $NON_INDEXED_LIBRARY | $CONTROL_LANE )$/xms } @types;
     if (scalar @lane_types > 1) {
-      croak q[Lane cannot be both ] . join q[ and  ], @types;
+      $self->logcroak(q[Lane cannot be both ] . join q[ and  ], @types);
     }
 
     if (!@lane_types) {
@@ -425,30 +421,26 @@ sub get_lims_fk {
 Loads data for one sequencing run to the warehouse
 
 =cut
+
 sub load {
   my ($self) = @_;
 
   my $id_run = $self->id_run;
 
   if (! @{$self->_run_lane_rs}) {
-    if($self->verbose) {
-      warn qq[No lanes for run $id_run, not loading\n];
-    }
+    $self->info(qq[No lanes for run $id_run, not loading]);
     return;
   }
 
   if ($self->_old_forward_id_run) {
-    if ($self->verbose) {
-      warn sprintf 'Run %i is an old reverse run for %i, not loading.%s',
-        $id_run, $self->_old_forward_id_run, qq[\n];
-    }
+    $self->logwarn(
+      sprintf 'Run %i is an old reverse run for %i, not loading.',
+              $id_run, $self->_old_forward_id_run);
     return;
   }
 
   if (!$self->_npg_data_retriever->run_ready2load) {
-    if($self->verbose) {
-      warn qq[Too early to load run $id_run, not loading\n];
-    }
+    $self->logwarn(qq[Too early to load run $id_run, not loading]);
     return;
   }
 
@@ -456,31 +448,24 @@ sub load {
   try {
     $data = $self->_data();
   } catch {
-    warn "$_\n";
+    $self->error($_);
   };
-
-  return if !$data;
+  $data or return;
 
   foreach my $table (($RUN_LANE_TABLE_NAME, $PRODUCT_TABLE_NAME)) {
     if (!defined $self->_data->{$table} || scalar @{$self->_data->{$table}} == 0) {
-      if ($self->verbose) {
-        warn qq[No data for table $table\n];
-      }
+      $self->info(qq[No data for table $table]);
     } else {
       my $count;
       try {
         $count = $table eq $RUN_LANE_TABLE_NAME ?
                  $self->_load_iseq_run_lane_metrics_table() :
                  $self->load_iseq_product_metrics_table($self->_data->{$table});
-        if ($self->verbose) {
-          warn qq[Loaded $count rows to table $table for run $id_run\n];
-        }
+        $self->info(qq[Loaded $count rows to table $table for run $id_run]);
       } catch {
         my $err = $_;
-        if ($err =~ /Rollback failed/sxm) {
-          croak $err;
-        }
-        warn qq[Failed to load run $id_run: $err\n];
+        ($err =~ /Rollback failed/sxm) and $self->logcroak($err);
+        $self->logwarn(qq[Failed to load run $id_run: $err]);
       };
       defined $count or last;
     }
@@ -495,7 +480,6 @@ __PACKAGE__->meta->make_immutable;
 
 __END__
 
-
 =head1 DIAGNOSTICS
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -503,8 +487,6 @@ __END__
 =head1 DEPENDENCIES
 
 =over
-
-=item Carp
 
 =item Readonly
 
