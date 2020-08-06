@@ -183,7 +183,7 @@ sub load {
                                  ->process($collection);
   my $product_data = $self->product_data($autoqc_data);
 
-  my $count = $self->load_iseq_product_metrics_table($product_data);
+  my $count = $self->load_iseqproductmetric_table($product_data);
   if ($self->verbose) {
     warn qq[Loaded $count rows\n];
   }

@@ -17,9 +17,11 @@ our $VERSION = '0';
 
 ## no critic (ProhibitUnusedPrivateSubroutines)
 
+Readonly::Scalar our $PP_PREFIX     => q[pp.];
+Readonly::Scalar our $ARTIC_PP_NAME => q[ncov2019-artic-nf];
+
 # Maximum value for MYSQL smallint unsigned
 Readonly::Scalar my $INSERT_SIZE_QUARTILE_MAX_VALUE => 65_535;
-
 Readonly::Scalar my $HUNDRED  => 100;
 
 Readonly::Hash   my %AUTOQC_MAPPING  => {
@@ -150,10 +152,36 @@ sub _composition_without_subset {
     return npg_tracking::glossary::composition->new(components => \@components);
 }
 
+sub _generic {
+    my ($self, $result, $c) = @_;
+
+    $self->mlwh or return ();
+    $result->pp_name or croak 'pp_name attribute should be defined';
+    ($result->pp_name eq $ARTIC_PP_NAME) or return ();
+
+    my $data = $self->_basic_data($c);
+    my $prefix = $self->get_column_prefix4pp_name($ARTIC_PP_NAME);
+    $data->{$prefix . 'pp_name'}    = $result->pp_name;
+    $data->{$prefix . 'pp_version'} = $result->info->{'Pipeline_version'};
+    my $key = 'supplier_sample_name';
+    $data->{$prefix . $key} = $result->doc->{'meta'}->{$key};
+
+    foreach my $name (qw/ num_aligned_reads
+                          longest_no_N_run
+                          pct_covered_bases
+                          pct_N_bases
+                          qc_pass / ) {
+      my $pname = $name eq 'qc_pass' ? 'artic_qc_outcome' : lc $name;
+      $data->{$prefix . $pname} = $result->doc->{'QC summary'}->{$name};
+    }
+
+    return ($data);
+}
+
 sub _interop {
     my ($self, $result, $c) = @_;
 
-    (not $self->mlwh) and return ();
+    $self->mlwh or return ();
 
     @{$self->interop_data_column_names()} or croak 'Interop column names should be set';
 
@@ -462,11 +490,44 @@ sub _add_data {
     return;
 }
 
+=head2 get_column_prefix4pp_name
+
+Class method. Given a portable pipeline name, returns a full
+prefix that is prepended to the hash keys under which the QC
+results for this portable pipeline are saved. To have correct
+column names for uploading the data to mlwh, this prefix has
+to be removed.
+
+If a table 'iseq_XX_product_metrics' has a column 'my_yield',
+and the name of the portable pipeline is 'oak', the value of
+'my_yeild' will be saved under the 'pp.oak.my_yield' key. The
+'pp.oak.' portion of the key will have to be removed before
+uploading the data to the 'iseq_XX_product_metrics' table. Given
+'oak' as an argument, this method returns the full prefix that
+has to be removed.
+
+  # as class method
+  my $prefix = npg_warehouse::loader::autoqc
+               ->get_column_prefix4pp_name('oak');  
+  print $prefix; # pp.oak.
+
+  # as instance method
+  $obj->get_column_prefix4pp_name('oak');
+
+=cut
+
+sub get_column_prefix4pp_name {
+    my ($self, $pp_name) = @_;
+    $pp_name or croak 'Pipeline name is required';
+    return join q[], ($PP_PREFIX, $pp_name, q[.]);
+}
+
 =head2 retrieve
 
 Retrieves autoqc results for a run.
 
 =cut
+
 sub retrieve {
     my ($self, $id_run, $npg_schema) = @_;
 
@@ -484,6 +545,7 @@ sub retrieve {
 Process collection to produce data suitable for loading to the warehouse. 
 
 =cut
+
 sub process {
     my ($self, $collection) = @_;
 
@@ -572,7 +634,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2018,2019,2020 Genome Research Limited
+Copyright (C) 2018,2019,2020 Genome Research Ltd.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

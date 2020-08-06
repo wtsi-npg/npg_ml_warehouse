@@ -1,0 +1,32 @@
+{
+  "__CLASS__": "npg_qc::autoqc::results::generic-68.5.0",
+  "composition": {
+    "__CLASS__": "npg_tracking::glossary::composition-86.10",
+    "components": [
+      {
+        "__CLASS__": "npg_tracking::glossary::composition::component::illumina-86.10",
+        "id_run": 25710,
+        "position": 1,
+        "tag_index": 59
+      }
+    ]
+  },
+ "pp_name": "other_pipeline",
+ "doc": {
+    "QC summary": {
+      "attr1": "value1",
+      "attr2": "value2"
+    },
+    "meta": {
+      "num_input_reads": "220403",
+      "sample_type": "real_sample",
+      "supplier_sample_name": "YYYY-131"
+    }
+  },
+  "info": {
+    "Check": "npg_qc::autoqc::checks::generic",
+    "Check_version": "68.5.0",
+    "Pipeline_name": "other_pipeline",
+    "Pipeline_version": "50.2"
+  }
+}
