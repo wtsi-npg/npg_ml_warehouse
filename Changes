@@ -1,7 +1,11 @@
 LIST OF CHANGES
 
+release 43.0.0
+ - ml warehouse run loader extended to load autoqc data to the
+   iseq_heron_product_metrics table
+
 release 42.12.0
- -  run ml warehouse loader: usethe Log::Log4perl logger
+ -  ml warehouse run loader: use the Log::Log4perl logger
 
 release 42.11.0
  - new options in manifest for study generation:
