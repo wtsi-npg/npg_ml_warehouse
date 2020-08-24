@@ -14,6 +14,7 @@ my $builder = npg_tracking::util::build->new(
                  'dist'           => { COMPRESS => 'gzip', SUFFIX => 'gz', },
 
 		 'build_requires'      => {
+                    'Clone'                             => '0',
                     'DBD::SQLite'                       => '1.37',
                     'File::Basename'                    => 0,
                     'File::Copy::Recursive'             => 0,

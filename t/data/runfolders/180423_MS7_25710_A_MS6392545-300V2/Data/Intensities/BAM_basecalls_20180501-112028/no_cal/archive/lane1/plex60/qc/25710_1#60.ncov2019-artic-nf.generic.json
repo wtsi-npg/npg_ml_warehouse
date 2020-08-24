@@ -1,0 +1,40 @@
+{
+  "__CLASS__": "npg_qc::autoqc::results::generic-68.5.0",
+  "composition": {
+    "__CLASS__": "npg_tracking::glossary::composition-86.10",
+    "components": [
+      {
+        "__CLASS__": "npg_tracking::glossary::composition::component::illumina-86.10",
+        "id_run": 25710,
+        "position": 1,
+        "tag_index": 60
+      }
+    ]
+  },
+ "pp_name":"ncov2019-artic-nf",
+ "doc": {
+    "QC summary": {
+      "bam": "25710_1#60.mapped.primertrimmed.sorted.bam",
+      "fasta": "25710_1#60.primertrimmed.consensus.fa",
+      "longest_no_N_run": "1",
+      "num_aligned_reads": "2",
+      "pct_N_bases": "100.00",
+      "pct_covered_bases": "0.00",
+      "qc_pass": "FALSE",
+      "sample_name": "25710_1#60"
+    },
+    "meta": {
+      "num_input_reads": "220403",
+      "sample_type": "real_sample",
+      "supplier_sample_name": "XXXX-132"
+    }
+  },
+  "info": {
+    "Check": "npg_qc::autoqc::checks::generic",
+    "Check_version": "68.5.0",
+    "Pipeline_name": "ncov2019-artic-nf",
+    "Pipeline_version": "v0.10.0",
+    "Script_name": "npg_autoqc_generic4artic",
+    "Script_version": "68.5.0"
+  }
+}

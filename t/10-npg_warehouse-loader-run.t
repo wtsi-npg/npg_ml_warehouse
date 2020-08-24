@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 20;
+use Test::More tests => 21;
 use Test::Exception;
 use Test::Warn;
 use Test::Deep;
@@ -21,6 +21,7 @@ my $compon_pkg = 'npg_tracking::glossary::composition::component::illumina';
 my $RUN_LANE_TABLE_NAME      = q[IseqRunLaneMetric];
 my $PRODUCT_TABLE_NAME       = q[IseqProductMetric];
 my $PRODUCTC_TABLE_NAME      = q[IseqProductComponent];
+my $HERON_PRODUCT_TABLE_NAME = q[IseqHeronProductMetric];
 my $LIMS_FK_COLUMN_NAME      = q[id_iseq_flowcell_tmp];
 my @basic_run_lane_columns = qw/cycles
                                 paired_read
@@ -770,6 +771,53 @@ subtest 'gbs run' => sub {
     is ($row->instrument_side, undef, 'instrument side is undefined');
     is ($row->workflow_type, undef, 'workflow type is undefined');
   }
+};
+
+subtest 'Generic autoqc artic data to heron table' => sub {
+  plan tests => 22;
+
+  my $rs = $schema_wh->resultset($HERON_PRODUCT_TABLE_NAME);
+  $rs->delete(); # drop all rows  
+
+  my $id_run = 25710; # the same run as for gbs run
+  my %in = %{$init};
+  $in{'id_run'} = $id_run;
+  $in{'verbose'} = 0;
+  my $loader  = npg_warehouse::loader::run->new(\%in);
+  lives_ok {$loader->load()} 'data is loaded into the product table';
+  $rs = $schema_wh->resultset($HERON_PRODUCT_TABLE_NAME)
+    ->search({}, {order_by => 'supplier_sample_name'});
+  is ($rs->count, 2, 'two rows created');
+
+  my $prs = $schema_wh->resultset($PRODUCT_TABLE_NAME);
+  my $p59_row = $prs->find({id_run => $id_run, position => 1, tag_index=>59}); 
+  my $p60_row = $prs->find({id_run => $id_run, position => 1, tag_index=>60});
+  
+  my $h60_row = $rs->next;
+  my $h59_row = $rs->next;
+
+  is ($h59_row->supplier_sample_name, 'YYYY-131', 'correct sample name');
+  is ($h59_row->id_iseq_product, $p59_row->id_iseq_product,
+    'correct product id for tag 59');
+  is ($h60_row->supplier_sample_name, 'XXXX-132', 'correct sample name');
+  is ($h60_row->id_iseq_product, $p60_row->id_iseq_product,
+    'correct product is for tag 60');
+  is ($h59_row->id_run, $id_run, 'correct run id');
+  is ($h60_row->id_run, $id_run, 'correct run id');
+  is ($h59_row->pp_name, 'ncov2019-artic-nf', 'correct pipeline name');
+  is ($h60_row->pp_name, 'ncov2019-artic-nf', 'correct pipeline name');
+  is ($h59_row->pp_version, 'v0.8.0', 'correct pipeline version');
+  is ($h60_row->pp_version, 'v0.10.0', 'correct pipeline version');
+  is ($h59_row->artic_qc_outcome, 'TRUE', 'correct artic QC outcome');
+  is ($h60_row->artic_qc_outcome, 'FALSE', 'correct artic QC outcome');
+  is ($h60_row->pct_n_bases, '100', 'pct_n_bases');
+  is ($h60_row->num_aligned_reads, 2, 'num_aligned_reads');
+  is ($h60_row->pct_covered_bases, '0', 'pct_covered_bases');
+  is ($h60_row->longest_no_n_run, 1, 'longest_no_n_run');
+  is ($h59_row->pct_n_bases, '0.4', 'pct_n_bases');
+  is ($h59_row->num_aligned_reads, 10773640, 'num_aligned_reads');
+  is ($h59_row->pct_covered_bases, '99.6', 'pct_covered_bases');
+  is ($h59_row->longest_no_n_run, 29783, 'longest_no_n_run');
 };
 
 subtest 'NovaSeq run with merged data' => sub {

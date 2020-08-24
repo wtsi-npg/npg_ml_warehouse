@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 11;
+use Test::More tests => 12;
 use Test::Exception;
 use Moose::Meta::Class;
 
@@ -24,6 +24,7 @@ my $schema_npg  = $util->create_test_db(
 my $folder_glob = q[t/data/runfolders/];
 my $user_id = 7;
 my $plex_key = 'plex';
+
 subtest 'object creation and simple tests' => sub {
   plan tests => 3;
 
@@ -36,6 +37,24 @@ subtest 'object creation and simple tests' => sub {
   throws_ok {$autoqc->retrieve()}
     qr/Attribute \(id_run\) does not pass the type constraint/,
     'error when id_run is missing';
+};
+
+subtest 'pp prefix' => sub {
+  plan tests => 4;
+
+  throws_ok { npg_warehouse::loader::autoqc->get_column_prefix4pp_name() }
+    qr/Pipeline name is required/,
+    'error if pipeline name is not given';
+  is (npg_warehouse::loader::autoqc->get_column_prefix4pp_name('oak'),
+    'pp.oak.', 'class method - correct prefix');
+
+  my $autoqc = npg_warehouse::loader::autoqc->new(
+                    autoqc_store => $store);
+  throws_ok { $autoqc->get_column_prefix4pp_name() }
+    qr/Pipeline name is required/,
+    'error if pipeline name is not given';
+  is ($autoqc->get_column_prefix4pp_name('oak'),
+    'pp.oak.', 'object instance method - correct prefix');
 };
 
 subtest 'retrieve yield' => sub {
@@ -298,8 +317,8 @@ subtest 'retrieve rna data' => sub {
   ok(! exists $auto->{$d}->{rna_rrna}, 'rna - rrna not present');
 };
 
-subtest 'retrieve gbs data' => sub {
-  plan tests => 5;
+subtest 'retrieve gbs and generic data' => sub {
+  plan tests => 23;
 
   my $id_run = 25710;
   lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })}
@@ -307,13 +326,41 @@ subtest 'retrieve gbs data' => sub {
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run})->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
   my $auto;
-  lives_ok {$auto = npg_warehouse::loader::autoqc->new(autoqc_store => $store)->retrieve($id_run, $schema_npg)}
+  lives_ok {$auto = npg_warehouse::loader::autoqc->new(
+    autoqc_store => $store, mlwh => 1)->retrieve($id_run, $schema_npg)}
     'data for run 25710 retrieved';
 
-  my $d = $compos_pkg->new(components =>
+  my $digest = $compos_pkg->new(components =>
     [$compon_pkg->new(id_run => $id_run, position => 1, tag_index => 60)])->digest;
-  cmp_ok(sprintf('%.10f',$auto->{$d}->{gbs_call_rate}), q(==), 1, 'gbs - call rate');
-  cmp_ok(sprintf('%.10f',$auto->{$d}->{gbs_pass_rate}), q(==), 0.99, 'gbs - pass rate');
+  my $d = $auto->{$digest};
+  # gbs
+  cmp_ok(sprintf('%.10f',$d->{gbs_call_rate}), q(==), 1, 'gbs - call rate');
+  cmp_ok(sprintf('%.10f',$d->{gbs_pass_rate}), q(==), 0.99, 'gbs - pass rate');
+  # generic for artic
+  is($d->{'pp.ncov2019-artic-nf.pp_name'}, 'ncov2019-artic-nf', 'pp name');
+  is($d->{'pp.ncov2019-artic-nf.pp_version'}, 'v0.10.0', 'pp version');
+  is($d->{'pp.ncov2019-artic-nf.supplier_sample_name'}, 'XXXX-132', 'sample name');
+  is($d->{'pp.ncov2019-artic-nf.artic_qc_outcome'}, 'FALSE', 'artic QC outcome');
+  is($d->{'pp.ncov2019-artic-nf.pct_n_bases'}, '100.00', 'pct_n_bases');
+  is($d->{'pp.ncov2019-artic-nf.num_aligned_reads'}, 2, 'num_aligned_reads');
+  is($d->{'pp.ncov2019-artic-nf.pct_covered_bases'}, '0.00', 'pct_covered_bases');
+  is($d->{'pp.ncov2019-artic-nf.longest_no_n_run'}, 1, 'longest_no_n_run');
+
+  $digest = $compos_pkg->new(components =>
+    [$compon_pkg->new(id_run => $id_run, position => 1, tag_index => 59)])->digest;
+  $d = $auto->{$digest};
+  # gbs
+  ok (!defined $d->{gbs_call_rate}, 'gbs_call_rate not defined');
+  ok (!defined $d->{gbs_pass_rate}, 'gbs_pass_rate not defined');
+  # generic for artic
+  is($d->{'pp.ncov2019-artic-nf.pp_name'}, 'ncov2019-artic-nf', 'pp name');
+  is($d->{'pp.ncov2019-artic-nf.pp_version'}, 'v0.8.0', 'pp version');
+  is($d->{'pp.ncov2019-artic-nf.supplier_sample_name'}, 'YYYY-131', 'sample name');
+  is($d->{'pp.ncov2019-artic-nf.artic_qc_outcome'}, 'TRUE', 'artic QC outcome');
+  is($d->{'pp.ncov2019-artic-nf.pct_n_bases'}, '0.40', 'pct_n_bases');
+  is($d->{'pp.ncov2019-artic-nf.num_aligned_reads'}, 10773640, 'num_aligned_reads');
+  is($d->{'pp.ncov2019-artic-nf.pct_covered_bases'}, '99.60', 'pct_covered_bases');
+  is($d->{'pp.ncov2019-artic-nf.longest_no_n_run'}, 29783, 'longest_no_n_run');
 };
 
 subtest 'retrieve target stats data' => sub {
