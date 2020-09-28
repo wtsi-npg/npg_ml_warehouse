@@ -211,13 +211,11 @@ sub _indexed_lanes_hash {
 sub _filter_column_names {
   my ($self, $values) = @_;
 
-  my $pp_prefix = $npg_warehouse::loader::autoqc::PP_PREFIX;
+  # No harm deleting a key that might not exist.
+  delete  $values->{$npg_warehouse::loader::autoqc::PP_KEY};
+
   my @columns = keys %{$values};
   foreach my $name (@columns) {
-    if ($name =~ /\A$pp_prefix/smx) {
-      delete $values->{$name};
-      next;
-    }
     my $old_name = $name;
     my $count = $name =~ s/\Atag_sequence\Z/tag_sequence4deplexing/xms;
     if (!$count) {

@@ -129,7 +129,7 @@ sub _build__flowcell_table_fks {
   }
 
   if ($self->explain && (scalar keys %{$fks} == 0)) {
-    self->warn(q[Flowcell table has no LIMs information for run ] . $self->id_run);
+    $self->warn(q[Flowcell table has no LIMs information for run ] . $self->id_run);
   }
 
   return $fks;
@@ -323,10 +323,32 @@ sub _explain_missing {
   return;
 }
 
+sub _data_4pipeline {
+  my ($self, $pipeline_name, $row) = @_;
+
+  my $data = $row->{$npg_warehouse::loader::autoqc::PP_KEY}
+                 ->{$pipeline_name};
+  return ($data and keys %{$data}) ? $data : undef;
+}
+
+sub _copy_common_data {
+  my ($self, $row, $destination, @known_columns) = @_;
+
+  foreach my $column_name (@known_columns) {
+    if (not exists $destination->{$column_name}) { # do not overwrite data
+      if (exists $row->{$column_name}) {
+        $destination->{$column_name} = $row->{$column_name};
+      }
+    }
+  }
+
+  return $destination;
+}
+
 =head2 load_iseqrunlanemetric_table
 
 Loads data for one sequencing run to the
-load_iseq_run_lane_metrics table of the warehouse.
+iseq_run_lane_metrics table of the warehouse.
 
 =cut
 
@@ -353,51 +375,38 @@ sub load_iseqrunlanemetric_table {
 =head2 load_iseqheronproductmetric_table
 
 Loads data for one sequencing run to the
-load_iseq_run_lane_metrics table of the warehouse.
+iseq_heron_product_metrics table of the warehouse.
 
 =cut
 
 sub load_iseqheronproductmetric_table {
-  my ($self, $table_data) = @_;
+  my ($self, $data) = @_;
 
   my $rs = $self->schema_wh->resultset($HERON_PRODUCT_TABLE_NAME);
-  my %known_columns = map {$_ => 1}
+  my @known_columns = grep { not /created|changed/smx }
                       $rs->result_source->columns();
 
-  # The rows contain more data that the heron table can take.
-  my $aqc_retriever = q[npg_warehouse::loader::autoqc];
-  my $prefix = npg_warehouse::loader::autoqc->
-    get_column_prefix4pp_name(
-      $npg_warehouse::loader::autoqc::ARTIC_PP_NAME);
-  my $re = qr/\A$prefix/smx;
+  my @heron_data = ();
+  foreach my $row (@{$data}) {
+    my $heron_row = $self->_data_4pipeline(q[ncov2019-artic-nf], $row);
+    $heron_row or next;
+    $self->_copy_common_data($row, $heron_row, @known_columns);
+    push @heron_data, $heron_row;
+  }
 
   my $transaction = sub {
-    my $count = 0;
-    foreach my $row (@{$table_data}) {
-      my @names = keys %{$row};
-      (any { /$re/smx } @names) or next;
-      my $heron_row = {};
-      foreach my $key (@names) {
-        my $clean = $key;
-        $clean =~ s/$re//smx; # drop the prefix
-        # The heron product and the product tables share some
-        # columns, so a set of data that will be loaded to the table
-        # is larger that the set of prefixed data.
-        if (exists $known_columns{$clean}) {
-          $heron_row->{$clean} = $row->{$key};
-        }
-      }
+    foreach my $heron_row (@heron_data) {
       $self->info(
         "Will update or create record in $HERON_PRODUCT_TABLE_NAME for " .
         join q[ ], 'sample', $heron_row->{'supplier_sample_name'}
       );
       $rs->update_or_create($heron_row);
-      $count++;
     }
-    return $count;
   };
 
-  return $self->schema_wh->txn_do($transaction);
+  @heron_data and $self->schema_wh->txn_do($transaction);
+
+  return scalar @heron_data;
 }
 
 =head2 get_lims_fk
