@@ -300,7 +300,7 @@ subtest 'retrieve rna data' => sub {
 };
 
 subtest 'retrieve gbs and generic data' => sub {
-  plan tests => 23;
+  plan tests => 33;
 
   my $id_run = 25710;
   lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })}
@@ -328,6 +328,37 @@ subtest 'retrieve gbs and generic data' => sub {
   is($d->{pp}->{$pp_name}->{'num_aligned_reads'}, 2, 'num_aligned_reads');
   is($d->{pp}->{$pp_name}->{'pct_covered_bases'}, '0.00', 'pct_covered_bases');
   is($d->{pp}->{$pp_name}->{'longest_no_n_run'}, 1, 'longest_no_n_run');
+  # generic for ampliconstats
+  my $ppa_name = 'ncov2019-artic-nf_ampliconstats';
+  my $data_array = $d->{pp}->{$ppa_name};
+  is (ref $data_array, 'ARRAY', 'array of data corresponds to a single sample');
+  is (@{$data_array}, 98, 'length od the array is correct');
+  my $expected = {
+    'metric_fpcov_10' => '100.00',
+    'metric_fpcov_20' => '100.00',
+    'metric_freads' => '120466',
+    'primer_panel_num_amplicons' => '98',
+    'metric_fpcov_100' => '100.00',
+    'metric_fpcov_1' => '100.00',
+    'pp_name' => 'ncov2019-artic-nf_ampliconstats',
+    'amplicon_index' => 1,
+    'pp_version' => '1.0.0 1.11',
+    'primer_panel' => 'nCoV-2019/V2/SARS-CoV-2/MN908947.3/nCoV-2019.bed'
+  };
+  is_deeply ($data_array->[0], $expected, 'first array member');
+  $expected = {
+    'metric_fpcov_10' => '49.03',
+    'metric_fpcov_20' => '11.20',
+    'metric_freads' => '40685',
+    'primer_panel_num_amplicons' => '98',
+    'metric_fpcov_100' => '0.00',
+    'metric_fpcov_1' => '77.12',
+    'pp_name' => 'ncov2019-artic-nf_ampliconstats',
+    'amplicon_index' => 98,
+    'pp_version' => '1.0.0 1.11',
+    'primer_panel' => 'nCoV-2019/V2/SARS-CoV-2/MN908947.3/nCoV-2019.bed'
+  };
+  is_deeply ($data_array->[97], $expected, 'last array member');
 
   $digest = $compos_pkg->new(components =>
     [$compon_pkg->new(id_run => $id_run, position => 1, tag_index => 59)])->digest;
@@ -344,6 +375,42 @@ subtest 'retrieve gbs and generic data' => sub {
   is($d->{pp}->{$pp_name}->{num_aligned_reads}, 10773640, 'num_aligned_reads');
   is($d->{pp}->{$pp_name}->{pct_covered_bases}, '99.60', 'pct_covered_bases');
   is($d->{pp}->{$pp_name}->{longest_no_n_run}, 29783, 'longest_no_n_run');
+
+  $data_array = $d->{pp}->{$ppa_name};
+  is (ref $data_array, 'ARRAY', 'array of data corresponds to a single sample');
+  is (@{$data_array}, 98, 'length of the array is correct');
+  $expected = {
+    'metric_fpcov_10' => '100.00',
+    'metric_fpcov_20' => '100.00',
+    'metric_freads' => '112541',
+    'primer_panel_num_amplicons' => '98',
+    'metric_fpcov_100' => '100.00',
+    'metric_fpcov_1' => '100.00',
+    'pp_name' => 'ncov2019-artic-nf_ampliconstats',
+    'amplicon_index' => 1,
+    'pp_version' => '1.0.0 1.11',
+    'primer_panel' => 'nCoV-2019/V2/SARS-CoV-2/MN908947.3/nCoV-2019.bed'
+  };
+  is_deeply ($data_array->[0], $expected, 'first array member');
+  $expected = {
+    'metric_fpcov_10' => '100.00',
+    'metric_fpcov_20' => '100.00',
+    'metric_freads' => '60753',
+    'primer_panel_num_amplicons' => '98',
+    'metric_fpcov_100' => '100.00',
+    'metric_fpcov_1' => '100.00',
+    'pp_name' => 'ncov2019-artic-nf_ampliconstats',
+    'amplicon_index' => 98,
+    'pp_version' => '1.0.0 1.11',
+    'primer_panel' => 'nCoV-2019/V2/SARS-CoV-2/MN908947.3/nCoV-2019.bed'
+  };
+  is_deeply ($data_array->[97], $expected, 'last array member');
+  
+  $digest = $compos_pkg->new(components =>
+    [$compon_pkg->new(id_run => $id_run, position => 1, tag_index => 58)])->digest;
+  $d = $auto->{$digest};
+  ok (exists $d->{pp}->{$ppa_name}, 'data for astats pp exist');
+  ok (! exists $d->{pp}->{$pp_name}, 'data for artic pp do not exist');
 };
 
 subtest 'retrieve target stats data' => sub {

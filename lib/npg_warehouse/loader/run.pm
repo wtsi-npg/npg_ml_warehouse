@@ -35,6 +35,7 @@ Readonly::Scalar my $FLOWCELL_LIMS_TABLE_NAME => q[IseqFlowcell];
 Readonly::Scalar my $RUN_LANE_TABLE_NAME      => q[IseqRunLaneMetric];
 Readonly::Scalar my $PRODUCT_TABLE_NAME       => q[IseqProductMetric];
 Readonly::Scalar my $HERON_PRODUCT_TABLE_NAME => q[IseqHeronProductMetric];
+Readonly::Scalar my $AMPLICONSTATS_TABLE_NAME => q[IseqProductAmpliconstat];
 Readonly::Scalar my $LIMS_FK_COLUMN_NAME      => q[id_iseq_flowcell_tmp];
 
 Readonly::Scalar my $SPIKE_FALLBACK_TAG_INDEX => 888;
@@ -300,7 +301,8 @@ sub _build__data {
 
   return { $RUN_LANE_TABLE_NAME      => \@lane_data_list,
            $PRODUCT_TABLE_NAME       => $product_data,
-           $HERON_PRODUCT_TABLE_NAME => $product_data };
+           $HERON_PRODUCT_TABLE_NAME => $product_data,
+           $AMPLICONSTATS_TABLE_NAME => $product_data };
 }
 
 sub _pt_key {
@@ -323,16 +325,20 @@ sub _explain_missing {
   return;
 }
 
-sub _data_4pipeline {
-  my ($self, $pipeline_name, $row) = @_;
+sub _data4pipeline {
+  my ($pp_name, $row) = @_;
+  return $row->{$npg_warehouse::loader::autoqc::PP_KEY}->{$pp_name};
+}
 
-  my $data = $row->{$npg_warehouse::loader::autoqc::PP_KEY}
-                 ->{$pipeline_name};
-  return ($data and keys %{$data}) ? $data : undef;
+sub _known_columns {
+  my $rs = shift;
+  my @known_columns = grep { not /created|changed/smx }
+                      $rs->result_source->columns();
+  return @known_columns;
 }
 
 sub _copy_common_data {
-  my ($self, $row, $destination, @known_columns) = @_;
+  my ($row, $destination, @known_columns) = @_;
 
   foreach my $column_name (@known_columns) {
     if (not exists $destination->{$column_name}) { # do not overwrite data
@@ -383,14 +389,13 @@ sub load_iseqheronproductmetric_table {
   my ($self, $data) = @_;
 
   my $rs = $self->schema_wh->resultset($HERON_PRODUCT_TABLE_NAME);
-  my @known_columns = grep { not /created|changed/smx }
-                      $rs->result_source->columns();
+  my @known_columns = _known_columns($rs);
 
   my @heron_data = ();
   foreach my $row (@{$data}) {
-    my $heron_row = $self->_data_4pipeline(q[ncov2019-artic-nf], $row);
+    my $heron_row = _data4pipeline(q[ncov2019-artic-nf], $row);
     $heron_row or next;
-    $self->_copy_common_data($row, $heron_row, @known_columns);
+    _copy_common_data($row, $heron_row, @known_columns);
     push @heron_data, $heron_row;
   }
 
@@ -407,6 +412,40 @@ sub load_iseqheronproductmetric_table {
   @heron_data and $self->schema_wh->txn_do($transaction);
 
   return scalar @heron_data;
+}
+
+=head2 load_iseqproductampliconstat_table
+
+Loads data for one sequencing run to the
+iseq_product_ampliconstats table of the warehouse.
+
+=cut
+
+sub load_iseqproductampliconstat_table {
+  my ($self, $data) = @_;
+
+  my $rs = $self->schema_wh->resultset($AMPLICONSTATS_TABLE_NAME);
+  my @known_columns = _known_columns($rs);
+
+  my @astats_data = ();
+  foreach my $row (@{$data}) {
+    my $astats_rows = _data4pipeline(q[ncov2019-artic-nf_ampliconstats], $row);
+    $astats_rows or next;
+    foreach my $a_row (@{$astats_rows}) {
+      _copy_common_data($row, $a_row, @known_columns);
+      push @astats_data, $a_row;
+    }
+  }
+
+  my $transaction = sub {
+    foreach my $row (@astats_data) {
+      $rs->update_or_create($row);
+    }
+  };
+
+  @astats_data and $self->schema_wh->txn_do($transaction);
+
+  return scalar @astats_data;
 }
 
 =head2 get_lims_fk
@@ -523,7 +562,8 @@ sub load {
 
   my @tables = ($RUN_LANE_TABLE_NAME,
                 $PRODUCT_TABLE_NAME,
-                $HERON_PRODUCT_TABLE_NAME,);
+                $HERON_PRODUCT_TABLE_NAME,
+                $AMPLICONSTATS_TABLE_NAME,);
   my %callbacks = map { $_ => join q[_], q[load], lc $_, q[table] } @tables;
 
   foreach my $table (@tables) {

@@ -1,7 +1,7 @@
 LIST OF CHANGES
 
- - retrieval and loading of heron artic data is refactored to make
-   the code more generic and flexible; in particular
+ - retrieval and loading of heron artic autoqc data is refactored
+   to make the code more generic and flexible, in particular:
    1. when retrieving autoqc data, the data from all portable
       pipelines are stored under a single top-level key, thus
       making it easy to skip this data when loading non-pp tables
@@ -12,6 +12,8 @@ LIST OF CHANGES
       multiple data sets, for example, storing ampliconstats data
       per entity per amplicon, rather than flattenning ampliconstats
       data 
+ - retrieval of ampiconstats autoqc data and loading the data to the
+   new iseq_product_ampliconstats table
 
 release 43.0.0
  - ml warehouse run loader extended to load autoqc data to the
