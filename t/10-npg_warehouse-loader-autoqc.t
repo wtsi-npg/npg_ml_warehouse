@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 12;
+use Test::More tests => 11;
 use Test::Exception;
 use Moose::Meta::Class;
 
@@ -37,24 +37,6 @@ subtest 'object creation and simple tests' => sub {
   throws_ok {$autoqc->retrieve()}
     qr/Attribute \(id_run\) does not pass the type constraint/,
     'error when id_run is missing';
-};
-
-subtest 'pp prefix' => sub {
-  plan tests => 4;
-
-  throws_ok { npg_warehouse::loader::autoqc->get_column_prefix4pp_name() }
-    qr/Pipeline name is required/,
-    'error if pipeline name is not given';
-  is (npg_warehouse::loader::autoqc->get_column_prefix4pp_name('oak'),
-    'pp.oak.', 'class method - correct prefix');
-
-  my $autoqc = npg_warehouse::loader::autoqc->new(
-                    autoqc_store => $store);
-  throws_ok { $autoqc->get_column_prefix4pp_name() }
-    qr/Pipeline name is required/,
-    'error if pipeline name is not given';
-  is ($autoqc->get_column_prefix4pp_name('oak'),
-    'pp.oak.', 'object instance method - correct prefix');
 };
 
 subtest 'retrieve yield' => sub {
@@ -318,7 +300,7 @@ subtest 'retrieve rna data' => sub {
 };
 
 subtest 'retrieve gbs and generic data' => sub {
-  plan tests => 23;
+  plan tests => 33;
 
   my $id_run = 25710;
   lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })}
@@ -337,14 +319,46 @@ subtest 'retrieve gbs and generic data' => sub {
   cmp_ok(sprintf('%.10f',$d->{gbs_call_rate}), q(==), 1, 'gbs - call rate');
   cmp_ok(sprintf('%.10f',$d->{gbs_pass_rate}), q(==), 0.99, 'gbs - pass rate');
   # generic for artic
-  is($d->{'pp.ncov2019-artic-nf.pp_name'}, 'ncov2019-artic-nf', 'pp name');
-  is($d->{'pp.ncov2019-artic-nf.pp_version'}, 'v0.10.0', 'pp version');
-  is($d->{'pp.ncov2019-artic-nf.supplier_sample_name'}, 'XXXX-132', 'sample name');
-  is($d->{'pp.ncov2019-artic-nf.artic_qc_outcome'}, 'FALSE', 'artic QC outcome');
-  is($d->{'pp.ncov2019-artic-nf.pct_n_bases'}, '100.00', 'pct_n_bases');
-  is($d->{'pp.ncov2019-artic-nf.num_aligned_reads'}, 2, 'num_aligned_reads');
-  is($d->{'pp.ncov2019-artic-nf.pct_covered_bases'}, '0.00', 'pct_covered_bases');
-  is($d->{'pp.ncov2019-artic-nf.longest_no_n_run'}, 1, 'longest_no_n_run');
+  my $pp_name = 'ncov2019-artic-nf';
+  is($d->{pp}->{$pp_name}->{'pp_name'}, 'ncov2019-artic-nf', 'pp name');
+  is($d->{pp}->{$pp_name}->{'pp_version'}, 'v0.10.0', 'pp version');
+  is($d->{pp}->{$pp_name}->{'supplier_sample_name'}, 'XXXX-132', 'sample name');
+  is($d->{pp}->{$pp_name}->{'artic_qc_outcome'}, 'FALSE', 'artic QC outcome');
+  is($d->{pp}->{$pp_name}->{'pct_n_bases'}, '100.00', 'pct_n_bases');
+  is($d->{pp}->{$pp_name}->{'num_aligned_reads'}, 2, 'num_aligned_reads');
+  is($d->{pp}->{$pp_name}->{'pct_covered_bases'}, '0.00', 'pct_covered_bases');
+  is($d->{pp}->{$pp_name}->{'longest_no_n_run'}, 1, 'longest_no_n_run');
+  # generic for ampliconstats
+  my $ppa_name = 'ncov2019-artic-nf_ampliconstats';
+  my $data_array = $d->{pp}->{$ppa_name};
+  is (ref $data_array, 'ARRAY', 'array of data corresponds to a single sample');
+  is (@{$data_array}, 98, 'length od the array is correct');
+  my $expected = {
+    'metric_fpcov_10' => '100.00',
+    'metric_fpcov_20' => '100.00',
+    'metric_freads' => '120466',
+    'primer_panel_num_amplicons' => '98',
+    'metric_fpcov_100' => '100.00',
+    'metric_fpcov_1' => '100.00',
+    'pp_name' => 'ncov2019-artic-nf_ampliconstats',
+    'amplicon_index' => 1,
+    'pp_version' => '1.0.0 1.11',
+    'primer_panel' => 'nCoV-2019/V2/SARS-CoV-2/MN908947.3/nCoV-2019.bed'
+  };
+  is_deeply ($data_array->[0], $expected, 'first array member');
+  $expected = {
+    'metric_fpcov_10' => '49.03',
+    'metric_fpcov_20' => '11.20',
+    'metric_freads' => '40685',
+    'primer_panel_num_amplicons' => '98',
+    'metric_fpcov_100' => '0.00',
+    'metric_fpcov_1' => '77.12',
+    'pp_name' => 'ncov2019-artic-nf_ampliconstats',
+    'amplicon_index' => 98,
+    'pp_version' => '1.0.0 1.11',
+    'primer_panel' => 'nCoV-2019/V2/SARS-CoV-2/MN908947.3/nCoV-2019.bed'
+  };
+  is_deeply ($data_array->[97], $expected, 'last array member');
 
   $digest = $compos_pkg->new(components =>
     [$compon_pkg->new(id_run => $id_run, position => 1, tag_index => 59)])->digest;
@@ -353,14 +367,50 @@ subtest 'retrieve gbs and generic data' => sub {
   ok (!defined $d->{gbs_call_rate}, 'gbs_call_rate not defined');
   ok (!defined $d->{gbs_pass_rate}, 'gbs_pass_rate not defined');
   # generic for artic
-  is($d->{'pp.ncov2019-artic-nf.pp_name'}, 'ncov2019-artic-nf', 'pp name');
-  is($d->{'pp.ncov2019-artic-nf.pp_version'}, 'v0.8.0', 'pp version');
-  is($d->{'pp.ncov2019-artic-nf.supplier_sample_name'}, 'YYYY-131', 'sample name');
-  is($d->{'pp.ncov2019-artic-nf.artic_qc_outcome'}, 'TRUE', 'artic QC outcome');
-  is($d->{'pp.ncov2019-artic-nf.pct_n_bases'}, '0.40', 'pct_n_bases');
-  is($d->{'pp.ncov2019-artic-nf.num_aligned_reads'}, 10773640, 'num_aligned_reads');
-  is($d->{'pp.ncov2019-artic-nf.pct_covered_bases'}, '99.60', 'pct_covered_bases');
-  is($d->{'pp.ncov2019-artic-nf.longest_no_n_run'}, 29783, 'longest_no_n_run');
+  is($d->{pp}->{$pp_name}->{pp_name}, 'ncov2019-artic-nf', 'pp name');
+  is($d->{pp}->{$pp_name}->{pp_version}, 'v0.8.0', 'pp version');
+  is($d->{pp}->{$pp_name}->{supplier_sample_name}, 'YYYY-131', 'sample name');
+  is($d->{pp}->{$pp_name}->{artic_qc_outcome}, 'TRUE', 'artic QC outcome');
+  is($d->{pp}->{$pp_name}->{pct_n_bases}, '0.40', 'pct_n_bases');
+  is($d->{pp}->{$pp_name}->{num_aligned_reads}, 10773640, 'num_aligned_reads');
+  is($d->{pp}->{$pp_name}->{pct_covered_bases}, '99.60', 'pct_covered_bases');
+  is($d->{pp}->{$pp_name}->{longest_no_n_run}, 29783, 'longest_no_n_run');
+
+  $data_array = $d->{pp}->{$ppa_name};
+  is (ref $data_array, 'ARRAY', 'array of data corresponds to a single sample');
+  is (@{$data_array}, 98, 'length of the array is correct');
+  $expected = {
+    'metric_fpcov_10' => '100.00',
+    'metric_fpcov_20' => '100.00',
+    'metric_freads' => '112541',
+    'primer_panel_num_amplicons' => '98',
+    'metric_fpcov_100' => '100.00',
+    'metric_fpcov_1' => '100.00',
+    'pp_name' => 'ncov2019-artic-nf_ampliconstats',
+    'amplicon_index' => 1,
+    'pp_version' => '1.0.0 1.11',
+    'primer_panel' => 'nCoV-2019/V2/SARS-CoV-2/MN908947.3/nCoV-2019.bed'
+  };
+  is_deeply ($data_array->[0], $expected, 'first array member');
+  $expected = {
+    'metric_fpcov_10' => '100.00',
+    'metric_fpcov_20' => '100.00',
+    'metric_freads' => '60753',
+    'primer_panel_num_amplicons' => '98',
+    'metric_fpcov_100' => '100.00',
+    'metric_fpcov_1' => '100.00',
+    'pp_name' => 'ncov2019-artic-nf_ampliconstats',
+    'amplicon_index' => 98,
+    'pp_version' => '1.0.0 1.11',
+    'primer_panel' => 'nCoV-2019/V2/SARS-CoV-2/MN908947.3/nCoV-2019.bed'
+  };
+  is_deeply ($data_array->[97], $expected, 'last array member');
+  
+  $digest = $compos_pkg->new(components =>
+    [$compon_pkg->new(id_run => $id_run, position => 1, tag_index => 58)])->digest;
+  $d = $auto->{$digest};
+  ok (exists $d->{pp}->{$ppa_name}, 'data for astats pp exist');
+  ok (! exists $d->{pp}->{$pp_name}, 'data for artic pp do not exist');
 };
 
 subtest 'retrieve target stats data' => sub {

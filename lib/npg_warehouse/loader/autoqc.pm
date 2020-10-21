@@ -4,6 +4,7 @@ use Carp;
 use Moose;
 use MooseX::StrictConstructor;
 use Readonly;
+use Clone qw/clone/;
 
 use npg_tracking::glossary::rpt;
 use npg_tracking::glossary::composition;
@@ -17,12 +18,12 @@ our $VERSION = '0';
 
 ## no critic (ProhibitUnusedPrivateSubroutines)
 
-Readonly::Scalar our $PP_PREFIX     => q[pp.];
-Readonly::Scalar our $ARTIC_PP_NAME => q[ncov2019-artic-nf];
+Readonly::Scalar our $PP_KEY     => q[pp];
 
 # Maximum value for MYSQL smallint unsigned
 Readonly::Scalar my $INSERT_SIZE_QUARTILE_MAX_VALUE => 65_535;
 Readonly::Scalar my $HUNDRED  => 100;
+Readonly::Scalar my $PRIMER_PANEL_MAX_LENGTH => 255;
 
 Readonly::Hash   my %AUTOQC_MAPPING  => {
      gc_fraction =>      {
@@ -152,30 +153,79 @@ sub _composition_without_subset {
     return npg_tracking::glossary::composition->new(components => \@components);
 }
 
+sub _astats_data {
+    my ($astats, $info, $common_data) = @_;
+
+    my $num_amplicons = $astats->{num_amplicons};
+    $num_amplicons or croak 'Number of amplicons should be defined';
+    my $command = $info->{Samtools_command};
+    $command or croak 'Samtools_command is not recorded';
+    my ($primer_panel) = $command =~ /primer_panel\/(\S+[.]bed)\s*\S*\Z/smx;
+    $primer_panel or
+      ($primer_panel) = $command =~ /(\S+[.]bed)\s*\S*\Z/smx;
+    $primer_panel or croak 'Failed to extract the primer panel path';
+    # Trim the start of the string to fit the column.
+    $primer_panel = substr $primer_panel, -$PRIMER_PANEL_MAX_LENGTH;
+
+    $common_data->{primer_panel} = $primer_panel;
+    $common_data->{primer_panel_num_amplicons} = $num_amplicons;
+
+    my $convert_name = sub {
+        my $name = shift;
+        $name =~ s/-/_/gsmx;
+        return join q[_], 'metric', lc $name;
+    };
+
+    my @per_amplicon_data = ();
+
+    for my $i ((1 .. $num_amplicons)) {
+        my $idata = clone($common_data);
+        $idata->{amplicon_index} = $i;
+        for my $name ( keys %{$astats} ) {
+            my $array = $astats->{$name};
+            $array and (ref $array eq q[ARRAY]) or next;
+            my $value = $array->[$i-1];
+            defined $value or croak 'Array length mismatch';
+            $idata->{ $convert_name->($name) } = $value;
+        }
+        push @per_amplicon_data, $idata;
+    }
+
+    return \@per_amplicon_data;
+}
+
 sub _generic {
     my ($self, $result, $c) = @_;
 
     $self->mlwh or return ();
     $result->pp_name or croak 'pp_name attribute should be defined';
-    ($result->pp_name eq $ARTIC_PP_NAME) or return ();
+    my $basic_data = $self->_basic_data($c);
+    my $data = {};
+    $data->{'pp_name'}    = $result->pp_name;
+    $data->{'pp_version'} = $result->info->{'Pipeline_version'};
 
-    my $data = $self->_basic_data($c);
-    my $prefix = $self->get_column_prefix4pp_name($ARTIC_PP_NAME);
-    $data->{$prefix . 'pp_name'}    = $result->pp_name;
-    $data->{$prefix . 'pp_version'} = $result->info->{'Pipeline_version'};
-    my $key = 'supplier_sample_name';
-    $data->{$prefix . $key} = $result->doc->{'meta'}->{$key};
+    if ($result->pp_name eq 'ncov2019-artic-nf') {
+        foreach my $name (qw/ num_aligned_reads
+                              longest_no_N_run
+                              pct_covered_bases
+                              pct_N_bases
+                              qc_pass / ) {
+            my $pname = $name eq 'qc_pass' ? 'artic_qc_outcome' : lc $name;
+            $data->{$pname} = $result->doc->{'QC summary'}->{$name};
+        }
+        my $key = 'supplier_sample_name';
+        $data->{$key} = $result->doc->{'meta'}->{$key};
+        $basic_data->{$PP_KEY} = {$result->pp_name => $data};
 
-    foreach my $name (qw/ num_aligned_reads
-                          longest_no_N_run
-                          pct_covered_bases
-                          pct_N_bases
-                          qc_pass / ) {
-      my $pname = $name eq 'qc_pass' ? 'artic_qc_outcome' : lc $name;
-      $data->{$prefix . $pname} = $result->doc->{'QC summary'}->{$name};
-    }
+    } elsif ($result->pp_name =~ /ampliconstats/xms) {
+        my $astats = $result->doc->{amplicon_stats};
+        if ($astats and keys %{$astats}) {
+            $basic_data->{$PP_KEY} =
+                {$result->pp_name => _astats_data($astats, $result->info, $data)};
+        }
+   }
 
-    return ($data);
+    return $basic_data->{$PP_KEY} ? ($basic_data) : ();
 }
 
 sub _interop {
@@ -481,45 +531,23 @@ sub _add_data {
     if (exists $autoqc->{$digest}) {
         delete $data->{'composition'};
         while (my ($column_name, $value) = each %{$data}) {
-	    $autoqc->{$digest}->{$column_name} = $value;
+            if (ref $value eq 'HASH') {
+                ($column_name eq $PP_KEY) or croak "Unexpected key $column_name";
+                my @keys = keys %{$value};
+                (@keys == 1) or croak 'Invalid number of keys';
+                my $key = $keys[0];
+                # Be careful, do not overwrite data from other pipelines, which
+                # migh be already hashed under $PP_KEY.
+                $autoqc->{$digest}->{$column_name}->{$key} = $value->{$key};
+            } else {
+	        $autoqc->{$digest}->{$column_name} = $value;
+            }
         }
     } else {
 	$autoqc->{$digest} = $data;
     }
 
     return;
-}
-
-=head2 get_column_prefix4pp_name
-
-Class method. Given a portable pipeline name, returns a full
-prefix that is prepended to the hash keys under which the QC
-results for this portable pipeline are saved. To have correct
-column names for uploading the data to mlwh, this prefix has
-to be removed.
-
-If a table 'iseq_XX_product_metrics' has a column 'my_yield',
-and the name of the portable pipeline is 'oak', the value of
-'my_yeild' will be saved under the 'pp.oak.my_yield' key. The
-'pp.oak.' portion of the key will have to be removed before
-uploading the data to the 'iseq_XX_product_metrics' table. Given
-'oak' as an argument, this method returns the full prefix that
-has to be removed.
-
-  # as class method
-  my $prefix = npg_warehouse::loader::autoqc
-               ->get_column_prefix4pp_name('oak');  
-  print $prefix; # pp.oak.
-
-  # as instance method
-  $obj->get_column_prefix4pp_name('oak');
-
-=cut
-
-sub get_column_prefix4pp_name {
-    my ($self, $pp_name) = @_;
-    $pp_name or croak 'Pipeline name is required';
-    return join q[], ($PP_PREFIX, $pp_name, q[.]);
 }
 
 =head2 retrieve

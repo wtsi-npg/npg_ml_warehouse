@@ -30,12 +30,18 @@ my $transaction = sub {
   while (my $rl_row = $rs->next) {
     my $rsp = $rl_row->iseq_product_metrics();
     while (my $row = $rsp->next) {
-      $row->iseq_product_components()->delete();
+      my $crow = $row->iseq_product_components();
+      $row->iseq_product_ampliconstats()->delete();
+      $crow->delete();
     }
   }
   $rs->delete();
-  $schema_wh->resultset(q[IseqProductMetric])
-            ->search({id_run => $id_run})->delete;
+  $rs = $schema_wh->resultset(q[IseqProductMetric])
+                  ->search({id_run => $id_run});
+  for ($rs->all()) {
+    $_->iseq_product_ampliconstats()->delete();
+  }
+  $rs->delete();
 };
 
 $schema_wh->txn_do($transaction);
