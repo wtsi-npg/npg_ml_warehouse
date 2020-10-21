@@ -4,6 +4,7 @@ use Carp;
 use Moose;
 use MooseX::StrictConstructor;
 use Readonly;
+use Clone qw/clone/;
 
 use npg_tracking::glossary::rpt;
 use npg_tracking::glossary::composition;
@@ -22,6 +23,7 @@ Readonly::Scalar our $PP_KEY     => q[pp];
 # Maximum value for MYSQL smallint unsigned
 Readonly::Scalar my $INSERT_SIZE_QUARTILE_MAX_VALUE => 65_535;
 Readonly::Scalar my $HUNDRED  => 100;
+Readonly::Scalar my $PRIMER_PANEL_MAX_LENGTH => 255;
 
 Readonly::Hash   my %AUTOQC_MAPPING  => {
      gc_fraction =>      {
@@ -151,31 +153,77 @@ sub _composition_without_subset {
     return npg_tracking::glossary::composition->new(components => \@components);
 }
 
+sub _astats_data {
+    my ($astats, $info, $common_data) = @_;
+
+    my $num_amplicons = $astats->{num_amplicons};
+    $num_amplicons or croak 'Number of amplicons should be defined';
+    my $command = $info->{Samtools_command};
+    $command or croak 'Samtools_command is not recorded';
+    my ($primer_panel) = $command =~ /primer_panel\/(\S+[.]bed)\s*\S*\Z/smx;
+    $primer_panel or
+      ($primer_panel) = $command =~ /(\S+[.]bed)\s*\S*\Z/smx;
+    $primer_panel or croak 'Failed to extract the primer panel path';
+    # Trim the start of the string to fit the column.
+    $primer_panel = substr $primer_panel, -$PRIMER_PANEL_MAX_LENGTH;
+
+    $common_data->{primer_panel} = $primer_panel;
+    $common_data->{primer_panel_num_amplicons} = $num_amplicons;
+
+    my $convert_name = sub {
+        my $name = shift;
+        $name =~ s/-/_/gsmx;
+        return join q[_], 'metric', lc $name;
+    };
+
+    my @per_amplicon_data = ();
+
+    for my $i ((1 .. $num_amplicons)) {
+        my $idata = clone($common_data);
+        $idata->{amplicon_index} = $i;
+        for my $name ( keys %{$astats} ) {
+            my $array = $astats->{$name};
+            $array and (ref $array eq q[ARRAY]) or next;
+            my $value = $array->[$i-1];
+            defined $value or croak 'Array length mismatch';
+            $idata->{ $convert_name->($name) } = $value;
+        }
+        push @per_amplicon_data, $idata;
+    }
+
+    return \@per_amplicon_data;
+}
+
 sub _generic {
     my ($self, $result, $c) = @_;
 
     $self->mlwh or return ();
     $result->pp_name or croak 'pp_name attribute should be defined';
-
     my $basic_data = $self->_basic_data($c);
     my $data = {};
     $data->{'pp_name'}    = $result->pp_name;
     $data->{'pp_version'} = $result->info->{'Pipeline_version'};
 
     if ($result->pp_name eq 'ncov2019-artic-nf') {
-      foreach my $name (qw/ num_aligned_reads
-                            longest_no_N_run
-                            pct_covered_bases
-                            pct_N_bases
-                            qc_pass / ) {
-        my $pname = $name eq 'qc_pass' ? 'artic_qc_outcome' : lc $name;
-        $data->{$pname} = $result->doc->{'QC summary'}->{$name};
-      }
-      my $key = 'supplier_sample_name';
-      $data->{$key} = $result->doc->{'meta'}->{$key};
+        foreach my $name (qw/ num_aligned_reads
+                              longest_no_N_run
+                              pct_covered_bases
+                              pct_N_bases
+                              qc_pass / ) {
+            my $pname = $name eq 'qc_pass' ? 'artic_qc_outcome' : lc $name;
+            $data->{$pname} = $result->doc->{'QC summary'}->{$name};
+        }
+        my $key = 'supplier_sample_name';
+        $data->{$key} = $result->doc->{'meta'}->{$key};
+        $basic_data->{$PP_KEY} = {$result->pp_name => $data};
 
-      $basic_data->{$PP_KEY} = {$result->pp_name => $data};
-    }
+    } elsif ($result->pp_name =~ /ampliconstats/xms) {
+        my $astats = $result->doc->{amplicon_stats};
+        if ($astats and keys %{$astats}) {
+            $basic_data->{$PP_KEY} =
+                {$result->pp_name => _astats_data($astats, $result->info, $data)};
+        }
+   }
 
     return $basic_data->{$PP_KEY} ? ($basic_data) : ();
 }

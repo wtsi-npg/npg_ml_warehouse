@@ -1,12 +1,12 @@
 use strict;
 use warnings;
-use Test::More tests => 21;
+use Test::More tests => 22;
 use Test::Exception;
 use Test::Warn;
-use Test::Deep;
 use Moose::Meta::Class;
 use File::Copy::Recursive qw/dircopy fcopy/;
 use File::Temp qw/tempdir/;
+use List::MoreUtils qw/any/;
 
 use npg_tracking::glossary::composition;
 use npg_tracking::glossary::composition::component::illumina;
@@ -22,6 +22,7 @@ my $RUN_LANE_TABLE_NAME      = q[IseqRunLaneMetric];
 my $PRODUCT_TABLE_NAME       = q[IseqProductMetric];
 my $PRODUCTC_TABLE_NAME      = q[IseqProductComponent];
 my $HERON_PRODUCT_TABLE_NAME = q[IseqHeronProductMetric];
+my $ASTATS_TABLE_NAME        = q[IseqProductAmpliconstat];
 my $LIMS_FK_COLUMN_NAME      = q[id_iseq_flowcell_tmp];
 my @basic_run_lane_columns = qw/cycles
                                 paired_read
@@ -277,7 +278,7 @@ subtest 'indexed run' => sub {
       $autoqc->{4333}->{$row->position}->{$column} = $row->$column;
     }
   }
-  cmp_deeply($autoqc, $expected, 'loaded autoqc results');
+  is_deeply($autoqc, $expected, 'loaded autoqc results');
 };
 
 subtest 'indexed run' => sub {
@@ -321,7 +322,7 @@ subtest 'indexed run' => sub {
       }
     }
   }
-  cmp_deeply($tag_info, $expected_tag_info, 'tag info for position 7 plexex 1-4');
+  is_deeply($tag_info, $expected_tag_info, 'tag info for position 7 plexex 1-4');
 
   my $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search(
        {id_run => 4799, position=>7, tag_index => 5},
@@ -818,6 +819,104 @@ subtest 'Generic autoqc artic data to heron table' => sub {
   is ($h59_row->num_aligned_reads, 10773640, 'num_aligned_reads');
   is ($h59_row->pct_covered_bases, '99.6', 'pct_covered_bases');
   is ($h59_row->longest_no_n_run, 29783, 'longest_no_n_run');
+};
+
+subtest 'Generic autoqc ampliconstats data to ampliconstats table' => sub {
+  plan tests => 35;
+
+  my $rs = $schema_wh->resultset($ASTATS_TABLE_NAME);
+  $rs->delete(); # drop all rows  
+
+  my $id_run = 25710; # the same run as for gbs run
+  my %in = %{$init};
+  $in{'id_run'} = $id_run;
+  $in{'verbose'} = 0;
+  my $loader  = npg_warehouse::loader::run->new(\%in);
+  lives_ok {$loader->load()} 'data is loaded';
+  $rs = $schema_wh->resultset($ASTATS_TABLE_NAME)
+    ->search({}, {order_by => 'amplicon_index'});
+
+  my $rows = {};
+  for my $row ($rs->all()) {
+    push @{$rows->{$row->id_iseq_product}}, $row;
+  }
+
+  my $prs = $schema_wh->resultset($PRODUCT_TABLE_NAME);
+  my $p58_row = $prs->find({id_run => $id_run, position => 1, tag_index=>58});
+  my $p59_row = $prs->find({id_run => $id_run, position => 1, tag_index=>59}); 
+  my $p60_row = $prs->find({id_run => $id_run, position => 1, tag_index=>60});
+
+  for my $prow ( ($p58_row, $p59_row, $p60_row) ) {
+    my $iip = $prow->id_iseq_product;
+    my $ti  = $prow->tag_index;
+    ok ($rows->{$iip}, "entries for tag $ti exist");
+    is (@{$rows->{$iip}}, 98, "98 entries for tag $ti"); 
+  }
+
+  my $common_expected = {
+    'primer_panel_num_amplicons' => '98',
+    'pp_name' => 'ncov2019-artic-nf_ampliconstats',
+    'pp_version' => '1.0.0 1.11',
+    'primer_panel' => 'nCoV-2019/V2/SARS-CoV-2/MN908947.3/nCoV-2019.bed'
+  };
+
+  my @rows_list = map { @{$_} } values %{$rows};
+  for my $name ( keys %{$common_expected} ) {
+    my $are_different = any { $_->$name ne $common_expected->{$name} } @rows_list;
+    ok (!$are_different, "correct values for $name"); 
+  }
+
+  my $arows = $rows->{$p60_row->id_iseq_product};
+  my $expected = {
+    0 => {
+      'metric_fpcov_10' => '100.00',
+      'metric_fpcov_20' => '100.00',
+      'metric_freads' => '120466',
+      'metric_fpcov_100' => '100.00',
+      'metric_fpcov_1' => '100.00',
+    },
+    97 => {
+      'metric_fpcov_10' => '49.03',
+      'metric_fpcov_20' => '11.20',
+      'metric_freads' => '40685',
+      'metric_fpcov_100' => '0.00',
+      'metric_fpcov_1' => '77.12',
+    }
+  };
+
+  my $test = sub {
+    my $tag = shift;
+    for my $index (keys %{$expected}) {
+      is ($arows->[$index]->amplicon_index, $index+1,
+        "tag $tag - correct amplicon index ($index+1)");
+      for my $name (keys %{$expected->{$index}}) {
+        cmp_ok (sprintf('%.2f', $arows->[$index]->$name), q(==),
+          $expected->{$index}->{$name}, "tag $tag - correct value for $name");
+      } 
+    }
+  };
+
+  $test->(60);
+
+  $arows = $rows->{$p59_row->id_iseq_product};
+  $expected = {
+    0 => {
+      'metric_fpcov_10' => '100.00',
+      'metric_fpcov_20' => '100.00',
+      'metric_freads' => '112541',
+      'metric_fpcov_100' => '100.00',
+      'metric_fpcov_1' => '100.00',
+    },
+    97 => {
+      'metric_fpcov_10' => '100.00',
+      'metric_fpcov_20' => '100.00',
+      'metric_freads' => '60753',
+      'metric_fpcov_100' => '100.00',
+      'metric_fpcov_1' => '100.00',
+    }
+  };
+
+  $test->(59);
 };
 
 subtest 'NovaSeq run with merged data' => sub {
