@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+release 43.1.0
  - retrieval and loading of heron artic autoqc data is refactored
    to make the code more generic and flexible, in particular:
    1. when retrieving autoqc data, the data from all portable
