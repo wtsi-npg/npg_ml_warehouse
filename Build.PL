@@ -16,7 +16,6 @@ my $builder = npg_tracking::util::build->new(
 		 'build_requires'      => {
                     'Clone'                             => '0',
                     'DBD::SQLite'                       => '1.37',
-                    'File::Basename'                    => 0,
                     'File::Copy::Recursive'             => 0,
                     'File::Temp'                        => 0,
                     'English'                           => 0,
@@ -43,7 +42,10 @@ my $builder = npg_tracking::util::build->new(
                     'DateTime::Duration'         => 0,
                     'DBIx::Class::ResultClass::HashRefInflator' => 0,
                     'English'                    => 0,
+                    'File::Basename'             => 0,
+                    'File::Copy'                 => 0,
                     'File::Slurp'                => 0,
+                    'File::Spec::Functions'      => 0,
                     'Getopt::Long'               => 0,
                     'List::MoreUtils'            => 0,
                     'Log::Log4perl'              => 0,
@@ -51,6 +53,7 @@ my $builder = npg_tracking::util::build->new(
                     'MIME::Base64'               => 0,
                     'Moose'                      => 0,
                     'MooseX::StrictConstructor'  => 0,
+                    'namespace::autoclean'       => 0,
                     'Pod::Usage'                 => 0,
                     'Readonly'                   => 0,
                     'strict'                     => 0,
@@ -76,6 +79,9 @@ my $builder = npg_tracking::util::build->new(
                     'npg_tracking::illumina::runfolder'       => 0,
                     'npg_tracking::Schema'                    => 0,
                     'WTSI::DNAP::Utilities::Loggable'         => 0,
+                    'npg::samplesheet'                        => 0,
+                    'st::api::lims'                           => 0,
+                    'st::api::lims::samplesheet'              => 0,
                  },
 );
 
