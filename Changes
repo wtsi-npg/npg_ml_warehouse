@@ -1,5 +1,11 @@
 LIST OF CHANGES
 
+release 43.2.0
+ - samplesheet generation for MiSeq instruments (both a script and a class)
+   is moved to this package from npg_tracking, the class is renamed
+   (npg::samplesheet::auto -> npg_tracking::daemon::samplesheet::auto); it is
+   changed to use the ml_warehouse driver for LIMs data access
+
 release 43.1.0
  - retrieval and loading of heron artic autoqc data is refactored
    to make the code more generic and flexible, in particular:
