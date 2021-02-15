@@ -45,6 +45,7 @@ my $help;
 my $bucket_url;
 my $manifest_name_suffix;
 my $staging_md5 = 1;
+my $require_qc_complete = 1;
 
 GetOptions (
             'help'         => \$help,
@@ -52,6 +53,7 @@ GetOptions (
             'send_empty!'  => \$send_empty,
             'staging_md5!' => \$staging_md5,
             'bucket_url=s' => \$bucket_url,
+            'require_qc_complete!'   => \$require_qc_complete,
             'manifest_name_suffix=s' => \$manifest_name_suffix,
             'files_info_from_stdin!' => \$files_info_from_stdin,
            );
@@ -74,6 +76,8 @@ $files_info_from_stdin and $logger->info('FILES INFO FROM STDIN IS ENABLED');
 $dry_run    and $logger->info('DRY RUN');
 $send_empty and $logger->info('SEND EMPTY MANIFEST');
 $logger->info('WILL ' .  $staging_md5 ? q[] : 'NOT ' . 'CHECK STAGING md5');
+$logger->info((not $require_qc_complete) ? 'DO NOT ' : q[] .
+              'REQUIRE RUNS QC COMPLETE');
 
 my $schema_wh       = WTSI::DNAP::Warehouse::Schema->connect();
 my $schema_tracking = npg_tracking::Schema->connect();
@@ -196,6 +200,20 @@ sub main {
   return $error;
 }
 
+sub _completed_runs {
+  my @id_runs = @_;
+  my @completed = map  { $_->id_run }
+    $schema_tracking->resultset('RunStatus')->search(
+      { 'me.id_run'    => \@id_runs,
+        'me.iscurrent' => 1,
+        'run_status_dict.description' => 'qc complete' },
+      { columns  => 'id_run',
+        join     => 'run_status_dict',
+        prefetch => 'run_status_dict' }
+    )->all();
+  return @completed;
+}
+
 sub _current_date {
   return DateTime->now(time_zone => 'local');
 }
@@ -272,6 +290,21 @@ sub _uploaded_files {
   close $fh or $logger->warn(
     sprintf 'Failed to close the %s handle', $files_info_from_stdin ? 'STDIN' : 'pipe');
   ## use critic
+
+  if ($require_qc_complete and keys %{$files}) {
+    my @id_runs   = map { $files->{$_}->{id_run} } keys %{$files};
+    my @completed = _completed_runs(@id_runs);
+    if (@id_runs != @completed) {
+      my %needed = map {$_ => 1} @completed;
+      my @to_prune = grep { not $needed{$files->{$_}->{id_run}} }
+                     grep { $_ ne $KEY_DUPLICATES }
+                     keys %{$files};
+      for my $fn (@to_prune) {
+        $logger->debug("$fn is from a run that has not completed");
+        delete $files->{$fn};
+      }
+    }
+  }
 
   # Get a list of all product files in remote dated directories
   # for the given dates
@@ -553,7 +586,7 @@ None
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2019,2020 by Genome Research Ltd.
+Copyright (C) 2019,2020,2021 by Genome Research Ltd.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
