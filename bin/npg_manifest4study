@@ -493,25 +493,33 @@ None
 
 =head1 OPTIONS
 
-  --help        - brief help message
-  --dry_run     - a boolean flag, true by default; no database
+  --help -        a brief help message
+  --[no-]dry_run -
+                  a boolean flag, true by default; no database
                   updates and no manifest upload
-  --send_empty  - a boolean flag, false by default, i.e.
+  --[no-]send_empty -
+                  a boolean flag, false by default, i.e.
                   empty manifests are not sent; if set to true,
                   upload of the manifest follows logic for the
                   --dry_run argument                 
-  --staging_md5 - a boolean flag, defaults to true; if true, md5
+  --[no-]staging_md5 -
+                  a boolean flag, defaults to true; if true, md5
                   value of a cram file is read from staging and
                   compared to md5 value of this file retrieved from
                   the remote file system, an error is raised in
                   case of md5 mismatch
-  --bucket_url  - bucket url, no trailing forward slash, required
-
-  --manifest_name_suffix  - custom suffix for the manifest file name
-  --files_info_from_stdin - a boolean flag, false by default,
+  --bucket_url -  bucket url, no trailing forward slash, required
+  --manifest_name_suffix -
+                  custom suffix for the manifest file name
+  --[no-]files_info_from_stdin -
+                  a boolean flag, false by default,
                   switches the code to read files info from STDIN
                   rather than to do a live lookup in the remote
                   bucket defined by the --bucket_url option
+  --[no-]require_qc_complete -
+                  a boolean flag, defaults to true; if true, files
+                  from runs with status 'qc complete' only are
+                  added to the manifest
 
 =head1 EXIT STATUS
 
