@@ -292,13 +292,14 @@ sub _uploaded_files {
   ## use critic
 
   if ($require_qc_complete and keys %{$files}) {
-    my @id_runs   = map { $files->{$_}->{id_run} } keys %{$files};
+    my @files_list = grep { $_ ne $KEY_DUPLICATES }
+                     keys %{$files};
+    my @id_runs   = map { $files->{$_}->{id_run} } @files_list;
     my @completed = _completed_runs(@id_runs);
     if (@id_runs != @completed) {
       my %needed = map {$_ => 1} @completed;
       my @to_prune = grep { not $needed{$files->{$_}->{id_run}} }
-                     grep { $_ ne $KEY_DUPLICATES }
-                     keys %{$files};
+                     @files_list;
       for my $fn (@to_prune) {
         $logger->debug("$fn is from a run that has not completed");
         delete $files->{$fn};
