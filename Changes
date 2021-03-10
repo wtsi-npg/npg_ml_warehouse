@@ -1,5 +1,10 @@
 LIST OF CHANGES
 
+release 43.3.0
+ - a new flag --[no-]require_qc_complete for study manifest generation
+   to suppress (default) or not the manifest generation for runs that
+   do not have 'qc complete' as their current status
+
 release 43.2.0
  - samplesheet generation for MiSeq instruments (both a script and a class)
    is moved to this package from npg_tracking, the class is renamed
