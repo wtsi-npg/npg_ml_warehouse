@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - remove provisions to copy run statuses to the old warehouse
+
 release 43.3.0
  - a new flag --[no-]require_qc_complete for study manifest generation
    to suppress (default) or not the manifest generation for runs that

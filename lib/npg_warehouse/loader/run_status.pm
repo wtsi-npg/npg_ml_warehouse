@@ -19,8 +19,8 @@ npg_warehouse::loader::run_status
 
 =head1 DESCRIPTION
 
-Copies (updates and inserts) all runs status history information from the npg tracking database
-to warehouses.
+Copies (updates and inserts) all runs status history information from the
+npg tracking to ml warehouse database.
 
 =head1 SUBROUTINES/METHODS
 
@@ -29,6 +29,7 @@ to warehouses.
 DBIx schema object for the NPG tracking database
 
 =cut
+
 has 'schema_npg' =>  ( isa        => 'npg_tracking::Schema',
                        is         => 'ro',
                        required   => 0,
@@ -43,7 +44,8 @@ sub _build_schema_npg {
 DBIx schema object for the warehouse database
 
 =cut
-has 'schema_wh'   =>  ( isa        => 'Object',
+
+has 'schema_wh'   =>  ( isa        => 'WTSI::DNAP::Warehouse::Schema',
                         is         => 'ro',
                         required   => 1,
                       );
@@ -51,20 +53,13 @@ has 'schema_wh'   =>  ( isa        => 'Object',
 has '_prefix'     =>  ( isa        => 'Str',
                         is         => 'ro',
                         required   => 0,
-                        lazy_build => 1,
+                        default    => 'Iseq',
                       );
-sub _build__prefix {
-  my $self = shift;
-  return ref $self->schema_wh eq q[WTSI::DNAP::Warehouse::Schema] ? q[Iseq] : q[Npg];
-}
 
-=head2 _copy_table
-
-Copies a table from the npg tracking to the warehouse database.
-Assumes that warehouse table name is the same as in tracking
-with an addition of a prefix.
-
-=cut
+######
+# Copies a table from the npg tracking to the warehouse database.
+# Assumes that warehouse table name is the same as in tracking
+# with an addition of a prefix.
 sub _copy_table {
   my ($self, $table) = @_;
 
@@ -83,6 +78,7 @@ sub _copy_table {
 Copies all run statuses and a dictionary from the npg tracking to the warehouse database.
 
 =cut
+
 sub copy_npg_tables {
   my $self = shift;
   my $transaction = sub {
@@ -131,7 +127,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2014 Genome Research Limited
+Copyright (C) 2014,2021 Genome Research Ltd.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
