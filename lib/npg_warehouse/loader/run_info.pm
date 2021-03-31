@@ -1,26 +1,27 @@
-package npg_warehouse::loader::run_status;
+package npg_warehouse::loader::run_info;
 
 use Moose;
 use MooseX::StrictConstructor;
 use DBIx::Class::ResultClass::HashRefInflator;
 use Readonly;
+use List::MoreUtils qw(any);
 
 use npg_tracking::Schema;
 
 our $VERSION = '0';
 
-Readonly::Array  our @RUN_STATUS_TABLES   => qw/ RunStatusDict RunStatus /;
+Readonly::Array  our @RUN_TABLES   => qw/ RunStatusDict RunStatus Run/;
 
 =head1 NAME
 
-npg_warehouse::loader::run_status
+npg_warehouse::loader::run_info
 
 =head1 SYNOPSIS
 
 =head1 DESCRIPTION
 
-Copies (updates and inserts) all runs status history information from the
-npg tracking to ml warehouse database.
+Copies (updates and inserts) all runs information from the npg tracking
+to ml warehouse database.
 
 =head1 SUBROUTINES/METHODS
 
@@ -68,6 +69,15 @@ sub _copy_table {
   my $rs_wh = $self->schema_wh->resultset($self->_prefix . $table);
   while (my $row_hash = $rs_npg->next) {
     delete $row_hash->{id_user};
+    if ($table eq 'Run'){
+      for my $key (keys %{$row_hash}){
+        if (!any{$_ eq $key} qw/id_run batch_id folder_name/){
+          delete $row_hash->{$key};
+        }elsif ($key eq 'batch_id'){
+          $row_hash->{'id_flowcell_lims'} = delete $row_hash->{$key};
+        }
+      }
+    }
     $rs_wh->update_or_create($row_hash);
   }
   return;
@@ -75,14 +85,14 @@ sub _copy_table {
 
 =head2 copy_npg_tables
 
-Copies all run statuses and a dictionary from the npg tracking to the warehouse database.
+Copies all run info, statuses and a dictionary from the npg tracking to the warehouse database.
 
 =cut
 
 sub copy_npg_tables {
   my $self = shift;
   my $transaction = sub {
-    foreach my $table (@RUN_STATUS_TABLES) {
+    foreach my $table (@RUN_TABLES) {
       $self->_copy_table($table);
     }
   };
