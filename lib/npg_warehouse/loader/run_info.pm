@@ -10,7 +10,7 @@ use npg_tracking::Schema;
 
 our $VERSION = '0';
 
-Readonly::Array  our @RUN_TABLES   => qw/ RunStatusDict RunStatus Run/;
+Readonly::Array  our @RUN_TABLES   => qw/ Run RunStatusDict RunStatus /;
 
 =head1 NAME
 
@@ -20,8 +20,8 @@ npg_warehouse::loader::run_info
 
 =head1 DESCRIPTION
 
-Copies (updates and inserts) all runs information from the npg tracking
-to ml warehouse database.
+Copies (updates and inserts) run information from the npg tracking to
+ml warehouse database.
 
 =head1 SUBROUTINES/METHODS
 
@@ -68,15 +68,15 @@ sub _copy_table {
   $rs_npg->result_class('DBIx::Class::ResultClass::HashRefInflator');
   my $rs_wh = $self->schema_wh->resultset($self->_prefix . $table);
   while (my $row_hash = $rs_npg->next) {
-    delete $row_hash->{id_user};
     if ($table eq 'Run'){
-      for my $key (keys %{$row_hash}){
-        if (!any{$_ eq $key} qw/id_run batch_id folder_name/){
-          delete $row_hash->{$key};
-        }elsif ($key eq 'batch_id'){
-          $row_hash->{'id_flowcell_lims'} = delete $row_hash->{$key};
-        }
-      }
+      my $temp_hash = {
+        id_run           => $row_hash->{id_run},
+        id_flowcell_lims => $row_hash->{batch_id},
+        folder_name      => $row_hash->{folder_name},
+      };
+      $row_hash = $temp_hash;   
+    } else {
+      delete $row_hash->{id_user};
     }
     $rs_wh->update_or_create($row_hash);
   }
@@ -85,7 +85,7 @@ sub _copy_table {
 
 =head2 copy_npg_tables
 
-Copies all run info, statuses and a dictionary from the npg tracking to the warehouse database.
+Copies run info, statuses and a dictionary from the npg tracking to the warehouse database.
 
 =cut
 
@@ -133,7 +133,7 @@ __END__
 
 =head1 AUTHOR
 
-Marina Gourtovaia
+Marina Gourtovaia, Michael Kubiak
 
 =head1 LICENSE AND COPYRIGHT
 
