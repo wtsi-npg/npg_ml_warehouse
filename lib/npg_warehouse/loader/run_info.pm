@@ -1,26 +1,27 @@
-package npg_warehouse::loader::run_status;
+package npg_warehouse::loader::run_info;
 
 use Moose;
 use MooseX::StrictConstructor;
 use DBIx::Class::ResultClass::HashRefInflator;
 use Readonly;
+use List::MoreUtils qw(any);
 
 use npg_tracking::Schema;
 
 our $VERSION = '0';
 
-Readonly::Array  our @RUN_STATUS_TABLES   => qw/ RunStatusDict RunStatus /;
+Readonly::Array  our @RUN_TABLES   => qw/ Run RunStatusDict RunStatus /;
 
 =head1 NAME
 
-npg_warehouse::loader::run_status
+npg_warehouse::loader::run_info
 
 =head1 SYNOPSIS
 
 =head1 DESCRIPTION
 
-Copies (updates and inserts) all runs status history information from the npg tracking database
-to warehouses.
+Copies (updates and inserts) run information from the npg tracking to
+ml warehouse database.
 
 =head1 SUBROUTINES/METHODS
 
@@ -29,6 +30,7 @@ to warehouses.
 DBIx schema object for the NPG tracking database
 
 =cut
+
 has 'schema_npg' =>  ( isa        => 'npg_tracking::Schema',
                        is         => 'ro',
                        required   => 0,
@@ -43,7 +45,8 @@ sub _build_schema_npg {
 DBIx schema object for the warehouse database
 
 =cut
-has 'schema_wh'   =>  ( isa        => 'Object',
+
+has 'schema_wh'   =>  ( isa        => 'WTSI::DNAP::Warehouse::Schema',
                         is         => 'ro',
                         required   => 1,
                       );
@@ -51,20 +54,13 @@ has 'schema_wh'   =>  ( isa        => 'Object',
 has '_prefix'     =>  ( isa        => 'Str',
                         is         => 'ro',
                         required   => 0,
-                        lazy_build => 1,
+                        default    => 'Iseq',
                       );
-sub _build__prefix {
-  my $self = shift;
-  return ref $self->schema_wh eq q[WTSI::DNAP::Warehouse::Schema] ? q[Iseq] : q[Npg];
-}
 
-=head2 _copy_table
-
-Copies a table from the npg tracking to the warehouse database.
-Assumes that warehouse table name is the same as in tracking
-with an addition of a prefix.
-
-=cut
+######
+# Copies a table from the npg tracking to the warehouse database.
+# Assumes that warehouse table name is the same as in tracking
+# with an addition of a prefix.
 sub _copy_table {
   my ($self, $table) = @_;
 
@@ -72,7 +68,16 @@ sub _copy_table {
   $rs_npg->result_class('DBIx::Class::ResultClass::HashRefInflator');
   my $rs_wh = $self->schema_wh->resultset($self->_prefix . $table);
   while (my $row_hash = $rs_npg->next) {
-    delete $row_hash->{id_user};
+    if ($table eq 'Run'){
+      my $temp_hash = {
+        id_run           => $row_hash->{id_run},
+        id_flowcell_lims => $row_hash->{batch_id},
+        folder_name      => $row_hash->{folder_name},
+      };
+      $row_hash = $temp_hash;   
+    } else {
+      delete $row_hash->{id_user};
+    }
     $rs_wh->update_or_create($row_hash);
   }
   return;
@@ -80,13 +85,14 @@ sub _copy_table {
 
 =head2 copy_npg_tables
 
-Copies all run statuses and a dictionary from the npg tracking to the warehouse database.
+Copies run info, statuses and a dictionary from the npg tracking to the warehouse database.
 
 =cut
+
 sub copy_npg_tables {
   my $self = shift;
   my $transaction = sub {
-    foreach my $table (@RUN_STATUS_TABLES) {
+    foreach my $table (@RUN_TABLES) {
       $self->_copy_table($table);
     }
   };
@@ -127,11 +133,11 @@ __END__
 
 =head1 AUTHOR
 
-Marina Gourtovaia
+Marina Gourtovaia, Michael Kubiak
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2014 Genome Research Limited
+Copyright (C) 2014,2021 Genome Research Ltd.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
