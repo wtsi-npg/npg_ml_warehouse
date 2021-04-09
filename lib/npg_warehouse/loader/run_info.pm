@@ -74,7 +74,7 @@ sub _copy_table {
         id_flowcell_lims => $row_hash->{batch_id},
         folder_name      => $row_hash->{folder_name},
       };
-      $row_hash = $temp_hash;   
+      $row_hash = $temp_hash;
     } else {
       delete $row_hash->{id_user};
     }
