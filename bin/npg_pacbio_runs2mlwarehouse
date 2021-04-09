@@ -1,0 +1,159 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use FindBin qw($Bin);
+use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
+use Getopt::Long;
+use Log::Log4perl qw(:levels);
+use Pod::Usage;
+use Readonly;
+
+use npg_warehouse::loader::pacbio::run;
+use WTSI::DNAP::Warehouse::Schema;
+use WTSI::NPG::HTS::PacBio::Sequel::APIClient;
+
+our $VERSION = '0';
+
+Readonly::Scalar my $DEFAULT_INTERVAL_DAYS   => 100_000;
+Readonly::Scalar my $DEFAULT_OLDER_THAN_DAYS => 0;
+
+my $api_uri;
+my $debug;
+my $dry_run = 1;
+my $interval = $DEFAULT_INTERVAL_DAYS;
+my $local_path;
+my $log4perl_config;
+my $older_than = $DEFAULT_OLDER_THAN_DAYS;
+my $run_name;
+my $verbose;
+
+GetOptions('api-uri|api_uri=s'          => \$api_uri,
+           'debug'                      => \$debug,
+           'dry-run|dry_run!'           => \$dry_run,
+           'help'                       => sub {
+             pod2usage(-verbose => 2, -exitval => 0);
+           },
+           'interval=i'                 => \$interval,
+           'logconf=s'                  => \$log4perl_config,
+           'older-than|older_than=i'    => \$older_than,
+           'run_name=s'                 => \$run_name,
+           'verbose'                    => \$verbose);
+
+if ($log4perl_config) {
+  Log::Log4perl::init($log4perl_config);
+}
+else {
+  my $level = $debug ? $DEBUG : $verbose ? $INFO : $WARN;
+  Log::Log4perl->easy_init({layout => '%d %-5p %c - %m%n',
+                            level  => $level,
+                            utf8   => 1});
+}
+
+my $log = Log::Log4perl->get_logger('main');
+$log->level($ALL);
+if ($log4perl_config) {
+  $log->info("Using log config file '$log4perl_config'");
+}
+
+if (defined $ENV{dev} && $ENV{dev}) {
+  $log->info(join q[ ], q[Using], $ENV{dev}, q[ml warehouse database]);
+}
+
+my $wh_schema = WTSI::DNAP::Warehouse::Schema->connect();
+
+my @api_args  = ('default_interval' => $interval,
+                 'default_end'      => $older_than,
+                 'job_status'       => q[startedAt]);
+
+if ($api_uri) { push @api_args, ('api_uri' => $api_uri); }
+
+my $pb_api    = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(@api_args);
+my $runs      = $pb_api->query_runs;
+
+my @runs_to_load;
+if (ref $runs eq 'ARRAY') {
+  foreach my $run (@{$runs}) {
+    next if $run_name && $run->{name} ne $run_name;
+    push @runs_to_load, $run->{uniqueId};
+  }
+}
+
+my ($num_processed, $num_loaded, $num_errors) = (0, 0, 0);
+foreach my $run (@runs_to_load) {
+  my @load_args = (dry_run       => $dry_run,
+                   pb_api_client => $pb_api,
+                   mlwh_schema   => $wh_schema,
+                   run_uuid      => $run);
+
+  my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
+
+  my ($processed, $loaded, $errors) = $loader->load_run;
+  $num_processed += $processed;
+  $num_loaded    += $loaded;
+  $num_errors    += $errors;
+}
+
+my $output = qq{Considered }. scalar @runs_to_load .qq{,}.
+    qq{ processed $num_processed,}.
+    qq{ loaded $num_loaded with $num_errors errors};
+
+($num_errors == 0) ? $log->info($output) : $log->logcroak($output);
+
+
+=head1 NAME
+
+npg_pacbio_runs2mlwarehouse
+
+=head1 SYNOPSIS
+
+npg_pacbio_runs2mlwarehouse [--api-uri <uri>] [--debug] [--help]
+  [--dry-run] [--interval <days>] [--logconf <path>]
+  [--older-than <days>] [--run_name <name>] [--verbose] 
+
+
+Options:
+
+  --api-uri
+  --api_uri        Specify the server host and port. Optional.
+  --debug          Enable debug level logging. Optional, defaults
+                   to false.
+  --help           Display help.
+  --interval       Interval of time in days for analysis loading. 
+                   Optional, defaults to 100,000 days.
+  --logconf        A log4perl configuration file. Optional.
+  --older-than
+  --older_than     Only consider analysis older than a specified 
+                   number of days. Optional, defaults to 0 days. 
+  --verbose        Print messages while processing. Optional.
+
+
+=head1 DESCRIPTION
+
+Script to load PacBio SMRT Link run and status information as 
+well as sequence QC analysis results to the ml warehouse.
+
+By default all runs from a SMRT Link server are loaded into the
+pac_bio_run_well_metrics and links to the PSD pac_bio_run table 
+are created where relevant via the pac_bio_product_metrics table. 
+Optionally loading can restricted to a specific time frame or run 
+name.
+
+=head1 AUTHOR
+
+=head1 COPYRIGHT AND DISCLAIMER
+
+Copyright (C) 2021 Genome Research Limited. All Rights Reserved.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the Perl Artistic License or the GNU General
+Public License as published by the Free Software Foundation, either
+version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+=cut

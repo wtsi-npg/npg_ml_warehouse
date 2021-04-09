@@ -15,7 +15,9 @@ cpanm --quiet --notest https://github.com/chapmanb/vcftools-cpan/archive/v0.953.
 # Git branch to merge to or custom branch
 WTSI_NPG_BUILD_BRANCH=${WTSI_NPG_BUILD_BRANCH:=$TRAVIS_BRANCH}
 # WTSI NPG Perl repo dependencies
-repos="perl-dnap-utilities ml_warehouse npg_tracking npg_qc"
+repos="perl-dnap-utilities ml_warehouse npg_tracking npg_qc npg_irods"
+
+PERL5LIB=
 for repo in $repos
 do
   # Logic of keeping branch consistent was taken from @dkj
@@ -27,9 +29,12 @@ do
   # Shift off master to appropriate branch (if possible)
   git ls-remote --heads --exit-code origin ${WTSI_NPG_BUILD_BRANCH} && git pull origin ${WTSI_NPG_BUILD_BRANCH} && echo "Switched to branch ${WTSI_NPG_BUILD_BRANCH}"
   cpanm --quiet --notest --installdeps . || find /home/travis/.cpanm/work -cmin -1 -name '*.log' -exec tail -n20  {} \;
+  export PERL5LIB="$PWD:$PERL5LIB"
   perl Build.PL
   ./Build
   ./Build install
 done
 
 cd "$TRAVIS_BUILD_DIR"
+
+cpanm --notest --installdeps . || cat /home/travis/.cpanm/work/*/build.log
