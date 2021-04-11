@@ -23,7 +23,6 @@ my $api_uri;
 my $debug;
 my $dry_run = 1;
 my $interval = $DEFAULT_INTERVAL_DAYS;
-my $local_path;
 my $log4perl_config;
 my $older_than = $DEFAULT_OLDER_THAN_DAYS;
 my $run_name;
@@ -33,13 +32,13 @@ GetOptions('api-uri|api_uri=s'          => \$api_uri,
            'debug'                      => \$debug,
            'dry-run|dry_run!'           => \$dry_run,
            'help'                       => sub {
-             pod2usage(-verbose => 2, -exitval => 0);
+             pod2usage(-verbose => 1, -exitval => 0,);
            },
            'interval=i'                 => \$interval,
            'logconf=s'                  => \$log4perl_config,
            'older-than|older_than=i'    => \$older_than,
-           'run_name=s'                 => \$run_name,
-           'verbose'                    => \$verbose);
+           'run-name|run_name=s'        => \$run_name,
+           'verbose'                    => \$verbose,);
 
 if ($log4perl_config) {
   Log::Log4perl::init($log4perl_config);
@@ -48,7 +47,7 @@ else {
   my $level = $debug ? $DEBUG : $verbose ? $INFO : $WARN;
   Log::Log4perl->easy_init({layout => '%d %-5p %c - %m%n',
                             level  => $level,
-                            utf8   => 1});
+                            utf8   => 1,});
 }
 
 my $log = Log::Log4perl->get_logger('main');
@@ -65,9 +64,9 @@ my $wh_schema = WTSI::DNAP::Warehouse::Schema->connect();
 
 my @api_args  = ('default_interval' => $interval,
                  'default_end'      => $older_than,
-                 'job_status'       => q[startedAt]);
+                 'job_status'       => q[startedAt],);
 
-if ($api_uri) { push @api_args, ('api_uri' => $api_uri); }
+if ($api_uri) { push @api_args, ('api_uri' => $api_uri,); }
 
 my $pb_api    = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(@api_args);
 my $runs      = $pb_api->query_runs;
@@ -85,7 +84,7 @@ foreach my $run (@runs_to_load) {
   my @load_args = (dry_run       => $dry_run,
                    pb_api_client => $pb_api,
                    mlwh_schema   => $wh_schema,
-                   run_uuid      => $run);
+                   run_uuid      => $run,);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
 
@@ -95,39 +94,21 @@ foreach my $run (@runs_to_load) {
   $num_errors    += $errors;
 }
 
-my $output = qq{Considered }. scalar @runs_to_load .qq{,}.
+my $output = q{Considered }. scalar @runs_to_load .q{,}.
     qq{ processed $num_processed,}.
     qq{ loaded $num_loaded with $num_errors errors};
 
 ($num_errors == 0) ? $log->info($output) : $log->logcroak($output);
 
+$log->info(q[Completed loading - exiting]);
+
+exit 0;
+
+__END__
 
 =head1 NAME
 
 npg_pacbio_runs2mlwarehouse
-
-=head1 SYNOPSIS
-
-npg_pacbio_runs2mlwarehouse [--api-uri <uri>] [--debug] [--help]
-  [--dry-run] [--interval <days>] [--logconf <path>]
-  [--older-than <days>] [--run_name <name>] [--verbose] 
-
-
-Options:
-
-  --api-uri
-  --api_uri        Specify the server host and port. Optional.
-  --debug          Enable debug level logging. Optional, defaults
-                   to false.
-  --help           Display help.
-  --interval       Interval of time in days for analysis loading. 
-                   Optional, defaults to 100,000 days.
-  --logconf        A log4perl configuration file. Optional.
-  --older-than
-  --older_than     Only consider analysis older than a specified 
-                   number of days. Optional, defaults to 0 days. 
-  --verbose        Print messages while processing. Optional.
-
 
 =head1 DESCRIPTION
 
@@ -140,9 +121,89 @@ are created where relevant via the pac_bio_product_metrics table.
 Optionally loading can restricted to a specific time frame or run 
 name.
 
+=head1 SYNOPSIS
+
+npg_pacbio_runs2mlwarehouse [--api-uri <uri>] [--debug] [--help]
+  [--dry-run] [--interval <days>] [--logconf <path>]
+  [--older-than <days>] [--run-name <name>] [--verbose] 
+
+
+=head1 OPTIONS
+
+  --api-uri
+  --api_uri        Specify the server host and port. Optional.
+  --debug          Enable debug level logging. Optional, defaults
+                   to false.
+  --dry-run
+  --dry_run        Dry run mode, Optional, defaults to true.
+  --help           Display help.
+  --interval       Interval of time in days for analysis loading. 
+                   Optional, defaults to 100,000 days.
+  --logconf        A log4perl configuration file. Optional.
+  --older-than
+  --older_than     Only consider analysis older than a specified 
+                   number of days. Optional, defaults to 0 days.
+  --run-name
+  --run_name       Specify a specfic run to load.
+  --verbose        Print messages while processing. Optional, defaults
+                   to false.
+
+
+=head1 USAGE
+
+  npg_pacbio_runs2mlwarehouse   # to load all runs from default server
+  npg_pacbio_runs2mlwarehouse --verbose   # turn on verbose mode
+  npg_pacbio_runs2mlwarehouse --interval 14   # runs from the last 14 days only
+  npg_pacbio_runs2mlwarehouse --run-name  80130 # load just one run 
+
+
+=head1 REQUIRED ARGUMENTS
+
+None
+
+=head1 EXIT STATUS
+
+0
+
+=head1 CONFIGURATION
+
+=head1 DIAGNOSTICS
+
+=head1 DEPENDENCIES
+
+=over
+
+=item strict
+
+=item warnings
+
+=item lib
+
+=item FindBin
+
+=item Getopt::Long
+
+=item Log::Log4perl
+
+=item Pod::Usage
+
+=item Readonly
+
+=item npg_warehouse::loader::pacbio::run
+
+=item WTSI::DNAP::Warehouse::Schema
+
+=item WTSI::NPG::HTS::PacBio::Sequel::APIClient
+
+=back
+
+=head1 INCOMPATIBILITIES
+
+=head1 BUGS AND LIMITATIONS
+
 =head1 AUTHOR
 
-=head1 COPYRIGHT AND DISCLAIMER
+=head1 LICENSE AND COPYRIGHT
 
 Copyright (C) 2021 Genome Research Limited. All Rights Reserved.
 

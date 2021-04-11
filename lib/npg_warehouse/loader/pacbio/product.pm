@@ -3,12 +3,22 @@ package npg_warehouse::loader::pacbio::product;
 use Moose::Role;
 use Readonly;
 
-our $VERSION = '';
+our $VERSION = '0';
 
 Readonly::Scalar my $PRODUCT_TABLE_NAME  => q[PacBioProductMetric];
 Readonly::Scalar my $RUN_TABLE_NAME      => q[PacBioRun];
 Readonly::Scalar my $RUN_WELL_TABLE_NAME => q[PacBioRunWellMetric];
 
+
+=head1 NAME
+
+npg_warehouse::loader::pacbio::product
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=head1 SUBROUTINES/METHODS
 
 =head2 product_data
 
@@ -74,8 +84,8 @@ sub load_pacbioproductmetric_table {
       if ($fk) {
         $row->{'id_pac_bio_rw_metrics_tmp'} = $fk;
 
-        $self->info( "Will update or create record in " .
-          " $PRODUCT_TABLE_NAME for run $run, well $well");
+        $self->info(q[Will update or create record in] .
+          qq[ $PRODUCT_TABLE_NAME for run $run, well $well]);
 
         $rs->update_or_create($row);
         $count++;
@@ -106,15 +116,6 @@ no Moose::Role;
 
 __END__
 
-
-=head1 NAME
-
-npg_warehouse::loader::pacbio::product
-
-=head1 SYNOPSIS
-
-=head1 DESCRIPTION
-
 =head1 DIAGNOSTICS
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -135,7 +136,7 @@ npg_warehouse::loader::pacbio::product
 
 =head1 AUTHOR
 
-=head1 COPYRIGHT AND DISCLAIMER
+=head1 LICENSE AND COPYRIGHT
 
 Copyright (C) 2021 Genome Research Limited. All Rights Reserved.
 
