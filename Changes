@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+release 44.0.0
  - change table loading to include the new iseq_run table in ml_warehouse
  - remove provisions to copy run statuses to the old warehouse
 
