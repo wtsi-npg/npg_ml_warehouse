@@ -8,7 +8,7 @@ use Getopt::Long;
 use Pod::Usage;
 
 use WTSI::DNAP::Warehouse::Schema;
-use npg_warehouse::loader::run_status;
+use npg_warehouse::loader::run_info;
 
 our $VERSION = '0';
 
@@ -16,7 +16,7 @@ my $help             = q[];
 GetOptions ('help' => \$help,);
 if ($help) { pod2usage(0); }
 
-npg_warehouse::loader::run_status->new(
+npg_warehouse::loader::run_info->new(
   schema_wh  => WTSI::DNAP::Warehouse::Schema->connect(),
 )->copy_npg_tables();
 
@@ -26,17 +26,17 @@ __END__
 
 =head1 NAME
 
-npg_run_statuses2mlwarehouse
+npg_run_info2mlwarehouse
 
 =head1 SYNOPSIS
 
-Script to load sequencing run statuses to the warehouse.
+Script to load sequencing run information to the warehouse.
 
 =head1 DESCRIPTION
 
 =head1 USAGE
 
-  npg_run_statuses2mlwarehouse
+  npg_run_info2mlwarehouse
 
 =head1 REQUIRED ARGUMENTS
 
@@ -72,7 +72,7 @@ None
 
 =item WTSI::DNAP::Warehouse::Schema
 
-=item npg_warehouse::loader::run_status
+=item npg_warehouse::loader::run_info
 
 =back
 
