@@ -5,4 +5,4 @@
 [Documentation::RequirePodSections]
 lib_sections    = NAME | SYNOPSIS | DESCRIPTION | SUBROUTINES/METHODS | BUGS AND LIMITATIONS | DEPENDENCIES | CONFIGURATION AND ENVIRONMENT | INCOMPATIBILITIES | AUTHOR | LICENSE AND COPYRIGHT
 [Documentation::PodSpelling]
-stop_words = samplesheet samplesheets MiSeq GRL Tovar prepended JSON accessors FindBin flowcell NPG npg DBIx NPGQC qc arg dev plex Kubiak Gourtovaia autoqc Readonly boolean LIMs mlwh mqc multi rpt sequencescape DateTime Illumina InterOp pacbio
+stop_words = samplesheet samplesheets MiSeq GRL Tovar prepended JSON accessors FindBin flowcell NPG npg DBIx NPGQC qc arg dev plex Kubiak Gourtovaia autoqc Readonly boolean LIMs mlwh mqc multi rpt sequencescape DateTime Illumina InterOp pacbio SMRT PSD api uri logconf
