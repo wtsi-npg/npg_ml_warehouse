@@ -73,7 +73,7 @@ from iseq_flowcell fc,
 study s
 where fc.id_study_tmp=s.id_study_tmp
 and id_flowcell_lims = ?
-and (s.id_study_tmp=? or s.name = ?)
+and s.name = ?
 };
 
 my @report;
@@ -84,7 +84,7 @@ my $sth=$tracking_schema->prepare($SQL_runs_in_progress) or $logger->fatal('trac
 $sth->execute($num_days) or $logger->fatal(q(Can't execute statement: ).DBI::errstr());
 while (my @columns = $sth->fetchrow_array) {
   @columns = map { defined $_ ? $_ : 'NULL' } @columns;
-  my $count = $warehouse_schema->selectrow_array($SQL_check_study_given_batch_id, {}, $columns[1],$study, $study);
+  my $count = $warehouse_schema->selectrow_array($SQL_check_study_given_batch_id, {}, $columns[1], $study);
   if ( (!$study) or ($count) ) {
     my $matching = 0;
     foreach my $area (@staging_array) {
@@ -102,17 +102,17 @@ if ($verbose) {
   print "\n", scalar @report, " records found\n";
 }
 
-if (scalar @email_array) {
+if (scalar @email_array and scalar @report) {
   my $to = join q(,), @email_array;
-  my $from = 'npg_ukb_check';
-  my $subject = 'UKB Check';
+  my $from = 'new-seq-pipe';
+  my $subject = "$study Staging Area Check";
   my $message = join "\n", @report;
 
   my $msg = MIME::Lite->new(
                  From     => $from,
                  To       => $to,
                  Subject  => $subject,
-                 Data     => $message
+                 Data     => "unexpected staging area(s) used for study $study:\n" . $message
                  );
   $msg->send;
 }
@@ -139,11 +139,7 @@ npg_ukb_check
 
 =head1 SYNOPSIS
 
-  Look for UKB records in the warehouse with a status of 'run-in-progress' for a given
-  study for the past N days. 
-  Report any record where the runfolder path does not match any of the given patterns.
-  The report is written to STDOUT if the --verbose option is given, and is sent via
-  email if the --emails option is given.
+  Report runs on an inappropriate staging area.
 
 =head1 USAGE
 
@@ -152,8 +148,8 @@ npg_ukb_check
 
 =head1 DESCRIPTION
 
-  Look for UKB records in the warehouse with a status of 'run-in-progress' for a given
-  study for the past N days. 
+  Look for Illumina runs with status of 'run-in-progress' in the past N days.
+  Limit these to runs for the given study (default "UK Biobank Main Phase Study").
   Report any record where the runfolder path does not match any of the given patterns.
   The report is written to STDOUT if the --verbose option is given, and is sent via
   email if the --emails option is given.
@@ -172,9 +168,8 @@ None
   --num-days      - Only look at records with a status date of no more
                     than num-days old. Defaults to one day (ie 24 hours).
 
-  --study         - Only look at records for the given study. Study may be
-                    the study name or the study ID. If not specified then
-                    look at records for all studies.
+  --study         - Only look at records for the given study name.
+                    Default "UK Biobank Main Phase Study".
 
   --staging-areas - A comma seperated list of expected staging areas. Only
                     report records where the runfolder path does NOT match
