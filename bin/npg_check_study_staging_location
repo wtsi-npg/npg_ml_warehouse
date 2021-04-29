@@ -23,7 +23,7 @@ our $VERSION = '0';
 
 my $help;
 my $verbose = 0;
-my $study = q();
+my $study = q(UK Biobank Main Phase Study);
 my $staging_areas = q();
 my $emails = q();
 my $num_days = 1;
@@ -54,7 +54,7 @@ my $tracking_schema = npg_tracking::Schema->connect()->storage->dbh();
 
 # run-in-progress is status = 2
 ## no critic (ValuesAndExpressions::ProhibitImplicitNewlines)
-my $SQL_COMMAND = q{
+my $SQL_runs_in_progress = q{
 select distinct r.id_run,
 r.batch_id,
 rs.date,
@@ -67,7 +67,7 @@ and rs.id_run_status_dict=2
 and rs.date > date_sub(now(), interval ? day)
 };
 
-my $check_study = q{
+my $SQL_check_study_given_batch_id = q{
 select count(*)
 from iseq_flowcell fc,
 study s
@@ -80,12 +80,11 @@ my @report;
 #
 # Run the report, and filter by staging area(s) and by study
 #
-my $mlw_sth = $warehouse_schema->prepare($check_study) or $logger->fatal('warehouse SQL prep failed');
-my $sth=$tracking_schema->prepare($SQL_COMMAND) or $logger->fatal('tracking SQL prep failed');
+my $sth=$tracking_schema->prepare($SQL_runs_in_progress) or $logger->fatal('tracking SQL prep failed');
 $sth->execute($num_days) or $logger->fatal(q(Can't execute statement: ).DBI::errstr());
 while (my @columns = $sth->fetchrow_array) {
   @columns = map { defined $_ ? $_ : 'NULL' } @columns;
-  my $count = $warehouse_schema->selectrow_array($check_study, {}, $columns[1],$study, $study);
+  my $count = $warehouse_schema->selectrow_array($SQL_check_study_given_batch_id, {}, $columns[1],$study, $study);
   if ( (!$study) or ($count) ) {
     my $matching = 0;
     foreach my $area (@staging_array) {
