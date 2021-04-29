@@ -1,0 +1,115 @@
+{
+    "_comment": "Generated with pbcommand version  at 2021-01-16T08:51:55.894787",
+    "attributes": [
+        {
+            "id": "raw_data_report.nbases",
+            "name": "Polymerase Read Bases",
+            "value": 392452455322
+        },
+        {
+            "id": "raw_data_report.nreads",
+            "name": "Polymerase Reads",
+            "value": 6245434
+        },
+        {
+            "id": "raw_data_report.read_length",
+            "name": "Polymerase Read Length (mean)",
+            "value": 62838
+        },
+        {
+            "id": "raw_data_report.read_n50",
+            "name": "Polymerase Read N50",
+            "value": 128250
+        },
+        {
+            "id": "raw_data_report.insert_length",
+            "name": "Longest Subread Length (mean)",
+            "value": 14414
+        },
+        {
+            "id": "raw_data_report.insert_n50",
+            "name": "Longest Subread N50",
+            "value": 17250
+        },
+        {
+            "id": "raw_data_report.unique_molecular_yield",
+            "name": "Unique Molecular Yield",
+            "value": 85171224576
+        }
+    ],
+    "dataset_uuids": [
+        "1b70315e-03de-4344-bc16-0db4683e675e"
+    ],
+    "id": "raw_data_report",
+    "plotGroups": [
+        {
+            "id": "raw_data_report.read_length_plot_group",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "Polymerase Read Length",
+                    "id": "raw_data_report.read_length_plot_group.read_length_plot_0",
+                    "image": "readLenDist0.png",
+                    "plotType": "image",
+                    "thumbnail": "readLenDist0_thumb.png",
+                    "title": "Polymerase Read Length"
+                }
+            ],
+            "thumbnail": "readLenDist0_thumb.png",
+            "title": "Polymerase Read Length"
+        },
+        {
+            "id": "raw_data_report.insert_length_plot_group",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "Longest Subread Length",
+                    "id": "raw_data_report.insert_length_plot_group.insert_length_plot_0",
+                    "image": "insertLenDist0.png",
+                    "plotType": "image",
+                    "thumbnail": "insertLenDist0_thumb.png",
+                    "title": "Longest Subread Length"
+                }
+            ],
+            "thumbnail": "insertLenDist0_thumb.png",
+            "title": "Longest Subread Length"
+        },
+        {
+            "id": "raw_data_report.hexbin_length_plot_group",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "Longest Subread Length Versus Read Length",
+                    "id": "raw_data_report.hexbin_length_plot_group.hexbin_length_plot",
+                    "image": "hexbin_length_plot.png",
+                    "plotType": "image",
+                    "thumbnail": "hexbin_length_plot_thumb.png",
+                    "title": "Longest Subread Length Versus Read Length"
+                }
+            ],
+            "thumbnail": "hexbin_length_plot_thumb.png",
+            "title": "Longest Subread Length Versus Read Length"
+        },
+        {
+            "id": "raw_data_report.base_yield_plot_group",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "Base Yield Density",
+                    "id": "raw_data_report.base_yield_plot_group.base_yield_plot",
+                    "image": "base_yield_plot.png",
+                    "plotType": "image",
+                    "thumbnail": "base_yield_plot_thumb.png",
+                    "title": "Base Yield Density"
+                }
+            ],
+            "thumbnail": "base_yield_plot_thumb.png",
+            "title": "Base Yield Density"
+        }
+    ],
+    "tables": [],
+    "tags": [],
+    "title": "Raw Data Report",
+    "uuid": "e7891ac6-24e4-4426-85ab-30fbde464347",
+    "version": "1.0.1"
+}

@@ -1,0 +1,137 @@
+---
+ - id_sample_tmp: 5428661
+   id_lims: SQSCP
+   uuid_sample_lims: 958c8880-7621-11eb-979c-fa163eea3084
+   id_sample_lims: 5486097
+   last_updated: 2021-02-23 21:53:40
+   recorded_at: 2021-02-23 21:53:41
+   deleted_at: ~
+   created: 2021-02-23 21:53:37
+   name: DTOL9987556
+   reference_genome: ~
+   organism: ~
+   accession_number: SAMEA7746695
+   common_name: Otiorhynchus sulcatus
+   description: ~
+   taxon_id: 122849
+   father: ~
+   mother: ~
+   replicate: ~
+   ethnicity: ~
+   gender: ~
+   cohort: ~
+   country_of_origin: ~
+   geographical_region: ~
+   sanger_sample_id: DTOL9987556
+   control: 0
+   supplier_name: FD21267870
+   public_name: icOtiSulc1
+   sample_visibility: ~
+   strain: ~
+   consent_withdrawn: 0
+   donor_id: SAMEA7746610
+   phenotype: ~
+   developmental_stage: ~
+   control_type: ~
+ - id_sample_tmp: 5319593
+   id_lims: SQSCP
+   uuid_sample_lims: 95171a40-601a-11eb-91f1-fa163eac3af7
+   id_sample_lims: 5377029
+   last_updated: 2021-01-26 21:08:06
+   recorded_at: 2021-01-26 21:08:06
+   deleted_at: ~
+   created: 2021-01-26 21:08:05
+   name: DTOL9785268
+   reference_genome: ~
+   organism: ~
+   accession_number: SAMEA7522383
+   common_name: Butomus umbellatus
+   description: ~
+   taxon_id: 50236
+   father: ~
+   mother: ~
+   replicate: ~
+   ethnicity: ~
+   gender: ~
+   cohort: ~
+   country_of_origin: ~
+   geographical_region: ~
+   sanger_sample_id: DTOL9785268
+   control: 0
+   supplier_name: FD21271921.1
+   public_name: laButUmbe1
+   sample_visibility: ~
+   strain: ~
+   consent_withdrawn: 0
+   donor_id: SAMEA7522294
+   phenotype: ~
+   developmental_stage: ~
+   control_type: ~
+ - id_sample_tmp: 5478515
+   id_lims: SQSCP
+   uuid_sample_lims: 5804b864-7d08-11eb-876d-fa163eac3af7
+   id_sample_lims: 5535951
+   last_updated: 2021-03-04 16:40:37
+   recorded_at: 2021-03-04 16:40:37
+   deleted_at: ~
+   created: 2021-03-04 16:40:35
+   name: DTOL10020990
+   reference_genome: ~
+   organism: ~
+   accession_number: SAMEA7702032
+   common_name: Myodes glareolus
+   description: ~
+   taxon_id: 447135
+   father: ~
+   mother: ~
+   replicate: ~
+   ethnicity: ~
+   gender: ~
+   cohort: ~
+   country_of_origin: ~
+   geographical_region: ~
+   sanger_sample_id: DTOL10020990
+   control: 0
+   supplier_name: FD21267858
+   public_name: mMyoGla1
+   sample_visibility: ~
+   strain: ~
+   consent_withdrawn: 0
+   donor_id: SAMEA7702027
+   phenotype: ~
+   developmental_stage: ~
+   control_type: ~
+ - id_sample_tmp: 5478516
+   id_lims: SQSCP
+   uuid_sample_lims: 581f6c22-7d08-11eb-876d-fa163eac3af7
+   id_sample_lims: 5535952
+   last_updated: 2021-03-04 16:40:37
+   recorded_at: 2021-03-04 16:40:37
+   deleted_at: ~
+   created: 2021-03-04 16:40:35
+   name: DTOL10020991
+   reference_genome: ~
+   organism: ~
+   accession_number: SAMEA7701673
+   common_name: Synanthedon vespiformis
+   description: ~
+   taxon_id: 1660703
+   father: ~
+   mother: ~
+   replicate: ~
+   ethnicity: ~
+   gender: ~
+   cohort: ~
+   country_of_origin: ~
+   geographical_region: ~
+   sanger_sample_id: DTOL10020991
+   control: 0
+   supplier_name: FD21267926
+   public_name: ilSynVesp1
+   sample_visibility: ~
+   strain: ~
+   consent_withdrawn: 0
+   donor_id: SAMEA7701494
+   phenotype: ~
+   developmental_stage: ~
+   control_type: ~
