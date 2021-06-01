@@ -1,0 +1,216 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use FindBin qw($Bin);
+use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
+use Getopt::Long;
+use Pod::Usage;
+use Log::Log4perl qw(:easy :levels);
+
+use WTSI::DNAP::Warehouse::Schema;
+use WTSI::NPG::iRODS;
+
+our $VERSION = '0';
+
+my $verbose    = 0;
+my $help       = q[];
+my $dry_run    = 0;
+my $delete     = 0;
+my @id_run     = ();
+my @id_product = ();
+
+GetOptions (
+	'verbose'          => \$verbose,
+	'help'             => \$help,
+	'dry_run'          => \$dry_run,
+	'delete'           => \$delete,
+	'id_run=i{1,}'     => \@id_run,
+	'id_product=s{1,}' => \@id_product
+);
+if ($help) { pod2usage(0); }
+
+if (@id_run && @id_product){
+	die q['id_run' and 'id_product' options are mutually exclusive];
+}
+
+if (!@id_run && !@id_product){
+	die q['id_run' or 'id_product' option must be provided];
+}
+
+if ($dry_run) {
+	$verbose = 1;
+	warn "DRY RUN\n";
+}
+
+my $layout = '%d %-5p %c - %m%n';
+my $level  = $verbose ? $INFO : $WARN;
+Log::Log4perl->easy_init({layout => $layout,
+                          level  => $level,
+                          utf8   => 1});
+
+if (defined $ENV{dev} && $ENV{dev}) {
+  WARN(join q[ ], q[Using], $ENV{dev}, q[ml warehouse database]);
+}
+
+my $wh_schema = WTSI::DNAP::Warehouse::Schema->connect();
+
+if (@id_run) {
+	foreach my $id (@id_run){
+		INFO(qq[Getting id_products for id_run $id]);
+		foreach my $product ($wh_schema->resultset('IseqProductMetric')->search({id_run => $id})){
+			push @id_product, $product->get_column('id_iseq_product');
+		}
+	}
+}
+
+if ($delete){
+	foreach my $id (@id_product) {
+		foreach my $row ($wh_schema->resultset('ProductIrod')->search({id_product => $id})) {
+			INFO (qq[Deleting id_product $id]);
+			if (!$dry_run) {
+				$row->delete;
+			}
+		}
+	}
+} else {
+	my $irods = WTSI::NPG::iRODS->new;
+	my @data;
+	foreach my $id (@id_product) {
+		INFO(qq[Finding irods paths for id_product $id]);
+		my @paths = $irods->find_objects_by_meta('/seq', [ 'id_product', $id ]);
+		my @colls = $irods->find_collections_by_meta('/seq', [ 'id_product', $id ]);
+		push @paths, @colls;
+		if (!@paths) {
+			WARN(q[No iRODS paths found for id_product:], $id);
+		}
+		foreach my $path (@paths) {
+			if ($path !~ '_phix') {
+				my @meta = $irods->get_object_meta($path);
+				my $analysis_type = 'original';
+				my @alt_process = grep {$_->{'attribute'} eq q[alt_process]} @meta;
+				if (@alt_process) {
+					$analysis_type = $alt_process[0]->{'value'};
+				}
+				else {
+					if (grep {$_->{'attribute'} eq q[read]} @meta) {
+						$analysis_type = '10x';
+					}
+				}
+				push @data, {
+					id_product    => $id,
+					platform_name => 'illumina',
+					analysis_type => $analysis_type,
+					irods_path    => $path,
+				};
+			}
+		}
+	}
+
+	INFO(join q[ ], q[Loading], scalar @data, q[rows]);
+	my $present = 0;
+	foreach my $row_hash (@data) {
+		my $row = $wh_schema->resultset('ProductIrod')->find_or_new($row_hash, { key => 'irods_path' });
+		if ($row->in_storage) {
+			$present += 1;
+		}
+		elsif (!$dry_run) {
+			$row->insert;
+		}
+	}
+
+	if ($present) {
+		INFO($present, q[ rows were already present])
+	}
+}
+
+__END__
+
+=head1 NAME
+
+irods_paths2mlwarehouse
+
+=head1 SYNOPSIS
+
+Loads or removes irods paths of illumina products in ml warehouse.
+
+=head1 DESCRIPTION
+
+=head1 USAGE
+
+ irods_paths2mlwarehouse --id_run 12345
+ irods_paths2mlwarehouse --id_product abcde12345fghij67890klmno09876pqrst54321uvwxy12345zzyxw67890vuts
+ irods_paths2mlwarehouse --delete --dry-run --id_run 12345 67890
+
+=head1 REQUIRED ARGUMENTS
+
+none
+
+=head1 OPTIONS
+
+	--help          brief help message
+	--verbose       switch on verbose mode (off by default)
+	--dry-run       switches on verbose mode and reports what is going to de done
+										without performing the action
+	--delete				deletes the rows indicated by the run or product id
+										instead of adding them
+	--id_run        a run id, optional, excludes id_product or rpt_list,
+	                  multiple runs can be specified after this option
+	--id_product    a product id, optional, excludes id_run or rpt_list,
+                    multiple runs can be specified after this option
+
+=head1 EXIT STATUS
+
+0
+
+=head1 CONFIGURATION
+
+=head1 DIAGNOSTICS
+
+=head1 DEPENDENCIES
+
+=over
+
+=item strict
+
+=item warnings
+
+=item lib
+
+=item FindBin
+
+=item Getopt::Long
+
+=item Pod::Usage
+
+=item Log::Log4perl
+
+=item WTSI::DNAP::Warehouse::Schema
+
+=item WTSI::NPG::iRODS
+
+=back
+
+=head1 INCOMPATIBILITIES
+
+=head1 BUGS AND LIMITATIONS
+
+=head1 AUTHOR
+
+Michael Kubiak
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (C) 2021 Genome Research Limited
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
