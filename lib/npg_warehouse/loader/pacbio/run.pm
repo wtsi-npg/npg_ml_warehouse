@@ -76,7 +76,7 @@ has '_run_data' =>
    lazy          => 1,
    builder       => '_build_run_data',
    documentation => 'Run, well and product data for a run',);
- 
+
 sub _build_run_data {
   my $self  = shift;
 
@@ -147,7 +147,7 @@ sub _build_run_wells {
 
       my $ccs;
       if (defined $well->{'ccsId'}) {
-        $ccs = $self->_ccs_info($well->{'ccsId'}, $CCSREADS); 
+        $ccs = $self->_ccs_info($well->{'ccsId'}, $CCSREADS);
       }
       if (scalar keys %{$ccs} == 0) {
         ## find non linked ccs data e.g. off instrument initial ccs job failed data
@@ -183,7 +183,7 @@ sub _sift_for_dataset {
   my @ccsid;
   foreach my $set (@{$datasets}) {
     if ($set->{'name'} =~ /^$well_name/smx &&
-        $set->{'name'} =~ /\(CCS\)$/smx &&
+        $set->{'name'} =~ /[(] CCS [)] $/smx &&
         $set->{'metadataContextId'} eq $movie_name) {
       push @ccsid, $set->{'uuid'};
     }
@@ -193,10 +193,10 @@ sub _sift_for_dataset {
 
 sub _ccs_info {
   my ($self, $id, $type) = @_;
- 
-  my $reports  = $self->pb_api_client->query_dataset_reports($type, $id);  
+
+  my $reports  = $self->pb_api_client->query_dataset_reports($type, $id);
   my $ccs_all  = $self->_slurp_reports($reports);
-  
+
   my %ccs;
   if (scalar keys %{$ccs_all} > 0 && defined $ccs_all->{'HiFi Yield (bp)'}) {
     $ccs{'hifi_read_bases'} = $ccs_all->{'HiFi Yield (bp)'};
@@ -243,7 +243,7 @@ sub _well_qc_info {
 
 sub _slurp_reports {
   my($self, $reports) = @_;
- 
+
   defined $reports or
     $self->logconfess('A defined reports argument is required');
 
@@ -311,13 +311,13 @@ sub load_run {
   my ($run_name, $version);
   try {
     $run_name = $self->_run_name;
-    my @swv   = split /\./smx, $self->_run_sw_version;
+    my @swv   = split /[.]/smx, $self->_run_sw_version;
     $version  = $swv[0];
   } catch {
     $self->error('Failed to find basic info for run uuid '. $self->run_uuid);
   };
 
-  ($run_name && $version && ($version <= $MIN_SW_VERSION)) or 
+  ($run_name && $version && ($version <= $MIN_SW_VERSION)) or
     return ($num_processed, $num_loaded, $num_errors);
 
   my $data;
