@@ -18,7 +18,9 @@ our $VERSION = '0';
 
 Readonly::Scalar my $RUN_WELL_TABLE_NAME => q[PacBioRunWellMetric];
 Readonly::Scalar my $PRODUCT_TABLE_NAME  => q[PacBioProductMetric];
-
+Readonly::Scalar my $MIN_SW_VERSION      => 10;
+Readonly::Scalar my $SUBREADS            => q[subreads];
+Readonly::Scalar my $CCSREADS            => q[ccsreads];
 
 =head1 NAME
 
@@ -52,6 +54,20 @@ sub _build_run_name {
 
   my $run = $self->_run;
   return $run->{'pac_bio_run_name'};
+}
+
+has '_run_sw_version' =>
+  (isa           => 'Str',
+   is            => 'ro',
+   lazy          => 1,
+   builder       => q[_build_run_sw_version],
+   documentation => 'The run primary analysis software version',);
+
+sub _build_run_sw_version {
+  my $self = shift;
+
+  my $run = $self->_run;
+  return $run->{'primary_analysis_sw_version'};
 }
 
 has '_run_data' =>
@@ -126,23 +142,112 @@ sub _build_run_wells {
 
       my $qc = defined $well->{'ccsExecutionMode'} &&
         $well->{'ccsExecutionMode'} eq 'OnInstrument' ?
-        $self->_well_qc_info($well->{'ccsId'}, q[ccsreads]) :
-        $self->_well_qc_info($well->{'uniqueId'}, q[subreads]);
+        $self->_well_qc_info($well->{'ccsId'}, $CCSREADS) :
+        $self->_well_qc_info($well->{'uniqueId'}, $SUBREADS);
+
+      my $ccs;
+      if (defined $well->{'ccsId'}) {
+        $ccs = $self->_ccs_info($well->{'ccsId'}, $CCSREADS);
+      }
+      if (scalar keys %{$ccs} == 0) {
+        ## find non linked ccs data e.g. off instrument initial ccs job failed data
+        my ($ccsid) = $self->_sift_for_dataset($well->{'name'}, $well->{'context'});
+        if (defined $ccsid) { $ccs = $self->_ccs_info($ccsid, $CCSREADS); }
+      }
 
       my $run = $self->_run;
-      my %all = (%{$run}, %well_info, %{$qc});
+      my %all =  (%{$run}, %well_info, %{$qc}, %{$ccs});
       push @run_wells, \%all;
     }
   }
   return \@run_wells;
 }
 
-sub _well_qc_info {
+has '_ccs_datasets' =>
+  (isa           => 'ArrayRef',
+   is            => 'ro',
+   lazy          => 1,
+   builder       => q[_build_ccs_datasets],
+   documentation => 'Fetch ccs datasets from the API',);
+
+sub _build_ccs_datasets {
+  my $self = shift;
+  return $self->pb_api_client->query_datasets($CCSREADS);
+}
+
+sub _sift_for_dataset {
+  my ($self, $well_name, $movie_name) = @_;
+
+  my $datasets = $self->_ccs_datasets();
+
+  my @ccsid;
+  foreach my $set (@{$datasets}) {
+    if ($set->{'name'} =~ /^$well_name/smx &&
+        $set->{'name'} =~ /[(] CCS [)] $/smx &&
+        $set->{'metadataContextId'} eq $movie_name) {
+      push @ccsid, $set->{'uuid'};
+    }
+  }
+  return (scalar @ccsid == 1) ? $ccsid[0] : undef;
+}
+
+sub _ccs_info {
   my ($self, $id, $type) = @_;
 
   my $reports  = $self->pb_api_client->query_dataset_reports($type, $id);
+  my $ccs_all  = $self->_slurp_reports($reports);
 
-  my %qc_all;
+  my %ccs;
+  if (scalar keys %{$ccs_all} > 0 && defined $ccs_all->{'HiFi Yield (bp)'}) {
+    $ccs{'hifi_read_bases'} = $ccs_all->{'HiFi Yield (bp)'};
+    $ccs{'hifi_num_reads'} = $ccs_all->{'HiFi Reads'};
+    $ccs{'hifi_read_length_mean'} = $ccs_all->{'HiFi Read Length (mean, bp)'};
+    if ($ccs_all->{'HiFi Read Quality (median)'} =~ /^Q(\d+)$/smx) {
+      $ccs{'hifi_read_quality_median'} = $1;
+    }
+    $ccs{'hifi_number_passes_mean'} = $ccs_all->{'HiFi Number of Passes (mean)'};
+    $ccs{'hifi_low_quality_read_bases'} = $ccs_all->{'<Q20 Yield (bp)'};
+    $ccs{'hifi_low_quality_num_reads'} = $ccs_all->{'<Q20 Reads'};
+    $ccs{'hifi_low_quality_read_length_mean'}  = $ccs_all->{'<Q20 Read Length (mean, bp)'};
+    if ($ccs_all->{'<Q20 Read Quality (median)'} =~ /^Q(\d+)$/smx) {
+      $ccs{'hifi_low_quality_read_quality_median'} = $1;
+    }
+  }
+  return \%ccs;
+}
+
+sub _well_qc_info {
+  my ($self, $id, $type) = @_;
+
+  my $reports = $self->pb_api_client->query_dataset_reports($type, $id);
+  my $qc_all  = $self->_slurp_reports($reports);
+
+  my %qc;
+  if (scalar keys %{$qc_all} > 0 && defined $qc_all->{'Polymerase Reads'}) {
+    $qc{'polymerase_read_bases'}       = $qc_all->{'Polymerase Read Bases'};
+    $qc{'polymerase_num_reads'}        = $qc_all->{'Polymerase Reads'};
+    $qc{'polymerase_read_length_mean'} = $qc_all->{'Polymerase Read Length (mean)'};
+    $qc{'polymerase_read_length_n50'}  = $qc_all->{'Polymerase Read N50'};
+    $qc{'insert_length_mean'}          = $qc_all->{'Longest Subread Length (mean)'};
+    $qc{'insert_length_n50'}           = $qc_all->{'Longest Subread N50'};
+    $qc{'unique_molecular_bases'}      = $qc_all->{'Unique Molecular Yield'};
+    $qc{'productive_zmws_num'}         = $qc_all->{'Productive ZMWs'};
+    $qc{'p0_num'}                      = $qc_all->{'Productivity 0'};
+    $qc{'p1_num'}                      = $qc_all->{'Productivity 1'};
+    $qc{'p2_num'}                      = $qc_all->{'Productivity 2'};
+    $qc{'adapter_dimer_percent'}       = $qc_all->{'Adapter Dimers (0-10bp) %'};
+    $qc{'short_insert_percent'}        = $qc_all->{'Short Inserts (11-100bp) %'};
+  }
+  return \%qc;
+}
+
+sub _slurp_reports {
+  my($self, $reports) = @_;
+
+  defined $reports or
+    $self->logconfess('A defined reports argument is required');
+
+  my %contents;
   foreach my $rep (@{$reports}) {
     # directly slurp in each file (consider server download in future)
     if ($rep->{dataStoreFile}->{path} && -f $rep->{dataStoreFile}->{path}) {
@@ -150,29 +255,12 @@ sub _well_qc_info {
       my $decoded       = decode_json($file_contents);
       if (defined $decoded->{'attributes'} ) {
         foreach my $att ( @{$decoded->{'attributes'}} ) {
-          $qc_all{$att->{'name'}} = $att->{'value'};
+          $contents{$att->{'name'}} = $att->{'value'};
         }
       }
     }
   }
-
-  my %qc;
-  if ( scalar keys %qc_all > 0 ) {
-    $qc{'polymerase_read_bases'}       = $qc_all{'Polymerase Read Bases'};
-    $qc{'polymerase_num_reads'}        = $qc_all{'Polymerase Reads'};
-    $qc{'polymerase_read_length_mean'} = $qc_all{'Polymerase Read Length (mean)'};
-    $qc{'polymerase_read_length_n50'}  = $qc_all{'Polymerase Read N50'};
-    $qc{'insert_length_mean'}          = $qc_all{'Longest Subread Length (mean)'};
-    $qc{'insert_length_n50'}           = $qc_all{'Longest Subread N50'};
-    $qc{'unique_molecular_bases'}      = $qc_all{'Unique Molecular Yield'};
-    $qc{'productive_zmws_num'}         = $qc_all{'Productive ZMWs'};
-    $qc{'p0_num'}                      = $qc_all{'Productivity 0'};
-    $qc{'p1_num'}                      = $qc_all{'Productivity 1'};
-    $qc{'p2_num'}                      = $qc_all{'Productivity 2'};
-    $qc{'adapter_dimer_percent'}       = $qc_all{'Adapter Dimers (0-10bp) %'};
-    $qc{'short_insert_percent'}        = $qc_all{'Short Inserts (11-100bp) %'};
-  }
-  return \%qc;
+  return \%contents;
 }
 
 =head2 load_pacbiorunwellmetric_table
@@ -220,13 +308,17 @@ sub load_run {
 
   my ($num_processed, $num_loaded, $num_errors) = (0, 0, 0);
 
-  my $run_name;
+  my ($run_name, $version);
   try {
     $run_name = $self->_run_name;
+    my @swv   = split /[.]/smx, $self->_run_sw_version;
+    $version  = $swv[0];
   } catch {
-    $self->error('Failed to find run uuid '. $self->run_uuid);
+    $self->error('Failed to find basic info for run uuid '. $self->run_uuid);
   };
-  $run_name or return ($num_processed, $num_loaded, $num_errors);
+
+  ($run_name && $version && ($version <= $MIN_SW_VERSION)) or
+    return ($num_processed, $num_loaded, $num_errors);
 
   my $data;
   try {
