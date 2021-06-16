@@ -50,6 +50,14 @@ foreach my $file (glob q[t/data/pacbio/smrtlink/dataset_ccsreads_reports/*.json]
     qr{http://localhost:8071/smrt-link/datasets/ccsreads/$name/reports},
     HTTP::Response->new('200', 'OK', ['Content-Type' => 'application/json'], slurp $file));
 }
+
+foreach my $file (glob q[t/data/pacbio/smrtlink/datasets/*.json]) {
+  my ($name,$path,$suffix) = fileparse($file,'.json'); 
+  $user_agent->map_response(
+    qr{http://localhost:8071/smrt-link/datasets/$name},
+    HTTP::Response->new('200', 'OK', ['Content-Type' => 'application/json'], slurp $file));
+}
+
 lives_ok{ $user_agent } 'web user agent handle created';
 
 
@@ -63,7 +71,7 @@ lives_ok{ $wh_schema } 'warehouse test db created';
 
 
 subtest 'load_completed_run_off_instrument_analysis' => sub {
-  plan tests => 16;
+  plan tests => 21;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
   my @load_args = (dry_run       => '1',
@@ -104,12 +112,23 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
   is ($r2->ccs_execution_mode, q[OffInstrument], 'correct process type for run 80685 well A1');
   is ($r2->polymerase_read_bases, q[414404656086], 'correct polymerase bases for run 80685 well A1');
   is ($r2->polymerase_num_reads, q[5379015], 'correct polymerase reads for run 80685 well A1');
+  is ($r2->hifi_read_bases, q[24739994857], 'correct hifi bases for run 80685 well A1');
+  is ($r2->hifi_num_reads, q[2449034], 'correct hifi reads for run 80685 well A1');
+
   is ($r2->run_status, q[Complete], 'correct run status for run 80685 well A1');
   is ($r2->well_status, q[Complete], 'correct well status for run 80685 well A1');
  
   my $id  = $r2->id_pac_bio_rw_metrics_tmp;
   my $rs3 = $wh_schema->resultset($PRODUCT_TABLE_NAME)->search({id_pac_bio_rw_metrics_tmp => $id,});
   is ($rs3->count, 1, '1 loaded row found for run 80685 well A1 in pac_bio_product_metrics');
+
+  my $rs4 = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
+    ({pac_bio_run_name => '80685', well_label => 'B1'});
+  is ($rs4->count, 1, '1 loaded row found for run 80685 well B1 in pac_bio_run_well_metrics');
+  my $r4 = $rs4->next;
+
+  is ($r4->polymerase_num_reads, q[4698488], 'correct polymerase reads for run 80685 well B1 [via rescue job]');
+  is ($r4->hifi_num_reads, q[2050838], 'correct hifi reads for run 80685 well B1 [via rescue job]');
 };
 
 subtest 'load_completed_run_mixed_analysis' => sub {
