@@ -39,7 +39,7 @@ jobs:
           ${GITHUB_WORKSPACE}/scripts/install_npg_perl_dependencies.sh $WTSI_NPG_GITHUB_URL $WTSI_NPG_BUILD_BRANCH
       env:
         WTSI_NPG_GITHUB_URL: https://github.com/wtsi-npg
-        WTSI_NPG_BUILD_BRANCH: ${GITHUB_HEAD_REF} #getting name of current github branch
+        WTSI_NPG_BUILD_BRANCH: ${{ github.base_ref || github.ref }} #getting name of current github branch
     
     # install deps
     - name: install cpanm dependencies
