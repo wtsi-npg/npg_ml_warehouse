@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - update regex to discriminate crams to consider in manifest4study bin
+
 release 44.1.0
  - inital ml warehouse run data loader for pacbio data
  - move from Travis CI to GitHub Actions
