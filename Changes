@@ -1,6 +1,8 @@
 LIST OF CHANGES
 
+release 44.1.0
  - inital ml warehouse run data loader for pacbio data
+ - move from Travis CI to GitHub Actions
 
 release 44.0.0
  - change table loading to include the new iseq_run table in ml_warehouse
