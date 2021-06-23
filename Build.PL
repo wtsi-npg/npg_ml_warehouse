@@ -24,6 +24,7 @@ my $builder = npg_tracking::util::build->new(
                     'Test::Deep'                        => 0,
                     'Test::Distribution'                => 0,
                     'Test::Exception'                   => 0,
+                    'Test::LWP::UserAgent'              => 0,
                     'Test::More'                        => 0,
                     'Test::Perl::Critic'                => 0,
                     'Test::Pod'                         => 0,
@@ -62,6 +63,7 @@ my $builder = npg_tracking::util::build->new(
 
                     'WTSI::DNAP::Warehouse::Schema'           => 0,
                     'WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell' => 0,
+                    'WTSI::NPG::HTS::PacBio::Sequel::APIClient' => 0,
                     'npg_qc::Schema'                          => 0,
                     'npg_qc::mqc::outcomes'                   => 0,
                     'npg_qc::autoqc::qc_store'                => 0,
