@@ -160,6 +160,7 @@ sub _build_run_wells {
       if (defined $well->{'ccsId'}) {
         $ccs = $self->_ccs_info($well->{'ccsId'}, $CCSREADS);
       }
+
       if (scalar keys %{$ccs} == 0 && defined $well->{'context'}) {
         ## find non linked ccs data e.g. off instrument initial ccs job failed data
         my ($ccsid) = $self->_sift_for_dataset($well->{'name'}, $well->{'context'});
