@@ -34,10 +34,7 @@ lib/st/api/lims/ml_warehouse_fc_cache.pm
 MANIFEST			This list of files
 README
 scripts/install_npg_perl_dependencies.sh
-scripts/mysql_pubkey.asc
 scripts/npg_mlwarehouse_link_products
-scripts/npg_tracking_dbix_schema_loader.pl
-scripts/upgrade_schema
 t/00-critic.t
 t/00-distribution.t
 t/00-pod.t
