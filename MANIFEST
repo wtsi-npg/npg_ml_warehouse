@@ -262,6 +262,7 @@ t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/BAM_basecalls_2
 t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/BAM_basecalls_20110813-160456/no_cal/archive/lane4/qc/6642_4.verify_bam_id.json
 t/data/runfolders/180130_MS6_24975_A_MS6073474-300V2/Data/Intensities/BAM_basecalls_20180221-165427/no_cal/archive/lane1/plex1/qc/24975_1#1.rna_seqc.json
 t/data/runfolders/180130_MS6_24975_A_MS6073474-300V2/Data/Intensities/BAM_basecalls_20180221-165427/no_cal/archive/lane1/qc/24975_1.tag_metrics.json
+t/data/runfolders/180423_MS7_25710_A_MS6392545-300V2/Data/Intensities/BAM_basecalls_20180501-112028/no_cal/archive/lane1/plex57/qc/25710_1#57.ncov2019-artic-nf.generic.json
 t/data/runfolders/180423_MS7_25710_A_MS6392545-300V2/Data/Intensities/BAM_basecalls_20180501-112028/no_cal/archive/lane1/plex58/qc/25710_1#58.ncov2019-artic-nf_ampliconstats.generic.json
 t/data/runfolders/180423_MS7_25710_A_MS6392545-300V2/Data/Intensities/BAM_basecalls_20180501-112028/no_cal/archive/lane1/plex59/qc/25710_1#59.ncov2019-artic-nf.generic.json
 t/data/runfolders/180423_MS7_25710_A_MS6392545-300V2/Data/Intensities/BAM_basecalls_20180501-112028/no_cal/archive/lane1/plex59/qc/25710_1#59.ncov2019-artic-nf_ampliconstats.generic.json

@@ -300,7 +300,7 @@ subtest 'retrieve rna data' => sub {
 };
 
 subtest 'retrieve gbs and generic data' => sub {
-  plan tests => 33;
+  plan tests => 58;
 
   my $id_run = 25710;
   lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })}
@@ -328,6 +328,11 @@ subtest 'retrieve gbs and generic data' => sub {
   is($d->{pp}->{$pp_name}->{'num_aligned_reads'}, 2, 'num_aligned_reads');
   is($d->{pp}->{$pp_name}->{'pct_covered_bases'}, '0.00', 'pct_covered_bases');
   is($d->{pp}->{$pp_name}->{'longest_no_n_run'}, 1, 'longest_no_n_run');
+  for my $name (qw/ivar_md ivar_amd pp_repo_url pct_n_bases_amd
+                   longest_no_n_run_amd/) {
+    ok (exists $d->{pp}->{$pp_name}->{$name}, "key $name exists");
+    is ($d->{pp}->{$pp_name}->{$name}, undef, "$name is undefined");
+  }
   # generic for ampliconstats
   my $ppa_name = 'ncov2019-artic-nf_ampliconstats';
   my $data_array = $d->{pp}->{$ppa_name};
@@ -411,6 +416,28 @@ subtest 'retrieve gbs and generic data' => sub {
   $d = $auto->{$digest};
   ok (exists $d->{pp}->{$ppa_name}, 'data for astats pp exist');
   ok (! exists $d->{pp}->{$pp_name}, 'data for artic pp do not exist');
+
+  $digest = $compos_pkg->new(components =>
+    [$compon_pkg->new(id_run => $id_run, position => 1, tag_index => 57)])->digest;
+  $d = $auto->{$digest};
+  ok (! exists $d->{pp}->{$ppa_name}, 'data for astats pp do not exist');
+  ok (exists $d->{pp}->{$pp_name}, 'data for artic pp exist');
+  is($d->{pp}->{$pp_name}->{pp_name}, 'ncov2019-artic-nf', 'pp name');
+  is($d->{pp}->{$pp_name}->{pp_version}, 'v1.3.0_wsi1.0', 'pp version');
+  is($d->{pp}->{$pp_name}->{pp_repo_url},
+  'https://github.com/wtsi-npg/ncov2019-artic-nf', 'pp URL');
+  is($d->{pp}->{$pp_name}->{supplier_sample_name},
+    'XYZQ-345678', 'sample name');
+  is($d->{pp}->{$pp_name}->{artic_qc_outcome}, 'TRUE', 'artic QC outcome');
+  is($d->{pp}->{$pp_name}->{pct_n_bases}, '1.32', 'pct_n_bases');
+  is($d->{pp}->{$pp_name}->{pct_n_bases_amd}, '1.32', 'pct_n_bases_amd'); 
+  is($d->{pp}->{$pp_name}->{num_aligned_reads}, 2655995, 'num_aligned_reads');
+  is($d->{pp}->{$pp_name}->{pct_covered_bases}, '98.65', 'pct_covered_bases');
+  is($d->{pp}->{$pp_name}->{longest_no_n_run}, 21663, 'longest_no_n_run');
+  is($d->{pp}->{$pp_name}->{longest_no_n_run_amd}, 21663,
+    'longest_no_n_run_amd');
+  is($d->{pp}->{$pp_name}->{ivar_md}, 10, 'ivar_md');
+  is($d->{pp}->{$pp_name}->{ivar_amd}, 100, 'ivar_amd');
 };
 
 subtest 'retrieve target stats data' => sub {
