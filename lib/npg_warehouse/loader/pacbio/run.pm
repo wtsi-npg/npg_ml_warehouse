@@ -117,12 +117,21 @@ sub _build_run {
 
     if ($run->{'dataModel'}) {
       ## lot number registered per cell but same across a run
-      my $dom =  XML::LibXML->load_xml(string => $run->{'dataModel'});
-      my $cell = $dom->getElementsByTagName('pbmeta:CellPac') ?
-        $dom->getElementsByTagName('pbmeta:CellPac')->[0] :
-        $dom->getElementsByTagName('CellPac')->[0];
-      my $lot = $cell->getAttribute('LotNumber');
-      if ($lot) { $run_info{'cell_lot_number'} = $lot; }
+      my $lot;
+      try {
+        my $dom =  XML::LibXML->load_xml(string => $run->{'dataModel'});
+        my $cell = $dom->getElementsByTagName('pbmeta:CellPac') ?
+          $dom->getElementsByTagName('pbmeta:CellPac')->[0] :
+          $dom->getElementsByTagName('CellPac')->[0];
+        $lot = $cell->getAttribute('LotNumber');
+      } catch {
+        $self->error('Failed to get lot number for run ', $run->{'name'},' from xml ', $_);
+      };
+      if ($lot) {
+        $run_info{'cell_lot_number'} = $lot;
+      } else {
+        $self->error('Lot number undefined for run ', $run->{'name'});
+      }
     }
   }
   return \%run_info;
