@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+release 44.2.0
  - update regex to discriminate crams to consider in manifest4study bin.
    regex will look for filename patterns including:
     - xxxxx#z.cram
