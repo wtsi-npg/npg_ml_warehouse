@@ -6,6 +6,8 @@ LIST OF CHANGES
     - xxxxx_y#z.cram
     - xxxxx_y-y#z.cram
  - add control metrics to pacbio loader
+ - load data to new columns in the iseq_heron_metrics_table
+   (pp_repo_url, ivar_md, ivar_amd, pct_n_bases_amd, longest_no_n_run_amd) 
 
 release 44.1.0
  - inital ml warehouse run data loader for pacbio data
