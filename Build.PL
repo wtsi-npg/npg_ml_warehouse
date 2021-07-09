@@ -60,6 +60,7 @@ my $builder = npg_tracking::util::build->new(
                     'strict'                     => 0,
                     'Try::Tiny'                  => 0,
                     'warnings'                   => 0,
+                    'XML::LibXML'                => 0,
 
                     'WTSI::DNAP::Warehouse::Schema'           => 0,
                     'WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell' => 0,

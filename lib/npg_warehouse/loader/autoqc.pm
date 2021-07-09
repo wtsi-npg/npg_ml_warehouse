@@ -205,14 +205,19 @@ sub _generic {
     $data->{'pp_version'} = $result->info->{'Pipeline_version'};
 
     if ($result->pp_name eq 'ncov2019-artic-nf') {
-        foreach my $name (qw/ num_aligned_reads
-                              longest_no_N_run
-                              pct_covered_bases
-                              pct_N_bases
-                              qc_pass / ) {
+        $data->{'pp_repo_url'} = $result->info->{'Pipeline_repo_url'};
+
+        my @names =
+            map { $_ eq 'ivar' ? 'ivar_md' : $_ }
+            map { ($_, $_ . '_amd') }
+            qw/ivar longest_no_N_run pct_N_bases/;
+        push @names, qw/pct_covered_bases num_aligned_reads qc_pass/;
+
+        foreach my $name (@names) {
             my $pname = $name eq 'qc_pass' ? 'artic_qc_outcome' : lc $name;
             $data->{$pname} = $result->doc->{'QC summary'}->{$name};
         }
+
         my $key = 'supplier_sample_name';
         $data->{$key} = $result->doc->{'meta'}->{$key};
         $basic_data->{$PP_KEY} = {$result->pp_name => $data};
@@ -223,7 +228,7 @@ sub _generic {
             $basic_data->{$PP_KEY} =
                 {$result->pp_name => _astats_data($astats, $result->info, $data)};
         }
-   }
+    }
 
     return $basic_data->{$PP_KEY} ? ($basic_data) : ();
 }
