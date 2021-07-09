@@ -71,7 +71,7 @@ lives_ok{ $wh_schema } 'warehouse test db created';
 
 
 subtest 'load_completed_run_off_instrument_analysis' => sub {
-  plan tests => 21;
+  plan tests => 25;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
   my @load_args = (dry_run       => '1',
@@ -93,7 +93,7 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
 
   my $loader2   = npg_warehouse::loader::pacbio::run->new(@load_args2);
   my ($processed2, $loaded2, $errors2) = $loader2->load_run;
-  
+     
   cmp_ok($processed2, '==', 1, "Processed 1 completed run (off_instrument)");
   cmp_ok($loaded2, '==', 1, "Loaded 1 completed run (off_instrument)");
   cmp_ok($errors2, '==', 0, "Loaded 1 completed run (off_instrument) with no errors");
@@ -114,6 +114,10 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
   is ($r2->polymerase_num_reads, q[5379015], 'correct polymerase reads for run 80685 well A1');
   is ($r2->hifi_read_bases, q[24739994857], 'correct hifi bases for run 80685 well A1');
   is ($r2->hifi_num_reads, q[2449034], 'correct hifi reads for run 80685 well A1');
+  is ($r2->control_num_reads, q[3914], 'correct control reads for run 80685 well A1');
+  is ($r2->control_read_length_mean, q[52142], 'correct control read mean for run 80685 well A1');
+  is ($r2->local_base_rate, q[2.13797], 'correct local base rate for run 80685 well A1');
+  is ($r2->cell_lot_number, q[416342], 'correct cell lot number for run 80685 well A1');
 
   is ($r2->run_status, q[Complete], 'correct run status for run 80685 well A1');
   is ($r2->well_status, q[Complete], 'correct well status for run 80685 well A1');

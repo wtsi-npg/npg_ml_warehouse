@@ -8,6 +8,7 @@ use MooseX::StrictConstructor;
 use Perl6::Slurp;
 use Readonly;
 use Try::Tiny;
+use XML::LibXML;
 
 with qw[npg_warehouse::loader::pacbio::base
         npg_warehouse::loader::pacbio::product
@@ -113,6 +114,25 @@ sub _build_run {
     $run_info{'instrument_sw_version'} = $run->{'instrumentSwVersion'};
     $run_info{'primary_analysis_sw_version'}
                                        = $run->{'primaryAnalysisSwVersion'};
+
+    if ($run->{'dataModel'}) {
+      ## lot number registered per cell but same across a run
+      my $lot;
+      try {
+        my $dom =  XML::LibXML->load_xml(string => $run->{'dataModel'});
+        my $cell = $dom->getElementsByTagName('pbmeta:CellPac') ?
+          $dom->getElementsByTagName('pbmeta:CellPac')->[0] :
+          $dom->getElementsByTagName('CellPac')->[0];
+        $lot = $cell->getAttribute('LotNumber');
+      } catch {
+        $self->error('Failed to get lot number for run ', $run->{'name'},' from xml ', $_);
+      };
+      if ($lot) {
+        $run_info{'cell_lot_number'} = $lot;
+      } else {
+        $self->error('Lot number undefined for run ', $run->{'name'});
+      }
+    }
   }
   return \%run_info;
 }
@@ -149,7 +169,8 @@ sub _build_run_wells {
       if (defined $well->{'ccsId'}) {
         $ccs = $self->_ccs_info($well->{'ccsId'}, $CCSREADS);
       }
-      if (scalar keys %{$ccs} == 0) {
+
+      if (scalar keys %{$ccs} == 0 && defined $well->{'context'}) {
         ## find non linked ccs data e.g. off instrument initial ccs job failed data
         my ($ccsid) = $self->_sift_for_dataset($well->{'name'}, $well->{'context'});
         if (defined $ccsid) { $ccs = $self->_ccs_info($ccsid, $CCSREADS); }
@@ -177,6 +198,12 @@ sub _build_ccs_datasets {
 
 sub _sift_for_dataset {
   my ($self, $well_name, $movie_name) = @_;
+
+  defined $well_name or
+    $self->logconfess('A defined well_name argument is required');
+
+  defined $movie_name or
+    $self->logconfess('A defined movie_name argument is required');
 
   my $datasets = $self->_ccs_datasets();
 
@@ -237,6 +264,10 @@ sub _well_qc_info {
     $qc{'p2_num'}                      = $qc_all->{'Productivity 2'};
     $qc{'adapter_dimer_percent'}       = $qc_all->{'Adapter Dimers (0-10bp) %'};
     $qc{'short_insert_percent'}        = $qc_all->{'Short Inserts (11-100bp) %'};
+    $qc{'control_num_reads'}           = $qc_all->{'Number of of Control Reads'};
+    $qc{'control_concordance_mean'}    = $qc_all->{'Control Read Concordance Mean'};
+    $qc{'control_read_length_mean'}    = $qc_all->{'Control Read Length Mean'};
+    $qc{'local_base_rate'}             = $qc_all->{'Local Base Rate'};
   }
   return \%qc;
 }
@@ -386,6 +417,8 @@ __END__
 =item Readonly
 
 =item Try::Tiny
+
+=item XML::LibXML
 
 =item npg_warehouse::loader::pacbio::base
 
