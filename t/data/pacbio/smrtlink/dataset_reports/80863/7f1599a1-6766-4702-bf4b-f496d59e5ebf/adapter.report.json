@@ -1,0 +1,30 @@
+{
+    "_comment": "Generated with pbcommand version  at 2021-03-28T00:11:33.185543",
+    "attributes": [
+        {
+            "id": "adapter_xml_report.adapter_dimers",
+            "name": "Adapter Dimers (0-10bp) %",
+            "value": 0.0
+        },
+        {
+            "id": "adapter_xml_report.short_inserts",
+            "name": "Short Inserts (11-100bp) %",
+            "value": 0.0
+        },
+        {
+            "id": "adapter_xml_report.local_base_rate_median",
+            "name": "Local Base Rate",
+            "value": 1.90618
+        }
+    ],
+    "dataset_uuids": [
+        "7f1599a1-6766-4702-bf4b-f496d59e5ebf"
+    ],
+    "id": "adapter_xml_report",
+    "plotGroups": [],
+    "tables": [],
+    "tags": [],
+    "title": "Adapter Report",
+    "uuid": "434e6804-d7e3-481b-b9f7-f22a75cc0797",
+    "version": "1.0.1"
+}

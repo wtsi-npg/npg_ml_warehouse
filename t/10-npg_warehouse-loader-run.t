@@ -775,7 +775,7 @@ subtest 'gbs run' => sub {
 };
 
 subtest 'Generic autoqc artic data to heron table' => sub {
-  plan tests => 22;
+  plan tests => 39;
 
   my $rs = $schema_wh->resultset($HERON_PRODUCT_TABLE_NAME);
   $rs->delete(); # drop all rows  
@@ -788,13 +788,14 @@ subtest 'Generic autoqc artic data to heron table' => sub {
   lives_ok {$loader->load()} 'data is loaded into the product table';
   $rs = $schema_wh->resultset($HERON_PRODUCT_TABLE_NAME)
     ->search({}, {order_by => 'supplier_sample_name'});
-  is ($rs->count, 2, 'two rows created');
+  is ($rs->count, 3, 'three rows created');
 
   my $prs = $schema_wh->resultset($PRODUCT_TABLE_NAME);
   my $p59_row = $prs->find({id_run => $id_run, position => 1, tag_index=>59}); 
   my $p60_row = $prs->find({id_run => $id_run, position => 1, tag_index=>60});
   
   my $h60_row = $rs->next;
+  my $h57_row = $rs->next;
   my $h59_row = $rs->next;
 
   is ($h59_row->supplier_sample_name, 'YYYY-131', 'correct sample name');
@@ -809,16 +810,36 @@ subtest 'Generic autoqc artic data to heron table' => sub {
   is ($h60_row->pp_name, 'ncov2019-artic-nf', 'correct pipeline name');
   is ($h59_row->pp_version, 'v0.8.0', 'correct pipeline version');
   is ($h60_row->pp_version, 'v0.10.0', 'correct pipeline version');
+  is ($h60_row->pp_repo_url, undef, 'pipeline URL i snot defined');
   is ($h59_row->artic_qc_outcome, 'TRUE', 'correct artic QC outcome');
   is ($h60_row->artic_qc_outcome, 'FALSE', 'correct artic QC outcome');
   is ($h60_row->pct_n_bases, '100', 'pct_n_bases');
+  is ($h60_row->pct_n_bases_amd, undef, 'pct_n_bases_amd is not defined');
   is ($h60_row->num_aligned_reads, 2, 'num_aligned_reads');
   is ($h60_row->pct_covered_bases, '0', 'pct_covered_bases');
   is ($h60_row->longest_no_n_run, 1, 'longest_no_n_run');
+  is ($h60_row->longest_no_n_run_amd, undef,
+    'longest_no_n_run_amd is not defined');
+  is ($h60_row->ivar_md, undef, 'ivar_md is not defined');
+  is ($h60_row->ivar_amd, undef, 'ivar_amd is not defined'); 
   is ($h59_row->pct_n_bases, '0.4', 'pct_n_bases');
   is ($h59_row->num_aligned_reads, 10773640, 'num_aligned_reads');
   is ($h59_row->pct_covered_bases, '99.6', 'pct_covered_bases');
   is ($h59_row->longest_no_n_run, 29783, 'longest_no_n_run');
+  
+  is ($h57_row->supplier_sample_name, 'XYZQ-345678', 'correct sample name');
+  is ($h57_row->pp_name, 'ncov2019-artic-nf', 'correct pipeline name');
+  is ($h57_row->pp_version, 'v1.3.0_wsi1.0', 'correct pipeline version');
+  is ($h57_row->pp_repo_url, 'https://github.com/wtsi-npg/ncov2019-artic-nf',
+    'correct pipeline URL');
+  is ($h57_row->ivar_md, 10, 'ivar_md is 10');
+  is ($h57_row->ivar_amd, 100, 'ivar_amd is 100'); 
+  is ($h57_row->pct_n_bases, '1.32', 'pct_n_bases');
+  is ($h57_row->pct_n_bases_amd, '1.32', 'pct_n_bases_amd');
+  is ($h57_row->num_aligned_reads, 2655995, 'num_aligned_reads');
+  is ($h57_row->pct_covered_bases, '98.65', 'pct_covered_bases');
+  is ($h57_row->longest_no_n_run, 21663, 'longest_no_n_run');
+  is ($h57_row->longest_no_n_run_amd, 21663, 'longest_no_n_run_amd');
 };
 
 subtest 'Generic autoqc ampliconstats data to ampliconstats table' => sub {

@@ -254,7 +254,7 @@ sub _uploaded_files {
 
   while (<$fh>) {
     ##no critic (RegularExpressions::RequireExtendedFormatting RegularExpressions::ProhibitEscapedMetacharacters ProhibitComplexRegexes)
-    if ( m{(\S+/(\d+)/((\d+)(?:_(\d))?#(\d+)[.]cram)):.*Hash \(md5\):\s+(\S+)}sm ) {
+    if ( m{(\S+/(\d+)/((\d+)(?:_(\d)(?:-\d)*)?#(\d+)[.]cram)):.*Hash \(md5\):\s+(\S+)}sm ) {
       my $path      = $1;
       my $sample    = $2;
       my $file_name = $3;

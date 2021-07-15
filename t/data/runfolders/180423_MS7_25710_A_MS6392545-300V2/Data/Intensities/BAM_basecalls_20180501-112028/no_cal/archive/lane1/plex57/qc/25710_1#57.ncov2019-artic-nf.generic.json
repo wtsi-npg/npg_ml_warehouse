@@ -1,0 +1,47 @@
+{
+  "__CLASS__": "npg_qc::autoqc::results::generic-69.7.0",
+  "composition": {
+    "__CLASS__": "npg_tracking::glossary::composition-91.13.0",
+    "components": [
+      {
+        "__CLASS__": "npg_tracking::glossary::composition::component::illumina-91.13.0",
+        "id_run": 25710,
+        "position": 1,
+        "tag_index": 57
+      }
+    ]
+  },
+  "doc": {
+    "QC summary": {
+      "bam": "25710_1#57.mapped.primertrimmed.sorted.bam",
+      "fasta": "25710_1#57.primertrimmed.consensus.fa",
+      "fasta_amd": "25710_1#57.amd.primertrimmed.consensus.fa",
+      "ivar_amd": "100",
+      "ivar_md": "10",
+      "longest_no_N_run": "21663",
+      "longest_no_N_run_amd": "21663",
+      "num_aligned_reads": "2655995",
+      "pct_N_bases": "1.32",
+      "pct_N_bases_amd": "1.32",
+      "pct_covered_bases": "98.65",
+      "qc_pass": "TRUE",
+      "qc_pass_amd": "TRUE",
+      "sample_name": "25710_1#57"
+    },
+    "meta": {
+      "max_negative_control_filtered_read_count": "636",
+      "min_artic_passed_filtered_read_count": "120069",
+      "num_input_reads": "1372020",
+      "sample_type": "real_sample",
+      "supplier_sample_name": "XYZQ-345678"
+    }
+  },
+  "info": {
+    "Check": "npg_qc::autoqc::checks::generic::artic",
+    "Check_version": "69.7.0",
+    "Pipeline_name": "ncov2019-artic-nf",
+    "Pipeline_repo_url": "https://github.com/wtsi-npg/ncov2019-artic-nf",
+    "Pipeline_version": "v1.3.0_wsi1.0"
+  },
+  "pp_name": "ncov2019-artic-nf"
+}

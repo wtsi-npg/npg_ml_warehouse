@@ -1,5 +1,19 @@
 LIST OF CHANGES
 
+release 44.2.0
+ - update regex to discriminate crams to consider in manifest4study bin.
+   regex will look for filename patterns including:
+    - xxxxx#z.cram
+    - xxxxx_y#z.cram
+    - xxxxx_y-y#z.cram
+ - add control metrics to pacbio loader
+ - load data to new columns in the iseq_heron_metrics_table
+   (pp_repo_url, ivar_md, ivar_amd, pct_n_bases_amd, longest_no_n_run_amd) 
+
+release 44.1.0
+ - inital ml warehouse run data loader for pacbio data
+ - move from Travis CI to GitHub Actions
+
 release 44.0.0
  - change table loading to include the new iseq_run table in ml_warehouse
  - remove provisions to copy run statuses to the old warehouse
