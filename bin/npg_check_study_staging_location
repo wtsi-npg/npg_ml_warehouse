@@ -1,0 +1,245 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use FindBin qw($Bin);
+use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
+use Log::Log4perl qw(:levels);
+use Getopt::Long;
+use Pod::Usage;
+use Readonly;
+use Try::Tiny;
+use Carp;
+use English qw(-no_match_vars);
+use MIME::Lite;
+
+use WTSI::DNAP::Warehouse::Schema;
+use npg_tracking::Schema;
+
+Readonly::Scalar my $EMAIL_DOMAIN => 'sanger.ac.uk';
+Readonly::Scalar my $FOLDER_PATH => 3;
+
+our $VERSION = '0';
+
+my $help;
+my $verbose = 0;
+my $study = q(UK Biobank Main Phase Study);
+my $staging_areas = q();
+my $emails = q();
+my $num_days = 1;
+
+GetOptions (
+            'help'         => \$help,
+            'verbose'      => \$verbose,
+            'study=s'      => \$study,
+            'num-days=i'   => \$num_days,
+            'staging-areas=s' => \$staging_areas,
+            'emails=s'        => \$emails,
+           );
+
+if ($help) { pod2usage(0); }
+
+my @staging_array = split /,/smx, $staging_areas;
+my @email_array = split /,/smx, $emails;
+@email_array = map { /@/sxm ? $_ : $_.q(@).$EMAIL_DOMAIN } @email_array;
+
+my $layout = '%d %-5p %c - %m%n';
+Log::Log4perl->easy_init({layout => $layout,
+                          level  => $INFO,
+                          utf8   => 1});
+my $logger = Log::Log4perl->get_logger();
+
+my $warehouse_schema = WTSI::DNAP::Warehouse::Schema->connect()->storage->dbh();
+my $tracking_schema = npg_tracking::Schema->connect()->storage->dbh();
+
+# run-in-progress is status = 2
+## no critic (ValuesAndExpressions::ProhibitImplicitNewlines)
+my $SQL_runs_in_progress = q{
+select distinct r.id_run,
+r.batch_id,
+rs.date,
+r.folder_path_glob
+from run r,
+run_status rs
+where r.id_run=rs.id_run
+and rs.id_run_status_dict=2
+and rs.date > date_sub(now(), interval ? day)
+};
+
+my $SQL_check_study_given_batch_id = q{
+select count(*)
+from iseq_flowcell fc,
+study s
+where fc.id_study_tmp=s.id_study_tmp
+and id_flowcell_lims = ?
+and s.name = ?
+};
+
+my @report;
+#
+# Run the report, and filter by staging area(s) and by study
+#
+my $sth=$tracking_schema->prepare($SQL_runs_in_progress) or $logger->fatal('tracking SQL prep failed');
+$sth->execute($num_days) or $logger->fatal(q(Can't execute statement: ).DBI::errstr());
+while (my @columns = $sth->fetchrow_array) {
+  @columns = map { defined $_ ? $_ : 'NULL' } @columns;
+  my $count = $warehouse_schema->selectrow_array($SQL_check_study_given_batch_id, {}, $columns[1], $study);
+  if ( (!$study) or ($count) ) {
+    my $matching = 0;
+    foreach my $area (@staging_array) {
+      if ( ($columns[$FOLDER_PATH] =~ /$area/smx) ) {
+        $matching = 1;
+      }
+    }
+    if (!$matching) { push @report, join "\t", @columns; }
+  }
+}
+
+if ($verbose) {
+  ## no critic (InputOutput::RequireCheckedSyscalls)
+  print join "\n", @report;
+  print "\n", scalar @report, " records found\n";
+}
+
+if (scalar @email_array and scalar @report) {
+  my $to = join q(,), @email_array;
+  my $from = 'new-seq-pipe';
+  my $subject = "$study Staging Area Check";
+  my $message = join "\n", @report;
+
+  my $msg = MIME::Lite->new(
+                 From     => $from,
+                 To       => $to,
+                 Subject  => $subject,
+                 Data     => "unexpected staging area(s) used for study $study:\n" . $message
+                 );
+  $msg->send;
+}
+
+exit 0
+
+##############################################################
+
+
+__END__
+## no critic (Documentation::PodSpelling)
+
+# UKB folders not in UKBMP 
+# This is an audit requirement...
+# Think we can follow (Marina's mostly) plan:
+#  cron - script with study name, (multiple) staging area patterns, and email addresses as arguments
+#  consider "run in progress" started in last 24 hours, filter for the given study, and if the the
+#  runfolder path doesn't match one of the patterns, email an alert
+
+
+=head1 NAME
+
+npg_ukb_check
+
+=head1 SYNOPSIS
+
+  Report runs on an inappropriate staging area.
+
+=head1 USAGE
+
+  npg_ukb_check --help
+  npg_ukb_check [--verbose] [--staging_areas] [--study] [--num-days] [--emails]
+
+=head1 DESCRIPTION
+
+  Look for Illumina runs with status of 'run-in-progress' in the past N days.
+  Limit these to runs for the given study (default "UK Biobank Main Phase Study").
+  Report any record where the runfolder path does not match any of the given patterns.
+  The report is written to STDOUT if the --verbose option is given, and is sent via
+  email if the --emails option is given.
+  
+=head1 REQUIRED ARGUMENTS
+
+None
+
+=head1 OPTIONS
+
+  --help          - brief help message
+
+  --verbose       - a boolean flag, false by default; 
+                    if given then the report is written to STDOUT
+
+  --num-days      - Only look at records with a status date of no more
+                    than num-days old. Defaults to one day (ie 24 hours).
+
+  --study         - Only look at records for the given study name.
+                    Default "UK Biobank Main Phase Study".
+
+  --staging-areas - A comma seperated list of expected staging areas. Only
+                    report records where the runfolder path does NOT match
+                    any of the specified staging-areas.
+
+  --emails        - A comma seperated list of email adresses to send the
+                    report to. If a domain is not specified, then @sanger.ac.uk
+                    is automatically appended to the address.
+
+=head1 EXIT STATUS
+
+  0   if the program ran successfully.
+  1   if something went wrong.
+
+=head1 DIAGNOSTICS
+
+=head1 CONFIGURATION
+
+=head1 DEPENDENCIES
+
+=over
+
+=item strict
+
+=item warnings
+
+=item lib
+
+=item FindBin
+
+=item Getopt::Long
+
+=item Pod::Usage
+
+=item WTSI::DNAP::Warehouse::Schema
+
+=item npg_tracking::Schema
+
+=item Readonly
+
+=item Carp
+
+=item Try::Tiny
+
+=item English
+
+=item MIME::Lite
+
+=back
+
+=head1 INCOMPATIBILITIES
+
+=head1 BUGS AND LIMITATIONS
+
+=head1 AUTHOR
+
+Jennifer Liddle
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (C) 2021 by Genome Research Ltd.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.

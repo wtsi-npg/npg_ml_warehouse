@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+ - add npg_check_study_staging_location for use in cron to warn of
+   studies not in expected staging areas
+
 release 44.2.0
  - update regex to discriminate crams to consider in manifest4study bin.
    regex will look for filename patterns including:
