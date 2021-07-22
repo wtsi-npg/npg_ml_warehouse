@@ -62,7 +62,6 @@ r.folder_path_glob
 from run r,
 run_status rs
 where r.id_run=rs.id_run
-and rs.iscurrent=1
 and rs.id_run_status_dict=2
 and rs.date > date_sub(now(), interval ? day)
 };
