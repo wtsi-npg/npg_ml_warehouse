@@ -32,7 +32,7 @@ GetOptions (
             'help'         => \$help,
             'verbose'      => \$verbose,
             'study=s'      => \$study,
-            'num-days=s'   => \$num_days,
+            'num-days=i'   => \$num_days,
             'staging-areas=s' => \$staging_areas,
             'emails=s'        => \$emails,
            );
@@ -244,4 +244,3 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
