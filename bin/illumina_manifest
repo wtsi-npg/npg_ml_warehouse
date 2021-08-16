@@ -1,0 +1,6 @@
+#!/usr/bin/perl
+our $platform      = 'illumina';
+our $analysis_type = 'original';
+our $root_regex    = qr'/seq/(illumina/runs/\d{2}/)?\d+(/lane\d+/plex\d+)?';
+our $primary_regex = qr'\d+_\d+#\d+.cram';
+our $meta_position = PRIMARY;

@@ -2,15 +2,21 @@
 use strict;
 use warnings;
 use FindBin qw($Bin);
-use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
+use lib ( -d '$Bin/../lib/perl5' ? '$Bin/../lib/perl5' : '$Bin/../lib' );
 use Getopt::Long;
 use Pod::Usage;
 use Log::Log4perl qw(:easy :levels);
 
 use WTSI::DNAP::Warehouse::Schema;
 use WTSI::NPG::iRODS;
+use WTSI::NPG::iRODS::Metadata qw[$ID_PRODUCT $ALT_PROCESS $ALT_TARGET];
 
 our $VERSION = '0';
+
+use constant {
+	ROOT    => 'root',
+	PRIMARY => 'primary',
+};
 
 my $verbose    = 0;
 my $help       = q[];
@@ -18,6 +24,8 @@ my $dry_run    = 0;
 my $delete     = 0;
 my @id_run     = ();
 my @id_product = ();
+my @irods_path = ();
+my $manifest   = '';
 
 GetOptions (
 	'verbose'          => \$verbose,
@@ -25,7 +33,9 @@ GetOptions (
 	'dry_run'          => \$dry_run,
 	'delete'           => \$delete,
 	'id_run=i{1,}'     => \@id_run,
-	'id_product=s{1,}' => \@id_product
+	'id_product=s{1,}' => \@id_product,
+	'irods_path=s{1,}' => \@irods_path,
+	'manifest=s'       => \$manifest
 );
 if ($help) { pod2usage(0); }
 
@@ -33,13 +43,25 @@ if (@id_run && @id_product){
 	die q['id_run' and 'id_product' options are mutually exclusive];
 }
 
-if (!@id_run && !@id_product){
-	die q['id_run' or 'id_product' option must be provided];
+if (@irods_path && @id_run){
+	die q['irods_path' and 'id_run' options are mutually exclusive];
 }
+
+if (@irods_path && @id_product){
+	die q['irods_path' and 'id_product' options are mutually exclusive];
+}
+
+if (!@id_run && !@id_product && !@irods_path){
+	die q['id_run', 'id_product' or 'irods_path' option must be provided];
+}
+
+our ($platform, $analysis_type, $root_regex, $primary_regex, $secondary_regex,
+     $meta_position);
+require($manifest);
 
 if ($dry_run) {
 	$verbose = 1;
-	warn "DRY RUN\n";
+	WARN('DRY RUN\n');
 }
 
 my $layout = '%d %-5p %c - %m%n';
@@ -57,71 +79,119 @@ my $wh_schema = WTSI::DNAP::Warehouse::Schema->connect();
 if (@id_run) {
 	foreach my $id (@id_run){
 		INFO(qq[Getting id_products for id_run $id]);
-		foreach my $product ($wh_schema->resultset('IseqProductMetric')->search({id_run => $id})){
+		foreach my $product ($wh_schema->resultset('IseqProductMetric')->
+			search({id_run => $id})){
 			push @id_product, $product->get_column('id_iseq_product');
 		}
 	}
 }
 
 if ($delete){
-	foreach my $id (@id_product) {
-		foreach my $row ($wh_schema->resultset('ProductIrod')->search({id_product => $id})) {
-			INFO (qq[Deleting id_product $id]);
-			if (!$dry_run) {
-				$row->delete;
+	if (@id_product){
+		foreach my $id (@id_product) {
+			foreach my $row ($wh_schema->resultset('ProductIrod')->search({
+				id_product => $id })) {
+				INFO(qq[Deleting row with id_product = $id]);
+				if (!$dry_run) {
+					$row->delete;
+				}
 			}
 		}
 	}
-} else {
-	my $irods = WTSI::NPG::iRODS->new;
-	my @data;
-	foreach my $id (@id_product) {
-		INFO(qq[Finding irods paths for id_product $id]);
-		my @paths = $irods->find_objects_by_meta('/seq', [ 'id_product', $id ]);
-		my @colls = $irods->find_collections_by_meta('/seq', [ 'id_product', $id ]);
-		push @paths, @colls;
-		if (!@paths) {
-			WARN(q[No iRODS paths found for id_product:], $id);
-		}
-		foreach my $path (@paths) {
-			if ($path !~ '_phix') {
-				my @meta = $irods->get_object_meta($path);
-				my $analysis_type = 'original';
-				my @alt_process = grep {$_->{'attribute'} eq q[alt_process]} @meta;
-				if (@alt_process) {
-					$analysis_type = $alt_process[0]->{'value'};
+	if (@irods_path){
+		foreach my $path (@irods_path) {
+			my $irods_root;
+			if ($path =~ /($root_regex)/) {
+				$irods_root = $1;
+			} else {
+				WARN (qq[$path does not match the root path, skipping]);
+				next;
+			}
+			foreach my $row ($wh_schema->resultset('ProductIrod')->search({
+				irods_root => $irods_root})){
+				INFO(qq[Deleting row with irods_root = $irods_root]);
+				if (!$dry_run) {
+					$row->delete;
 				}
-				else {
-					if (grep {$_->{'attribute'} eq q[read]} @meta) {
-						$analysis_type = '10x';
-					}
-				}
-				push @data, {
-					id_product    => $id,
-					platform_name => 'illumina',
-					analysis_type => $analysis_type,
-					irods_path    => $path,
-				};
 			}
 		}
 	}
+	exit 0;
+}
 
-	INFO(join q[ ], q[Loading], scalar @data, q[rows]);
-	my $present = 0;
-	foreach my $row_hash (@data) {
-		my $row = $wh_schema->resultset('ProductIrod')->find_or_new($row_hash, { key => 'irods_path' });
-		if ($row->in_storage) {
-			$present += 1;
+my $irods = WTSI::NPG::iRODS->new;
+if (@id_product) {
+	if (!@irods_path) {
+		foreach my $id (@id_product) {
+			INFO(qq[Finding irods paths for id_product $id]);
+			my @paths;
+			if ($meta_position eq ROOT){
+				@paths = $irods->find_collections_by_meta('/seq', ['id_product', $id]);
+			}elsif ($meta_position eq PRIMARY) {
+				@paths = $irods->find_objects_by_meta('/seq', [ 'id_product', $id ]);
+			}else{
+				die ("Unknown \$meta_position $meta_position in manifest. \$meta_position
+		should be ROOT or PRIMARY")
+			}
+			if (!@paths) {
+				WARN(qq[No iRODS paths found for id_product $id]);
+			}
+			foreach my $path (@paths){
+				if ($path !~ '_phix') {
+					push @irods_path, $path;
+				}
+			}
 		}
-		elsif (!$dry_run) {
-			$row->insert;
-		}
-	}
-
-	if ($present) {
-		INFO($present, q[ rows were already present])
 	}
 }
+
+foreach my $path (@irods_path) {
+	INFO(qq[Getting metadata for irods_path $path]);
+	my %row_hash = (
+		platform_name => $platform,
+		analysis_type => $analysis_type,
+	);
+	if ($path =~ /(?<root>$root_regex)/) {
+		$row_hash{irods_root} = $+{root};
+	} else {
+		WARN (qq[$path does not match the root path $root_regex, skipping]);
+		next;
+	}
+	my ($objects, $collections) = $irods->list_collection($row_hash{irods_root}, 1);
+	for my $sub_path ((@$objects, @$collections)) {
+		if ($primary_regex && $sub_path =~ /$root_regex\/(?<data>$primary_regex)/) {
+			$row_hash{irods_data} = $+{data};
+		}
+		elsif ($secondary_regex && $sub_path =~ /$root_regex\/(?<data>$secondary_regex)/){
+			$row_hash{irods_secondary_data} = $+{data};
+		}
+	}
+	my %meta;
+	if ($meta_position eq PRIMARY) {
+		%meta = map {$_->{'attribute'} => $_->{'value'}}
+			$irods->get_object_meta($row_hash{irods_root} . '/' . $row_hash{irods_data});
+	}elsif ($meta_position eq ROOT){
+		%meta = map {$_->{'attribute'} => $_->{'value'}}
+			$irods->get_collection_meta($row_hash{irods_root});
+	}else {
+		die ("Unknown \$meta_position $meta_position in manifest. \$meta_position
+		should be ROOT or PRIMARY");
+	}
+	$row_hash{id_product} = $meta{$ID_PRODUCT};
+	if (exists($meta{$ALT_PROCESS})){
+		$analysis_type = 'alt_process';
+	}
+	my $row = $wh_schema->resultset('ProductIrod')->
+		find_or_new(\%row_hash, { key => 'pi_irods_root' });
+	if ($row->in_storage) {
+		INFO(qq[id_product $row_hash{id_product}, mapped to irods_path $path already in table]);
+	} elsif (!$dry_run){
+		$row->insert;
+	}
+
+}
+
+
 
 __END__
 
@@ -137,8 +207,9 @@ Loads or removes irods paths of illumina products in ml warehouse.
 
 =head1 USAGE
 
- irods_paths2mlwarehouse --id_run 12345
- irods_paths2mlwarehouse --id_product abcde12345fghij67890klmno09876pqrst54321uvwxy12345zzyxw67890vuts
+ irods_paths2mlwarehouse --id_run 12345 --manifest ./illumina_manifest
+ irods_paths2mlwarehouse --id_product abcde12345fghij67890klmno09876pqrst54321uvwxy12345zzyxw67890vuts --manifest ./illumina_manifest
+ irods_paths2mlwarehouse --irods_path /seq/12345/lane6/plex7/12345_6#7.cram --manifest ./illumina_manifest
  irods_paths2mlwarehouse --delete --dry-run --id_run 12345 67890
 
 =head1 REQUIRED ARGUMENTS
@@ -153,10 +224,19 @@ none
 										without performing the action
 	--delete				deletes the rows indicated by the run or product id
 										instead of adding them
-	--id_run        a run id, optional, excludes id_product or rpt_list,
+	--id_run        a run id, optional, excludes id_product or irods_path,
 	                  multiple runs can be specified after this option
-	--id_product    a product id, optional, excludes id_run or rpt_list,
-                    multiple runs can be specified after this option
+	--id_product    a product id, optional, excludes id_run or irods_path,
+                    multiple products can be specified after this option
+  --irods_path    an irods path, optional, excludes id_run or id_product,
+                    multiple paths can be specified after this option
+  --manifest      a manifest script which defines:
+                    - `$platform`,
+                    - `$analysis_type`,
+                    - `$root_regex`,
+                    - `$primary_regex` (optional),
+                    - `$secondary_regex` (optional),
+                    - `$meta_position` (ROOT or PRIMARY)
 
 =head1 EXIT STATUS
 

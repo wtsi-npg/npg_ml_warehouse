@@ -1,0 +1,7 @@
+#!/usr/bin/perl
+our $platform        = 'illumina';
+our	$analysis_type   = 'artic';
+our	$root_regex      = qr'/seq/illumina/pp/runs/\d{2}/\d+/lane\d+/plex\d+';
+our	$primary_regex   = qr'ncov20\d{2}_artic_nf/v.*/ncovIlluminaCram_ncovIllumina_sequenceAnalysis_makeConsensus/\d+_\d+#\d+.primertrimmed.consensus.fa'; #
+our $secondary_regex = qr'ncov20\d{2}_artic_nf/v.*/ncovIlluminaCram_ncovIllumina_sequenceAnalysis_trimPrimerSequences/\d+_\d+#\d+.mapped.bam';
+our $meta_position   = ROOT;
