@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+release 44.3.1
+ - tag_index column is dropped from the tag_metrics table of the
+   QC database - update test fixtures accordingly.
 
 release 44.3.0
  - add npg_check_study_staging_location for use in cron to warn of
