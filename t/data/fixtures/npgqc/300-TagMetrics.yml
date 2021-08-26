@@ -21,7 +21,6 @@
   reads_count: '{"0":"22395485","168":"1350487","153":"110253962"}'
   reads_pf_count: '{"0":"22395485","168":"1350487","153":"110253962"}'
   spiked_control_index: ~
-  tag_index: ~
   tags: '{"0":"NNNNNNNN","168":"ACAACGCA","153":"ATCCTAGG"}'
 - barcode_tag_name: BC
   comments: ~
@@ -45,7 +44,6 @@
   reads_count: '{"152":"119330228","0":"1620819","888":"1401268"}'
   reads_pf_count: '{"152":"119330228","0":"1620819","888":"1401268"}'
   spiked_control_index: ~
-  tag_index: ~
   tags: '{"152":"ACCTCTGG","0":"NNNNNNNN"}'
 - barcode_tag_name: BC
   comments: ~
@@ -69,7 +67,6 @@
   reads_count: '{"0":"2271643","151":"145814454","168":"1585432"}'
   reads_pf_count: '{"0":"2271643","151":"145814454","168":"1585432"}'
   spiked_control_index: ~
-  tag_index: ~
   tags: '{"0":"NNNNNNNN","151":"AGACCGTG","168":"ACAACGCA"}'
 - barcode_tag_name: BC
   comments: ~
@@ -93,7 +90,6 @@
   reads_count: '{"149":"143634840","0":"2482485","168":"1561406"}'
   reads_pf_count: '{"149":"143634840","0":"2482485","168":"1561406"}'
   spiked_control_index: ~
-  tag_index: ~
   tags: '{"149":"ACGTTCAT","0":"NNNNNNNN","168":"ACAACGCA"}'
 - barcode_tag_name: BC
   comments: ~
@@ -117,6 +113,5 @@
   reads_count: '{"0":"41440640","148":"85009914","168":"1059720"}'
   reads_pf_count: '{"0":"41440640","148":"85009914","168":"1059720"}'
   spiked_control_index: ~
-  tag_index: ~
   tags: '{"0":"NNNNNNNN","148":"AGGCAGCT","168":"ACAACGCA"}'
 
