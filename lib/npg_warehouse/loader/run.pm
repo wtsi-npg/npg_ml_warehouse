@@ -279,8 +279,7 @@ sub _build__data {
   my @interop_column_names = grep { /\Ainterop_/xms } @run_lane_columns;
 
   my $data_hash = npg_warehouse::loader::autoqc
-    ->new(mlwh => 1,
-          autoqc_store => $self->_autoqc_store,
+    ->new(autoqc_store => $self->_autoqc_store,
           interop_data_column_names => \@interop_column_names)
     ->retrieve($self->id_run, $self->schema_npg);
   my $product_data = $self->product_data($data_hash, $lane_data);
@@ -631,7 +630,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2018,2019,2020 Genome Research Ltd.
+Copyright (C) 2018,2019,2020,2021 Genome Research Ltd.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

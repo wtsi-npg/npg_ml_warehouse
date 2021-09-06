@@ -105,7 +105,7 @@ subtest 'retrieve data for run 4799' => sub {
 };
 
 subtest 'retrieve data for run 4333' => sub {
-  plan tests => 18;
+  plan tests => 14;
 
   my $id_run = 4333;
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run})->set_tag($user_id, 'staging')}
@@ -120,10 +120,6 @@ subtest 'retrieve data for run 4333' => sub {
 
   my $d = $compos_pkg->new(components =>
     [$compon_pkg->new(id_run => $id_run, position => 4)])->digest;
-  is ($auto->{$d}->{contaminants_scan_hit1_name}, 'PhiX',   'contam check value');
-  is ($auto->{$d}->{contaminants_scan_hit1_score}, '97.30',   'contam check value');
-  is ($auto->{$d}->{contaminants_scan_hit2_name}, 'Mus_musculus',   'contam check value');
-  is ($auto->{$d}->{contaminants_scan_hit2_score}, '0.12',   'contam check value');
   is ($auto->{$d}->{insert_size_quartile1}, 172,   'insert size q1');
   is ($auto->{$d}->{insert_size_quartile3}, 207,   'insert size q3');
   is ($auto->{$d}->{insert_size_median},    189,   'insert size median');
@@ -309,7 +305,7 @@ subtest 'retrieve gbs and generic data' => sub {
     'staging tag is set - test prerequisite';
   my $auto;
   lives_ok {$auto = npg_warehouse::loader::autoqc->new(
-    autoqc_store => $store, mlwh => 1)->retrieve($id_run, $schema_npg)}
+    autoqc_store => $store)->retrieve($id_run, $schema_npg)}
     'data for run 25710 retrieved';
 
   my $digest = $compos_pkg->new(components =>
@@ -479,7 +475,7 @@ subtest 'retrieve data for multi-component compositions' => sub {
   $schema_npg->resultset('Run')
              ->find({id_run => $id_run})->set_tag($user_id, 'staging');
 
-  throws_ok { npg_warehouse::loader::autoqc->new(mlwh => 1, autoqc_store => $store)
+  throws_ok { npg_warehouse::loader::autoqc->new(autoqc_store => $store)
                                            ->retrieve($id_run, $schema_npg) }
     qr/Interop column names should be set/, 'errow when interop column names are not set';
  
@@ -499,7 +495,6 @@ subtest 'retrieve data for multi-component compositions' => sub {
   /;
 
   my $auto = npg_warehouse::loader::autoqc->new(
-     mlwh => 1,
      autoqc_store => $store,
      interop_data_column_names => [map { 'interop_' . $_ } @column_names]
   )->retrieve($id_run, $schema_npg);
