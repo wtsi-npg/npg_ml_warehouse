@@ -5,11 +5,14 @@ use Test::Exception;
 use Moose::Meta::Class;
 use File::Temp qw/tempdir/;
 use File::Slurp;
+use File::Copy::Recursive qw/dircopy/;
 
 use npg_tracking::glossary::composition::factory::rpt_list;
 use t::util;
 
 use_ok('npg_warehouse::loader::product_limited');
+
+my $dir = tempdir(CLEANUP => 1);
 
 my $util = Moose::Meta::Class->create_anon_class(
   roles => [qw/npg_testing::db/])->new_object({});
@@ -55,11 +58,17 @@ subtest 'autoqc results from path' => sub {
 
   my $a = 't/data/runfolders/with_merges/Data/Intensities/' .
           'BAM_basecalls_20180805-013153/no_cal/archive';
+  my $temp_a = join q[/], $dir, 'BAM_basecalls_20180805-013153';
+  mkdir $temp_a;
+  dircopy($a, $temp_a) or die "Failed to copy $a";  
+  my $interop = join q[/], $temp_a, 'lane1/qc/26291_1.interop.json';
+  -e $interop or die 'Copying went wrong';
+  unlink $interop; 
 
   my $l_merged = npg_warehouse::loader::product_limited->new(
     schema_qc => $schema_qc,
     schema_wh => $schema_wh,
-    autoqc_path => ["$a/plex1/qc"]
+    autoqc_path => ["$temp_a/plex1/qc"]
   );  
   throws_ok { $l_merged->load() } qr/Failed to find the component product row/,
     'merged results cannot be loaded without rows for components being present';
@@ -67,7 +76,7 @@ subtest 'autoqc results from path' => sub {
   my $l = npg_warehouse::loader::product_limited->new(
     schema_qc => $schema_qc,
     schema_wh => $schema_wh,
-    autoqc_path => [$a, "$a/lane1/qc"]
+    autoqc_path => [$temp_a, "$temp_a/lane1/qc"]
   );
   is ($l->load(), 28, '28 rows loaded');
   lives_and { is $l_merged->load(), 1 } 'merged result loaded';
@@ -113,7 +122,6 @@ subtest 'autoqc results for rpt_list strings' => sub {
 subtest 'autoqc results for compositions from a path' => sub {
   plan tests => 1;
 
-  my $dir = tempdir(CLEANUP => 1);
   my $class = 'npg_tracking::glossary::composition::factory::rpt_list';
   my @jsons = map { $_->freeze(with_class_names => 1) }
               map { $_->create_composition() }

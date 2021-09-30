@@ -156,7 +156,6 @@ t/data/pacbio/smrtlink/runs/89dfd7ed-c17a-452b-85b4-526d4a035d0d.json
 t/data/pacbio/smrtlink/runs/d4c8636a-25f3-4874-b816-b690bbe31b2c.json
 t/data/pacbio/smrtlink/runs/XXXXXXXX.json
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane1/qc/4799_1.adapter.json
-t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane1/qc/4799_1.contamination.json
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane1/qc/4799_1.gc_fraction.json
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane1/qc/4799_1.insert_size.json
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane1/qc/4799_1.qX_yield.json
@@ -170,7 +169,6 @@ t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-14394
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane3/plex3/qc/4799_3#3.qX_yield.json
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane3/qc/4799_3.tag_decode_stats.json
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane4/qc/4799_4.adapter.json
-t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane4/qc/4799_4.contamination.json
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane4/qc/4799_4.gc_bias.json
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane4/qc/4799_4.gc_fraction.json
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane4/qc/4799_4.insert_size.json
@@ -184,7 +182,6 @@ t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-14394
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane8/qc/4799_8.insert_size.json
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane8/qc/4799_8.tag_decode_stats.json
 t/data/runfolders/100330_IL21_4333/Data/Intensities/BAM_basecalls_20141021-094321/no_cal/archive/lane1/qc/4333_1.adapter.json
-t/data/runfolders/100330_IL21_4333/Data/Intensities/BAM_basecalls_20141021-094321/no_cal/archive/lane1/qc/4333_1.contamination.json
 t/data/runfolders/100330_IL21_4333/Data/Intensities/BAM_basecalls_20141021-094321/no_cal/archive/lane1/qc/4333_1.gc_fraction.json
 t/data/runfolders/100330_IL21_4333/Data/Intensities/BAM_basecalls_20141021-094321/no_cal/archive/lane1/qc/4333_1.insert_size.json
 t/data/runfolders/100330_IL21_4333/Data/Intensities/BAM_basecalls_20141021-094321/no_cal/archive/lane1/qc/4333_1.qX_yield.json
@@ -196,7 +193,6 @@ t/data/runfolders/100330_IL21_4333/Data/Intensities/BAM_basecalls_20141021-09432
 t/data/runfolders/100330_IL21_4333/Data/Intensities/BAM_basecalls_20141021-094321/no_cal/archive/lane3/qc/4333_3.qX_yield.json
 t/data/runfolders/100330_IL21_4333/Data/Intensities/BAM_basecalls_20141021-094321/no_cal/archive/lane3/qc/4333_3.tag_decode_stats.json
 t/data/runfolders/100330_IL21_4333/Data/Intensities/BAM_basecalls_20141021-094321/no_cal/archive/lane4/qc/4333_4.adapter.json
-t/data/runfolders/100330_IL21_4333/Data/Intensities/BAM_basecalls_20141021-094321/no_cal/archive/lane4/qc/4333_4.contamination.json
 t/data/runfolders/100330_IL21_4333/Data/Intensities/BAM_basecalls_20141021-094321/no_cal/archive/lane4/qc/4333_4.gc_fraction.json
 t/data/runfolders/100330_IL21_4333/Data/Intensities/BAM_basecalls_20141021-094321/no_cal/archive/lane4/qc/4333_4.insert_size.json
 t/data/runfolders/100330_IL21_4333/Data/Intensities/BAM_basecalls_20141021-094321/no_cal/archive/lane4/qc/4333_4.qX_yield.json

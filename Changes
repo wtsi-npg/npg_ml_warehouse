@@ -1,5 +1,10 @@
 LIST OF CHANGES
 
+ - remove provisions for loading the old Sequencescape warehouse
+   since the data is not longer loaded to that warehouse and the loader
+   code has been removed, see
+   https://github.com/wtsi-npg/npg_sequencescape_warehouse/pull/30
+
 release 44.3.1
  - tag_index column is dropped from the tag_metrics table of the
    QC database - update test fixtures accordingly.
