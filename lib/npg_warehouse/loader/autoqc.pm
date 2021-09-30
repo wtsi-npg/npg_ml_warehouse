@@ -92,16 +92,6 @@ has 'autoqc_store' => ( isa      => 'npg_qc::autoqc::qc_store',
                         required => 1,
                       );
 
-=head2 mlwh
-
-Boolean flag, false by default.
-
-=cut
-has 'mlwh' => ( isa      => 'Bool',
-                is       => 'ro',
-                required => 0,
-              );
-
 =head2 interop_data_column_names
 
 An array reference of column names for Illumina InterOp data.
@@ -147,7 +137,7 @@ sub _composition_without_subset {
 
     my @components =
         map { npg_tracking::glossary::composition::component::illumina->new($_) }
-	map { npg_tracking::glossary::rpt->inflate_rpt($_->freeze2rpt) }
+        map { npg_tracking::glossary::rpt->inflate_rpt($_->freeze2rpt) }
         $composition->components_list();
 
     return npg_tracking::glossary::composition->new(components => \@components);
@@ -197,7 +187,6 @@ sub _astats_data {
 sub _generic {
     my ($self, $result, $c) = @_;
 
-    $self->mlwh or return ();
     $result->pp_name or croak 'pp_name attribute should be defined';
     my $basic_data = $self->_basic_data($c);
     my $data = {};
@@ -235,8 +224,6 @@ sub _generic {
 
 sub _interop {
     my ($self, $result, $c) = @_;
-
-    $self->mlwh or return ();
 
     @{$self->interop_data_column_names()} or croak 'Interop column names should be set';
 
@@ -282,8 +269,8 @@ sub _insert_size {
         if ($v > 1) {
             $v = 1;
         } elsif ($v < 0) {
-	    $v = 0;
-	}
+            $v = 0;
+        }
         $data->{'insert_size_normal_fit_confidence'} = $self->_truncate_float($v);
     }
 
@@ -324,25 +311,6 @@ sub _ref_match {
     return ($count > 0 ? ($data) : ());
 }
 
-sub _contamination {
-    my ($self, $result, $c) = @_;
-
-    my $organisms = $result->ranked_organisms;
-    my $contamination = $result->normalised_contamination;
-    my $prefix = q[contaminants_scan_hit];
-    my $data = $self->_basic_data($c);
-
-    foreach my $count ((1,2)) {
-	if (scalar @{$organisms} >= $count) {
-            my $organism = $organisms->[$count-1];
-            $data->{$prefix.$count.q[_name]}  = $organism;
-            $data->{$prefix.$count.q[_score]} = $self->_truncate_float($contamination->{$organism});
-	}
-    }
-
-    return ($data);
-}
-
 sub _tag_metrics {
     my ($self, $result, $composition) = @_;
 
@@ -353,7 +321,8 @@ sub _tag_metrics {
             $result->perfect_matches_percent + $result->one_mismatch_percent);
     }
     if (defined $result->variance_coeff) {
-	$data->{'tags_decode_cv'} = $self->_truncate_float($result->variance_coeff(1));
+        $data->{'tags_decode_cv'} =
+            $self->_truncate_float($result->variance_coeff(1));
     }
     if (defined $result->tag_hops_percent) {
         $data->{'tag_hops_percent'} = $result->tag_hops_percent;
@@ -370,7 +339,7 @@ sub _tag_metrics {
         my $i = $c->get_component(0)->tag_index;
         if ($i != 0) { # no tag sequence for tag zero
             $d->{'tag_sequence'} = $result->tags->{$i};
-	}
+        }
         $d->{'tag_decode_count'} = $result->reads_pf_count->{$i};
         $d->{'tag_decode_percent'} = $self->_truncate_float(
             $result->matches_pf_percent->{$i} * $HUNDRED);
@@ -389,27 +358,28 @@ sub _tag_decode_stats {
             $self->_truncate_float($result->decoding_perc_good);
     }
     if (defined $result->variance_coeff) {
-	$data->{'tags_decode_cv'} =
-	    $self->_truncate_float($result->variance_coeff('all'));
+        $data->{'tags_decode_cv'} =
+            $self->_truncate_float($result->variance_coeff('all'));
     }
 
     my @all = ($data);
 
     my $tags = $result->tag_code;
     if ($tags) {
-	my $good       = $result->distribution_perc_good;
-	my $good_count = $result->distribution_good;
+    my $good       = $result->distribution_perc_good;
+    my $good_count = $result->distribution_good;
         foreach my $c ( @{$self->_compositions4tags(
                 $result->id_run, $result->position, [keys %{$tags}])} ) {
             my $d = $self->_basic_data($c);
             my $tag_index = $c->get_component(0)->tag_index;
-	    $d->{'tag_sequence'} = $tags->{$tag_index};
-	    if ($good && exists $good->{$tag_index}) {
-		$d->{'tag_decode_percent'} = $self->_truncate_float($good->{$tag_index});
-		$d->{'tag_decode_count'} =   $good_count->{$tag_index};
-	    }
+            $d->{'tag_sequence'} = $tags->{$tag_index};
+            if ($good && exists $good->{$tag_index}) {
+                $d->{'tag_decode_percent'} =
+                    $self->_truncate_float($good->{$tag_index});
+                $d->{'tag_decode_count'} = $good_count->{$tag_index};
+            }
             push @all, $d;
-	}
+        }
     }
 
     return @all;
@@ -545,11 +515,11 @@ sub _add_data {
                 # migh be already hashed under $PP_KEY.
                 $autoqc->{$digest}->{$column_name}->{$key} = $value->{$key};
             } else {
-	        $autoqc->{$digest}->{$column_name} = $value;
+                $autoqc->{$digest}->{$column_name} = $value;
             }
         }
     } else {
-	$autoqc->{$digest} = $data;
+        $autoqc->{$digest} = $data;
     }
 
     return;
@@ -586,7 +556,6 @@ sub process {
     my $methods = {};
     foreach my $r (@{$collection->results}) {
       my $class_name = $r->class_name;
-      $self->mlwh && ($class_name eq 'contamination') && next;
       my $method_name = exists $AUTOQC_MAPPING{$class_name}
                         ? q[_autoqc_check] : q[_] . $class_name;
       if ($self->can($method_name)) {
@@ -667,7 +636,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2018,2019,2020 Genome Research Ltd.
+Copyright (C) 2018,2019,2020,2021 Genome Research Ltd.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
