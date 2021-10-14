@@ -37,17 +37,6 @@ has 'dry_run'    =>  (isa       => 'Bool',
                       default   => 0,
                      );
 
-=head2 update
-
-Boolean flag allowing update of currently present rows
-
-=cut
-
-has 'update'     =>  (isa       => 'Bool',
-                      is        => 'ro',
-                      default   => 0,
-                     );
-
 =head2 schema_wh
 
 DBIx schema object for the warehouse database
@@ -72,7 +61,10 @@ has 'json_file'  =>  ( isa      => 'Str',
 
 =head2 products
 
-Reads json file and returns product information
+Reads json file and returns product information.
+
+File version numbers are included for compatibility with changes to the table
+or any other use-case specific json files that are required.
 
 =cut
 
@@ -82,7 +74,7 @@ sub products {
   open my $json_fh, '<:encoding(UTF-8)', $self->json_file or die qq[$self->json_file does not exist];
   my $data = decode_json <$json_fh>;
   close $json_fh or die q[unable to close file];
-  if ($data->{version} eq '0.1') { # All information in json file
+  if ($data->{version} eq '1.0') { # All information in json file
     return $data->{products};
   } else {
     die "data file version number $data->{version} not recognised, this script may be out of date"
@@ -91,7 +83,9 @@ sub products {
 
 =head2 load_products
 
-Loads products into the table
+Creates or updates rows in the seq_product_irods_locations table.
+
+If a product is updated multiple times, the latest update is kept.
 
 =cut
 
@@ -99,44 +93,20 @@ sub load_products {
   my $self = shift;
 
   my $products = $self->products();
-  foreach my $product (@{$products}){
-    INFO qq[loading id_product = $product->{id_product} mapped to irods_collection $product->{irods_root_collection}];
-    my $row = $self->schema_wh->resultset($IRODS_LOCATION_TABLE_NAME)->
-      find_or_new($product, {key => 'pi_root_product'});
-    if ($row->in_storage && $self->update) {
-      $row->set_columns($product);
-      INFO q[row already present, updating values:] . Dumper {$row->get_dirty_columns};
-      $row->update;
-    } elsif ($row->in_storage) {
-      INFO q[row already present, not updating];
-    } elsif (!$self->dry_run){
-      $row->insert;
+  my $transaction = sub {
+    foreach my $product (@{$products}) {
+      if (!$self->dry_run) {
+        my $result = $self->schema_wh->resultset($IRODS_LOCATION_TABLE_NAME)->
+        update_or_create($product, { key => 'pi_root_product' });
+      }
+      INFO qq[$IRODS_LOCATION_TABLE_NAME row loaded for
+      id_product $product->{id_product} mapped to
+      irods_collection $product->{irods_root_collection}];
     }
-  }
-  return;
-}
+    return;
+  };
 
-=head2 delete_products
-
-Deletes products from the table
-
-=cut
-
-sub delete_products {
-  my $self = shift;
-
-  my $products = $self->products();
-  foreach my $product (@{$products}){
-    INFO qq[deleting id_product = $product->{id_product} mapped to irods_collection $product->{irods_root_collection}];
-    my $row = $self->schema_wh->resultset($IRODS_LOCATION_TABLE_NAME)->
-      find($product, {key => 'pi_root_product'});
-    if (!$row->in_storage) {
-      INFO qq[id_product $product->{id_product}, mapped to irods_path $product->{irods_root_collection} not in table];
-    } elsif (!$self->dry_run){
-      $row->delete;
-    }
-
-  }
+  $self->schema_wh->txn_do($transaction);
   return;
 }
 

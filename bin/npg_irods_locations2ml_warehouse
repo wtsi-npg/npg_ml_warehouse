@@ -15,16 +15,12 @@ our $VERSION = '0';
 my $verbose    = 0;
 my $help       = q[];
 my $dry_run    = 0;
-my $update     = 0;
-my $delete     = 0;
 my $data_file  = q[];
 
 GetOptions (
   'verbose'     => \$verbose,
   'help'        => \$help,
   'dry-run'     => \$dry_run,
-  'update'      => \$update,
-  'delete'      => \$delete,
   'data-file=s' => \$data_file
 );
 if ($help) { pod2usage(0); }
@@ -46,16 +42,12 @@ if (defined $ENV{dev} && $ENV{dev}) {
 
 my $il = npg_warehouse::loader::irods_location->new(
   dry_run   => $dry_run,
-  update    => $update,
   schema_wh => WTSI::DNAP::Warehouse::Schema->connect(),
   json_file => $data_file,
 );
 
-if ($delete){
-  $il->delete_products();
-} else {
-  $il->load_products();
-}
+$il->load_products();
+
 __END__
 
 =head1 NAME
@@ -65,7 +57,9 @@ irods_location_loader
 =head1 SYNOPSIS
 
 Loads a batch of rows, provided in a json file, into the
-seq_product_irods_locations ml_warehouse table
+seq_product_irods_locations ml_warehouse table.
+
+If two updates are made to the same row, the newer update is retained.
 
 =head1 DESCRIPTION
 
@@ -83,8 +77,6 @@ none
   --verbose       switch on verbose mode (off by default)
   --dry-run       switches on verbose mode and reports what is going to de done
                     without performing the action
-  --update        updates rows that are already present, rather than ignoring
-                    them
   --data-file     A json file containing a batch of rows to be loaded
 
 
