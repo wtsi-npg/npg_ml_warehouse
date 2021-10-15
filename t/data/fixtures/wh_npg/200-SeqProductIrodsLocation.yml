@@ -14,6 +14,11 @@
   pipeline_name: npg-prod
   irods_root_collection: /seq/4486
   irods_data_relative_path: 4486_3.bam
+- id_product: f97e7af62fa5cf2ceab52027e3ddc1bb6c265d517927b9abce8620042ac22eb6
+  seq_platform_name: illumina
+  pipeline_name: npg-prod
+  irods_root_collection: /seq/4486
+  irods_data_relative_path: 4486_5.bam
 - id_product: bbef4825615f1dc4a1788c06e947c503c836fa793b5273656e92039279e4dc2e
   seq_platform_name: illumina
   pipeline_name: npg-prod
@@ -164,4 +169,13 @@
   pipeline_name: npg-prod
   irods_root_collection: /seq/6998
   irods_data_relative_path: 6998_8#168.bam
-
+- id_product: 63019d04694e7af22fa98f3174b9120895ef4774b5e9f55f2da972270eade66b
+  seq_platform_name: illumina
+  pipeline_name: npg-prod
+  irods_root_collection: /seq/6998
+  irods_data_relative_path: 6998_1#19.bam
+- id_product: 0e02e40a44fb8e14100621e227391ac8e74d3af10e0de0300e646a58e85a3ef1
+  seq_platform_name: illumina
+  pipeline_name: npg-prod
+  irods_root_collection: /seq/6998
+  irods_data_relative_path: 6998_4#168.bam

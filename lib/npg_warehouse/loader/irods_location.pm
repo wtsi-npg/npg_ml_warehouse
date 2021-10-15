@@ -99,9 +99,7 @@ sub load_products {
         my $result = $self->schema_wh->resultset($IRODS_LOCATION_TABLE_NAME)->
         update_or_create($product, { key => 'pi_root_product' });
       }
-      INFO qq[$IRODS_LOCATION_TABLE_NAME row loaded for
-      id_product $product->{id_product} mapped to
-      irods_collection $product->{irods_root_collection}];
+      INFO qq[$IRODS_LOCATION_TABLE_NAME row loaded for id_product $product->{id_product} mapped to irods_collection $product->{irods_root_collection}];
     }
     return;
   };
