@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Test::Exception;
 use Test::Deep;
 
@@ -61,14 +61,14 @@ my $new  = [
 my $update =
   {
     "id_product"=> "8671acb3a98b1dad5ec481b82e20e11e5a8587c537f99381093c93cd6fd3251f",
-    "irods_root_collection" => "/seq/4486",
+    "irods_root_collection" => "/seq/4486/",
   };
 
 my $new_with_update =
   { # New
     "id_product"=>  "273jd788b1dad5ec483kd84h565kf5a8587c537f99381093c93cd6irov849",
     "seq_platform_name"=> "illumina",
-    "pipeline_name"=>  "npg_prod",
+    "pipeline_name"=>  "npg-prod",
     "irods_root_collection"=> "/seq/illumina/20/20202/lane2/plex4/",
     "irods_data_relative_path"=> "20202_2#4.bam",
     "irods_secondary_data_relative_path" => undef,
@@ -107,7 +107,7 @@ my $new_same_row =
   {
     "id_product"=>  "47dje744a98b1dad5ec481293kdue5kf5a8587c537f9931029ke3cd6f419283j",
     "seq_platform_name"=> "illumina",
-    "pipeline_name"=>  "npg_prod-alt-process",
+    "pipeline_name"=>  "npg-prod-alt-process",
     "irods_root_collection"=> "/seq/illumina/20/20202/lane6/plex1/",
     "irods_data_relative_path"=> "20202_6#1.bam",
     "irods_secondary_data_relative_path" => undef,
@@ -150,7 +150,7 @@ subtest 'object creation' => sub {
   is($irods_location->dry_run, 0, 'not a dry run by default');
   foreach my $product (@{$new}) {
     my $row = get_product_row($irods_location, $product);
-    is($row->in_storage, 0, 'new product not present in initial db');
+    is($row, undef, 'new product not present in initial db');
   }
 };
 
@@ -171,16 +171,16 @@ subtest 'dry-run' => sub {
     'product loading function succeeds';
   foreach my $product (@{$new}) {
     my $row = get_product_row($irods_location, $product);
-    is($row->in_storage, 0, 'dry-run has not added the product to the table');
+    is($row, undef, 'dry-run has not added the product to the table');
   }
 };
 
 subtest 'load new products' => sub {
-  plan tests => 9;
+  plan tests => 13;
   my $irods_location = make_irods_location($schema_wh, $new_only_json);
   foreach my $product(@{$new}){
     my $row = get_product_row($irods_location, $product);
-    is ($row->in_storage, 0, 'new product not in table before loading');
+    is ($row, undef, 'new product not in table before loading');
   }
   lives_ok { $irods_location->load_products }
     'product loading function succeeds';
@@ -208,17 +208,17 @@ subtest 'load updated product' => sub {
 };
 
 subtest 'load mixed new and updated products' => sub {
-  plan test => 8;
+  plan tests => 8;
   my $irods_location = make_irods_location($schema_wh,
   $json_dir . 'new_and_update.json');
   my $initial_row = get_product_row($irods_location, $update);
   is($initial_row->get_column('pipeline_name'),
-  'npg-prod-alt_process',
+  'npg-prod-alt-process',
   'updated row has correct pipeline name value before update');
   is($initial_row->get_column('irods_data_relative_path'), '4486_1.bam',
   'updated row has correct relative path value before update');
   my $new_row = get_product_row($irods_location, $new_with_update);
-  is($new_row->in_storage, 1, 'new product not in table before loading');
+  is($new_row, undef, 'new product not in table before loading');
   lives_ok{ $irods_location->load_products}
     'product loading function succeeds';
   $new_row = get_product_row($irods_location, $new_with_update);
@@ -234,16 +234,16 @@ subtest 'load mixed new and updated products' => sub {
 };
 
 subtest 'load new row with the same product id as a present row' => sub {
-  plan test => 5;
+  plan tests => 5;
   my $irods_location = make_irods_location($schema_wh,
   $json_dir . 'new_same_id.json');
   my $present_row_before = get_product_row($irods_location, $update);
   my $new_row = get_product_row($irods_location, $new_same_id);
-  is($new_row->in_storage, 0, 'new row not in table before loading');
+  is($new_row, undef, 'new row not in table before loading');
   lives_ok{ $irods_location->load_products}
     'product loading function succeeds';
   my $present_row_after = get_product_row($irods_location, $update);
-  cmp_deeply({$present_row_before->columns}, {$present_row_after->columns},
+  cmp_deeply({$present_row_before->get_columns}, {$present_row_after->get_columns},
   'previously present row did not change');
   $new_row = get_product_row($irods_location, $new_same_id);
   is($new_row->in_storage, 1, 'new product loaded');
@@ -252,16 +252,16 @@ subtest 'load new row with the same product id as a present row' => sub {
 };
 
 subtest 'load new row with the same root collection as a present row' => sub {
-  plan test => 5;
+  plan tests => 5;
   my $irods_location = make_irods_location($schema_wh,
   $json_dir . 'new_same_coll.json');
   my $present_row_before = get_product_row($irods_location, $update);
   my $new_row = get_product_row($irods_location, $new_same_coll);
-  is($new_row->in_storage, 0, 'new row not in table before loading');
+  is($new_row, undef, 'new row not in table before loading');
   lives_ok{ $irods_location->load_products}
     'product loading function succeeds';
   my $present_row_after = get_product_row($irods_location, $update);
-  cmp_deeply({$present_row_before->columns}, {$present_row_after->columns},
+  cmp_deeply({$present_row_before->get_columns}, {$present_row_after->get_columns},
   'previously present row did not change');
   $new_row = get_product_row($irods_location, $new_same_coll);
   is($new_row->in_storage, 1, 'new product loaded');
@@ -270,19 +270,20 @@ subtest 'load new row with the same root collection as a present row' => sub {
 };
 
 subtest 'load new row twice from same file' => sub {
-  plan test => 3;
+  plan tests => 3;
   my $irods_location = make_irods_location($schema_wh,
   $json_dir . 'new_same_row.json');
   my $new_row = get_product_row($irods_location, $new_same_row);
-  is($new_row->in_storage, 0, 'new row not in table before loading');
+  is($new_row, undef, 'new row not in table before loading');
   lives_ok{ $irods_location->load_products}
     'product loading function succeeds';
-  cmp_deeply({$new_row->get_columns}, $new_same_coll,
+  $new_row = get_product_row($irods_location, $new_same_row);
+  cmp_deeply({$new_row->get_columns}, $new_same_row,
   'latest values for new product kept');
 };
 
 subtest 'update row twice from same file' => sub {
-  plan test => 3;
+  plan tests => 3;
   my $irods_location = make_irods_location($schema_wh,
   $json_dir . 'update_same_row.json');
   lives_ok{ $irods_location->load_products}
@@ -290,7 +291,7 @@ subtest 'update row twice from same file' => sub {
   my $row = get_product_row($irods_location, $update);
   is($row->get_column('irods_data_relative_path'), '4486_20.bam',
   'updated row has correct relative path');
-  is($row->get_column('pipeline_name'), 'npg_kept',
+  is($row->get_column('pipeline_name'), 'npg-kept',
   'updated row has correct pipeline name (updated twice)');
 };
 
