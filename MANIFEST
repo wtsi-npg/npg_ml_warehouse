@@ -90,8 +90,13 @@ t/data/fixtures_stlims_wh/000-Study.yml
 t/data/fixtures_stlims_wh/100-IseqFlowcell.yml
 t/data/fixtures_stlims_wh/100-StudyUser.yml
 t/data/fixtures_stlims_wh/200-IseqProductMetric.yml
-t/data/irods_locations/new.json
-t/data/irods_locations/update.json
+t/data/irods_locations/new_and_update.json
+t/data/irods_locations/new_only.json
+t/data/irods_locations/new_same_coll.json
+t/data/irods_locations/new_same_id.json
+t/data/irods_locations/new_same_row.json
+t/data/irods_locations/update_only.json
+t/data/irods_locations/update_same_row.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/0db5e2da-7b54-47dc-9c04-53bde0a80a3f.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/16ddd726-7931-43cb-8521-0b7ca2cf2cf5.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/1b70315e-03de-4344-bc16-0db4683e675e.json
