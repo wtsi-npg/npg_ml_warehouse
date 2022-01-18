@@ -1,0 +1,1 @@
+{"version": "1.0", "products":  [{"id_product": "8671acb3a98b1dad5ec481b82e20e11e5a8587c537f99381093c93cd6fd3251f", "seq_platform_name": "illumina", "pipeline_name": "cellranger", "irods_root_collection": "/seq/illumina/cellranger/path/to/coll/", "irods_data_relative_path": "consensus.bam"}]}

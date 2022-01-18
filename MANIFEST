@@ -1,6 +1,7 @@
 .dir-locals
 .github/workflows/testing_and_building_repo.yml
 bin/npg_external_report2ml_warehouse
+bin/npg_irods_locations2ml_warehouse
 bin/npg_manifest4study
 bin/npg_mlwarehouse_fkrepair
 bin/npg_mlwarehouse_run_delete
@@ -18,6 +19,7 @@ lib/npg_warehouse/fk_repair.pm
 lib/npg_warehouse/loader/autoqc.pm
 lib/npg_warehouse/loader/base.pm
 lib/npg_warehouse/loader/fqc.pm
+lib/npg_warehouse/loader/irods_location.pm
 lib/npg_warehouse/loader/npg.pm
 lib/npg_warehouse/loader/product.pm
 lib/npg_warehouse/loader/product_limited.pm
@@ -43,6 +45,7 @@ t/00-scripts_compile.t
 t/10-npg_warehouse-fkrepair.t
 t/10-npg_warehouse-loader-autoqc.t
 t/10-npg_warehouse-loader-fqc.t
+t/10-npg_warehouse-loader-irods-location.t
 t/10-npg_warehouse-loader-npg.t
 t/10-npg_warehouse-loader-pacbio-run.t
 t/10-npg_warehouse-loader-product_limited.t
@@ -78,6 +81,7 @@ t/data/fixtures/wh/000-Study.yml
 t/data/fixtures/wh/100-IseqFlowcell.yml
 t/data/fixtures/wh_npg/200-IseqProductMetric.yml
 t/data/fixtures/wh_npg/200-IseqRunLaneMetric.yml
+t/data/fixtures/wh_npg/200-SeqProductIrodsLocation.yml
 t/data/fixtures/wh_pacbio/000-Sample.yml
 t/data/fixtures/wh_pacbio/000-Study.yml
 t/data/fixtures/wh_pacbio/100-PacBioRun.yml
@@ -86,6 +90,13 @@ t/data/fixtures_stlims_wh/000-Study.yml
 t/data/fixtures_stlims_wh/100-IseqFlowcell.yml
 t/data/fixtures_stlims_wh/100-StudyUser.yml
 t/data/fixtures_stlims_wh/200-IseqProductMetric.yml
+t/data/irods_locations/new_and_update.json
+t/data/irods_locations/new_only.json
+t/data/irods_locations/new_same_coll.json
+t/data/irods_locations/new_same_id.json
+t/data/irods_locations/new_same_row.json
+t/data/irods_locations/update_only.json
+t/data/irods_locations/update_same_row.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/0db5e2da-7b54-47dc-9c04-53bde0a80a3f.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/16ddd726-7931-43cb-8521-0b7ca2cf2cf5.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/1b70315e-03de-4344-bc16-0db4683e675e.json
