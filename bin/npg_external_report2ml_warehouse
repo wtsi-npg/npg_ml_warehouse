@@ -92,6 +92,12 @@ Readonly::Hash my %MONIKER_MAP => {
   Data_archive_confirmed_date => 'archive_confirmation_date',
   Archive_ID_for_data_product => 'id_archive_product',
   Phase2_end_date => 'phase2_end_date',
+  Input_Files_Status => 'input_files_status',
+  Intermediate_Files_Status => 'intermediate_files_status',
+  Output_Files_Status => 'output_files_status',
+  Input_Status_Override_Ref => 'input_status_override_ref',
+  Intermediate_Status_Override_Ref => 'intermediate_status_override_ref',
+  Output_Status_Override_Ref => 'output_status_override_ref',
 };
 
 Readonly::Hash my %DICTIONARY_VALUES => {
