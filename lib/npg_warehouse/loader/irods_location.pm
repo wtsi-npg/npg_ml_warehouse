@@ -48,20 +48,21 @@ has 'schema_wh'  =>  ( isa        => 'WTSI::DNAP::Warehouse::Schema',
                        required   => 1,
                      );
 
-=head2 json_file
+=head2 target
 
-Name of a json file with a batch of products to be added to the table
+Path to a json file directory containing json files with a batch of products
+to be added to the table
 
 =cut
 
-has 'json_file'  =>  ( isa      => 'Str',
-                       is       => 'ro',
-                       required => 1,
-                     );
+has 'target'  =>  ( isa      => 'Str',
+                    is       => 'ro',
+                    required => 1,
+                  );
 
 =head2 products
 
-Reads json file and returns product information.
+Reads json file(s) and returns product information.
 
 File version numbers are included for compatibility with changes to the table
 or any other use-case specific json files that are required.
@@ -70,15 +71,31 @@ or any other use-case specific json files that are required.
 
 sub products {
   my $self = shift;
-
-  open my $json_fh, '<:encoding(UTF-8)', $self->json_file or die qq[$self->json_file does not exist];
-  my $data = decode_json <$json_fh>;
-  close $json_fh or die q[unable to close file];
-  if ($data->{version} eq '1.0') { # All information in json file
-    return $data->{products};
-  } else {
-    die "data file version number $data->{version} not recognised, this script may be out of date"
+  my @json_files = ();
+  if (-d $self->target) {
+    opendir my $dh, $self->target, or die qq[unable to open directory $self->target];
+    my @json_file_names = readdir $dh;
+    closedir $dh or die q[unable to close directory];
+    @json_files = map { join q[/], $self->target, $_} @json_file_names
+  }else {
+    push @json_files, $self->target;
   }
+
+  my @products = ();
+  foreach my $file (@json_files) {
+    if ($file =~ /.json$/mxs) {
+      open my $json_fh, '<:encoding(UTF-8)', $file or die qq[unable to open $file];
+      my $data = decode_json <$json_fh>;
+      close $json_fh or die q[unable to close file];
+      if ($data->{version} eq '1.0') {
+        push @products, @{$data->{products}};
+      }
+      else {
+        die "data file $file version number $data->{version} not recognised, this script may be out of date"
+      }
+    }
+  }
+  return \@products;
 }
 
 =head2 load_products
