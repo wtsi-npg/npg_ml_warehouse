@@ -184,7 +184,7 @@ subtest 'dry-run' => sub {
   plan tests => 6;
   my $irods_location = npg_warehouse::loader::irods_location->new(
     schema_wh => $schema_wh,
-    target => $new_only_json,
+    path => $new_only_json,
     dry_run   => 1
   );
   my @subhashes = ();

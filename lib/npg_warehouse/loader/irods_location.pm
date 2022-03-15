@@ -45,22 +45,25 @@ DBIx schema object for the warehouse database
 
 has 'schema_wh'  =>  ( isa        => 'WTSI::DNAP::Warehouse::Schema',
                        is         => 'ro',
-                       required   => 1,
+                       lazy_build => 1,
                      );
+sub _build_schema_wh {
+  return WTSI::DNAP::Warehouse::Schema->connect();
+}
 
-=head2 target
+=head2 path
 
-Path to a json file directory containing json files with a batch of products
+Path to a json file or directory containing json files with a batch of products
 to be added to the table
 
 =cut
 
-has 'target'  =>  ( isa      => 'Str',
+has 'path'  =>  ( isa      => 'Str',
                     is       => 'ro',
                     required => 1,
                   );
 
-=head2 products
+=head2 get_product_locations
 
 Reads json file(s) and returns product information.
 
@@ -69,54 +72,49 @@ or any other use-case specific json files that are required.
 
 =cut
 
-sub products {
+sub get_product_locations {
   my $self = shift;
   my @json_files = ();
-  if (-d $self->target) {
-    opendir my $dh, $self->target, or die qq[unable to open directory $self->target];
+  if (-d $self->path) {
+    opendir my $dh, $self->path, or die qq[unable to open directory $self->target];
     my @json_file_names = readdir $dh;
     closedir $dh or die q[unable to close directory];
-    @json_files = map { join q[/], $self->target, $_} @json_file_names
+    @json_files = map { join q[/], $self->path, $_} @json_file_names
   }else {
-    push @json_files, $self->target;
+    push @json_files, $self->path;
   }
 
-  my @products = ();
+  my @locations = ();
   foreach my $file (@json_files) {
     if ($file =~ /.json$/mxs) {
       open my $json_fh, '<:encoding(UTF-8)', $file or die qq[unable to open $file];
       my $data = decode_json <$json_fh>;
       close $json_fh or die q[unable to close file];
-      if ($data->{version} eq '1.0') {
-        push @products, @{$data->{products}};
-      }
-      else {
-        die "data file $file version number $data->{version} not recognised, this script may be out of date"
-      }
+      push @locations, @{$data->{products}};
     }
   }
-  return \@products;
+  return \@locations;
 }
 
-=head2 load_products
+=head2 load
 
 Creates or updates rows in the seq_product_irods_locations table.
 
-If a product is updated multiple times, the latest update is kept.
+If a row is updated multiple times, the latest update is kept.
 
 =cut
 
-sub load_products {
+sub load {
   my $self = shift;
 
-  my $products = $self->products();
+  my $locations = $self->get_product_locations();
   my $transaction = sub {
-    foreach my $product (@{$products}) {
+    foreach my $row (@{$locations}) {
       if (!$self->dry_run) {
         my $result = $self->schema_wh->resultset($IRODS_LOCATION_TABLE_NAME)->
-        update_or_create($product, { key => 'pi_root_product' });
+        update_or_create($row, { key => 'pi_root_product' });
       }
-      INFO qq[$IRODS_LOCATION_TABLE_NAME row loaded for id_product $product->{id_product} mapped to irods_collection $product->{irods_root_collection}];
+      INFO qq[$IRODS_LOCATION_TABLE_NAME row loaded for id_product $row->{id_product} mapped to irods_collection $row->{irods_root_collection}];
     }
     return;
   };
