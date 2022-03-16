@@ -1,6 +1,7 @@
 package npg_warehouse::loader::irods_location;
 
 use Moose;
+use MooseX::Getopt;
 use MooseX::StrictConstructor;
 use JSON;
 use Log::Log4perl qw(:easy :levels);
@@ -32,9 +33,10 @@ Boolean flag preventing changes from being made to ml warehouse
 
 =cut
 
-has 'dry_run'    =>  (isa       => 'Bool',
-                      is        => 'ro',
-                      default   => 0,
+has 'dry_run'    =>  (isa => 'Bool',
+  is                      => 'ro',
+  default                 => 0,
+  documentation           => 'Boolean option preventing changes from being made to ml warehouse',
                      );
 
 =head2 schema_wh
@@ -43,10 +45,11 @@ DBIx schema object for the warehouse database
 
 =cut
 
-has 'schema_wh'  =>  ( isa        => 'WTSI::DNAP::Warehouse::Schema',
-                       is         => 'ro',
-                       lazy_build => 1,
-                     );
+has 'schema_wh'  =>  (isa => 'WTSI::DNAP::Warehouse::Schema',
+  metaclass               => 'NoGetopt',
+  is                      => 'ro',
+  lazy_build              => 1,
+);
 sub _build_schema_wh {
   return WTSI::DNAP::Warehouse::Schema->connect();
 }
@@ -58,10 +61,23 @@ to be added to the table
 
 =cut
 
-has 'path'  =>  ( isa      => 'Str',
-                    is       => 'ro',
-                    required => 1,
-                  );
+has 'path'  =>  (isa => 'Str',
+  is                 => 'ro',
+  required           => 1,
+  documentation      => 'path to a json file or directory containing json files',
+);
+
+=head2 verbose
+
+Boolean flag to switch on verbose mode
+
+=cut
+
+
+has 'verbose' => (isa => 'bool',
+  is                  => 'ro',
+  documentation       => 'Boolean option to switch on verbose mode',
+);
 
 =head2 get_product_locations
 
@@ -137,6 +153,8 @@ __END__
 
 =item Moose
 
+=item MooseX::GetOpt
+
 =item MooseX::StrictConstructor
 
 =item JSON
@@ -159,7 +177,7 @@ Michael Kubiak
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2021 Genome Research Ltd.
+Copyright (C) 2021, 2022 Genome Research Ltd.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
