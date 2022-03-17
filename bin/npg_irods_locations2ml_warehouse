@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use FindBin qw($Bin);
 use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
-use Pod::Usage;
 use Log::Log4perl qw(:easy :levels);
 
 use WTSI::DNAP::Warehouse::Schema;

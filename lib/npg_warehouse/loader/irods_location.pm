@@ -96,7 +96,7 @@ sub get_product_locations {
     my @json_file_names = readdir $dh;
     closedir $dh or die q[unable to close directory];
     @json_files = map { join q[/], $self->path, $_} @json_file_names
-  }else {
+  } else {
     push @json_files, $self->path;
   }
 
@@ -128,7 +128,7 @@ sub load {
     foreach my $row (@{$locations}) {
       if (!$self->dry_run) {
         my $result = $self->schema_wh->resultset($IRODS_LOCATION_TABLE_NAME)->
-        update_or_create($row, { key => 'pi_root_product' });
+        update_or_create($row);
       }
       INFO qq[$IRODS_LOCATION_TABLE_NAME row loaded for id_product $row->{id_product} mapped to irods_collection $row->{irods_root_collection}];
     }

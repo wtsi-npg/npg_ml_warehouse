@@ -18,10 +18,6 @@ my $new  = [
     "pipeline_name" => "npg-prod",
     "irods_root_collection" => "/seq/illumina/20/20202/lane2/plex3/",
     "irods_data_relative_path" => "20202_2#3.bam",
-    "irods_secondary_data_relative_path" => undef,
-    "id_seq_product_irods_locations_tmp" => ignore(),
-    "created" => ignore(),
-    "last_changed" => ignore(),
   },
   {
     "id_product" => "45fire64a98b1dad5ec36fh42e2465kf5a858736hdu99381093c93cd6f4473jdu7",
@@ -29,10 +25,6 @@ my $new  = [
     "pipeline_name" => "cellranger",
     "irods_root_collection" => "/seq/illumina/cellranger/path/to/coll/",
     "irods_data_relative_path" => "consensus.bam",
-    "irods_secondary_data_relative_path" => undef,
-    "id_seq_product_irods_locations_tmp" => ignore(),
-    "created" => ignore(),
-    "last_changed" => ignore(),
   },
   {
     "id_product" => "03kcie64a98b1dad5ec481b82e2465kf5a8587c537f99381093c93cd6f4kd73j",
@@ -40,10 +32,6 @@ my $new  = [
     "pipeline_name" => "npg-prod-alt-process",
     "irods_root_collection" => "/seq/illumina/20/20202/lane2/plex9/",
     "irods_data_relative_path" => "20202_2#9.bam",
-    "irods_secondary_data_relative_path" => undef,
-    "id_seq_product_irods_locations_tmp" => ignore(),
-    "created" => ignore(),
-    "last_changed" => ignore(),
   },
   {
     "id_product" => "m64230e_210622_180142.ccs.bc1022_BAK8B_OA--bc1022_BAK8B_OA",
@@ -51,10 +39,6 @@ my $new  = [
     "pipeline_name" => "npg-prod",
     "irods_root_collection" => "/seq/pacbio/r64230e_20210618_162634/4_D01/",
     "irods_data_relative_path" => "demultiplex.bc1022_BAK8B_OA--bc1022_BAK8B_OA.bam",
-    "irods_secondary_data_relative_path" => undef,
-    "id_seq_product_irods_locations_tmp" => ignore(),
-    "created" => ignore(),
-    "last_changed" => ignore(),
   }
   # TODO: add an ONT example once id_product format is decided (here and in file)
 ];
@@ -71,10 +55,6 @@ my $new_with_update =
     "pipeline_name"=>  "npg-prod",
     "irods_root_collection"=> "/seq/illumina/20/20202/lane2/plex4/",
     "irods_data_relative_path"=> "20202_2#4.bam",
-    "irods_secondary_data_relative_path" => undef,
-    "id_seq_product_irods_locations_tmp" => ignore(),
-    "created" => ignore(),
-    "last_changed" => ignore(),
   };
 
 my $new_same_id =
@@ -84,10 +64,6 @@ my $new_same_id =
     "pipeline_name" => "cellranger",
     "irods_root_collection" => "/seq/illumina/cellranger/path/to/coll/",
     "irods_data_relative_path" => "consensus.bam",
-    "irods_secondary_data_relative_path" => undef,
-    "id_seq_product_irods_locations_tmp" => ignore(),
-    "created" => ignore(),
-    "last_changed" => ignore(),
   };
 
 my $new_same_coll =
@@ -97,10 +73,6 @@ my $new_same_coll =
     "pipeline_name"=> "npg-prod-alt-process",
     "irods_root_collection"=> "/seq/4486",
     "irods_data_relative_path"=> "4486_5.bam",
-    "irods_secondary_data_relative_path" => undef,
-    "id_seq_product_irods_locations_tmp" => ignore(),
-    "created" => ignore(),
-    "last_changed" => ignore(),
   };
 
 my $new_same_row =
@@ -110,10 +82,6 @@ my $new_same_row =
     "pipeline_name"=>  "npg-prod-alt-process",
     "irods_root_collection"=> "/seq/illumina/20/20202/lane6/plex1/",
     "irods_data_relative_path"=> "20202_6#1.bam",
-    "irods_secondary_data_relative_path" => undef,
-    "id_seq_product_irods_locations_tmp" => ignore(),
-    "created" => ignore(),
-    "last_changed" => ignore(),
   };
 
 my $directory = [
@@ -123,10 +91,6 @@ my $directory = [
     "pipeline_name" => "npg-prod",
     "irods_root_collection" => "/seq/illumina/20/20202/lane1/plex3/",
     "irods_data_relative_path" => "20202_1#3.bam",
-    "irods_secondary_data_relative_path" => undef,
-    "id_seq_product_irods_locations_tmp" => ignore(),
-    "created" => ignore(),
-    "last_changed" => ignore(),
   },
   {
     "id_product" => "id837e64a98b1d0g8ec481b82e2465kf5a9647c537f99381093c37ddfkfuv623",
@@ -134,10 +98,6 @@ my $directory = [
     "pipeline_name" => "npg-prod",
     "irods_root_collection" => "/seq/illumina/20/20202/lane1/plex1/",
     "irods_data_relative_path" => "20202_1#1.bam",
-    "irods_secondary_data_relative_path" => undef,
-    "id_seq_product_irods_locations_tmp" => ignore(),
-    "created" => ignore(),
-    "last_changed" => ignore(),
   }
 ];
 
@@ -155,6 +115,13 @@ sub get_product_row {
   my ($irods_locations, $product) = @_;
   return $irods_locations->schema_wh->resultset($irods_locations_table_name)->
       find($product, {key => 'pi_root_product'});
+}
+
+sub get_columns_in_files {
+  my $row = shift;
+  my %columns = $row->get_columns;
+  my %columns_in_files = map { $_ => $columns{$_} } qw/id_product seq_platform_name pipeline_name irods_root_collection irods_data_relative_path/;
+  return \%columns_in_files;
 }
 
 my $util = Moose::Meta::Class->create_anon_class(
@@ -213,7 +180,7 @@ subtest 'load new products' => sub {
   foreach my $product (@{$new}) {
     my $row = get_product_row($irods_location, $product);
     is($row->in_storage, 1, 'new product loaded');
-    cmp_deeply({$row->get_columns}, $product, 'correct values for new product');
+    cmp_deeply(get_columns_in_files($row), $product, 'correct values for new product');
   }
 };
 
@@ -249,7 +216,7 @@ subtest 'load mixed new and updated products' => sub {
     'product loading function succeeds';
   $new_row = get_product_row($irods_location, $new_with_update);
   is($new_row->in_storage, 1, 'new product loaded');
-  cmp_deeply({$new_row->get_columns}, $new_with_update,
+  cmp_deeply(get_columns_in_files($new_row), $new_with_update,
   'correct values for new product');
   my $updated_row = get_product_row($irods_location, $update);
   is($updated_row->get_column('pipeline_name'), 'npg-prod',
@@ -273,7 +240,7 @@ subtest 'load new row with the same product id as a present row' => sub {
   'previously present row did not change');
   $new_row = get_product_row($irods_location, $new_same_id);
   is($new_row->in_storage, 1, 'new product loaded');
-  cmp_deeply({$new_row->get_columns}, $new_same_id,
+  cmp_deeply(get_columns_in_files($new_row), $new_same_id,
   'correct values for new product');
 };
 
@@ -291,7 +258,7 @@ subtest 'load new row with the same root collection as a present row' => sub {
   'previously present row did not change');
   $new_row = get_product_row($irods_location, $new_same_coll);
   is($new_row->in_storage, 1, 'new product loaded');
-  cmp_deeply({$new_row->get_columns}, $new_same_coll,
+  cmp_deeply(get_columns_in_files($new_row), $new_same_coll,
   'correct values for new product');
 };
 
@@ -304,7 +271,7 @@ subtest 'load new row twice from same file' => sub {
   lives_ok{ $irods_location->load}
     'product loading function succeeds';
   $new_row = get_product_row($irods_location, $new_same_row);
-  cmp_deeply({$new_row->get_columns}, $new_same_row,
+  cmp_deeply(get_columns_in_files($new_row), $new_same_row,
   'latest values for new product kept');
 };
 
@@ -330,7 +297,7 @@ subtest 'load rows from a directory' => sub {
   foreach my $product (@{$directory}) {
     my $row = get_product_row($irods_location, $product);
     is($row->in_storage, 1, 'new product loaded');
-    cmp_deeply({$row->get_columns}, $product, 'correct values for new product');
+    cmp_deeply(get_columns_in_files($row), $product, 'correct values for new product');
   }
 };
 
