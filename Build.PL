@@ -53,6 +53,7 @@ my $builder = npg_tracking::util::build->new(
                     'Math::Round'                => 0,
                     'MIME::Base64'               => 0,
                     'Moose'                      => 0,
+                    'MooseX::Getopt'             => 0,
                     'MooseX::StrictConstructor'  => 0,
                     'namespace::autoclean'       => 0,
                     'Pod::Usage'                 => 0,
