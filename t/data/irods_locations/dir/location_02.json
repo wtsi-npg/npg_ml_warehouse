@@ -1,0 +1,1 @@
+{"version": "1.0", "products":  [{"id_product": "id837e64a98b1d0g8ec481b82e2465kf5a9647c537f99381093c37ddfkfuv623", "seq_platform_name": "illumina", "pipeline_name":  "npg-prod", "irods_root_collection": "/seq/illumina/20/20202/lane1/plex1/", "irods_data_relative_path": "20202_1#1.bam"}]}

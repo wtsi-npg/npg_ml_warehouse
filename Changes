@@ -1,5 +1,9 @@
 LIST OF CHANGES
 
+release 45.2.0
+ - update the npg_irods_locations2ml_warehouse script to make it able to read
+   input data from multiple files residing in a common directory
+
 release 45.1.0
  - add npg_irods_locations2ml_warehouse - a generic script to load iRODS location
    for sequencing products from different pipelines to ml warehouse
