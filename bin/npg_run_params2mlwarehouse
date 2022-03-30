@@ -1,0 +1,121 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use FindBin qw($Bin);
+use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
+use Log::Log4perl qw(:easy :levels);
+use Try::Tiny;
+
+use npg_warehouse::loader::run_files;
+
+our $VERSION = '0';
+
+my $layout = '%d %-5p %c - %m%n';
+my $level  = $INFO;
+Log::Log4perl->easy_init({layout => $layout,
+                          level  => $level,
+                          utf8   => 1});
+
+if (defined $ENV{dev} && $ENV{dev}) {
+  WARN(join q[ ], q[Using], $ENV{dev}, q[ml warehouse database]);
+}
+
+my $loader;
+my $file;
+
+try {
+  $loader = npg_warehouse::loader::run_files->new_with_options();
+  INFO('Loading run params. for run ' . $loader->id_run);
+  $file = $loader->load();
+} catch {
+  FATAL($_);
+  exit 1;
+};
+
+INFO("Loaded $file for run " . $loader->id_run);
+
+exit 0;
+
+__END__
+
+=head1 NAME
+
+npg_run_params2mlwarehouse
+
+=head1 SYNOPSIS
+
+Script to load a file with rIllumina run parameters to ml warehouse.
+
+=head1 DESCRIPTION
+
+=head1 USAGE
+
+  npg_run_params2mlwarehouse --id_run 45 \
+  --path_glob '[RUN_FOLDER_PATH]/{r,R}unParameters.xml'
+
+=head1 REQUIRED ARGUMENTS
+
+  --id_run
+  --path_glob
+
+=head1 OPTIONS
+
+  --help       brief help message
+  --id_run     NPG run id
+  --path_glob  a path glob which should resolve to exactly one file
+
+=head1 EXIT STATUS
+
+0 if exited normally
+
+1 if a fatal error occured
+
+=head1 CONFIGURATION
+
+=head1 DIAGNOSTICS
+
+=head1 DEPENDENCIES
+
+=over
+
+=item strict
+
+=item warnings
+
+=item lib
+
+=item FindBin
+
+=item Try::Tiny
+
+=item Log::Log4perl
+
+=item npg_warehouse::loader::run_param
+
+=back
+
+=head1 INCOMPATIBILITIES
+
+=head1 BUGS AND LIMITATIONS
+
+=head1 AUTHOR
+
+Marina Gourtovaia E<lt>mg8@sanger.ac.ukE<gt>
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (C) 2022 Genome Research Ltd.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
