@@ -1,14 +1,14 @@
 package npg_warehouse::loader::irods_location;
 
 use Moose;
-use MooseX::Getopt;
 use MooseX::StrictConstructor;
 use JSON;
 use Log::Log4perl qw(:easy :levels);
 use Readonly;
 use Data::Dumper;
 
-with 'WTSI::DNAP::Utilities::Loggable';
+with qw/ WTSI::DNAP::Utilities::Loggable
+         MooseX::Getopt /;
 
 our $VERSION = '0';
 
