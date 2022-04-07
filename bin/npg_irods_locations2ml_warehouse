@@ -5,7 +5,6 @@ use FindBin qw($Bin);
 use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
 use Log::Log4perl qw(:easy :levels);
 
-use WTSI::DNAP::Warehouse::Schema;
 use npg_warehouse::loader::irods_location;
 
 our $VERSION = '0';
@@ -34,7 +33,7 @@ __END__
 
 =head1 NAME
 
-irods_location_loader
+npg_irods_locations2ml_warehouse
 
 =head1 SYNOPSIS
 
@@ -47,11 +46,11 @@ If two updates are made to the same row, the newer update is retained.
 
 =head1 USAGE
 
-
+  
 
 =head1 REQUIRED ARGUMENTS
 
-none
+  --path
 
 =head1 OPTIONS
 
