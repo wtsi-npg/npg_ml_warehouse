@@ -148,12 +148,16 @@ subtest 'object creation' => sub {
 };
 
 subtest 'dry-run' => sub {
-  plan tests => 6;
-  my $irods_location = npg_warehouse::loader::irods_location->new(
+  plan tests => 8;
+  my $irods_location;
+  lives_ok {$irods_location = npg_warehouse::loader::irods_location->new(
     schema_wh => $schema_wh,
-    path => $new_only_json,
-    dry_run   => 1
+    path      => $new_only_json,
+    dry_run   => 1,
+    verbose   => 1,
   );
+  } 'object instantiated with optional attributes';
+  is($irods_location->verbose, 1, 'loader is verbose');
   my @subhashes = ();
   foreach my $product (@{$new}) {
     push @subhashes, subhashof($product);

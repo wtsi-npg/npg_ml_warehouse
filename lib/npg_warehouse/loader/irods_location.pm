@@ -74,7 +74,7 @@ Boolean flag to switch on verbose mode
 =cut
 
 
-has 'verbose' => (isa => 'bool',
+has 'verbose' => (isa => 'Bool',
   is                  => 'ro',
   documentation       => 'Boolean option to switch on verbose mode',
 );
