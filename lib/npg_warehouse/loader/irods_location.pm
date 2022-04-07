@@ -3,9 +3,10 @@ package npg_warehouse::loader::irods_location;
 use Moose;
 use MooseX::StrictConstructor;
 use JSON;
-use Log::Log4perl qw(:easy :levels);
 use Readonly;
-use Data::Dumper;
+use Carp;
+
+use WTSI::DNAP::Warehouse::Schema;
 
 with qw/ WTSI::DNAP::Utilities::Loggable
          MooseX::Getopt /;
@@ -36,7 +37,8 @@ Boolean flag preventing changes from being made to ml warehouse
 has 'dry_run'    =>  (isa => 'Bool',
   is                      => 'ro',
   default                 => 0,
-  documentation           => 'Boolean option preventing changes from being made to ml warehouse',
+  documentation           =>
+    'Boolean flag preventing changes from being made to ml warehouse, false by default',
                      );
 
 =head2 schema_wh
@@ -73,11 +75,21 @@ Boolean flag to switch on verbose mode
 
 =cut
 
-
 has 'verbose' => (isa => 'Bool',
   is                  => 'ro',
-  documentation       => 'Boolean option to switch on verbose mode',
+  documentation       =>
+    'Boolean option to switch on/off verbose mode, false by default',
 );
+
+=head2 logger
+
+Logger object attribute, inherited from WTSI::DNAP::Utilities::Loggable.
+Metaclass of the attribute changed to 'NoGetopt' to suppress its appearance
+in the arguments of the scripts which use this class.
+
+=cut
+
+has '+logger' => (metaclass => 'NoGetopt',);
 
 =head2 get_product_locations
 
@@ -92,10 +104,10 @@ sub get_product_locations {
   my $self = shift;
   my @json_files = ();
   if (-d $self->path) {
-    opendir my $dh, $self->path, or die qq[unable to open directory $self->target];
+    opendir my $dh, $self->path, or croak qq[Unable to open directory $self->path];
     my @json_file_names = readdir $dh;
-    closedir $dh or die q[unable to close directory];
-    @json_files = map { join q[/], $self->path, $_} @json_file_names
+    closedir $dh or croak q[Unable to close directory];
+    @json_files = map { join q[/], $self->path, $_ } @json_file_names;
   } else {
     push @json_files, $self->path;
   }
@@ -103,18 +115,20 @@ sub get_product_locations {
   my @locations = ();
   foreach my $file (@json_files) {
     if ($file =~ /.json$/mxs) {
-      open my $json_fh, '<:encoding(UTF-8)', $file or die qq[unable to open $file];
+      open my $json_fh, '<:encoding(UTF-8)', $file or croak qq[Unable to open $file];
       my $data = decode_json <$json_fh>;
-      close $json_fh or die q[unable to close file];
+      close $json_fh or croak q[Unable to close file];
       push @locations, @{$data->{products}};
     }
   }
+
   return \@locations;
 }
 
 =head2 load
 
 Creates or updates rows in the seq_product_irods_locations table.
+Only considers files with the C<.json> extension.
 
 If a row is updated multiple times, the latest update is kept.
 
@@ -124,18 +138,28 @@ sub load {
   my $self = shift;
 
   my $locations = $self->get_product_locations();
+
   my $transaction = sub {
     foreach my $row (@{$locations}) {
       if (!$self->dry_run) {
-        my $result = $self->schema_wh->resultset($IRODS_LOCATION_TABLE_NAME)->
-        update_or_create($row);
+        my $result = $self->schema_wh
+          ->resultset($IRODS_LOCATION_TABLE_NAME)->update_or_create($row);
       }
-      INFO qq[$IRODS_LOCATION_TABLE_NAME row loaded for id_product $row->{id_product} mapped to irods_collection $row->{irods_root_collection}];
+      $self->info(
+        sprintf 'row loaded for id_product %s mapped to irods_collection %s',
+          $row->{id_product}, $row->{irods_root_collection}
+      );
     }
     return;
   };
 
-  $self->schema_wh->txn_do($transaction);
+  if (!@{$locations}) {
+    $self->warn('No JSON files are found');
+  } else {
+    $self->info(qq[Loading data to $IRODS_LOCATION_TABLE_NAME]);
+    $self->schema_wh->txn_do($transaction);
+  }
+
   return;
 }
 
@@ -159,11 +183,13 @@ __END__
 
 =item JSON
 
-=item Log::Log4Perl
-
 =item Readonly
 
-=item Data::Dumper
+=item Carp
+
+=item WTSI::DNAP::Utilities::Loggable
+
+=item WTSI::DNAP::Warehouse::Schema
 
 =back
 
