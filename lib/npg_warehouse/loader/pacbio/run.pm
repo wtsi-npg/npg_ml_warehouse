@@ -20,6 +20,7 @@ our $VERSION = '0';
 Readonly::Scalar my $RUN_WELL_TABLE_NAME => q[PacBioRunWellMetric];
 Readonly::Scalar my $PRODUCT_TABLE_NAME  => q[PacBioProductMetric];
 Readonly::Scalar my $MIN_SW_VERSION      => 10;
+Readonly::Scalar my $XML_TRACKING_FIELDS => 6;
 Readonly::Scalar my $SUBREADS            => q[subreads];
 Readonly::Scalar my $CCSREADS            => q[ccsreads];
 
@@ -36,6 +37,12 @@ npg_warehouse::loader::pacbio::run
 =head1 SUBROUTINES/METHODS
 
 =cut 
+
+has 'hostname' =>
+  (isa           => 'Str',
+   is            => 'ro',
+   required      => 1,
+   documentation => 'The SMRT Link server hostname e.g. pacbio02.dnapipelines.sanger.ac.uk',);
 
 has 'run_uuid' =>
   (isa           => 'Str',
@@ -106,6 +113,8 @@ sub _build_run {
     $run_info{'instrument_name'}       = $run->{'instrumentName'};
     $run_info{'instrument_type'}       = $run->{'instrumentType'};
     $run_info{'chip_type'}             = $run->{'chipType'};
+    $run_info{'sl_hostname'}           = $self->hostname;
+    $run_info{'sl_run_uuid'}           = $run->{'uniqueId'};
     $run_info{'ts_run_name'}           = $run->{'context'};
     $run_info{'run_start'}             = $self->fix_date($run->{'startedAt'});
     $run_info{'run_complete'}          = $self->fix_date($run->{'completedAt'});
@@ -115,24 +124,6 @@ sub _build_run {
     $run_info{'primary_analysis_sw_version'}
                                        = $run->{'primaryAnalysisSwVersion'};
 
-    if ($run->{'dataModel'}) {
-      ## lot number registered per cell but same across a run
-      my $lot;
-      try {
-        my $dom =  XML::LibXML->load_xml(string => $run->{'dataModel'});
-        my $cell = $dom->getElementsByTagName('pbmeta:CellPac') ?
-          $dom->getElementsByTagName('pbmeta:CellPac')->[0] :
-          $dom->getElementsByTagName('CellPac')->[0];
-        $lot = $cell->getAttribute('LotNumber');
-      } catch {
-        $self->error('Failed to get lot number for run ', $run->{'name'},' from xml ', $_);
-      };
-      if ($lot) {
-        $run_info{'cell_lot_number'} = $lot;
-      } else {
-        $self->error('Lot number undefined for run ', $run->{'name'});
-      }
-    }
   }
   return \%run_info;
 }
@@ -155,10 +146,12 @@ sub _build_run_wells {
       $well->{'well'} =~ s/0//smx;
       $well_info{'well_label'}         = $well->{'well'};
       $well_info{'movie_name'}         = $well->{'context'};
+      $well_info{'movie_minutes'}      = $well->{'movieMinutes'};
       $well_info{'well_start'}         = $self->fix_date($well->{'startedAt'});
       $well_info{'well_complete'}      = $self->fix_date($well->{'completedAt'});
       $well_info{'well_status'}        = $well->{'status'};
       $well_info{'ccs_execution_mode'} = $well->{'ccsExecutionMode'};
+      $well_info{'created_by'}         = $well->{'createdBy'};
 
       my $qc = defined $well->{'ccsExecutionMode'} &&
         $well->{'ccsExecutionMode'} eq 'OnInstrument' ?
@@ -176,8 +169,10 @@ sub _build_run_wells {
         if (defined $ccsid) { $ccs = $self->_ccs_info($ccsid, $CCSREADS); }
       }
 
+      my $tki = $self->_well_tracking_info($well->{'uniqueId'});
       my $run = $self->_run;
-      my %all =  (%{$run}, %well_info, %{$qc}, %{$ccs});
+
+      my %all =  (%well_info, %{$qc}, %{$ccs}, %{$tki}, %{$run});
       push @run_wells, \%all;
     }
   }
@@ -266,6 +261,7 @@ sub _well_qc_info {
     $qc{'short_insert_percent'}        = $qc_all->{'Short Inserts (11-100bp) %'};
     $qc{'control_num_reads'}           = $qc_all->{'Number of of Control Reads'};
     $qc{'control_concordance_mean'}    = $qc_all->{'Control Read Concordance Mean'};
+    $qc{'control_concordance_mode'}    = $qc_all->{'Control Read Concordance Mode'};
     $qc{'control_read_length_mean'}    = $qc_all->{'Control Read Length Mean'};
     $qc{'local_base_rate'}             = $qc_all->{'Local Base Rate'};
   }
@@ -293,6 +289,83 @@ sub _slurp_reports {
   }
   return \%contents;
 }
+
+sub _well_tracking_info {
+  my ($self, $id) = @_;
+
+  my $run = $self->pb_api_client->query_run($self->run_uuid);
+
+  my (%well_tracking_info, %tracking);
+  my $errors = 0;
+
+  if ($run->{'dataModel'} ) {
+    try {
+      my $dom    =  XML::LibXML->load_xml(string => $run->{'dataModel'});
+      my $prefix = q[];
+
+      my @subsets;
+      if (defined $dom->getElementsByTagName('pbds:SubreadSet')->[0]) {
+          @subsets = $dom->getElementsByTagName('pbds:SubreadSet');
+          $prefix = q[pbmeta:];
+      } elsif (defined $dom->getElementsByTagName('SubreadSet')->[0]) {
+          @subsets = $dom->getElementsByTagName('SubreadSet');
+      }
+
+      foreach my $sub ( @subsets ) {
+        my $idx  = $sub->getAttribute('UniqueId');
+        next if $id ne $idx;
+
+        if ($sub->getElementsByTagName($prefix .'OnPlateLoadingConcentration')) {
+          my $conc = $sub->getElementsByTagName($prefix .'OnPlateLoadingConcentration');
+          $conc =~ s/[.]0*$//smx;
+          $tracking{'loading_conc'} = $conc;
+        }
+        if ($sub->getElementsByTagName($prefix .'IncludeKinetics')) {
+          my $kin  = $sub->getElementsByTagName($prefix .'IncludeKinetics') eq 'true' ? 1 : 0;
+          $tracking{'include_kinetics'} = $kin;
+        }
+        if ($sub->getElementsByTagName($prefix .'SequencingKitPlate')) {
+          my $skp  = $sub->getElementsByTagName($prefix .'SequencingKitPlate')->[0];
+          if ($skp->getAttribute('Name')) {
+              my $skn = $skp->getAttribute('Name');
+              $skn =~ s/[^[:ascii:]]//smxg;
+              $tracking{'sequencing_kit'} = $skn;
+          }
+          if ($skp->getAttribute('LotNumber')) {
+            $tracking{'sequencing_kit_lot_number'} = $skp->getAttribute('LotNumber');
+          }
+        }
+        if ($sub->getElementsByTagName($prefix .'BindingKit')) {
+          my $bk   = $sub->getElementsByTagName($prefix .'BindingKit')->[0];
+          if ($bk->getAttribute('Name')) {
+            my $bkn = $bk->getAttribute('Name');
+            $bkn =~ s/[^[:ascii:]]//smxg;
+            $tracking{'binding_kit'} = $bkn;
+          }
+        }
+        if ($sub->getElementsByTagName($prefix .'CellPac')) {
+          my $cell = $sub->getElementsByTagName($prefix .'CellPac')->[0];
+          if ($cell->getAttribute('LotNumber')) {
+            $tracking{'cell_lot_number'} = $cell->getAttribute('LotNumber');
+          }
+        }
+      }
+    } catch {
+      $self->error('Errors getting info for ', $run->{'name'},' subset ', $id, $_);
+      $errors++;
+    };
+
+    if ($errors < 1) {
+      %well_tracking_info = %tracking;
+    }
+
+    if (scalar keys %well_tracking_info != $XML_TRACKING_FIELDS ) {
+      $self->error('Failed to get all expected XML info for ', $run->{'name'},' subset ', $id);
+    }
+  }
+  return \%well_tracking_info;
+}
+
 
 =head2 load_pacbiorunwellmetric_table
 
