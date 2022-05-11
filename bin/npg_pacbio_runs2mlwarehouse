@@ -18,10 +18,12 @@ our $VERSION = '0';
 
 Readonly::Scalar my $DEFAULT_INTERVAL_DAYS   => 100_000;
 Readonly::Scalar my $DEFAULT_OLDER_THAN_DAYS => 0;
+Readonly::Scalar my $DEFAULT_HOSTNAME => q[pacbio02.dnapipelines.sanger.ac.uk];
 
 my $api_uri;
 my $debug;
 my $dry_run = 1;
+my $hostname = $DEFAULT_HOSTNAME;
 my $interval = $DEFAULT_INTERVAL_DAYS;
 my $log4perl_config;
 my $older_than = $DEFAULT_OLDER_THAN_DAYS;
@@ -34,6 +36,7 @@ GetOptions('api-uri|api_uri=s'          => \$api_uri,
            'help'                       => sub {
              pod2usage(-verbose => 1, -exitval => 0,);
            },
+           'hostname=s'                 => \$hostname,
            'interval=i'                 => \$interval,
            'logconf=s'                  => \$log4perl_config,
            'older-than|older_than=i'    => \$older_than,
@@ -84,7 +87,8 @@ foreach my $run (@runs_to_load) {
   my @load_args = (dry_run       => $dry_run,
                    pb_api_client => $pb_api,
                    mlwh_schema   => $wh_schema,
-                   run_uuid      => $run,);
+                   run_uuid      => $run,
+                   hostname      => $hostname,);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
 
@@ -131,7 +135,8 @@ npg_pacbio_runs2mlwarehouse [--api-uri <uri>] [--debug] [--help]
 =head1 OPTIONS
 
   --api-uri
-  --api_uri        Specify the server host and port. Optional.
+  --api_uri        Specify the server host and port. Optional
+                   defaults to 'localhost:8071'
   --debug          Enable debug level logging. Optional, defaults
                    to false.
   --dry-run

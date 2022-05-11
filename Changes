@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - extend fields loaded by the npg_pacbio_runs2mlwarehouse script
+ 
 release 45.2.0
  - update the npg_irods_locations2ml_warehouse script to make it able to read
    input data from multiple files residing in a common directory
