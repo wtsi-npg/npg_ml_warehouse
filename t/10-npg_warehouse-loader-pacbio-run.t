@@ -71,13 +71,14 @@ lives_ok{ $wh_schema } 'warehouse test db created';
 
 
 subtest 'load_completed_run_off_instrument_analysis' => sub {
-  plan tests => 25;
+  plan tests => 33;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
   my @load_args = (dry_run       => '1',
                    pb_api_client => $pb_api,
                    mlwh_schema   => $wh_schema,
-                   run_uuid      => q[288f2be0-9c7c-4930-b1ff-0ad71edae556]);
+                   run_uuid      => q[288f2be0-9c7c-4930-b1ff-0ad71edae556],
+                   hostname      => q[blah.sanger.ac.uk]);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
   my ($processed, $loaded, $errors) = $loader->load_run;
@@ -89,7 +90,8 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
   my @load_args2 = (dry_run       => '0',
                     pb_api_client => $pb_api,
                     mlwh_schema   => $wh_schema,
-                    run_uuid      => q[288f2be0-9c7c-4930-b1ff-0ad71edae556]);
+                    run_uuid      => q[288f2be0-9c7c-4930-b1ff-0ad71edae556],
+                    hostname      => q[blah.sanger.ac.uk]);
 
   my $loader2   = npg_warehouse::loader::pacbio::run->new(@load_args2);
   my ($processed2, $loaded2, $errors2) = $loader2->load_run;
@@ -116,8 +118,17 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
   is ($r2->hifi_num_reads, q[2449034], 'correct hifi reads for run 80685 well A1');
   is ($r2->control_num_reads, q[3914], 'correct control reads for run 80685 well A1');
   is ($r2->control_read_length_mean, q[52142], 'correct control read mean for run 80685 well A1');
+  is ($r2->control_concordance_mode, q[0.89], 'correct control concordance mode for run 80685 well A1');
   is ($r2->local_base_rate, q[2.13797], 'correct local base rate for run 80685 well A1');
   is ($r2->cell_lot_number, q[416342], 'correct cell lot number for run 80685 well A1');
+  is ($r2->binding_kit, q[Sequel II Binding Kit 2.0], 'correct binding kit for run 80685 well A1');
+  is ($r2->sequencing_kit_lot_number, q[018942], 'correct sequencing kit lot number for run 80685 well A1');
+  is ($r2->include_kinetics, q[1], 'correct include kinetics for run 80685 well A1');
+  is ($r2->created_by, q[mls], 'correct created by for run 80685 well A1');
+  is ($r2->sl_hostname, q[blah.sanger.ac.uk], 'correct sl hostname for run 80685 well A1');
+  is ($r2->sl_run_uuid, q[288f2be0-9c7c-4930-b1ff-0ad71edae556], 'correct sl run uuid for run 80685 well A1');
+  is ($r2->movie_minutes, q[1440], 'correct movie minutes for run 80685 well A1');
+
 
   is ($r2->run_status, q[Complete], 'correct run status for run 80685 well A1');
   is ($r2->well_status, q[Complete], 'correct well status for run 80685 well A1');
@@ -143,7 +154,8 @@ subtest 'load_completed_run_mixed_analysis' => sub {
   my @load_args = (dry_run       => '0',
                    pb_api_client => $pb_api,
                    mlwh_schema   => $wh_schema,
-                   run_uuid      => q[89dfd7ed-c17a-452b-85b4-526d4a035d0d]);
+                   run_uuid      => q[89dfd7ed-c17a-452b-85b4-526d4a035d0d],
+                   hostname      => q[blah.sanger.ac.uk]);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
   my ($processed, $loaded, $errors) = $loader->load_run;
@@ -179,7 +191,8 @@ subtest 'load_in_progress_run' => sub {
   my @load_args = (dry_run       => '0',
                    pb_api_client => $pb_api,
                    mlwh_schema   => $wh_schema,
-                   run_uuid      => q[d4c8636a-25f3-4874-b816-b690bbe31b2c]);
+                   run_uuid      => q[d4c8636a-25f3-4874-b816-b690bbe31b2c],
+                   hostname      => q[blah.sanger.ac.uk]);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
   my ($processed, $loaded, $errors) = $loader->load_run;
@@ -209,7 +222,8 @@ subtest 'fail_to_load_non_existent_run' => sub {
   my @load_args = (dry_run       => '0',
                    pb_api_client => $pb_api,
                    mlwh_schema   => $wh_schema,
-                   run_uuid      => q[XXXXXXXX]);
+                   run_uuid      => q[XXXXXXXX],
+                   hostname      => q[blah.sanger.ac.uk]);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
   my ($processed, $loaded, $errors) = $loader->load_run;
