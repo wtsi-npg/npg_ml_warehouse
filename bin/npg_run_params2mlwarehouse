@@ -45,7 +45,7 @@ npg_run_params2mlwarehouse
 
 =head1 SYNOPSIS
 
-Script to load a file with rIllumina run parameters to ml warehouse.
+Script to load a file with Illumina run parameters to ml warehouse.
 
 =head1 DESCRIPTION
 
