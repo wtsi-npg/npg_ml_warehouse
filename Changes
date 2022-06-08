@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+ - tweak to pacbio loader to deal with different SMRT Link versions
  - add a loader for Illumina run parameters XML files.
 
 release 45.3.0
