@@ -8,6 +8,7 @@ bin/npg_mlwarehouse_run_delete
 bin/npg_pacbio_runs2mlwarehouse
 bin/npg_products2mlwarehouse
 bin/npg_run_info2mlwarehouse
+bin/npg_run_params2mlwarehouse
 bin/npg_runs2mlwarehouse
 bin/npg_samplesheet4MiSeq
 bin/warehouse_loader_launcher
@@ -25,6 +26,7 @@ lib/npg_warehouse/loader/product.pm
 lib/npg_warehouse/loader/product_limited.pm
 lib/npg_warehouse/loader/qc.pm
 lib/npg_warehouse/loader/run.pm
+lib/npg_warehouse/loader/run_files.pm
 lib/npg_warehouse/loader/run_info.pm
 lib/npg_warehouse/loader/pacbio/base.pm
 lib/npg_warehouse/loader/pacbio/product.pm
@@ -51,6 +53,7 @@ t/10-npg_warehouse-loader-pacbio-run.t
 t/10-npg_warehouse-loader-product_limited.t
 t/10-npg_warehouse-loader-qc.t
 t/10-npg_warehouse-loader-run.t
+t/10-npg_warehouse-loader-run_files.t
 t/10-npg_warehouse-loader-run_info.t
 t/10-st-api-lims-ml_warehouse.t
 t/20-npg_warehouse-loader-run.t
@@ -166,6 +169,7 @@ t/data/pacbio/smrtlink/runs/288f2be0-9c7c-4930-b1ff-0ad71edae556.json
 t/data/pacbio/smrtlink/runs/89dfd7ed-c17a-452b-85b4-526d4a035d0d.json
 t/data/pacbio/smrtlink/runs/d4c8636a-25f3-4874-b816-b690bbe31b2c.json
 t/data/pacbio/smrtlink/runs/XXXXXXXX.json
+t/data/runfolders/run_params/RunParameters_NovaSeq.xml
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane1/qc/4799_1.adapter.json
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane1/qc/4799_1.gc_fraction.json
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane1/qc/4799_1.insert_size.json

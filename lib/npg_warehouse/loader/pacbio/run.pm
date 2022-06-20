@@ -224,14 +224,14 @@ sub _ccs_info {
     $ccs{'hifi_read_bases'} = $ccs_all->{'HiFi Yield (bp)'};
     $ccs{'hifi_num_reads'} = $ccs_all->{'HiFi Reads'};
     $ccs{'hifi_read_length_mean'} = $ccs_all->{'HiFi Read Length (mean, bp)'};
-    if ($ccs_all->{'HiFi Read Quality (median)'} =~ /^Q(\d+)$/smx) {
+    if ($ccs_all->{'HiFi Read Quality (median)'} =~ /^Q?(\d+)$/smx) {
       $ccs{'hifi_read_quality_median'} = $1;
     }
     $ccs{'hifi_number_passes_mean'} = $ccs_all->{'HiFi Number of Passes (mean)'};
     $ccs{'hifi_low_quality_read_bases'} = $ccs_all->{'<Q20 Yield (bp)'};
     $ccs{'hifi_low_quality_num_reads'} = $ccs_all->{'<Q20 Reads'};
     $ccs{'hifi_low_quality_read_length_mean'}  = $ccs_all->{'<Q20 Read Length (mean, bp)'};
-    if ($ccs_all->{'<Q20 Read Quality (median)'} =~ /^Q(\d+)$/smx) {
+    if ($ccs_all->{'<Q20 Read Quality (median)'} =~ /^Q?(\d+)$/smx) {
       $ccs{'hifi_low_quality_read_quality_median'} = $1;
     }
   }

@@ -71,7 +71,7 @@ lives_ok{ $wh_schema } 'warehouse test db created';
 
 
 subtest 'load_completed_run_off_instrument_analysis' => sub {
-  plan tests => 33;
+  plan tests => 35;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
   my @load_args = (dry_run       => '1',
@@ -116,6 +116,8 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
   is ($r2->polymerase_num_reads, q[5379015], 'correct polymerase reads for run 80685 well A1');
   is ($r2->hifi_read_bases, q[24739994857], 'correct hifi bases for run 80685 well A1');
   is ($r2->hifi_num_reads, q[2449034], 'correct hifi reads for run 80685 well A1');
+  is ($r2->hifi_read_quality_median, q[34], 'correct hifi read Q median for run 80685 well A1');
+  is ($r2->hifi_low_quality_read_quality_median, q[16], 'correct hifi low Q read Q median for run 80685 well A1');
   is ($r2->control_num_reads, q[3914], 'correct control reads for run 80685 well A1');
   is ($r2->control_read_length_mean, q[52142], 'correct control read mean for run 80685 well A1');
   is ($r2->control_concordance_mode, q[0.89], 'correct control concordance mode for run 80685 well A1');
@@ -128,7 +130,6 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
   is ($r2->sl_hostname, q[blah.sanger.ac.uk], 'correct sl hostname for run 80685 well A1');
   is ($r2->sl_run_uuid, q[288f2be0-9c7c-4930-b1ff-0ad71edae556], 'correct sl run uuid for run 80685 well A1');
   is ($r2->movie_minutes, q[1440], 'correct movie minutes for run 80685 well A1');
-
 
   is ($r2->run_status, q[Complete], 'correct run status for run 80685 well A1');
   is ($r2->well_status, q[Complete], 'correct well status for run 80685 well A1');
