@@ -231,7 +231,8 @@ sub _ccs_info {
     $ccs{'hifi_low_quality_read_bases'} = $ccs_all->{'<Q20 Yield (bp)'};
     $ccs{'hifi_low_quality_num_reads'} = $ccs_all->{'<Q20 Reads'};
     $ccs{'hifi_low_quality_read_length_mean'}  = $ccs_all->{'<Q20 Read Length (mean, bp)'};
-    if ($ccs_all->{'<Q20 Read Quality (median)'} =~ /^Q?(\d+)$/smx) {
+    if ($ccs_all->{'<Q20 Read Quality (median)'} &&
+        $ccs_all->{'<Q20 Read Quality (median)'} =~ /^Q?(\d+)$/smx) {
       $ccs{'hifi_low_quality_read_quality_median'} = $1;
     }
   }
@@ -421,7 +422,7 @@ sub load_run {
     $self->error('Failed to find basic info for run uuid '. $self->run_uuid);
   };
 
-  ($run_name && $version && ($version <= $MIN_SW_VERSION)) or
+  ($run_name && $version && ($version >= $MIN_SW_VERSION)) or
     return ($num_processed, $num_loaded, $num_errors);
 
   my $data;
