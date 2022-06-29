@@ -1,5 +1,10 @@
 LIST OF CHANGES
 
+release 45.4.1
+ - patched the loader for Illumina run parameters XML files so that
+   it does not fail when the glob expression contains only the bracket
+   expansion (this is what the pipeline passes to the script)
+
 release 45.4.0
  - tweak to pacbio loader to deal with different SMRT Link versions
  - add a loader for Illumina run parameters XML files
