@@ -40,7 +40,7 @@ subtest 'create an object' => sub {
 };
 
 subtest 'find file to load' => sub {
-  plan tests => 6;
+  plan tests => 8;
 
   my $input = {schema_wh => $schema, id_run => 45, path_glob =>q[]};  
   my $loader = npg_warehouse::loader::run_files->new($input);
@@ -68,6 +68,11 @@ subtest 'find file to load' => sub {
   $input->{path_glob} = "$tdir/some.xml/../{r,R}un*.xml";
   $loader = npg_warehouse::loader::run_files->new($input);
   is ($loader->_file_path(), $destination, 'relative file path is resolved');
+
+  write_file("$tdir/RunParameters.xml.md5", "1991006db2a1edec1dbce75d50bd7dca");
+  $loader = npg_warehouse::loader::run_files->new($input);
+  lives_ok { $loader->_file_path() } '.md5 file is disregarded';
+  is ($loader->_file_path(), $destination, 'relative file path is resolved');  
 
   copy("t/data/runfolders/run_params/$name", "$tdir/RunParameters.xml");
   $input->{path_glob} = "$tdir/{r,R}un*.xml";

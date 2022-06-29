@@ -103,7 +103,10 @@ sub _build__file_path {
 
   my $glob = $self->path_glob;
   # Yes, 'abs_path $_', whatever perlcritic says.
-  my @files = map { abs_path $_ } grep { not -d } glob $glob;
+  my @files = map { abs_path $_ }
+              grep { not m{[.]md5\Z}ixms }
+              grep { not -d }
+              glob $glob;
   if (not @files) {
     $self->logcroak('No files found');
   }

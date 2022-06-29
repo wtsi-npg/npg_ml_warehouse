@@ -1,5 +1,10 @@
 LIST OF CHANGES
 
+release 45.4.1
+ - patched the loader for Illumina run parameters XML files - it should
+   disregard .md5 files, which are present in the runfolder after the run
+   parameters XML file has been loaded to iRODS
+
 release 45.4.0
  - tweak to pacbio loader to deal with different SMRT Link versions
  - add a loader for Illumina run parameters XML files
