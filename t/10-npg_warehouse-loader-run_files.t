@@ -40,7 +40,7 @@ subtest 'create an object' => sub {
 };
 
 subtest 'find file to load' => sub {
-  plan tests => 6;
+  plan tests => 7;
 
   my $input = {schema_wh => $schema, id_run => 45, path_glob =>q[]};  
   my $loader = npg_warehouse::loader::run_files->new($input);
@@ -62,6 +62,11 @@ subtest 'find file to load' => sub {
   my $destination = "$tdir/$name";
   copy("t/data/runfolders/run_params/$name", $destination);
   $input->{path_glob} = "$tdir/{r,R}un*.xml";
+  $loader = npg_warehouse::loader::run_files->new($input);
+  is ($loader->_file_path(), $destination, 'correct file path');
+
+  # This type of input will be used by the pipeline
+  $input->{path_glob} = "$tdir/{r,R}unParameters_NovaSeq.xml";
   $loader = npg_warehouse::loader::run_files->new($input);
   is ($loader->_file_path(), $destination, 'correct file path');
   
