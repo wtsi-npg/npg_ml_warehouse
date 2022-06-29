@@ -102,8 +102,15 @@ sub _build__file_path {
   }
 
   my $glob = $self->path_glob;
+  ######
   # Yes, 'abs_path $_', whatever perlcritic says.
-  my @files = map { abs_path $_ } grep { not -d } glob $glob;
+  #
+  # Have to check for file existence since using a glob expression
+  # like '/home/my/{r,R}unParameters.xml' results in both versions of
+  # the path returned. Using a glob expression like
+  # '/home/my/{r,R}unParam*.xml' returns a single existing path.
+  #
+  my @files = map { abs_path $_ } grep { -e } grep { not -d } glob $glob;
   if (not @files) {
     $self->logcroak('No files found');
   }
