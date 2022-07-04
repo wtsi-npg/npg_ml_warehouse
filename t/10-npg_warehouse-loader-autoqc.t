@@ -145,7 +145,7 @@ subtest 'retrieve data for run 4333' => sub {
 };
 
 subtest 'retrieve data for run 6624' => sub {
-  plan tests => 30;
+  plan tests => 34;
 
   my $id_run = 6624;
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run})->set_tag($user_id, 'staging')}
@@ -173,6 +173,10 @@ subtest 'retrieve data for run 6624' => sub {
   cmp_ok(sprintf('%.2f', $auto->{$d}->{mean_bait_coverage}), q(==), 41.49, 'mean bait coverage');
   cmp_ok(sprintf('%.2f', $auto->{$d}->{on_bait_percent}), q(==), 68.06, 'on bait percent');
   cmp_ok(sprintf('%.2f', $auto->{$d}->{on_or_near_bait_percent}), q(==), 88.92, 'on or near bait percent');
+  cmp_ok(sprintf('%.2f', $auto->{$d}->{sub_ctoa_art_predicted_level}), q(==), 0, 'sub C2A predicted level');
+  cmp_ok(sprintf('%.2f', $auto->{$d}->{sub_ctoa_oxh}), q(==), 0.67, 'sub C2A oxh');
+  cmp_ok(sprintf('%.2f', $auto->{$d}->{sub_oxog_bias}), q(==), 0.52, 'sub C2A oxog bias'); 
+  cmp_ok(sprintf('%.2f', $auto->{$d}->{sub_cv_ti}), q(==), 0.04, 'sub C2A cv ti'); 
 
   $d = $compos_pkg->new(components =>
     [$compon_pkg->new(id_run => $id_run, position => 3, tag_index => 2)])->digest;
@@ -224,7 +228,7 @@ subtest 'retrieve data for run 6624' => sub {
 };
 
 subtest 'retrieve data for run 6642' => sub {
-  plan tests => 20;
+  plan tests => 24;
 
   my $id_run = 6642;
   lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })}
@@ -266,6 +270,12 @@ subtest 'retrieve data for run 6642' => sub {
   cmp_ok(sprintf('%.2f',$auto->{$d}->{bam_human_percent_duplicate}), q(==), 68.09, 'bam yhuman duplicate percent as human');
   is ($auto->{$d}->{bam_percent_mapped}, undef, 'data not set');
   is ($auto->{$d}->{bam_percent_duplicate}, undef, 'data not set');
+  cmp_ok(sprintf('%.2f', $auto->{$d}->{sub_ctoa_art_predicted_level}), q(==), 0, 'sub C2A predicted level');
+  cmp_ok(sprintf('%.2f', $auto->{$d}->{sub_ctoa_oxh}), q(==), 0.56, 'sub C2A oxh');
+  cmp_ok(sprintf('%.2f', $auto->{$d}->{sub_titv_class}), q(==), 1.65, 'sub C2A titv class'); 
+  cmp_ok(sprintf('%.2f', $auto->{$d}->{sub_titv_mean_ca}), q(==), 2.05, 'sub C2A titv mean'); 
+
+
 };
 
 subtest 'retrieve rna data' => sub {
