@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - add autoqc substitution metrics to the iseq_product_metrics table
+
 release 45.4.1
  - patched the loader for Illumina run parameters XML files so that
    it does not fail when the glob expression contains only the bracket
