@@ -30,7 +30,9 @@ jobs:
 
     - name: install system packages 
       run: |
-          sudo apt-get install -y libgd-dev uuid-dev
+          sudo apt-get update
+          sudo apt-get install -qq uuid-dev    # For Perl UUID module
+          sudo apt-get install -qq libgd-dev libgd-text-perl # For npg_tracking
 
     #run the perl install script
     - name: install NPG Perl dependencies, and their CPAN dependencies
