@@ -164,9 +164,11 @@ t/data/pacbio/smrtlink/dataset_subreads_reports/c0fefab7-a61f-48ac-9cde-1237e8a8
 t/data/pacbio/smrtlink/dataset_subreads_reports/cd81205c-2878-46a6-81f1-f6ff7227fb40.json
 t/data/pacbio/smrtlink/runs_collections/288f2be0-9c7c-4930-b1ff-0ad71edae556.json
 t/data/pacbio/smrtlink/runs_collections/89dfd7ed-c17a-452b-85b4-526d4a035d0d.json
+t/data/pacbio/smrtlink/runs_collections/909d36e5-6385-4c2a-8886-72483eb6e31f.json
 t/data/pacbio/smrtlink/runs_collections/d4c8636a-25f3-4874-b816-b690bbe31b2c.json
 t/data/pacbio/smrtlink/runs/288f2be0-9c7c-4930-b1ff-0ad71edae556.json
 t/data/pacbio/smrtlink/runs/89dfd7ed-c17a-452b-85b4-526d4a035d0d.json
+t/data/pacbio/smrtlink/runs/909d36e5-6385-4c2a-8886-72483eb6e31f.json
 t/data/pacbio/smrtlink/runs/d4c8636a-25f3-4874-b816-b690bbe31b2c.json
 t/data/pacbio/smrtlink/runs/XXXXXXXX.json
 t/data/runfolders/run_params/RunParameters_NovaSeq.xml

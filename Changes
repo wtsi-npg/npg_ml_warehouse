@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - add extra SMRT Link v11 related fields to the pac_bio_run_well_metrics
+   table
  - add autoqc substitution metrics to the iseq_product_metrics table
 
 release 45.4.1
