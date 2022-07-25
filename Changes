@@ -1,6 +1,7 @@
 LIST OF CHANGES
 
  - add 1 missing field from the substitution metrics table to the autoqc loader
+ - force pulling tags to overwrite github local
 
 release 45.5.0
  - add extra SMRT Link v11 related fields to the pac_bio_run_well_metrics
