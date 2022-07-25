@@ -8,7 +8,7 @@ use Perl6::Slurp;
 use Readonly;
 use Test::Exception;
 use Test::LWP::UserAgent;
-use Test::More tests => 6;
+use Test::More tests => 7;
 use Test::Warn;
 
 
@@ -71,7 +71,7 @@ lives_ok{ $wh_schema } 'warehouse test db created';
 
 
 subtest 'load_completed_run_off_instrument_analysis' => sub {
-  plan tests => 35;
+  plan tests => 37;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
   my @load_args = (dry_run       => '1',
@@ -130,6 +130,8 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
   is ($r2->sl_hostname, q[blah.sanger.ac.uk], 'correct sl hostname for run 80685 well A1');
   is ($r2->sl_run_uuid, q[288f2be0-9c7c-4930-b1ff-0ad71edae556], 'correct sl run uuid for run 80685 well A1');
   is ($r2->movie_minutes, q[1440], 'correct movie minutes for run 80685 well A1');
+  is ($r2->hifi_only_reads, undef, 'correct hifi only reads for run 80685 well A1');
+  is ($r2->heteroduplex_analysis, undef, 'correct heteroduplex analysis for run 80685 well A1');
 
   is ($r2->run_status, q[Complete], 'correct run status for run 80685 well A1');
   is ($r2->well_status, q[Complete], 'correct well status for run 80685 well A1');
@@ -184,6 +186,35 @@ subtest 'load_completed_run_mixed_analysis' => sub {
   is ($rs3->count, 0, '0 entries (as no pac_bio_run entry) for run 79174 well A1 in pac_bio_product_metrics');
 };
 
+subtest 'load_completed_run_on_instrument_deplexing_analysis' => sub {
+  plan tests => 9;
+
+  my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
+
+  my @load_args = (dry_run       => '0',
+                   pb_api_client => $pb_api,
+                   mlwh_schema   => $wh_schema,
+                   run_uuid      => q[909d36e5-6385-4c2a-8886-72483eb6e31f],
+                   hostname      => q[blah.sanger.ac.uk]);
+
+  my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
+  my ($processed, $loaded, $errors) = $loader->load_run;
+  cmp_ok($loaded, '==', 1, "Loaded 1 completed run (mixed)");
+  cmp_ok($errors, '==', 0, "Loaded 1 completed run (mixed) with no errors");
+
+  my $rs = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
+    ({pac_bio_run_name => 'TRACTION-RUN-142', well_label => 'A1'});
+  is ($rs->count, 1, '1 loaded row found for run TR142 well A1 in pac_bio_run_well_metrics');
+  my $r = $rs->next;
+  is ($r->ccs_execution_mode, q[OnInstrument], 'correct process type for run TR142 well A1');
+
+  is ($r->hifi_only_reads, 1, 'correct hifi only reads for run 80685 well A1');
+  is ($r->heteroduplex_analysis, 0, 'correct heteroduplex analysis for run TR142 well A1');
+  is ($r->polymerase_num_reads, q[5959113], 'correct polymerase reads for run TR142  well A1');
+  is ($r->hifi_num_reads, q[2098821], 'correct hifi reads for run TR142  well A1');
+  is ($r->hifi_low_quality_num_reads, undef, 'correct hifi low quality reads for run TR142  well A1'); 
+};
+
 subtest 'load_in_progress_run' => sub {
   plan tests => 7;
 
@@ -232,5 +263,6 @@ subtest 'fail_to_load_non_existent_run' => sub {
   cmp_ok($loaded, '==', 0, "Loaded 0 runs - as run doesn't exist");
   cmp_ok($loaded, '==', 0, "Loaded 0 runs - as run doesn't exist");
 };
+
 
 1;
