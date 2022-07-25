@@ -17,12 +17,13 @@ with qw[npg_warehouse::loader::pacbio::base
 
 our $VERSION = '0';
 
-Readonly::Scalar my $RUN_WELL_TABLE_NAME => q[PacBioRunWellMetric];
-Readonly::Scalar my $PRODUCT_TABLE_NAME  => q[PacBioProductMetric];
-Readonly::Scalar my $MIN_SW_VERSION      => 10;
-Readonly::Scalar my $XML_TRACKING_FIELDS => 6;
-Readonly::Scalar my $SUBREADS            => q[subreads];
-Readonly::Scalar my $CCSREADS            => q[ccsreads];
+Readonly::Scalar my $RUN_WELL_TABLE_NAME  => q[PacBioRunWellMetric];
+Readonly::Scalar my $PRODUCT_TABLE_NAME   => q[PacBioProductMetric];
+Readonly::Scalar my $MIN_SW_VERSION       => 10;
+Readonly::Scalar my $XML_TRACKING_FIELDS  => 6;
+Readonly::Scalar my $XML_TRACKING_FIELDS2 => 8;
+Readonly::Scalar my $SUBREADS             => q[subreads];
+Readonly::Scalar my $CCSREADS             => q[ccsreads];
 
 =head1 NAME
 
@@ -296,7 +297,7 @@ sub _well_tracking_info {
 
   my $run = $self->pb_api_client->query_run($self->run_uuid);
 
-  my (%well_tracking_info, %tracking);
+  my (%well_tracking_info, $tracking);
   my $errors = 0;
 
   if ($run->{'dataModel'} ) {
@@ -313,58 +314,96 @@ sub _well_tracking_info {
       }
 
       foreach my $sub ( @subsets ) {
-        my $idx  = $sub->getAttribute('UniqueId');
+        my $idx   = $sub->getAttribute('UniqueId');
         next if $id ne $idx;
 
-        if ($sub->getElementsByTagName($prefix .'OnPlateLoadingConcentration')) {
-          my $conc = $sub->getElementsByTagName($prefix .'OnPlateLoadingConcentration');
-          $conc =~ s/[.]0*$//smx;
-          $tracking{'loading_conc'} = $conc;
-        }
-        if ($sub->getElementsByTagName($prefix .'IncludeKinetics')) {
-          my $kin  = $sub->getElementsByTagName($prefix .'IncludeKinetics') eq 'true' ? 1 : 0;
-          $tracking{'include_kinetics'} = $kin;
-        }
-        if ($sub->getElementsByTagName($prefix .'SequencingKitPlate')) {
-          my $skp  = $sub->getElementsByTagName($prefix .'SequencingKitPlate')->[0];
-          if ($skp->getAttribute('Name')) {
-              my $skn = $skp->getAttribute('Name');
-              $skn =~ s/[^[:ascii:]]//smxg;
-              $tracking{'sequencing_kit'} = $skn;
-          }
-          if ($skp->getAttribute('LotNumber')) {
-            $tracking{'sequencing_kit_lot_number'} = $skp->getAttribute('LotNumber');
-          }
-        }
-        if ($sub->getElementsByTagName($prefix .'BindingKit')) {
-          my $bk   = $sub->getElementsByTagName($prefix .'BindingKit')->[0];
-          if ($bk->getAttribute('Name')) {
-            my $bkn = $bk->getAttribute('Name');
-            $bkn =~ s/[^[:ascii:]]//smxg;
-            $tracking{'binding_kit'} = $bkn;
-          }
-        }
-        if ($sub->getElementsByTagName($prefix .'CellPac')) {
-          my $cell = $sub->getElementsByTagName($prefix .'CellPac')->[0];
-          if ($cell->getAttribute('LotNumber')) {
-            $tracking{'cell_lot_number'} = $cell->getAttribute('LotNumber');
-          }
-        }
+        $tracking = $self->_well_tracking_subset_parser($prefix, $sub);
       }
     } catch {
       $self->error('Errors getting info for ', $run->{'name'},' subset ', $id, $_);
       $errors++;
     };
 
-    if ($errors < 1) {
-      %well_tracking_info = %tracking;
+    if ($errors < 1 && defined $tracking) {
+      %well_tracking_info = %{$tracking};
     }
 
-    if (scalar keys %well_tracking_info != $XML_TRACKING_FIELDS ) {
+    if ((scalar keys %well_tracking_info != $XML_TRACKING_FIELDS) &&
+        (scalar keys %well_tracking_info != $XML_TRACKING_FIELDS2) ) {
       $self->error('Failed to get all expected XML info for ', $run->{'name'},' subset ', $id);
     }
   }
   return \%well_tracking_info;
+}
+
+sub _well_tracking_subset_parser {
+  my ($self, $prefix, $sub) = @_;
+
+  my %tracking;
+  if ($sub->getElementsByTagName($prefix .'OnPlateLoadingConcentration')) {
+    my $conc = $sub->getElementsByTagName($prefix .'OnPlateLoadingConcentration');
+    $conc =~ s/[.]0*$//smx;
+    $tracking{'loading_conc'} = $conc;
+  }
+  if ($sub->getElementsByTagName($prefix .'IncludeKinetics')) {
+    my $kin  = $sub->getElementsByTagName($prefix .'IncludeKinetics') eq 'true' ? 1 : 0;
+    $tracking{'include_kinetics'} = $kin;
+  }
+  if ($sub->getElementsByTagName($prefix .'AutomationParameters')) {
+    my $hifio = $self->_well_tracking_automation_parser($prefix,$sub,'AllReads');
+    if ( defined $hifio ) {
+      $hifio eq 'true' ?
+        ($tracking{'hifi_only_reads'} = 0) : ($tracking{'hifi_only_reads'} = 1);
+    }
+    my $hda = $self->_well_tracking_automation_parser($prefix, $sub,'Heteroduplex');
+    if ( defined $hda ) {
+      $hda eq 'true' ?
+        ($tracking{'heteroduplex_analysis'} = 1) : ($tracking{'heteroduplex_analysis'} = 0);
+    }
+  }
+  if ($sub->getElementsByTagName($prefix .'SequencingKitPlate')) {
+    my $skp  = $sub->getElementsByTagName($prefix .'SequencingKitPlate')->[0];
+    if ($skp->getAttribute('Name')) {
+      my $skn = $skp->getAttribute('Name');
+      $skn =~ s/[^[:ascii:]]//smxg;
+      $tracking{'sequencing_kit'} = $skn;
+    }
+    if ($skp->getAttribute('LotNumber')) {
+      $tracking{'sequencing_kit_lot_number'} = $skp->getAttribute('LotNumber');
+    }
+  }
+  if ($sub->getElementsByTagName($prefix .'BindingKit')) {
+    my $bk   = $sub->getElementsByTagName($prefix .'BindingKit')->[0];
+    if ($bk->getAttribute('Name')) {
+      my $bkn = $bk->getAttribute('Name');
+      $bkn =~ s/[^[:ascii:]]//smxg;
+      $tracking{'binding_kit'} = $bkn;
+    }
+  }
+  if ($sub->getElementsByTagName($prefix .'CellPac')) {
+    my $cell = $sub->getElementsByTagName($prefix .'CellPac')->[0];
+    if ($cell->getAttribute('LotNumber')) {
+      $tracking{'cell_lot_number'} = $cell->getAttribute('LotNumber');
+    }
+  }
+  return \%tracking;
+}
+
+sub _well_tracking_automation_parser {
+  my ($self, $prefix, $params, $tag) = @_;
+
+  my $value;
+  foreach my $e (@{$params->getElementsByTagName($prefix .'AutomationParameters')}){
+    if ($e->getElementsByTagName($prefix .'AutomationParameter')) {
+      my $ae = $e->getElementsByTagName($prefix .'AutomationParameter');
+      foreach my $a (@{$ae}){
+        if($a->getAttribute('Name') eq $tag){
+          $value = $a->getAttribute('SimpleValue');
+        }
+      }
+    }
+  }
+  return $value;
 }
 
 

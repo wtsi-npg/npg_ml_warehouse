@@ -65,6 +65,18 @@ Readonly::Hash   my %AUTOQC_MAPPING  => {
      bcfstats         => {
                            'nrd_percent'                   => 'percent_nrd',
                          },
+     substitution_metrics => {'sub_titv_class'   => 'titv_class',
+                              'sub_titv_mean_ca' => 'titv_mean_ca',
+                              'sub_frac_sub_hq'  => 'frac_sub_hq',
+                              'sub_oxog_bias'    => 'oxog_bias',
+                              'sub_sym_gt_ca'    => 'sym_gt_ca',
+                              'sub_sym_ct_ga'    => 'sym_ct_ga',
+                              'sub_cv_ti'        => 'cv_ti',
+                              'sub_gt_ti'        => 'gt_ti',
+                              'sub_gt_mean_ti'   => 'gt_mean_ti',
+                              'sub_ctoa_oxh'     => 'ctoa_oxh',
+                              'sub_ctoa_art_predicted_level' => 'ctoa_art_predicted_level',
+                             },
 };
 
 =head1 NAME
@@ -483,6 +495,11 @@ sub _genotype {
 
 sub _autoqc_check {
     my ($self, $result, $c) = @_;
+
+    my $subset = $c->get_component(0)->subset();
+    if ($subset) {
+      return ();
+    }
 
     my $data = $self->_basic_data($c);
     my $map = $AUTOQC_MAPPING{$result->class_name};
