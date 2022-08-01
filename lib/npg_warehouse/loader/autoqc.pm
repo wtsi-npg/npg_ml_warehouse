@@ -71,6 +71,7 @@ Readonly::Hash   my %AUTOQC_MAPPING  => {
                               'sub_oxog_bias'    => 'oxog_bias',
                               'sub_sym_gt_ca'    => 'sym_gt_ca',
                               'sub_sym_ct_ga'    => 'sym_ct_ga',
+                              'sub_sym_ag_tc'    => 'sym_ag_tc',
                               'sub_cv_ti'        => 'cv_ti',
                               'sub_gt_ti'        => 'gt_ti',
                               'sub_gt_mean_ti'   => 'gt_mean_ti',
