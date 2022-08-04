@@ -145,7 +145,7 @@ subtest 'retrieve data for run 4333' => sub {
 };
 
 subtest 'retrieve data for run 6624' => sub {
-  plan tests => 34;
+  plan tests => 37;
 
   my $id_run = 6624;
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run})->set_tag($user_id, 'staging')}
@@ -177,6 +177,9 @@ subtest 'retrieve data for run 6624' => sub {
   cmp_ok(sprintf('%.2f', $auto->{$d}->{sub_ctoa_oxh}), q(==), 0.67, 'sub C2A oxh');
   cmp_ok(sprintf('%.2f', $auto->{$d}->{sub_oxog_bias}), q(==), 0.52, 'sub C2A oxog bias'); 
   cmp_ok(sprintf('%.2f', $auto->{$d}->{sub_cv_ti}), q(==), 0.04, 'sub C2A cv ti'); 
+  cmp_ok(sprintf('%.2f', $auto->{$d}->{sub_sym_gt_ca}), q(==), 0.52, 'sub C2A sym_gt_ca'); 
+  cmp_ok(sprintf('%.2f', $auto->{$d}->{sub_sym_ct_ga}), q(==), 0.07, 'sub C2A sym_ct_ga'); 
+  cmp_ok(sprintf('%.2f', $auto->{$d}->{sub_sym_ag_tc}), q(==), 0.03, 'sub C2A sym_ag_tc'); 
 
   $d = $compos_pkg->new(components =>
     [$compon_pkg->new(id_run => $id_run, position => 3, tag_index => 2)])->digest;
