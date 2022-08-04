@@ -12,7 +12,7 @@ jobs:
     - uses: actions/checkout@v2 
     - name: Get all git tags
       run: |
-          git fetch --prune --unshallow --tags
+          git fetch --prune --unshallow --tags --force
           git describe --always
     
    # Caching cpanm external modules 
