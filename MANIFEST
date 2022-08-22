@@ -8,6 +8,7 @@ bin/npg_mlwarehouse_run_delete
 bin/npg_pacbio_runs2mlwarehouse
 bin/npg_products2mlwarehouse
 bin/npg_run_info2mlwarehouse
+bin/npg_run_params2mlwarehouse
 bin/npg_runs2mlwarehouse
 bin/npg_samplesheet4MiSeq
 bin/warehouse_loader_launcher
@@ -25,6 +26,7 @@ lib/npg_warehouse/loader/product.pm
 lib/npg_warehouse/loader/product_limited.pm
 lib/npg_warehouse/loader/qc.pm
 lib/npg_warehouse/loader/run.pm
+lib/npg_warehouse/loader/run_files.pm
 lib/npg_warehouse/loader/run_info.pm
 lib/npg_warehouse/loader/pacbio/base.pm
 lib/npg_warehouse/loader/pacbio/product.pm
@@ -51,6 +53,7 @@ t/10-npg_warehouse-loader-pacbio-run.t
 t/10-npg_warehouse-loader-product_limited.t
 t/10-npg_warehouse-loader-qc.t
 t/10-npg_warehouse-loader-run.t
+t/10-npg_warehouse-loader-run_files.t
 t/10-npg_warehouse-loader-run_info.t
 t/10-st-api-lims-ml_warehouse.t
 t/20-npg_warehouse-loader-run.t
@@ -100,6 +103,7 @@ t/data/irods_locations/update_same_row.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/0db5e2da-7b54-47dc-9c04-53bde0a80a3f.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/16ddd726-7931-43cb-8521-0b7ca2cf2cf5.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/1b70315e-03de-4344-bc16-0db4683e675e.json
+t/data/pacbio/smrtlink/dataset_ccsreads_reports/2cd2c381-6c75-4871-a0fe-f0fdb2fe1592.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/3656ec2e-8765-42d5-9ee6-af93d940740a.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/4caf5d4d-f993-8512-0a3e-ff69a3571fbf.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/513ebe5a-f398-457a-9e9d-c2cc659c4757.json
@@ -110,6 +114,9 @@ t/data/pacbio/smrtlink/dataset_ccsreads_reports/90513ff4-94aa-418a-aef2-041daccd
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/9e2ef574-d2e2-4d15-bf4c-8c59c8f3f001.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/9e377088-f9eb-4a2e-bdd9-ea01f9a77159.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/b5790be4-8128-4701-8a38-80fa670b3998.json
+t/data/pacbio/smrtlink/dataset_ccsreads_reports/e671b2c3-4344-4324-882a-af525461f619.json
+t/data/pacbio/smrtlink/dataset_ccsreads_reports/f1d7398d-d995-4328-be57-7e8f11d3e6e3.json
+t/data/pacbio/smrtlink/dataset_ccsreads_reports/fbd6e4f9-58a9-4f74-8542-7fd080d9a9b9.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/fe968b2d-5739-4507-9694-a965d88c5ca0.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/fea71669-3c5c-4ce3-a41c-e85bccc6f9a9.json
 t/data/pacbio/smrtlink/dataset_reports/79174/1b70315e-03de-4344-bc16-0db4683e675e/adapter.report.json
@@ -147,6 +154,14 @@ t/data/pacbio/smrtlink/dataset_reports/80863/7f1599a1-6766-4702-bf4b-f496d59e5eb
 t/data/pacbio/smrtlink/dataset_reports/80863/7f1599a1-6766-4702-bf4b-f496d59e5ebf/control.report.json
 t/data/pacbio/smrtlink/dataset_reports/80863/7f1599a1-6766-4702-bf4b-f496d59e5ebf/loading.report.json
 t/data/pacbio/smrtlink/dataset_reports/80863/7f1599a1-6766-4702-bf4b-f496d59e5ebf/raw_data.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-142/35b9ab51-8b4d-4c90-8ad2-a8e83f451c84/adapter.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-142/35b9ab51-8b4d-4c90-8ad2-a8e83f451c84/barcode.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-142/35b9ab51-8b4d-4c90-8ad2-a8e83f451c84/ccs.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-142/35b9ab51-8b4d-4c90-8ad2-a8e83f451c84/control.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-142/35b9ab51-8b4d-4c90-8ad2-a8e83f451c84/detect_cpg_methyl.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-142/35b9ab51-8b4d-4c90-8ad2-a8e83f451c84/loading.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-142/35b9ab51-8b4d-4c90-8ad2-a8e83f451c84/m64089e_220615_173331.ccs_reports.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-142/35b9ab51-8b4d-4c90-8ad2-a8e83f451c84/raw_data.report.json
 t/data/pacbio/smrtlink/datasets/ccsreads.json
 t/data/pacbio/smrtlink/dataset_subreads_reports/22efc39e-cebd-4816-924c-86c5e07e0f20.json
 t/data/pacbio/smrtlink/dataset_subreads_reports/50039d88-90cd-4477-b509-0a1e803aece9.json
@@ -161,11 +176,14 @@ t/data/pacbio/smrtlink/dataset_subreads_reports/c0fefab7-a61f-48ac-9cde-1237e8a8
 t/data/pacbio/smrtlink/dataset_subreads_reports/cd81205c-2878-46a6-81f1-f6ff7227fb40.json
 t/data/pacbio/smrtlink/runs_collections/288f2be0-9c7c-4930-b1ff-0ad71edae556.json
 t/data/pacbio/smrtlink/runs_collections/89dfd7ed-c17a-452b-85b4-526d4a035d0d.json
+t/data/pacbio/smrtlink/runs_collections/909d36e5-6385-4c2a-8886-72483eb6e31f.json
 t/data/pacbio/smrtlink/runs_collections/d4c8636a-25f3-4874-b816-b690bbe31b2c.json
 t/data/pacbio/smrtlink/runs/288f2be0-9c7c-4930-b1ff-0ad71edae556.json
 t/data/pacbio/smrtlink/runs/89dfd7ed-c17a-452b-85b4-526d4a035d0d.json
+t/data/pacbio/smrtlink/runs/909d36e5-6385-4c2a-8886-72483eb6e31f.json
 t/data/pacbio/smrtlink/runs/d4c8636a-25f3-4874-b816-b690bbe31b2c.json
 t/data/pacbio/smrtlink/runs/XXXXXXXX.json
+t/data/runfolders/run_params/RunParameters_NovaSeq.xml
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane1/qc/4799_1.adapter.json
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane1/qc/4799_1.gc_fraction.json
 t/data/runfolders/100330_HS21_4799/Data/Intensities/BAM_basecalls_20141025-143940/no_cal/archive/lane1/qc/4799_1.insert_size.json
@@ -229,6 +247,7 @@ t/data/runfolders/110731_HS17_06624_A_B00T5ACXX/Data/Intensities/BAM_basecalls_2
 t/data/runfolders/110731_HS17_06624_A_B00T5ACXX/Data/Intensities/BAM_basecalls_20110811-145428/no_cal/archive/lane3/plex1/qc/6624_3#1.bam_flagstats.json
 t/data/runfolders/110731_HS17_06624_A_B00T5ACXX/Data/Intensities/BAM_basecalls_20110811-145428/no_cal/archive/lane3/plex1/qc/6624_3#1.genotype.json
 t/data/runfolders/110731_HS17_06624_A_B00T5ACXX/Data/Intensities/BAM_basecalls_20110811-145428/no_cal/archive/lane3/plex1/qc/6624_3#1.pulldown_metrics.json
+t/data/runfolders/110731_HS17_06624_A_B00T5ACXX/Data/Intensities/BAM_basecalls_20110811-145428/no_cal/archive/lane3/plex1/qc/6624_3#1.substitution_metrics.json
 t/data/runfolders/110731_HS17_06624_A_B00T5ACXX/Data/Intensities/BAM_basecalls_20110811-145428/no_cal/archive/lane3/plex168/qc/6624_3#168.bam_flagstats.json
 t/data/runfolders/110731_HS17_06624_A_B00T5ACXX/Data/Intensities/BAM_basecalls_20110811-145428/no_cal/archive/lane3/plex2/qc/6624_3#2.bam_flagstats.json
 t/data/runfolders/110731_HS17_06624_A_B00T5ACXX/Data/Intensities/BAM_basecalls_20110811-145428/no_cal/archive/lane3/plex2/qc/6624_3#2.pulldown_metrics.json
@@ -262,7 +281,9 @@ t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/BAM_basecalls_2
 t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/BAM_basecalls_20110813-160456/no_cal/archive/lane2/plex4/qc/6642_2#4_human.bam_flagstats.json
 t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/BAM_basecalls_20110813-160456/no_cal/archive/lane2/plex5/qc/6642_2#5.bam_flagstats.json
 t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/BAM_basecalls_20110813-160456/no_cal/archive/lane2/plex5/qc/6642_2#5_xahuman.bam_flagstats.json
+t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/BAM_basecalls_20110813-160456/no_cal/archive/lane2/plex6/qc/6642_2#6.substitution_metrics.json
 t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/BAM_basecalls_20110813-160456/no_cal/archive/lane2/plex6/qc/6642_2#6_yhuman.bam_flagstats.json
+t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/BAM_basecalls_20110813-160456/no_cal/archive/lane2/plex6/qc/6642_2#6_yhuman.substitution_metrics.json
 t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/BAM_basecalls_20110813-160456/no_cal/archive/lane2/qc/6642_2.tag_metrics.json
 t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/BAM_basecalls_20110813-160456/no_cal/archive/lane3/qc/6642_3.bam_flagstats.json
 t/data/runfolders/110804_HS22_06642_A_B020JACXX/Data/Intensities/BAM_basecalls_20110813-160456/no_cal/archive/lane4/qc/6642_4.bam_flagstats.json

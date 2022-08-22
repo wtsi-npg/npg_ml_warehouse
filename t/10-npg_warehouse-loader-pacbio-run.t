@@ -8,7 +8,7 @@ use Perl6::Slurp;
 use Readonly;
 use Test::Exception;
 use Test::LWP::UserAgent;
-use Test::More tests => 6;
+use Test::More tests => 7;
 use Test::Warn;
 
 
@@ -71,13 +71,14 @@ lives_ok{ $wh_schema } 'warehouse test db created';
 
 
 subtest 'load_completed_run_off_instrument_analysis' => sub {
-  plan tests => 25;
+  plan tests => 37;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
   my @load_args = (dry_run       => '1',
                    pb_api_client => $pb_api,
                    mlwh_schema   => $wh_schema,
-                   run_uuid      => q[288f2be0-9c7c-4930-b1ff-0ad71edae556]);
+                   run_uuid      => q[288f2be0-9c7c-4930-b1ff-0ad71edae556],
+                   hostname      => q[blah.sanger.ac.uk]);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
   my ($processed, $loaded, $errors) = $loader->load_run;
@@ -89,7 +90,8 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
   my @load_args2 = (dry_run       => '0',
                     pb_api_client => $pb_api,
                     mlwh_schema   => $wh_schema,
-                    run_uuid      => q[288f2be0-9c7c-4930-b1ff-0ad71edae556]);
+                    run_uuid      => q[288f2be0-9c7c-4930-b1ff-0ad71edae556],
+                    hostname      => q[blah.sanger.ac.uk]);
 
   my $loader2   = npg_warehouse::loader::pacbio::run->new(@load_args2);
   my ($processed2, $loaded2, $errors2) = $loader2->load_run;
@@ -114,10 +116,22 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
   is ($r2->polymerase_num_reads, q[5379015], 'correct polymerase reads for run 80685 well A1');
   is ($r2->hifi_read_bases, q[24739994857], 'correct hifi bases for run 80685 well A1');
   is ($r2->hifi_num_reads, q[2449034], 'correct hifi reads for run 80685 well A1');
+  is ($r2->hifi_read_quality_median, q[34], 'correct hifi read Q median for run 80685 well A1');
+  is ($r2->hifi_low_quality_read_quality_median, q[16], 'correct hifi low Q read Q median for run 80685 well A1');
   is ($r2->control_num_reads, q[3914], 'correct control reads for run 80685 well A1');
   is ($r2->control_read_length_mean, q[52142], 'correct control read mean for run 80685 well A1');
+  is ($r2->control_concordance_mode, q[0.89], 'correct control concordance mode for run 80685 well A1');
   is ($r2->local_base_rate, q[2.13797], 'correct local base rate for run 80685 well A1');
   is ($r2->cell_lot_number, q[416342], 'correct cell lot number for run 80685 well A1');
+  is ($r2->binding_kit, q[Sequel II Binding Kit 2.0], 'correct binding kit for run 80685 well A1');
+  is ($r2->sequencing_kit_lot_number, q[018942], 'correct sequencing kit lot number for run 80685 well A1');
+  is ($r2->include_kinetics, q[1], 'correct include kinetics for run 80685 well A1');
+  is ($r2->created_by, q[mls], 'correct created by for run 80685 well A1');
+  is ($r2->sl_hostname, q[blah.sanger.ac.uk], 'correct sl hostname for run 80685 well A1');
+  is ($r2->sl_run_uuid, q[288f2be0-9c7c-4930-b1ff-0ad71edae556], 'correct sl run uuid for run 80685 well A1');
+  is ($r2->movie_minutes, q[1440], 'correct movie minutes for run 80685 well A1');
+  is ($r2->hifi_only_reads, undef, 'correct hifi only reads for run 80685 well A1');
+  is ($r2->heteroduplex_analysis, undef, 'correct heteroduplex analysis for run 80685 well A1');
 
   is ($r2->run_status, q[Complete], 'correct run status for run 80685 well A1');
   is ($r2->well_status, q[Complete], 'correct well status for run 80685 well A1');
@@ -143,7 +157,8 @@ subtest 'load_completed_run_mixed_analysis' => sub {
   my @load_args = (dry_run       => '0',
                    pb_api_client => $pb_api,
                    mlwh_schema   => $wh_schema,
-                   run_uuid      => q[89dfd7ed-c17a-452b-85b4-526d4a035d0d]);
+                   run_uuid      => q[89dfd7ed-c17a-452b-85b4-526d4a035d0d],
+                   hostname      => q[blah.sanger.ac.uk]);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
   my ($processed, $loaded, $errors) = $loader->load_run;
@@ -173,6 +188,35 @@ subtest 'load_completed_run_mixed_analysis' => sub {
   is ($rs3->count, 0, '0 entries (as no pac_bio_run entry) for run 79174 well A1 in pac_bio_product_metrics');
 };
 
+subtest 'load_completed_run_on_instrument_deplexing_analysis' => sub {
+  plan tests => 9;
+
+  my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
+
+  my @load_args = (dry_run       => '0',
+                   pb_api_client => $pb_api,
+                   mlwh_schema   => $wh_schema,
+                   run_uuid      => q[909d36e5-6385-4c2a-8886-72483eb6e31f],
+                   hostname      => q[blah.sanger.ac.uk]);
+
+  my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
+  my ($processed, $loaded, $errors) = $loader->load_run;
+  cmp_ok($loaded, '==', 1, "Loaded 1 completed run (mixed)");
+  cmp_ok($errors, '==', 0, "Loaded 1 completed run (mixed) with no errors");
+
+  my $rs = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
+    ({pac_bio_run_name => 'TRACTION-RUN-142', well_label => 'A1'});
+  is ($rs->count, 1, '1 loaded row found for run TR142 well A1 in pac_bio_run_well_metrics');
+  my $r = $rs->next;
+  is ($r->ccs_execution_mode, q[OnInstrument], 'correct process type for run TR142 well A1');
+
+  is ($r->hifi_only_reads, 1, 'correct hifi only reads for run 80685 well A1');
+  is ($r->heteroduplex_analysis, 0, 'correct heteroduplex analysis for run TR142 well A1');
+  is ($r->polymerase_num_reads, q[5959113], 'correct polymerase reads for run TR142  well A1');
+  is ($r->hifi_num_reads, q[2098821], 'correct hifi reads for run TR142  well A1');
+  is ($r->hifi_low_quality_num_reads, undef, 'correct hifi low quality reads for run TR142  well A1'); 
+};
+
 subtest 'load_in_progress_run' => sub {
   plan tests => 7;
 
@@ -181,7 +225,8 @@ subtest 'load_in_progress_run' => sub {
   my @load_args = (dry_run       => '0',
                    pb_api_client => $pb_api,
                    mlwh_schema   => $wh_schema,
-                   run_uuid      => q[d4c8636a-25f3-4874-b816-b690bbe31b2c]);
+                   run_uuid      => q[d4c8636a-25f3-4874-b816-b690bbe31b2c],
+                   hostname      => q[blah.sanger.ac.uk]);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
   my ($processed, $loaded, $errors) = $loader->load_run;
@@ -211,7 +256,8 @@ subtest 'fail_to_load_non_existent_run' => sub {
   my @load_args = (dry_run       => '0',
                    pb_api_client => $pb_api,
                    mlwh_schema   => $wh_schema,
-                   run_uuid      => q[XXXXXXXX]);
+                   run_uuid      => q[XXXXXXXX],
+                   hostname      => q[blah.sanger.ac.uk]);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
   my ($processed, $loaded, $errors) = $loader->load_run;
@@ -219,5 +265,6 @@ subtest 'fail_to_load_non_existent_run' => sub {
   cmp_ok($loaded, '==', 0, "Loaded 0 runs - as run doesn't exist");
   cmp_ok($loaded, '==', 0, "Loaded 0 runs - as run doesn't exist");
 };
+
 
 1;
