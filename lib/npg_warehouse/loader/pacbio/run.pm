@@ -110,6 +110,7 @@ sub _build_run {
     $run_info{'run_start'}             = $self->fix_date($run->{'startedAt'});
     $run_info{'run_complete'}          = $self->fix_date($run->{'completedAt'});
     $run_info{'run_status'}            = $run->{'status'};
+    $run_info{'run_transfer_complete' } = $self->fix_date($run->{'transfersCompletedAt'});
     $run_info{'chemistry_sw_version'}  = $run->{'chemistrySwVersion'};
     $run_info{'instrument_sw_version'} = $run->{'instrumentSwVersion'};
     $run_info{'primary_analysis_sw_version'}

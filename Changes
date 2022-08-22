@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - add run transfer date to the pacbio warehouse loader.
+
 release 45.2.0
  - update the npg_irods_locations2ml_warehouse script to make it able to read
    input data from multiple files residing in a common directory
