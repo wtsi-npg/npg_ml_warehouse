@@ -1,8 +1,7 @@
 LIST OF CHANGES
 
-<<<<<<< HEAD
  - add run transfer date to the pacbio warehouse loader.
-=======
+
 release 45.5.1
  - add 1 missing field from the substitution metrics table to the autoqc loader
  - force pulling tags to overwrite github local
@@ -25,7 +24,6 @@ release 45.4.0
 release 45.3.0
  - extend fields loaded by the npg_pacbio_runs2mlwarehouse script
  - bug fixes and improvements for the npg_irods_locations2ml_warehouse script
->>>>>>> upstream/devel
 
 release 45.2.0
  - update the npg_irods_locations2ml_warehouse script to make it able to read
