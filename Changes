@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+release 45.6.0
+ - add run transfer date to the pacbio warehouse loader.
+
 release 45.5.1
  - add 1 missing field from the substitution metrics table to the autoqc loader
  - force pulling tags to overwrite github local

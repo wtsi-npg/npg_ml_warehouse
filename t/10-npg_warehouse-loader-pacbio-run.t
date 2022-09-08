@@ -150,7 +150,7 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
 };
 
 subtest 'load_completed_run_mixed_analysis' => sub {
-  plan tests => 11;
+  plan tests => 13;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
 
@@ -180,7 +180,9 @@ subtest 'load_completed_run_mixed_analysis' => sub {
   is ($r2->polymerase_num_reads, q[6245434], 'correct polymerase reads for run 79174 well A1');
   is ($r2->run_status, q[Complete], 'correct run status for run 79174 well A1');
   is ($r2->well_status, q[Complete], 'correct well status for run 79174 well A1');
-
+  is ($r2->run_complete, q[2021-01-18T23:03:43], 'correct run complete date for run 79174 well A1');
+  is ($r2->run_transfer_complete, q[2021-01-19T06:17:32], 'correct run transfer complete for run 79174 well A1');
+  
   my $id  = $r2->id_pac_bio_rw_metrics_tmp;
   my $rs3 = $wh_schema->resultset($PRODUCT_TABLE_NAME)->search({id_pac_bio_rw_metrics_tmp => $id,});
   is ($rs3->count, 0, '0 entries (as no pac_bio_run entry) for run 79174 well A1 in pac_bio_product_metrics');
