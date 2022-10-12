@@ -47,9 +47,11 @@ sub product_data {
 
       while (my $row = $pac_bio_run->next) {
         push @product_data,
-          {'id_pac_bio_tmp'   => $row->id_pac_bio_tmp,
-           'pac_bio_run_name' => $well->{'pac_bio_run_name'},
-           'well_label'       => $well->{'well_label'},};
+          {'id_pac_bio_tmp'     => $row->id_pac_bio_tmp,
+           'pac_bio_run_name'   => $well->{'pac_bio_run_name'},
+           'well_label'         => $well->{'well_label'},
+           'id_pac_bio_product' => $well->{'id_pac_bio_product'},
+          };
       }
     }
   }

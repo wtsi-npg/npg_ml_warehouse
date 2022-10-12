@@ -51,6 +51,12 @@ has 'run_uuid' =>
    required      => 1,
    documentation => 'The PacBio run unique identifier',);
 
+has 'id_generation_script' =>
+  (isa           => 'Str',
+   is            => 'ro',
+   required      => 1,
+   documentation => 'A path to the script used to generate product ids',);
+
 has '_run_name' =>
   (isa           => 'Str',
    is            => 'ro',
@@ -173,6 +179,15 @@ sub _build_run_wells {
 
       my $tki = $self->_well_tracking_info($well->{'uniqueId'});
       my $run = $self->_run;
+
+      open my $id_product_script, q[-|],
+        join q[ ], 'python', $self->id_generation_script,
+          $run->{'pac_bio_run_name'}, $well->{'well'}
+        or $self->logconfess ('Cannot generate id_product');
+      my $id_product = <$id_product_script>;
+      $id_product =~ s/\s//xms;
+      $well_info{'id_pac_bio_product'} = $id_product;
+      close $id_product_script or $self->logconfess('Could not close id_product generation script');
 
       my %all =  (%well_info, %{$qc}, %{$ccs}, %{$tki}, %{$run});
       push @run_wells, \%all;

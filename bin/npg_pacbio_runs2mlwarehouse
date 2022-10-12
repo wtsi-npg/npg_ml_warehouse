@@ -19,6 +19,7 @@ our $VERSION = '0';
 Readonly::Scalar my $DEFAULT_INTERVAL_DAYS   => 100_000;
 Readonly::Scalar my $DEFAULT_OLDER_THAN_DAYS => 0;
 Readonly::Scalar my $DEFAULT_HOSTNAME => q[pacbio02.dnapipelines.sanger.ac.uk];
+Readonly::Scalar my $DEFAULT_ID_GENERATION_SCRIPT => q[/software/npg/current/bin/generate_pac_bio_id];
 
 my $api_uri;
 my $debug;
@@ -28,6 +29,7 @@ my $interval = $DEFAULT_INTERVAL_DAYS;
 my $log4perl_config;
 my $older_than = $DEFAULT_OLDER_THAN_DAYS;
 my $run_name;
+my $id_generation_script = $DEFAULT_ID_GENERATION_SCRIPT;
 my $verbose;
 
 GetOptions('api-uri|api_uri=s'          => \$api_uri,
@@ -41,6 +43,7 @@ GetOptions('api-uri|api_uri=s'          => \$api_uri,
            'logconf=s'                  => \$log4perl_config,
            'older-than|older_than=i'    => \$older_than,
            'run-name|run_name=s'        => \$run_name,
+           'id-generation-script'       => \$id_generation_script,
            'verbose'                    => \$verbose,);
 
 if ($log4perl_config) {
@@ -84,11 +87,12 @@ if (ref $runs eq 'ARRAY') {
 
 my ($num_processed, $num_loaded, $num_errors) = (0, 0, 0);
 foreach my $run (@runs_to_load) {
-  my @load_args = (dry_run       => $dry_run,
-                   pb_api_client => $pb_api,
-                   mlwh_schema   => $wh_schema,
-                   run_uuid      => $run,
-                   hostname      => $hostname,);
+  my @load_args = (dry_run              => $dry_run,
+                   pb_api_client        => $pb_api,
+                   mlwh_schema          => $wh_schema,
+                   run_uuid             => $run,
+                   hostname             => $hostname,
+                   id_generation_script => $id_generation_script,);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
 
