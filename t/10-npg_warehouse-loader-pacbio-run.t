@@ -79,7 +79,7 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
                    mlwh_schema          => $wh_schema,
                    run_uuid             => q[288f2be0-9c7c-4930-b1ff-0ad71edae556],
                    hostname             => q[blah.sanger.ac.uk],
-                   id_generation_script => q[../npg_id_generation/bin/generate_pac_bio_id]);
+                   id_generation_script => $ID_GENERATION_SCRIPT);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
   my ($processed, $loaded, $errors) = $loader->load_run;
