@@ -66,6 +66,10 @@ if (defined $ENV{dev} && $ENV{dev}) {
   $log->info(join q[ ], q[Using], $ENV{dev}, q[ml warehouse database]);
 }
 
+if (!-e $id_script){
+  $log->croak("Id generation script is not present at $id_script");
+}
+
 my $wh_schema = WTSI::DNAP::Warehouse::Schema->connect();
 
 my @api_args  = ('default_interval' => $interval,

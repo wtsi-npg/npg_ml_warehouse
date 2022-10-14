@@ -59,6 +59,7 @@ jobs:
           eval $(perl -I ~/perl5ext/lib/perl5/ -Mlocal::lib=~/perl5ext)
           eval $(perl -I ~/perl5ext/lib/perl5/ -Mlocal::lib=~/perl5npg)
           export TEST_AUTHOR=1
+          export PAC_BIO_ID_SCRIPT="$(which generate_pac_bio_id)"
           perl Build.PL && ./Build test --verbose && ./Build install
  
     # Archive logs if failure
