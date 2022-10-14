@@ -21,6 +21,14 @@ use WTSI::NPG::HTS::PacBio::Sequel::APIClient;
 Readonly::Scalar my $RUN_WELL_TABLE_NAME => q[PacBioRunWellMetric];
 Readonly::Scalar my $PRODUCT_TABLE_NAME  => q[PacBioProductMetric];
 
+my $id_script = q[../npg_id_generation/bin/generate_pac_bio_id];
+
+if (defined $ENV{PAC_BIO_ID_SCRIPT} && $ENV{PAC_BIO_ID_SCRIPT}) {
+  $id_script = $ENV{PAC_BIO_ID_SCRIPT};
+} else {
+  print 'PAC_BIO_ID_SCRIPT environment variable not set, using default relative path: ' . $id_script;
+}
+
 my $user_agent = Test::LWP::UserAgent->new(network_fallback => 1);
 
 foreach my $file (glob q[t/data/pacbio/smrtlink/runs_collections/*.json]) {
@@ -74,12 +82,12 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
   plan tests => 40;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
-  my @load_args = (dry_run              => '1',
-                   pb_api_client        => $pb_api,
-                   mlwh_schema          => $wh_schema,
-                   run_uuid             => q[288f2be0-9c7c-4930-b1ff-0ad71edae556],
-                   hostname             => q[blah.sanger.ac.uk],
-                   id_generation_script => $ID_GENERATION_SCRIPT);
+  my @load_args = (dry_run       => '1',
+                   pb_api_client => $pb_api,
+                   mlwh_schema   => $wh_schema,
+                   run_uuid      => q[288f2be0-9c7c-4930-b1ff-0ad71edae556],
+                   hostname      => q[blah.sanger.ac.uk],
+                   id_script     => $id_script);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
   my ($processed, $loaded, $errors) = $loader->load_run;
@@ -88,12 +96,12 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
   cmp_ok($loaded, '==', 0, "Dry run - Loaded 0 runs");
   cmp_ok($errors, '==', 0, "Dry run - Loaded 0 runs with no errors");
 
-  my @load_args2 = (dry_run              => '0',
-                    pb_api_client        => $pb_api,
-                    mlwh_schema          => $wh_schema,
-                    run_uuid             => q[288f2be0-9c7c-4930-b1ff-0ad71edae556],
-                    hostname             => q[blah.sanger.ac.uk],
-                    id_generation_script => q[../npg_id_generation/bin/generate_pac_bio_id]);
+  my @load_args2 = (dry_run       => '0',
+                    pb_api_client => $pb_api,
+                    mlwh_schema   => $wh_schema,
+                    run_uuid      => q[288f2be0-9c7c-4930-b1ff-0ad71edae556],
+                    hostname      => q[blah.sanger.ac.uk],
+                    id_script     => $id_script);
 
   my $loader2   = npg_warehouse::loader::pacbio::run->new(@load_args2);
   my ($processed2, $loaded2, $errors2) = $loader2->load_run;
@@ -164,12 +172,12 @@ subtest 'load_completed_run_mixed_analysis' => sub {
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
 
-  my @load_args = (dry_run              => '0',
-                   pb_api_client        => $pb_api,
-                   mlwh_schema          => $wh_schema,
-                   run_uuid             => q[89dfd7ed-c17a-452b-85b4-526d4a035d0d],
-                   hostname             => q[blah.sanger.ac.uk],
-                   id_generation_script => q[../npg_id_generation/bin/generate_pac_bio_id]);
+  my @load_args = (dry_run       => '0',
+                   pb_api_client => $pb_api,
+                   mlwh_schema   => $wh_schema,
+                   run_uuid      => q[89dfd7ed-c17a-452b-85b4-526d4a035d0d],
+                   hostname      => q[blah.sanger.ac.uk],
+                   id_script     => $id_script);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
   my ($processed, $loaded, $errors) = $loader->load_run;
@@ -204,12 +212,12 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis' => sub {
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
 
-  my @load_args = (dry_run              => '0',
-                   pb_api_client        => $pb_api,
-                   mlwh_schema          => $wh_schema,
-                   run_uuid             => q[909d36e5-6385-4c2a-8886-72483eb6e31f],
-                   hostname             => q[blah.sanger.ac.uk],
-                   id_generation_script => q[../npg_id_generation/bin/generate_pac_bio_id]);
+  my @load_args = (dry_run       => '0',
+                   pb_api_client => $pb_api,
+                   mlwh_schema   => $wh_schema,
+                   run_uuid      => q[909d36e5-6385-4c2a-8886-72483eb6e31f],
+                   hostname      => q[blah.sanger.ac.uk],
+                   id_script     => $id_script);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
   my ($processed, $loaded, $errors) = $loader->load_run;
@@ -234,12 +242,12 @@ subtest 'load_in_progress_run' => sub {
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
 
-  my @load_args = (dry_run              => '0',
-                   pb_api_client        => $pb_api,
-                   mlwh_schema          => $wh_schema,
-                   run_uuid             => q[d4c8636a-25f3-4874-b816-b690bbe31b2c],
-                   hostname             => q[blah.sanger.ac.uk],
-                   id_generation_script => q[../npg_id_generation/bin/generate_pac_bio_id]);
+  my @load_args = (dry_run       => '0',
+                   pb_api_client => $pb_api,
+                   mlwh_schema   => $wh_schema,
+                   run_uuid      => q[d4c8636a-25f3-4874-b816-b690bbe31b2c],
+                   hostname      => q[blah.sanger.ac.uk],
+                   id_script     => $id_script);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
   my ($processed, $loaded, $errors) = $loader->load_run;
@@ -266,12 +274,12 @@ subtest 'fail_to_load_non_existent_run' => sub {
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
 
-  my @load_args = (dry_run              => '0',
-                   pb_api_client        => $pb_api,
-                   mlwh_schema          => $wh_schema,
-                   run_uuid             => q[XXXXXXXX],
-                   hostname             => q[blah.sanger.ac.uk],
-                   id_generation_script => q[../npg_id_generation/bin/generate_pac_bio_id]);
+  my @load_args = (dry_run       => '0',
+                   pb_api_client => $pb_api,
+                   mlwh_schema   => $wh_schema,
+                   run_uuid      => q[XXXXXXXX],
+                   hostname      => q[blah.sanger.ac.uk],
+                   id_script     => $id_script);
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
   my ($processed, $loaded, $errors) = $loader->load_run;

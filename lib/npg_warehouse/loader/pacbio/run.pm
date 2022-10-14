@@ -51,7 +51,7 @@ has 'run_uuid' =>
    required      => 1,
    documentation => 'The PacBio run unique identifier',);
 
-has 'id_generation_script' =>
+has 'id_script' =>
   (isa           => 'Str',
    is            => 'ro',
    required      => 1,
@@ -181,7 +181,7 @@ sub _build_run_wells {
       my $run = $self->_run;
 
       open my $id_product_script, q[-|],
-        join q[ ], 'python', $self->id_generation_script,
+        join q[ ], 'python', $self->id_script,
           $run->{'pac_bio_run_name'}, $well->{'well'}
         or $self->logconfess ('Cannot generate id_product');
       my $id_product = <$id_product_script>;
