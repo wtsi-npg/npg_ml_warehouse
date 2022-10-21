@@ -1,6 +1,5 @@
 .dir-locals
 .github/workflows/testing_and_building_repo.yml
-bin/generate_pac_bio_id
 bin/npg_external_report2ml_warehouse
 bin/npg_irods_locations2ml_warehouse
 bin/npg_manifest4study

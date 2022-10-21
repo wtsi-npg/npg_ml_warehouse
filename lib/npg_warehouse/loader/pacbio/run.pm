@@ -24,6 +24,8 @@ Readonly::Scalar my $XML_TRACKING_FIELDS  => 6;
 Readonly::Scalar my $XML_TRACKING_FIELDS2 => 8;
 Readonly::Scalar my $SUBREADS             => q[subreads];
 Readonly::Scalar my $CCSREADS             => q[ccsreads];
+Readonly::Scalar my $ID_SCRIPT            => q[generate_pac_bio_id];
+Readonly::Scalar my $ID_LENGTH            => 64;
 
 =head1 NAME
 
@@ -50,12 +52,6 @@ has 'run_uuid' =>
    is            => 'ro',
    required      => 1,
    documentation => 'The PacBio run unique identifier',);
-
-has 'id_script' =>
-  (isa           => 'Str',
-   is            => 'ro',
-   required      => 1,
-   documentation => 'A path to the script used to generate product ids',);
 
 has '_run_name' =>
   (isa           => 'Str',
@@ -181,13 +177,16 @@ sub _build_run_wells {
       my $run = $self->_run;
 
       open my $id_product_script, q[-|],
-        join q[ ], 'python', $self->id_script,
-          $run->{'pac_bio_run_name'}, $well->{'well'}
-        or $self->logconfess ('Cannot generate id_product');
+        join q[ ], $ID_SCRIPT, $run->{'pac_bio_run_name'}, $well->{'well'}
+        or $self->logconfess ('Cannot generate id_product '. $CHILD_ERROR);
       my $id_product = <$id_product_script>;
+      close $id_product_script
+        or $self->logconfess('Could not close id_product generation script');
       $id_product =~ s/\s//xms;
+      if (length $id_product != $ID_LENGTH){
+        $self->logcroak ('Incorrect output length from id_product generation script, expected a 64 character string');
+      }
       $well_info{'id_pac_bio_product'} = $id_product;
-      close $id_product_script or $self->logconfess('Could not close id_product generation script');
 
       my %all =  (%well_info, %{$qc}, %{$ccs}, %{$tki}, %{$run});
       push @run_wells, \%all;
