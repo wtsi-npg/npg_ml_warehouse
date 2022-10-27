@@ -1,7 +1,6 @@
 LIST OF CHANGES
 
-- add python script to generate pac bio product ids using the npg_id_generation code
-   from langqc.
+ - add product id generation and loading to
 
 release 45.6.0
  - add run transfer date to the pacbio warehouse loader.

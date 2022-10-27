@@ -445,7 +445,7 @@ sub load_pacbiorunwellmetric_table {
         "Will update or create record in $RUN_WELL_TABLE_NAME for " .
         join q[ ], 'run', $row->{'pac_bio_run_name'}, 'well', $row->{'well_label'}
       );
-      $rs->update_or_create($row);
+      $rs->update_or_create($row, {key => 'pac_bio_metrics_run_well'});
       $count++;
     }
     return $count;

@@ -89,7 +89,7 @@ sub load_pacbioproductmetric_table {
         $self->info(q[Will update or create record in] .
           qq[ $PRODUCT_TABLE_NAME for run $run, well $well]);
 
-        $rs->update_or_create($row);
+        $rs->update_or_create($row, {key=> 'pac_bio_metrics_product'});
         $count++;
       }
     }
