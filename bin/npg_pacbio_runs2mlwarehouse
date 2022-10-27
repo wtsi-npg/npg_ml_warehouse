@@ -9,6 +9,7 @@ use Getopt::Long;
 use Log::Log4perl qw(:levels);
 use Pod::Usage;
 use Readonly;
+use Try::Tiny;
 
 use npg_warehouse::loader::pacbio::run;
 use WTSI::DNAP::Warehouse::Schema;

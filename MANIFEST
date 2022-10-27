@@ -320,5 +320,6 @@ t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_
 t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive/lane1/qc/26291_1.tag_metrics.json
 t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive/plex1/qc/26291#1.insert_size.json
 t/data/samplesheet/miseq_default.csv
+t/scripts/generate_pac_bio_id
 t/perlcriticrc
 t/util.pm
