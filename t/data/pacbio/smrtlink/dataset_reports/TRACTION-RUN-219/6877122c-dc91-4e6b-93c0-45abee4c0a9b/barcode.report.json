@@ -1,0 +1,279 @@
+{
+    "_comment": "Generated with pbcommand version  at 2022-08-25T05:13:32.577836",
+    "attributes": [
+        {
+            "id": "barcode.n_barcodes",
+            "name": "Unique Barcodes",
+            "value": 8
+        },
+        {
+            "id": "barcode.n_barcoded_reads",
+            "name": "Barcoded Reads",
+            "value": 2855246
+        },
+        {
+            "id": "barcode.mean_reads",
+            "name": "Mean Reads",
+            "value": 356905
+        },
+        {
+            "id": "barcode.max_reads",
+            "name": "Max. Reads",
+            "value": 426647
+        },
+        {
+            "id": "barcode.min_reads",
+            "name": "Min. Reads",
+            "value": 42020
+        },
+        {
+            "id": "barcode.mean_read_length",
+            "name": "Mean Read Length",
+            "value": 8049
+        },
+        {
+            "id": "barcode.n_unbarcoded_reads",
+            "name": "Unbarcoded Reads",
+            "value": 105832
+        },
+        {
+            "id": "barcode.percent_barcoded_bases",
+            "name": "Percent Bases in Barcoded Reads",
+            "value": 0.9648413481284455
+        },
+        {
+            "id": "barcode.percent_barcoded_reads",
+            "name": "Percent Barcoded Reads",
+            "value": 0.9642589624454337
+        }
+    ],
+    "dataset_uuids": [
+        "4d87a8ab-4d16-f0b0-77e5-0f467dba442e",
+        "6877122c-dc91-4e6b-93c0-45abee4c0a9b"
+    ],
+    "id": "barcode",
+    "plotGroups": [
+        {
+            "id": "barcode.read_stats",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "Number Of Reads Per Barcode",
+                    "id": "barcode.read_stats.nreads",
+                    "image": "nreads.png",
+                    "plotType": "image",
+                    "thumbnail": "nreads_thumb.png",
+                    "title": "Number Of Reads Per Barcode"
+                },
+                {
+                    "caption": "Barcode Frequency Distribution",
+                    "id": "barcode.read_stats.nreads_histogram",
+                    "image": "nreads_histogram.png",
+                    "plotType": "image",
+                    "thumbnail": "nreads_histogram_thumb.png",
+                    "title": "Barcode Frequency Distribution"
+                },
+                {
+                    "caption": "Mean Read Length Distribution",
+                    "id": "barcode.read_stats.readlength_histogram",
+                    "image": "readlength_histogram.png",
+                    "plotType": "image",
+                    "thumbnail": "readlength_histogram_thumb.png",
+                    "title": "Mean Read Length Distribution"
+                }
+            ],
+            "thumbnail": null,
+            "title": "Barcoded Read Statistics"
+        },
+        {
+            "id": "barcode.bq_plots",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "Barcode Quality Score Distribution",
+                    "id": "barcode.bq_plots.bq_histogram",
+                    "image": "bq_histogram.png",
+                    "plotType": "image",
+                    "thumbnail": "bq_histogram_thumb.png",
+                    "title": "Barcode Quality Score Distribution"
+                }
+            ],
+            "thumbnail": null,
+            "title": "Barcode Quality Scores"
+        },
+        {
+            "id": "barcode.hist2d",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "Read Length Distribution By Barcode",
+                    "id": "barcode.hist2d.binned_readlength",
+                    "image": "binned_readlength.json.gz",
+                    "plotType": "plotly",
+                    "plotlyVersion": "1.37.1",
+                    "title": "Read Length Distribution By Barcode"
+                },
+                {
+                    "caption": "Barcode Quality Distribution By Barcode",
+                    "id": "barcode.hist2d.binned_bcqual",
+                    "image": "binned_bcqual.json.gz",
+                    "plotType": "plotly",
+                    "plotlyVersion": "1.37.1",
+                    "title": "Barcode Quality Distribution By Barcode"
+                }
+            ],
+            "thumbnail": null,
+            "title": "Barcoded Read Binned Histograms"
+        }
+    ],
+    "tables": [
+        {
+            "columns": [
+                {
+                    "header": "Bio Sample Name",
+                    "id": "barcode.barcode_table.biosample",
+                    "values": [
+                        "DTOL_RD13027594",
+                        "DTOL_RD13027595",
+                        "DTOL_RD13027596",
+                        "DTOL_RD13027597",
+                        "DTOL_RD13027598",
+                        "DTOL_RD13027599",
+                        "DTOL_RD13027600",
+                        "DTOL_RD13027601",
+                        "No Name"
+                    ]
+                },
+                {
+                    "header": "Barcode Name",
+                    "id": "barcode.barcode_table.barcode",
+                    "values": [
+                        "bc1001_BAK8A_OA--bc1001_BAK8A_OA",
+                        "bc1002_BAK8A_OA--bc1002_BAK8A_OA",
+                        "bc1003_BAK8A_OA--bc1003_BAK8A_OA",
+                        "bc1008_BAK8A_OA--bc1008_BAK8A_OA",
+                        "bc1009_BAK8A_OA--bc1009_BAK8A_OA",
+                        "bc1010_BAK8A_OA--bc1010_BAK8A_OA",
+                        "bc1011_BAK8A_OA--bc1011_BAK8A_OA",
+                        "bc1012_BAK8A_OA--bc1012_BAK8A_OA",
+                        "Not Barcoded"
+                    ]
+                },
+                {
+                    "header": "Polymerase Reads",
+                    "id": "barcode.barcode_table.number_of_reads",
+                    "values": [
+                        420073,
+                        426647,
+                        402097,
+                        42020,
+                        347969,
+                        417315,
+                        426475,
+                        372650,
+                        105832
+                    ]
+                },
+                {
+                    "header": "Bases",
+                    "id": "barcode.barcode_table.number_of_bases",
+                    "values": [
+                        3157307180,
+                        3410915216,
+                        3306495192,
+                        361899607,
+                        2706478990,
+                        3351206427,
+                        3552693013,
+                        3136101811,
+                        837500096
+                    ]
+                },
+                {
+                    "header": "Mean Read Length",
+                    "id": "barcode.barcode_table.mean_read_length",
+                    "values": [
+                        7516,
+                        7994,
+                        8223,
+                        8612,
+                        7777,
+                        8030,
+                        8330,
+                        8415,
+                        7913
+                    ]
+                },
+                {
+                    "header": "Mean Barcode Quality",
+                    "id": "barcode.barcode_table.mean_bcqual",
+                    "values": [
+                        98,
+                        98,
+                        98,
+                        98,
+                        98,
+                        98,
+                        97,
+                        98,
+                        0
+                    ]
+                }
+            ],
+            "id": "barcode.barcode_table",
+            "title": "Barcode Data"
+        },
+        {
+            "columns": [
+                {
+                    "header": "Barcode Name",
+                    "id": "barcode.inferred_barcode_table.first_bc_name",
+                    "values": [
+                        "bc1001_BAK8A_OA--bc1001_BAK8A_OA",
+                        "bc1002_BAK8A_OA--bc1002_BAK8A_OA",
+                        "bc1003_BAK8A_OA--bc1003_BAK8A_OA",
+                        "bc1008_BAK8A_OA--bc1008_BAK8A_OA",
+                        "bc1009_BAK8A_OA--bc1009_BAK8A_OA",
+                        "bc1010_BAK8A_OA--bc1010_BAK8A_OA",
+                        "bc1011_BAK8A_OA--bc1011_BAK8A_OA",
+                        "bc1012_BAK8A_OA--bc1012_BAK8A_OA"
+                    ]
+                },
+                {
+                    "header": "Number of ZMWs",
+                    "id": "barcode.inferred_barcode_table.num_zmws",
+                    "values": [
+                        7733,
+                        6876,
+                        6647,
+                        703,
+                        5917,
+                        6724,
+                        6875,
+                        6603
+                    ]
+                },
+                {
+                    "header": "Mean Barcode Score",
+                    "id": "barcode.inferred_barcode_table.mean_bc_score",
+                    "values": [
+                        98,
+                        98,
+                        98,
+                        98,
+                        98,
+                        98,
+                        97,
+                        98
+                    ]
+                }
+            ],
+            "id": "barcode.inferred_barcode_table",
+            "title": "Inferred Barcodes"
+        }
+    ],
+    "tags": [],
+    "title": "Report barcode",
+    "uuid": "364ca83a-61f2-4276-b4c6-067cef461400",
+    "version": "1.0.1"
+}
