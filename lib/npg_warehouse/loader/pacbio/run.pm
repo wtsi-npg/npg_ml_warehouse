@@ -24,8 +24,6 @@ Readonly::Scalar my $XML_TRACKING_FIELDS  => 6;
 Readonly::Scalar my $XML_TRACKING_FIELDS2 => 8;
 Readonly::Scalar my $SUBREADS             => q[subreads];
 Readonly::Scalar my $CCSREADS             => q[ccsreads];
-Readonly::Scalar my $ID_SCRIPT            => q[generate_pac_bio_id];
-Readonly::Scalar my $ID_LENGTH            => 64;
 
 =head1 NAME
 
@@ -176,17 +174,7 @@ sub _build_run_wells {
       my $tki = $self->_well_tracking_info($well->{'uniqueId'});
       my $run = $self->_run;
 
-      open my $id_product_script, q[-|],
-        join q[ ], $ID_SCRIPT, $run->{'pac_bio_run_name'}, $well->{'well'}
-        or $self->logconfess ('Cannot generate id_product '. $CHILD_ERROR);
-      my $id_product = <$id_product_script>;
-      close $id_product_script
-        or $self->logconfess('Could not close id_product generation script');
-      $id_product =~ s/\s//xms;
-      if (length $id_product != $ID_LENGTH){
-        $self->logcroak ('Incorrect output length from id_product generation script, expected a 64 character string');
-      }
-      $well_info{'id_pac_bio_product'} = $id_product;
+      $well_info{'id_pac_bio_product'} = $self->generate_product_id($well->{'well'});
 
       my %all =  (%well_info, %{$qc}, %{$ccs}, %{$tki}, %{$run});
       push @run_wells, \%all;
