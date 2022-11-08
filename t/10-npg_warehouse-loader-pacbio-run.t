@@ -26,7 +26,7 @@ Readonly::Scalar my $PRODUCT_TABLE_NAME  => q[PacBioProductMetric];
 if (!which "generate_pac_bio_id"){
   plan skip_all => "Pac Bio product_id generation script not installed"
 } else {
-  plan tests => 8;
+  plan tests => 9;
 }
 
 my $user_agent = Test::LWP::UserAgent->new(network_fallback => 1);
@@ -260,6 +260,44 @@ subtest 'load_in_progress_run' => sub {
     ({pac_bio_run_name => '80863', well_label => 'C1'})->next;
   is ($rs3->run_status, q[Running], 'correct run status for run 80863 well C1');
   is ($rs3->well_status, q[Acquiring], 'correct well status for run 80863 well C1');
+};
+
+subtest 'load_multiple_sample_run' => sub {
+  plan tests => 7;
+
+  my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
+
+  my @load_args = (dry_run       => '0',
+                   pb_api_client => $pb_api,
+                   mlwh_schema => $wh_schema,
+                   run_uuid => q[81913778-242d-401e-86c6-69bd4d619d8e],
+                   hostname => q[blah.sanger.ac.uk]);
+
+  my $loader = npg_warehouse::loader::pacbio::run->new(@load_args);
+  my ($processed, $loaded, $errors) = $loader->load_run;
+
+  cmp_ok ($loaded, '==', 1, "Loaded 1 multi sample run");
+  cmp_ok ($errors, '==', 0, "Loaded 1 multi sample run with no errors");
+
+  my $rw_rs = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
+    ({pac_bio_run_name => 'TRACTION-RUN-219', well_label => 'A1'});
+  is ($rw_rs->count, 1, '1 row loaded for run ... well A1 in pac_bio_run_well_metrics');
+
+  my $rw_r = $rw_rs->next;
+  my $id = $rw_r->id_pac_bio_rw_metrics_tmp;
+  my $p_rs = $wh_schema->resultset($PRODUCT_TABLE_NAME)->search
+    ({id_pac_bio_rw_metrics_tmp => $id,});
+  is ($p_rs->count, 8, '8 rows loaded for run ... well A1 in pac_bio_product_metrics');
+
+  my $p_r1 = $p_rs->next;
+  cmp_ok($rw_r->id_pac_bio_product, 'ne', $p_r1->id_pac_bio_product,
+    'sample id_product is different from well id_product for multi sample run');
+
+  my $p_r2 = $p_rs->next;
+  cmp_ok($rw_r->id_pac_bio_product, 'ne', $p_r2->id_pac_bio_product,
+    'sample id_product is different from well id_product for multi sample run');
+  cmp_ok($p_r1->id_pac_bio_product, 'ne', $p_r2->id_pac_bio_product,
+    'sample id_products are different for multi sample run');
 };
 
 subtest 'fail_to_load_non_existent_run' => sub {

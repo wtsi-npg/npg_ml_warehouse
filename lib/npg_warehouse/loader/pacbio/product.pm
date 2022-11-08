@@ -60,7 +60,7 @@ sub product_data {
         while (my $row = $pac_bio_run->next) {
           my $tags = $row->tag_sequence;
           my $tag2 = $row->tag2_sequence;
-          if ($tag2 && $tag2 != ''){
+          if ($tag2 && $tag2 ne q[]){
             $tags .= ",$tag2";
           }
 
@@ -137,7 +137,7 @@ sub generate_product_id {
   if ($tags){
     $command .= join q[ ], ' --tags', $tags;
   }
-  $self->logwarn("running: $command");
+  $self->info("Generating product id: $command");
   open my $id_product_script, q[-|], $command
     or $self->logconfess('Cannot generate id_product ' . $CHILD_ERROR);
   my $id_product = <$id_product_script>;
