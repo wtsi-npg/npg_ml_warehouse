@@ -48,31 +48,24 @@ sub product_data {
         pac_bio_run_name => $well->{'pac_bio_run_name'},
         well_label       => $well->{'well_label'}, });
 
-      if ($pac_bio_run->count == 1) {
-        my $row = $pac_bio_run->first;
+      # The value for id product in run_well_metrics is not reused so that
+      # samples from the same well with different tags and deplexed reads can
+      # be differentiated
+      while (my $row = $pac_bio_run->next) {
+        my $tags = $row->tag_sequence;
+        my $tag2 = $row->tag2_sequence;
+        if ($tag2){
+          $tags .= ",$tag2";
+        }
+
+        my $id_product = $self->generate_product_id(
+          $well->{'pac_bio_run_name'}, $well->{'well_label'}, $tags);
         push @product_data,
           { 'id_pac_bio_tmp'     => $row->id_pac_bio_tmp,
             'pac_bio_run_name'   => $well->{'pac_bio_run_name'},
             'well_label'         => $well->{'well_label'},
-            'id_pac_bio_product' => $well->{'id_pac_bio_product'},
+            'id_pac_bio_product' => $id_product,
           };
-      } else{
-        while (my $row = $pac_bio_run->next) {
-          my $tags = $row->tag_sequence;
-          my $tag2 = $row->tag2_sequence;
-          if ($tag2 && $tag2 ne q[]){
-            $tags .= ",$tag2";
-          }
-
-          my $id_product = $self->generate_product_id($well->{'well_label'}, $tags);
-          push @product_data,
-            { 'id_pac_bio_tmp'     => $row->id_pac_bio_tmp,
-              'pac_bio_run_name'   => $well->{'pac_bio_run_name'},
-              'well_label'         => $well->{'well_label'},
-              'id_pac_bio_product' => $id_product,
-            };
-        }
-
       }
     }
   }
@@ -130,10 +123,10 @@ sub load_pacbioproductmetric_table {
 =cut
 
 sub generate_product_id {
-  my ($self, $well_label, $tags) = @_;
+  my ($self, $run_name, $well_label, $tags) = @_;
 
   my $command = join q[ ],
-    $ID_SCRIPT, $self->_run->{'pac_bio_run_name'}, $well_label;
+    $ID_SCRIPT, $run_name, $well_label;
   if ($tags){
     $command .= join q[ ], ' --tags', $tags;
   }

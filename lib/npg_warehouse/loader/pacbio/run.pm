@@ -174,7 +174,8 @@ sub _build_run_wells {
       my $tki = $self->_well_tracking_info($well->{'uniqueId'});
       my $run = $self->_run;
 
-      $well_info{'id_pac_bio_product'} = $self->generate_product_id($well->{'well'});
+      $well_info{'id_pac_bio_product'} = $self->generate_product_id(
+        $run->{'pac_bio_run_name'}, $well->{'well'});
 
       my %all =  (%well_info, %{$qc}, %{$ccs}, %{$tki}, %{$run});
       push @run_wells, \%all;
