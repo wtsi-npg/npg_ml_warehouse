@@ -151,7 +151,7 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
   my $r3 = $rs3->next;
 
   is ($r3->id_pac_bio_product, q[119d325b4c97aac11edd56f80e68818ac15627f2d6c59ffdad8dbecd5ee890cc],
-    'correct product id for run 80685 well A1 tag CACATATCAGAGTGCGT in product metrics table');
+    'correct product id for run 80685 well A1 tag ACACTAGATCGCGTGTT in product metrics table');
 
   my $rs4 = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
     ({pac_bio_run_name => '80685', well_label => 'B1'});

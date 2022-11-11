@@ -9,8 +9,9 @@ our $VERSION = '0';
 Readonly::Scalar my $PRODUCT_TABLE_NAME  => q[PacBioProductMetric];
 Readonly::Scalar my $RUN_TABLE_NAME      => q[PacBioRun];
 Readonly::Scalar my $RUN_WELL_TABLE_NAME => q[PacBioRunWellMetric];
-Readonly::Scalar my $ID_SCRIPT            => q[generate_pac_bio_id];
-Readonly::Scalar my $ID_LENGTH            => 64;
+Readonly::Scalar my $TAG_DELIM           => q[,]; # Delimiter chosen to comply with the id generation script
+Readonly::Scalar my $ID_SCRIPT           => q[generate_pac_bio_id];
+Readonly::Scalar my $ID_LENGTH           => 64;
 
 
 =head1 NAME
@@ -55,7 +56,7 @@ sub product_data {
         my $tags = $row->tag_sequence;
         my $tag2 = $row->tag2_sequence;
         if ($tag2){
-          $tags .= ",$tag2";
+          $tags .= "$TAG_DELIM$tag2";
         }
 
         my $id_product = $self->generate_product_id(
