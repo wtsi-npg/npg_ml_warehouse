@@ -2,12 +2,16 @@ package npg_warehouse::loader::pacbio::product;
 
 use Moose::Role;
 use Readonly;
+use English qw[-no_match_vars];
 
 our $VERSION = '0';
 
 Readonly::Scalar my $PRODUCT_TABLE_NAME  => q[PacBioProductMetric];
 Readonly::Scalar my $RUN_TABLE_NAME      => q[PacBioRun];
 Readonly::Scalar my $RUN_WELL_TABLE_NAME => q[PacBioRunWellMetric];
+Readonly::Scalar my $TAG_DELIM           => q[,]; # Delimiter chosen to comply with the id generation script
+Readonly::Scalar my $ID_SCRIPT           => q[generate_pac_bio_id];
+Readonly::Scalar my $ID_LENGTH           => 64;
 
 
 =head1 NAME
@@ -45,11 +49,24 @@ sub product_data {
         pac_bio_run_name => $well->{'pac_bio_run_name'},
         well_label       => $well->{'well_label'}, });
 
+      # The value for id product in run_well_metrics is not reused so that
+      # samples from the same well with different tags and deplexed reads can
+      # be differentiated
       while (my $row = $pac_bio_run->next) {
+        my $tags = $row->tag_sequence;
+        my $tag2 = $row->tag2_sequence;
+        if ($tag2){
+          $tags .= "$TAG_DELIM$tag2";
+        }
+
+        my $id_product = $self->generate_product_id(
+          $well->{'pac_bio_run_name'}, $well->{'well_label'}, $tags);
         push @product_data,
-          {'id_pac_bio_tmp'   => $row->id_pac_bio_tmp,
-           'pac_bio_run_name' => $well->{'pac_bio_run_name'},
-           'well_label'       => $well->{'well_label'},};
+          { 'id_pac_bio_tmp'     => $row->id_pac_bio_tmp,
+            'pac_bio_run_name'   => $well->{'pac_bio_run_name'},
+            'well_label'         => $well->{'well_label'},
+            'id_pac_bio_product' => $id_product,
+          };
       }
     }
   }
@@ -87,7 +104,7 @@ sub load_pacbioproductmetric_table {
         $self->info(q[Will update or create record in] .
           qq[ $PRODUCT_TABLE_NAME for run $run, well $well]);
 
-        $rs->update_or_create($row);
+        $rs->update_or_create($row, {key=> 'pac_bio_metrics_product'});
         $count++;
       }
     }
@@ -96,6 +113,36 @@ sub load_pacbioproductmetric_table {
   return $self->mlwh_schema->txn_do($transaction);
 }
 
+=head2 generate_product_id
+
+  Arg [1]    : Well label, String. Required.
+  Arg [2]    : Comma separated list of tag sequences, String. Optional.
+  Example    : $id = $self->generate_product_id($well, $tags);
+  Description: Runs a python script which generates a product id from run,
+               well and tag data.
+
+=cut
+
+sub generate_product_id {
+  my ($self, $run_name, $well_label, $tags) = @_;
+
+  my $command = join q[ ],
+    $ID_SCRIPT, $run_name, $well_label;
+  if ($tags){
+    $command .= join q[ ], ' --tags', $tags;
+  }
+  $self->info("Generating product id: $command");
+  open my $id_product_script, q[-|], $command
+    or $self->logconfess('Cannot generate id_product ' . $CHILD_ERROR);
+  my $id_product = <$id_product_script>;
+  close $id_product_script
+    or $self->logconfess('Could not close id_product generation script');
+  $id_product =~ s/\s//xms;
+  if (length $id_product != $ID_LENGTH) {
+    $self->logcroak('Incorrect output length from id_product generation script, expected a 64 character string');
+  }
+  return $id_product;
+}
 
 sub _get_run_well_fk {
   my ($self, $run, $well) = @_;

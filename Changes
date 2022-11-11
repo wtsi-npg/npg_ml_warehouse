@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - add product id generation and loading to the pac bio loader
+
 release 45.6.0
  - add run transfer date to the pacbio warehouse loader.
 

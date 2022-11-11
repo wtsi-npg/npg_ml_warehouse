@@ -9,6 +9,7 @@ use Getopt::Long;
 use Log::Log4perl qw(:levels);
 use Pod::Usage;
 use Readonly;
+use Try::Tiny;
 
 use npg_warehouse::loader::pacbio::run;
 use WTSI::DNAP::Warehouse::Schema;
@@ -84,18 +85,21 @@ if (ref $runs eq 'ARRAY') {
 
 my ($num_processed, $num_loaded, $num_errors) = (0, 0, 0);
 foreach my $run (@runs_to_load) {
-  my @load_args = (dry_run       => $dry_run,
-                   pb_api_client => $pb_api,
-                   mlwh_schema   => $wh_schema,
-                   run_uuid      => $run,
-                   hostname      => $hostname,);
+  my @load_args = (dry_run              => $dry_run,
+                   pb_api_client        => $pb_api,
+                   mlwh_schema          => $wh_schema,
+                   run_uuid             => $run,
+                   hostname             => $hostname,);
+  try {
+    my $loader = npg_warehouse::loader::pacbio::run->new(@load_args);
 
-  my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
-
-  my ($processed, $loaded, $errors) = $loader->load_run;
-  $num_processed += $processed;
-  $num_loaded    += $loaded;
-  $num_errors    += $errors;
+    my ($processed, $loaded, $errors) = $loader->load_run;
+    $num_processed += $processed;
+    $num_loaded += $loaded;
+    $num_errors += $errors;
+  }catch {
+    $num_errors++;
+  };
 }
 
 my $output = q{Considered }. scalar @runs_to_load .q{,}.

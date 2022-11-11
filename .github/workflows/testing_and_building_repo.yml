@@ -11,6 +11,12 @@ jobs:
           git fetch --prune --unshallow --tags --force
           git describe --always
 
+    - uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+        architecture: 'x64'
+    
+   # Caching cpanm external modules 
     - name: Cache cpanm external modules
       id: cpanmCache
       uses: actions/cache@v2
@@ -43,11 +49,17 @@ jobs:
           eval $(perl -I ~/perl5ext/lib/perl5/ -Mlocal::lib=~/perl5ext)
           cpanm --installdeps .
 
-    - name: Run Build.PL and ./Build
+    - name: install python dependencies
+      run: |
+          python3 -m pip install git+https://github.com/wtsi-npg/npg_id_generation
+
+    # build
+    - name: run Build.PL and ./Build
       run: |
           eval $(perl -I ~/perl5ext/lib/perl5/ -Mlocal::lib=~/perl5ext)
           eval $(perl -I ~/perl5ext/lib/perl5/ -Mlocal::lib=~/perl5npg)
           export TEST_AUTHOR=1
+          export PAC_BIO_ID_SCRIPT="$(which generate_pac_bio_id)"
           perl Build.PL && ./Build test --verbose && ./Build install
  
     # Archive logs if failure
