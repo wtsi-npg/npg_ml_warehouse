@@ -1,6 +1,8 @@
 LIST OF CHANGES
 
+release 45.7.0
  - add product id generation and loading to the pac bio loader
+ - change CI runner from Ubuntu 18.04 to ubuntu-latest
 
 release 45.6.0
  - add run transfer date to the pacbio warehouse loader.
