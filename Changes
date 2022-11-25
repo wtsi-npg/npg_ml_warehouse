@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - move tag sequence parsing into separate function
+
 release 45.7.1
  - small fix for PacBio SMRT Link v11 num control reads
  - update action versions in CI
