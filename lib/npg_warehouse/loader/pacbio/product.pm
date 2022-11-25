@@ -115,9 +115,10 @@ sub load_pacbioproductmetric_table {
 
 =head2 generate_product_id
 
-  Arg [1]    : Well label, String. Required.
-  Arg [2]    : Comma separated list of tag sequences, String. Optional.
-  Example    : $id = $self->generate_product_id($well, $tags);
+  Arg [1]    : Run name, String. Required.
+  Arg [2]    : Well label, String. Required.
+  Arg [3]    : Comma separated list of tag sequences, String. Optional.
+  Example    : $id = $self->generate_product_id($run, $well, $tags);
   Description: Runs a python script which generates a product id from run,
                well and tag data.
 
@@ -185,7 +186,7 @@ __END__
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2021 Genome Research Limited. All Rights Reserved.
+Copyright (C) 2021, 2022 Genome Research Limited. All Rights Reserved.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the Perl Artistic License or the GNU General
