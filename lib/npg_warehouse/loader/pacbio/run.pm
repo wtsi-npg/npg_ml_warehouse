@@ -174,6 +174,9 @@ sub _build_run_wells {
       my $tki = $self->_well_tracking_info($well->{'uniqueId'});
       my $run = $self->_run;
 
+      $well_info{'id_pac_bio_product'} = $self->generate_product_id(
+        $run->{'pac_bio_run_name'}, $well->{'well'});
+
       my %all =  (%well_info, %{$qc}, %{$ccs}, %{$tki}, %{$run});
       push @run_wells, \%all;
     }
@@ -431,7 +434,7 @@ sub load_pacbiorunwellmetric_table {
         "Will update or create record in $RUN_WELL_TABLE_NAME for " .
         join q[ ], 'run', $row->{'pac_bio_run_name'}, 'well', $row->{'well_label'}
       );
-      $rs->update_or_create($row);
+      $rs->update_or_create($row, {key => 'pac_bio_metrics_run_well'});
       $count++;
     }
     return $count;
