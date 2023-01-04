@@ -265,6 +265,7 @@ sub _well_qc_info {
     $qc{'p2_num'}                      = $qc_all->{'Productivity 2'};
     $qc{'adapter_dimer_percent'}       = $qc_all->{'Adapter Dimers (0-10bp) %'};
     $qc{'short_insert_percent'}        = $qc_all->{'Short Inserts (11-100bp) %'};
+    ## field name corrected in SMRT Link v11 - but require both for historic data
     $qc{'control_num_reads'}           = defined $qc_all->{'Number of of Control Reads'} ?
       $qc_all->{'Number of of Control Reads'} : $qc_all->{'Number of Control Reads'};
     $qc{'control_concordance_mean'}    = $qc_all->{'Control Read Concordance Mean'};
