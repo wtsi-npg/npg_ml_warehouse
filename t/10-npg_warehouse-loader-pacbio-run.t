@@ -203,7 +203,7 @@ subtest 'load_completed_run_mixed_analysis' => sub {
 };
 
 subtest 'load_completed_run_on_instrument_deplexing_analysis' => sub {
-  plan tests => 9;
+  plan tests => 10;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
 
@@ -229,6 +229,7 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis' => sub {
   is ($r->polymerase_num_reads, q[5959113], 'correct polymerase reads for run TR142  well A1');
   is ($r->hifi_num_reads, q[2098821], 'correct hifi reads for run TR142  well A1');
   is ($r->hifi_low_quality_num_reads, undef, 'correct hifi low quality reads for run TR142  well A1'); 
+  is ($r->control_num_reads, 1061, 'correct num of control reads for run TR142  well A1'); 
 };
 
 subtest 'load_in_progress_run' => sub {
