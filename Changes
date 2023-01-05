@@ -1,6 +1,8 @@
 LIST OF CHANGES
 
+release 45.7.1
  - small fix for PacBio SMRT Link v11 num control reads
+ - update action versions in CI
 
 release 45.7.0
  - add product id generation and loading to the pac bio loader
