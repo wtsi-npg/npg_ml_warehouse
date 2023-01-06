@@ -350,25 +350,28 @@ subtest 'detect_incorrect_id_length' => sub {
 };
 
 subtest 'test_get_tags' => sub {
-  plan tests => 3;
+  plan tests => 4;
 
   my $rs1 = $wh_schema->resultset($RUN_TABLE_NAME)->search
     ({pac_bio_run_name => 'TRACTION-RUN-157', well_label => 'A1'});
   my $row1 = $rs1->next;
-  is(npg_warehouse::loader::pacbio::product::get_tags($row1), 'ACACTAGATCGCGTGTT,CTATACGTATATCTATT',
+  is(npg_warehouse::loader::pacbio::product->get_tags($row1), 'ACACTAGATCGCGTGTT,CTATACGTATATCTATT',
     'Correct tag list for product with two tag sequences');
 
   my $rs2 = $wh_schema->resultset($RUN_TABLE_NAME)->search
     ({ pac_bio_run_name => '80685', well_label => 'D1'});
   my $row2 = $rs2->next;
-  is(npg_warehouse::loader::pacbio::product::get_tags($row2), 'CGCATGACACGTGTGTT',
+  is(npg_warehouse::loader::pacbio::product->get_tags($row2), 'CGCATGACACGTGTGTT',
     'Correct tag list for product with one tag sequence');
 
   my $rs3 = $wh_schema->resultset($RUN_TABLE_NAME)->search
     ({ pac_bio_run_name => 'TRACTION-RUN-157', well_label => 'D1'});
   my $row3 = $rs3->next;
-  is(npg_warehouse::loader::pacbio::product::get_tags($row3), '',
+  is(npg_warehouse::loader::pacbio::product->get_tags($row3), '',
     'Empty tag list for product with zero tag sequences');
+
+  throws_ok(sub { npg_warehouse::loader::pacbio::product->get_tags; }, qr/A defined row argument is required*/,
+    'Fails due to lack of $row argument');
 
 };
 
