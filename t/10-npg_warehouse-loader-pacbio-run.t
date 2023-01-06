@@ -18,15 +18,17 @@ use npg_testing::db;
 use t::util;
 
 use npg_warehouse::loader::pacbio::run;
+use npg_warehouse::loader::pacbio::product;
 use WTSI::NPG::HTS::PacBio::Sequel::APIClient;
 
 Readonly::Scalar my $RUN_WELL_TABLE_NAME => q[PacBioRunWellMetric];
 Readonly::Scalar my $PRODUCT_TABLE_NAME  => q[PacBioProductMetric];
+Readonly::Scalar my $RUN_TABLE_NAME      => q[PacBioRun];
 
 if (!which "generate_pac_bio_id"){
   plan skip_all => "Pac Bio product_id generation script not installed"
 } else {
-  plan tests => 9;
+  plan tests => 10;
 }
 
 my $user_agent = Test::LWP::UserAgent->new(network_fallback => 1);
@@ -344,6 +346,32 @@ subtest 'detect_incorrect_id_length' => sub {
   throws_ok(sub { $loader->_build_run_wells; },
     qr/Incorrect output length from id_product generation script, expected a 64 character string.*/,
     'Fails due to incorrect length id');
+
+};
+
+subtest 'test_get_tags' => sub {
+  plan tests => 4;
+
+  my $rs1 = $wh_schema->resultset($RUN_TABLE_NAME)->search
+    ({pac_bio_run_name => 'TRACTION-RUN-157', well_label => 'A1'});
+  my $row1 = $rs1->next;
+  is(npg_warehouse::loader::pacbio::product->get_tags($row1), 'ACACTAGATCGCGTGTT,CTATACGTATATCTATT',
+    'Correct tag list for product with two tag sequences');
+
+  my $rs2 = $wh_schema->resultset($RUN_TABLE_NAME)->search
+    ({ pac_bio_run_name => '80685', well_label => 'D1'});
+  my $row2 = $rs2->next;
+  is(npg_warehouse::loader::pacbio::product->get_tags($row2), 'CGCATGACACGTGTGTT',
+    'Correct tag list for product with one tag sequence');
+
+  my $rs3 = $wh_schema->resultset($RUN_TABLE_NAME)->search
+    ({ pac_bio_run_name => 'TRACTION-RUN-157', well_label => 'D1'});
+  my $row3 = $rs3->next;
+  is(npg_warehouse::loader::pacbio::product->get_tags($row3), '',
+    'Empty tag list for product with zero tag sequences');
+
+  throws_ok(sub { npg_warehouse::loader::pacbio::product->get_tags; }, qr/A defined row argument is required*/,
+    'Fails due to lack of $row argument');
 
 };
 
