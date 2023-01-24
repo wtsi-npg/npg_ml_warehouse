@@ -1,6 +1,11 @@
 LIST OF CHANGES
 
- - move tag sequence parsing into separate function
+ - PacBio loader:
+   - move tag sequence parsing into separate function,
+   - generate well's product IDs only for new records,
+   - prior to creating run product records, drop product records for runs
+     where at least one product record is not linked to the pac_bio_run
+     table; this ensures that product records are properly relinked.
 
 release 45.7.1
  - small fix for PacBio SMRT Link v11 num control reads

@@ -28,7 +28,7 @@ Readonly::Scalar my $RUN_TABLE_NAME      => q[PacBioRun];
 if (!which "generate_pac_bio_id"){
   plan skip_all => "Pac Bio product_id generation script not installed"
 } else {
-  plan tests => 10;
+  plan tests => 11;
 }
 
 my $user_agent = Test::LWP::UserAgent->new(network_fallback => 1);
@@ -321,34 +321,6 @@ subtest 'fail_to_load_non_existent_run' => sub {
   cmp_ok($loaded, '==', 0, "Loaded 0 runs - as run doesn't exist");
 };
 
-subtest 'detect_incorrect_id_length' => sub {
-  plan tests => 3;
-
-  my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
-
-  my @load_args = (dry_run       => '0',
-                   pb_api_client => $pb_api,
-                   mlwh_schema   => $wh_schema,
-                   run_uuid      => q[d4c8636a-25f3-4874-b816-b690bbe31b2c],
-                   hostname      => q[blah.sanger.ac.uk]);
-
-  $ENV{PATH} = getcwd()."/t/scripts:$ENV{PATH}";
-  is (which ('generate_pac_bio_id'), getcwd().'/t/scripts/generate_pac_bio_id', 'Incorrect id generation script added to path');
-  open my $id_product_script, q[-|], 'generate_pac_bio_id'
-    or die ('Cannot generate id_product');
-  my $id_product = <$id_product_script>;
-  $id_product =~ s/\s//xms;
-  close $id_product_script
-    or die('Could not close id_product generation script');
-
-  is ($id_product, 'notanid', 'Incorrect length id generated');
-  my $loader = npg_warehouse::loader::pacbio::run->new(@load_args);
-  throws_ok(sub { $loader->_build_run_wells; },
-    qr/Incorrect output length from id_product generation script, expected a 64 character string.*/,
-    'Fails due to incorrect length id');
-
-};
-
 subtest 'test_get_tags' => sub {
   plan tests => 4;
 
@@ -375,5 +347,108 @@ subtest 'test_get_tags' => sub {
 
 };
 
+subtest 'detect_incorrect_id_length' => sub {
+  plan tests => 8;
+
+  my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
+
+  my @load_args = (dry_run       => '0',
+                   pb_api_client => $pb_api,
+                   mlwh_schema   => $wh_schema,
+                   run_uuid      => q[d4c8636a-25f3-4874-b816-b690bbe31b2c],
+                   hostname      => q[blah.sanger.ac.uk]);
+
+  $wh_schema->resultset('PacBioProductMetric')->search()->delete();
+  $wh_schema->resultset('PacBioRunWellMetric')->search()->delete();
+  my $loader = npg_warehouse::loader::pacbio::run->new(@load_args);
+  my ($num_processed, $num_loaded, $num_errors) = $loader->load_run();
+  is($num_loaded, 1, "Loaded 1 run");             
+  is($num_processed, 1, "Processed one run");
+  is($num_errors, 0, "Had no errors");
+
+  local $ENV{PATH} = getcwd()."/t/scripts:$ENV{PATH}";
+  is (which ('generate_pac_bio_id'), getcwd().'/t/scripts/generate_pac_bio_id', 'Incorrect id generation script added to path');
+  open my $id_product_script, q[-|], 'generate_pac_bio_id'
+    or die ('Cannot generate id_product');
+  my $id_product = <$id_product_script>;
+  $id_product =~ s/\s//xms;
+  close $id_product_script
+    or die('Could not close id_product generation script');
+
+  is ($id_product, 'notanid', 'Incorrect length id generated');
+ 
+  $wh_schema->resultset('PacBioProductMetric')->search()->delete();
+  $wh_schema->resultset('PacBioRunWellMetric')->search()->delete();
+  $loader = npg_warehouse::loader::pacbio::run->new(@load_args);
+  ($num_processed, $num_loaded, $num_errors) = $loader->load_run();
+  is($num_loaded, 0, "Loaded 0 runs - error generating prodict id");             
+  is($num_processed, 1, "Processed one run");
+  is($num_errors, 1, "Had one error");
+};
+
+subtest 'test_linking_and_relinking' => sub {
+  plan tests => 15;
+
+  my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
+
+  my @load_args = (dry_run       => 0,
+                   pb_api_client => $pb_api,
+                   mlwh_schema   => $wh_schema,
+                   run_uuid      => q[d4c8636a-25f3-4874-b816-b690bbe31b2c],
+                   hostname      => q[blah.sanger.ac.uk]);
+
+  $wh_schema->resultset('PacBioProductMetric')->search()->delete();
+  $wh_schema->resultset('PacBioRunWellMetric')->search()->delete();
+
+  my $run_rs = $wh_schema->resultset('PacBioRun')
+                         ->search({pac_bio_run_name => '80685'});
+  my $pb_run_name = '80863';
+  # CHANGING LIMS DATA, KEEP THIS TEST AT THE END OF THE FILE
+  while (my $row = $run_rs->next()) {
+    $row->update({pac_bio_run_name => $pb_run_name});
+  } 
+
+  my $loader = npg_warehouse::loader::pacbio::run->new(@load_args);
+  my ($num_processed, $num_loaded, $num_errors) = $loader->load_run();
+  is($num_loaded, 1, "Loaded 1 run");             
+  is($num_processed, 1, "Processed one run");
+  is($num_errors, 0, "Had no errors");
+
+  my $p_rs = $wh_schema->resultset('PacBioProductMetric')->search({});
+  is ($p_rs->count(), 4, '4 linking rows have been created');
+  is ((grep {defined $_->id_pac_bio_tmp} $p_rs->all()), 4,
+    'all rows are linked to the run table');
+
+  my $fk_value = $wh_schema->resultset('PacBioRun')->search(
+    {pac_bio_run_name => $pb_run_name, well_label => 'B1'})
+    ->next->id_pac_bio_tmp;
+  $wh_schema->resultset('PacBioProductMetric')
+    ->search({id_pac_bio_tmp => $fk_value})->next()
+    ->update({id_pac_bio_tmp => undef});
+  $p_rs = $wh_schema->resultset('PacBioProductMetric')->search({});
+  is ((grep {defined $_->id_pac_bio_tmp} $p_rs->all()), 3,
+    '3 rows are currently linked to the run table');
+
+  $loader = npg_warehouse::loader::pacbio::run->new(@load_args);
+  ($num_processed, $num_loaded, $num_errors) = $loader->load_run(); 
+  is($num_loaded, 1, "Loaded 1 run");             
+  is($num_processed, 1, "Processed one run");
+  is($num_errors, 0, "Had no errors");
+  is ((grep {defined $_->id_pac_bio_tmp} $p_rs->all()), 4,
+    '4 rows are linked to the run table');
+
+  $wh_schema->resultset('PacBioProductMetric')->search({})  
+    ->update({id_pac_bio_tmp => undef});
+  is ((grep {defined $_->id_pac_bio_tmp} $p_rs->all()), 0,
+    'no rows are linked to the run table');
+  
+  $loader = npg_warehouse::loader::pacbio::run->new(@load_args); 
+  ($num_processed, $num_loaded, $num_errors) = $loader->load_run(); 
+  is($num_loaded, 1, "Loaded 1 run");             
+  is($num_processed, 1, "Processed one run");
+  is($num_errors, 0, "Had no errors");
+  is ((grep {defined $_->id_pac_bio_tmp} $p_rs->all()), 4,
+    '4 rows are linked to the run table');
+};
 
 1;
