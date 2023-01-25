@@ -11,11 +11,8 @@ use Readonly;
 use Test::Exception;
 use Test::LWP::UserAgent;
 use Test::More;
-use Test::Warn;
-
 
 use npg_testing::db;
-use t::util;
 
 use npg_warehouse::loader::pacbio::run;
 use npg_warehouse::loader::pacbio::product;

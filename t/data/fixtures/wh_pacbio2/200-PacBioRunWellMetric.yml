@@ -1,0 +1,828 @@
+---
+- adapter_dimer_percent: 0
+  binding_kit: Sequel II Binding Kit 2.2
+  ccs_execution_mode: OnInstrument
+  cell_lot_number: 418824
+  chemistry_sw_version: 11.0.0.143406
+  chip_type: 8mChip
+  control_concordance_mean: 0.865023
+  control_concordance_mode: 0.89
+  control_num_reads: 3776
+  control_read_length_mean: 54919
+  created_by: tm14
+  heteroduplex_analysis: 0
+  hifi_low_quality_num_reads: ~
+  hifi_low_quality_read_bases: ~
+  hifi_low_quality_read_length_mean: ~
+  hifi_low_quality_read_quality_median: ~
+  hifi_num_reads: 2531663
+  hifi_number_passes_mean: 17
+  hifi_only_reads: 1
+  hifi_read_bases: 22639242969
+  hifi_read_length_mean: 8942
+  hifi_read_quality_median: 40
+  id_pac_bio_product: 5a0d0383da70b962afca0e75761fa494f902efc0de5b1df270dc2e3f5d24baad
+  id_pac_bio_rw_metrics_tmp: 2676
+  include_kinetics: 1
+  insert_length_mean: 12905
+  insert_length_n50: 13250
+  instrument_name: 64222E
+  instrument_sw_version: 11.0.0.144466
+  instrument_type: Sequel2e
+  loading_conc: 70
+  local_base_rate: 2.85068
+  movie_minutes: 1440
+  movie_name: m64222e_221108_130143
+  p0_num: 3057010
+  p1_num: 4766647
+  p2_num: 191014
+  pac_bio_run_name: TRACTION-RUN-333
+  polymerase_num_reads: 4762871
+  polymerase_read_bases: 487822773562
+  polymerase_read_length_mean: 102422
+  polymerase_read_length_n50: 211250
+  primary_analysis_sw_version: 11.0.0.144466
+  productive_zmws_num: 8010895
+  run_complete: 2022-11-15 15:58:41
+  run_start: 2022-11-08 12:51:40
+  run_status: Complete
+  run_transfer_complete: 2022-11-15 23:34:42
+  sequencing_kit: Sequel II Sequencing Plate 2.0 (4 rxn)
+  sequencing_kit_lot_number: 128434
+  short_insert_percent: 0.01
+  sl_hostname: pacbio01.dnapipelines.sanger.ac.uk
+  sl_run_uuid: 48b93941-55eb-4cb2-b81f-b579d0fb635d
+  ts_run_name: r64222e_20221108_121449
+  unique_molecular_bases: 52113850368
+  well_complete: 2022-11-10 02:12:22
+  well_label: A1
+  well_start: 2022-11-08 13:01:44
+  well_status: Complete
+- adapter_dimer_percent: 0
+  binding_kit: Sequel II Binding Kit 2.2
+  ccs_execution_mode: OnInstrument
+  cell_lot_number: 418824
+  chemistry_sw_version: 11.0.0.143406
+  chip_type: 8mChip
+  control_concordance_mean: 0.861132
+  control_concordance_mode: 0.89
+  control_num_reads: 4032
+  control_read_length_mean: 60927
+  created_by: tm14
+  heteroduplex_analysis: 0
+  hifi_low_quality_num_reads: ~
+  hifi_low_quality_read_bases: ~
+  hifi_low_quality_read_length_mean: ~
+  hifi_low_quality_read_quality_median: ~
+  hifi_num_reads: 2708683
+  hifi_number_passes_mean: 17
+  hifi_only_reads: 1
+  hifi_read_bases: 22699690014
+  hifi_read_length_mean: 8380
+  hifi_read_quality_median: 42
+  id_pac_bio_product: aecfaaa6607fb8fd4bfc2fcf36ae77058a53cbf105e7279eaba13f4ee1ac96b7
+  id_pac_bio_rw_metrics_tmp: 2677
+  include_kinetics: 1
+  insert_length_mean: 13212
+  insert_length_n50: 15250
+  instrument_name: 64222E
+  instrument_sw_version: 11.0.0.144466
+  instrument_type: Sequel2e
+  loading_conc: 80
+  local_base_rate: 2.77004
+  movie_minutes: 1440
+  movie_name: m64222e_221109_175616
+  p0_num: 2553442
+  p1_num: 5212886
+  p2_num: 248343
+  pac_bio_run_name: TRACTION-RUN-333
+  polymerase_num_reads: 5208854
+  polymerase_read_bases: 503952978302
+  polymerase_read_length_mean: 96749
+  polymerase_read_length_n50: 199250
+  primary_analysis_sw_version: 11.0.0.144466
+  productive_zmws_num: 8010639
+  run_complete: 2022-11-15 15:58:41
+  run_start: 2022-11-08 12:51:40
+  run_status: Complete
+  run_transfer_complete: 2022-11-15 23:34:42
+  sequencing_kit: Sequel II Sequencing Plate 2.0 (4 rxn)
+  sequencing_kit_lot_number: 128434
+  short_insert_percent: 0.01
+  sl_hostname: pacbio01.dnapipelines.sanger.ac.uk
+  sl_run_uuid: 48b93941-55eb-4cb2-b81f-b579d0fb635d
+  ts_run_name: r64222e_20221108_121449
+  unique_molecular_bases: 58030911488
+  well_complete: 2022-11-11 05:49:23
+  well_label: B1
+  well_start: 2022-11-09 17:56:16
+  well_status: Complete
+- adapter_dimer_percent: 0
+  binding_kit: Sequel II Binding Kit 2.2
+  ccs_execution_mode: OnInstrument
+  cell_lot_number: 418824
+  chemistry_sw_version: 11.0.0.143406
+  chip_type: 8mChip
+  control_concordance_mean: 0.864432
+  control_concordance_mode: 0.89
+  control_num_reads: 9388
+  control_read_length_mean: 59786
+  created_by: tm14
+  heteroduplex_analysis: 0
+  hifi_low_quality_num_reads: ~
+  hifi_low_quality_read_bases: ~
+  hifi_low_quality_read_length_mean: ~
+  hifi_low_quality_read_quality_median: ~
+  hifi_num_reads: 1371661
+  hifi_number_passes_mean: 15
+  hifi_only_reads: 1
+  hifi_read_bases: 16513808388
+  hifi_read_length_mean: 12039
+  hifi_read_quality_median: 35
+  id_pac_bio_product: 77a0d08c510839ff4a4aaf25ce49ae089651eb333a0f19e5d0115ada85e800c8
+  id_pac_bio_rw_metrics_tmp: 2678
+  include_kinetics: 1
+  insert_length_mean: 16084
+  insert_length_n50: 21250
+  instrument_name: 64222E
+  instrument_sw_version: 11.0.0.144466
+  instrument_type: Sequel2e
+  loading_conc: 130
+  local_base_rate: 2.90438
+  movie_minutes: 1440
+  movie_name: m64222e_221110_211813
+  p0_num: 4899723
+  p1_num: 3019759
+  p2_num: 95189
+  pac_bio_run_name: TRACTION-RUN-333
+  polymerase_num_reads: 3010371
+  polymerase_read_bases: 302114812818
+  polymerase_read_length_mean: 100358
+  polymerase_read_length_n50: 213750
+  primary_analysis_sw_version: 11.0.0.144466
+  productive_zmws_num: 8005283
+  run_complete: 2022-11-15 15:58:41
+  run_start: 2022-11-08 12:51:40
+  run_status: Complete
+  run_transfer_complete: 2022-11-15 23:34:42
+  sequencing_kit: Sequel II Sequencing Plate 2.0 (4 rxn)
+  sequencing_kit_lot_number: 128434
+  short_insert_percent: 0.05
+  sl_hostname: pacbio01.dnapipelines.sanger.ac.uk
+  sl_run_uuid: 48b93941-55eb-4cb2-b81f-b579d0fb635d
+  ts_run_name: r64222e_20221108_121449
+  unique_molecular_bases: 43074158592
+  well_complete: 2022-11-12 08:11:18
+  well_label: C1
+  well_start: 2022-11-10 21:18:13
+  well_status: Complete
+- adapter_dimer_percent: 0
+  binding_kit: Sequel II Binding Kit 2.2
+  ccs_execution_mode: OnInstrument
+  cell_lot_number: 418824
+  chemistry_sw_version: 11.0.0.143406
+  chip_type: 8mChip
+  control_concordance_mean: 0.861558
+  control_concordance_mode: 0.89
+  control_num_reads: 7503
+  control_read_length_mean: 59337
+  created_by: tm14
+  heteroduplex_analysis: 0
+  hifi_low_quality_num_reads: ~
+  hifi_low_quality_read_bases: ~
+  hifi_low_quality_read_length_mean: ~
+  hifi_low_quality_read_quality_median: ~
+  hifi_num_reads: 585735
+  hifi_number_passes_mean: 17
+  hifi_only_reads: 1
+  hifi_read_bases: 5473757441
+  hifi_read_length_mean: 9345
+  hifi_read_quality_median: 37
+  id_pac_bio_product: ad26d84096fc2a3b9bbfaedf0a0b774516312a2c7b519a3d1465c2798120d0c4
+  id_pac_bio_rw_metrics_tmp: 2679
+  include_kinetics: 1
+  insert_length_mean: 14290
+  insert_length_n50: 20250
+  instrument_name: 64222E
+  instrument_sw_version: 11.0.0.144466
+  instrument_type: Sequel2e
+  loading_conc: 122
+  local_base_rate: 2.907
+  movie_minutes: 1440
+  movie_name: m64222e_221112_021412
+  p0_num: 6653277
+  p1_num: 1309024
+  p2_num: 52370
+  pac_bio_run_name: TRACTION-RUN-333
+  polymerase_num_reads: 1301521
+  polymerase_read_bases: 123969484794
+  polymerase_read_length_mean: 95250
+  polymerase_read_length_n50: 219750
+  primary_analysis_sw_version: 11.0.0.144466
+  productive_zmws_num: 8007168
+  run_complete: 2022-11-15 15:58:41
+  run_start: 2022-11-08 12:51:40
+  run_status: Complete
+  run_transfer_complete: 2022-11-15 23:34:42
+  sequencing_kit: Sequel II Sequencing Plate 2.0 (4 rxn)
+  sequencing_kit_lot_number: 128434
+  short_insert_percent: 0.01
+  sl_hostname: pacbio01.dnapipelines.sanger.ac.uk
+  sl_run_uuid: 48b93941-55eb-4cb2-b81f-b579d0fb635d
+  ts_run_name: r64222e_20221108_121449
+  unique_molecular_bases: 15885018112
+  well_complete: 2022-11-13 11:48:36
+  well_label: D1
+  well_start: 2022-11-12 02:14:13
+  well_status: Complete
+- adapter_dimer_percent: 0
+  binding_kit: Sequel II Binding Kit 2.2
+  ccs_execution_mode: OnInstrument
+  cell_lot_number: 418824
+  chemistry_sw_version: 11.0.0.143406
+  chip_type: 8mChip
+  control_concordance_mean: 0.85952
+  control_concordance_mode: 0.89
+  control_num_reads: 6313
+  control_read_length_mean: 62285
+  created_by: tm14
+  heteroduplex_analysis: 0
+  hifi_low_quality_num_reads: ~
+  hifi_low_quality_read_bases: ~
+  hifi_low_quality_read_length_mean: ~
+  hifi_low_quality_read_quality_median: ~
+  hifi_num_reads: 1586626
+  hifi_number_passes_mean: 12
+  hifi_only_reads: 1
+  hifi_read_bases: 22838515681
+  hifi_read_length_mean: 14394
+  hifi_read_quality_median: 34
+  id_pac_bio_product: ee77dc1824d8b1b135bd418d6c43a26bd1c67b8be37003ede309bf92a28972e7
+  id_pac_bio_rw_metrics_tmp: 2680
+  include_kinetics: 1
+  insert_length_mean: 16116
+  insert_length_n50: 20750
+  instrument_name: 64222E
+  instrument_sw_version: 11.0.0.144466
+  instrument_type: Sequel2e
+  loading_conc: 115
+  local_base_rate: 2.7614
+  movie_minutes: 1440
+  movie_name: m64222e_221113_071024
+  p0_num: 3433744
+  p1_num: 4417830
+  p2_num: 163097
+  pac_bio_run_name: TRACTION-RUN-333
+  polymerase_num_reads: 4411517
+  polymerase_read_bases: 358205916214
+  polymerase_read_length_mean: 81198
+  polymerase_read_length_n50: 196250
+  primary_analysis_sw_version: 11.0.0.144466
+  productive_zmws_num: 8008358
+  run_complete: 2022-11-15 15:58:41
+  run_start: 2022-11-08 12:51:40
+  run_status: Complete
+  run_transfer_complete: 2022-11-15 23:34:42
+  sequencing_kit: Sequel II Sequencing Plate 2.0 (4 rxn)
+  sequencing_kit_lot_number: 128434
+  short_insert_percent: 0.03
+  sl_hostname: pacbio01.dnapipelines.sanger.ac.uk
+  sl_run_uuid: 48b93941-55eb-4cb2-b81f-b579d0fb635d
+  ts_run_name: r64222e_20221108_121449
+  unique_molecular_bases: 65241657344
+  well_complete: 2022-11-14 18:48:44
+  well_label: E1
+  well_start: 2022-11-13 07:10:25
+  well_status: Complete
+- adapter_dimer_percent: 0
+  binding_kit: Sequel II Binding Kit 2.2
+  ccs_execution_mode: OnInstrument
+  cell_lot_number: 418824
+  chemistry_sw_version: 11.0.0.143406
+  chip_type: 8mChip
+  control_concordance_mean: 0.861306
+  control_concordance_mode: 0.89
+  control_num_reads: 4184
+  control_read_length_mean: 62989
+  created_by: tm14
+  heteroduplex_analysis: 0
+  hifi_low_quality_num_reads: ~
+  hifi_low_quality_read_bases: ~
+  hifi_low_quality_read_length_mean: ~
+  hifi_low_quality_read_quality_median: ~
+  hifi_num_reads: 2073396
+  hifi_number_passes_mean: 13
+  hifi_only_reads: 1
+  hifi_read_bases: 25172837896
+  hifi_read_length_mean: 12140
+  hifi_read_quality_median: 34
+  id_pac_bio_product: 353bff3320ae1d68aa1d6491a24994b000dc8bb5febf8ec3a80206b66fc57ebe
+  id_pac_bio_rw_metrics_tmp: 2681
+  include_kinetics: 1
+  insert_length_mean: 15368
+  insert_length_n50: 20250
+  instrument_name: 64222E
+  instrument_sw_version: 11.0.0.144466
+  instrument_type: Sequel2e
+  loading_conc: 93
+  local_base_rate: 2.7907
+  movie_minutes: 1440
+  movie_name: m64222e_221114_120705
+  p0_num: 2617034
+  p1_num: 5200123
+  p2_num: 197514
+  pac_bio_run_name: TRACTION-RUN-333
+  polymerase_num_reads: 5195939
+  polymerase_read_bases: 436416788894
+  polymerase_read_length_mean: 83992
+  polymerase_read_length_n50: 188750
+  primary_analysis_sw_version: 11.0.0.144466
+  productive_zmws_num: 8010487
+  run_complete: 2022-11-15 15:58:41
+  run_start: 2022-11-08 12:51:40
+  run_status: Complete
+  run_transfer_complete: 2022-11-15 23:34:42
+  sequencing_kit: Sequel II Sequencing Plate 2.0 (4 rxn)
+  sequencing_kit_lot_number: 128434
+  short_insert_percent: 0.11
+  sl_hostname: pacbio01.dnapipelines.sanger.ac.uk
+  sl_run_uuid: 48b93941-55eb-4cb2-b81f-b579d0fb635d
+  ts_run_name: r64222e_20221108_121449
+  unique_molecular_bases: 71935295488
+  well_complete: 2022-11-15 23:34:42
+  well_label: F1
+  well_start: 2022-11-14 12:07:05
+  well_status: Complete
+- adapter_dimer_percent: 0
+  binding_kit: Sequel II Binding Kit 3.2
+  ccs_execution_mode: OnInstrument
+  cell_lot_number: 419250
+  chemistry_sw_version: 11.0.0.143406
+  chip_type: 8mChip
+  control_concordance_mean: 0.886931
+  control_concordance_mode: 0.91
+  control_num_reads: 5057
+  control_read_length_mean: 86514
+  created_by: mls
+  heteroduplex_analysis: 0
+  hifi_low_quality_num_reads: ~
+  hifi_low_quality_read_bases: ~
+  hifi_low_quality_read_length_mean: ~
+  hifi_low_quality_read_quality_median: ~
+  hifi_num_reads: 2159633
+  hifi_number_passes_mean: 12
+  hifi_only_reads: 1
+  hifi_read_bases: 27761032718
+  hifi_read_length_mean: 12854
+  hifi_read_quality_median: 35
+  id_pac_bio_product: 27793952ce49adcb1571d942ad961193e9d6fffbfed57c138be01340a186e7e6
+  id_pac_bio_rw_metrics_tmp: 2778
+  include_kinetics: 1
+  insert_length_mean: 17707
+  insert_length_n50: 21750
+  instrument_name: 64125E
+  instrument_sw_version: 11.0.0.144466
+  instrument_type: Sequel2e
+  loading_conc: 52
+  local_base_rate: 2.79636
+  movie_minutes: 1440
+  movie_name: m64125e_221122_123843
+  p0_num: 2405227
+  p1_num: 5407780
+  p2_num: 201664
+  pac_bio_run_name: TRACTION-RUN-351
+  polymerase_num_reads: 5402723
+  polymerase_read_bases: 466960590524
+  polymerase_read_length_mean: 86431
+  polymerase_read_length_n50: 186750
+  primary_analysis_sw_version: 11.0.0.144466
+  productive_zmws_num: 8009614
+  run_complete: 2022-11-27 07:28:13
+  run_start: 2022-11-22 12:28:37
+  run_status: Complete
+  run_transfer_complete: 2022-11-27 16:21:43
+  sequencing_kit: Sequel II Sequencing Plate 2.0 (4 rxn)
+  sequencing_kit_lot_number: 128434
+  short_insert_percent: 0
+  sl_hostname: pacbio01.dnapipelines.sanger.ac.uk
+  sl_run_uuid: abbcd3ad-36d2-47f8-8d60-b6d1fc0a629e
+  ts_run_name: r64125e_20221122_122807
+  unique_molecular_bases: 86308265984
+  well_complete: 2022-11-24 02:02:00
+  well_label: A1
+  well_start: 2022-11-22 12:38:43
+  well_status: Complete
+- adapter_dimer_percent: 0
+  binding_kit: Sequel II Binding Kit 3.2
+  ccs_execution_mode: OnInstrument
+  cell_lot_number: 419250
+  chemistry_sw_version: 11.0.0.143406
+  chip_type: 8mChip
+  control_concordance_mean: 0.884434
+  control_concordance_mode: 0.91
+  control_num_reads: 217
+  control_read_length_mean: 106704
+  created_by: mls
+  heteroduplex_analysis: 0
+  hifi_low_quality_num_reads: ~
+  hifi_low_quality_read_bases: ~
+  hifi_low_quality_read_length_mean: ~
+  hifi_low_quality_read_quality_median: ~
+  hifi_num_reads: 166062
+  hifi_number_passes_mean: 18
+  hifi_only_reads: 1
+  hifi_read_bases: 1619269069
+  hifi_read_length_mean: 9750
+  hifi_read_quality_median: 39
+  id_pac_bio_product: 8227ad8b75dbcd0cf0c7db35fd35d8eb95c7a6d500b56e4fcc43fe5cd12dc587
+  id_pac_bio_rw_metrics_tmp: 2779
+  include_kinetics: 1
+  insert_length_mean: 23217
+  insert_length_n50: 72250
+  instrument_name: 64125E
+  instrument_sw_version: 11.0.0.144466
+  instrument_type: Sequel2e
+  loading_conc: 55
+  local_base_rate: 2.97299
+  movie_minutes: 1440
+  movie_name: m64125e_221123_173449
+  p0_num: 7694705
+  p1_num: 306486
+  p2_num: 13480
+  pac_bio_run_name: TRACTION-RUN-351
+  polymerase_num_reads: 306269
+  polymerase_read_bases: 38579174585
+  polymerase_read_length_mean: 125965
+  polymerase_read_length_n50: 229250
+  primary_analysis_sw_version: 11.0.0.144466
+  productive_zmws_num: 8014454
+  run_complete: 2022-11-27 07:28:13
+  run_start: 2022-11-22 12:28:37
+  run_status: Complete
+  run_transfer_complete: 2022-11-27 16:21:43
+  sequencing_kit: Sequel II Sequencing Plate 2.0 (4 rxn)
+  sequencing_kit_lot_number: 128434
+  short_insert_percent: 0
+  sl_hostname: pacbio01.dnapipelines.sanger.ac.uk
+  sl_run_uuid: abbcd3ad-36d2-47f8-8d60-b6d1fc0a629e
+  ts_run_name: r64125e_20221122_122807
+  unique_molecular_bases: 5429399552
+  well_complete: 2022-11-25 01:53:49
+  well_label: B1
+  well_start: 2022-11-23 17:34:49
+  well_status: Complete
+- adapter_dimer_percent: 0
+  binding_kit: Sequel II Binding Kit 3.2
+  ccs_execution_mode: OnInstrument
+  cell_lot_number: 419250
+  chemistry_sw_version: 11.0.0.143406
+  chip_type: 8mChip
+  control_concordance_mean: 0.87944
+  control_concordance_mode: 0.91
+  control_num_reads: 4291
+  control_read_length_mean: 78996
+  created_by: mls
+  heteroduplex_analysis: 0
+  hifi_low_quality_num_reads: ~
+  hifi_low_quality_read_bases: ~
+  hifi_low_quality_read_length_mean: ~
+  hifi_low_quality_read_quality_median: ~
+  hifi_num_reads: 847077
+  hifi_number_passes_mean: 16
+  hifi_only_reads: 1
+  hifi_read_bases: 6635849438
+  hifi_read_length_mean: 7833
+  hifi_read_quality_median: 36
+  id_pac_bio_product: 4c8631d2bd634bcc6ab8ebcf60f1c26b2fd32fc1c9ee5ac3dec43d76e47ca2d6
+  id_pac_bio_rw_metrics_tmp: 2780
+  include_kinetics: 1
+  insert_length_mean: 12593
+  insert_length_n50: 27250
+  instrument_name: 64125E
+  instrument_sw_version: 11.0.0.144466
+  instrument_type: Sequel2e
+  loading_conc: 112
+  local_base_rate: 2.31185
+  movie_minutes: 1440
+  movie_name: m64125e_221124_223130
+  p0_num: 3720976
+  p1_num: 3877338
+  p2_num: 416357
+  pac_bio_run_name: TRACTION-RUN-351
+  polymerase_num_reads: 3873047
+  polymerase_read_bases: 179561430405
+  polymerase_read_length_mean: 46362
+  polymerase_read_length_n50: 151750
+  primary_analysis_sw_version: 11.0.0.144466
+  productive_zmws_num: 8010380
+  run_complete: 2022-11-27 07:28:13
+  run_start: 2022-11-22 12:28:37
+  run_status: Complete
+  run_transfer_complete: 2022-11-27 16:21:43
+  sequencing_kit: Sequel II Sequencing Plate 2.0 (4 rxn)
+  sequencing_kit_lot_number: 128434
+  short_insert_percent: 0
+  sl_hostname: pacbio01.dnapipelines.sanger.ac.uk
+  sl_run_uuid: abbcd3ad-36d2-47f8-8d60-b6d1fc0a629e
+  ts_run_name: r64125e_20221122_122807
+  unique_molecular_bases: 43530506240
+  well_complete: 2022-11-26 07:12:03
+  well_label: C1
+  well_start: 2022-11-24 22:31:30
+  well_status: Complete
+- adapter_dimer_percent: 0
+  binding_kit: Sequel II Binding Kit 3.2
+  ccs_execution_mode: OnInstrument
+  cell_lot_number: 419250
+  chemistry_sw_version: 11.0.0.143406
+  chip_type: 8mChip
+  control_concordance_mean: 0.880586
+  control_concordance_mode: 0.91
+  control_num_reads: 6702
+  control_read_length_mean: 78507
+  created_by: mls
+  heteroduplex_analysis: 0
+  hifi_low_quality_num_reads: ~
+  hifi_low_quality_read_bases: ~
+  hifi_low_quality_read_length_mean: ~
+  hifi_low_quality_read_quality_median: ~
+  hifi_num_reads: 1778335
+  hifi_number_passes_mean: 18
+  hifi_only_reads: 1
+  hifi_read_bases: 9287996635
+  hifi_read_length_mean: 5222
+  hifi_read_quality_median: 37
+  id_pac_bio_product: b0f4d9c7b1d9db86965655cc58052f8943152324f72143dd7e81f1590b911b49
+  id_pac_bio_rw_metrics_tmp: 2781
+  include_kinetics: 1
+  insert_length_mean: 13166
+  insert_length_n50: 35250
+  instrument_name: 64125E
+  instrument_sw_version: 11.0.0.144466
+  instrument_type: Sequel2e
+  loading_conc: 63
+  local_base_rate: 2.59605
+  movie_minutes: 1440
+  movie_name: m64125e_221126_020059
+  p0_num: 2609620
+  p1_num: 5002801
+  p2_num: 402250
+  pac_bio_run_name: TRACTION-RUN-351
+  polymerase_num_reads: 4996099
+  polymerase_read_bases: 317590022792
+  polymerase_read_length_mean: 63568
+  polymerase_read_length_n50: 161250
+  primary_analysis_sw_version: 11.0.0.144466
+  productive_zmws_num: 8007969
+  run_complete: 2022-11-27 07:28:13
+  run_start: 2022-11-22 12:28:37
+  run_status: Complete
+  run_transfer_complete: 2022-11-27 16:21:43
+  sequencing_kit: Sequel II Sequencing Plate 2.0 (4 rxn)
+  sequencing_kit_lot_number: 128434
+  short_insert_percent: 0
+  sl_hostname: pacbio01.dnapipelines.sanger.ac.uk
+  sl_run_uuid: abbcd3ad-36d2-47f8-8d60-b6d1fc0a629e
+  ts_run_name: r64125e_20221122_122807
+  unique_molecular_bases: 54470336512
+  well_complete: 2022-11-27 16:21:43
+  well_label: D1
+  well_start: 2022-11-26 02:00:59
+  well_status: Complete
+- adapter_dimer_percent: 0
+  binding_kit: Sequel II Binding Kit 2.2
+  ccs_execution_mode: OnInstrument
+  cell_lot_number: 417079
+  chemistry_sw_version: 10.2.0.133424
+  chip_type: 8mChip
+  control_concordance_mean: 0.868282
+  control_concordance_mode: 0.91
+  control_num_reads: 24837
+  control_read_length_mean: 50169
+  created_by: eg18
+  heteroduplex_analysis: ~
+  hifi_low_quality_num_reads: 260532
+  hifi_low_quality_read_bases: 2670039556
+  hifi_low_quality_read_length_mean: 10248
+  hifi_low_quality_read_quality_median: 17
+  hifi_num_reads: 2877051
+  hifi_number_passes_mean: 18
+  hifi_only_reads: ~
+  hifi_read_bases: 27076668646
+  hifi_read_length_mean: 9411
+  hifi_read_quality_median: 43
+  id_pac_bio_product: cf18bd66e0f0895ea728c1d08103c62d3de8a57a5f879cee45f7b0acc028aa61
+  id_pac_bio_rw_metrics_tmp: 1732
+  include_kinetics: 0
+  insert_length_mean: 16227
+  insert_length_n50: 23250
+  instrument_name: 64222E
+  instrument_sw_version: 10.1.0.119549
+  instrument_type: Sequel2e
+  loading_conc: 80
+  local_base_rate: 2.76789
+  movie_minutes: 1800
+  movie_name: m64222e_220414_130247
+  p0_num: 2800130
+  p1_num: 5033971
+  p2_num: 180570
+  pac_bio_run_name: TRACTION-RUN-92
+  polymerase_num_reads: 5009134
+  polymerase_read_bases: 645567171652
+  polymerase_read_length_mean: 128878
+  polymerase_read_length_n50: 251250
+  primary_analysis_sw_version: 10.1.0.119549
+  productive_zmws_num: 7989834
+  run_complete: 2022-04-20 09:16:53
+  run_start: 2022-04-14 12:52:34
+  run_status: Complete
+  run_transfer_complete: 2022-04-20 16:03:18
+  sequencing_kit: Sequel II Sequencing Plate 2.0 (4 rxn)
+  sequencing_kit_lot_number: 123660
+  short_insert_percent: 0
+  sl_hostname: pacbio01.dnapipelines.sanger.ac.uk
+  sl_run_uuid: 7f5d45ed-aa93-46a6-92b2-4b11d4bf29da
+  ts_run_name: r64222e_20220414_125138
+  unique_molecular_bases: 68501667840
+  well_complete: 2022-04-16 12:36:21
+  well_label: A1
+  well_start: 2022-04-14 13:02:48
+  well_status: Complete
+- adapter_dimer_percent: 0
+  binding_kit: Sequel II Binding Kit 2.2
+  ccs_execution_mode: OnInstrument
+  cell_lot_number: 417079
+  chemistry_sw_version: 10.2.0.133424
+  chip_type: 8mChip
+  control_concordance_mean: 0.865786
+  control_concordance_mode: 0.91
+  control_num_reads: 42962
+  control_read_length_mean: 51810
+  created_by: eg18
+  heteroduplex_analysis: ~
+  hifi_low_quality_num_reads: 204155
+  hifi_low_quality_read_bases: 1887795985
+  hifi_low_quality_read_length_mean: 9246
+  hifi_low_quality_read_quality_median: 16
+  hifi_num_reads: 2082542
+  hifi_number_passes_mean: 18
+  hifi_only_reads: ~
+  hifi_read_bases: 17706147796
+  hifi_read_length_mean: 8502
+  hifi_read_quality_median: 40
+  id_pac_bio_product: 63fb9a37ff19c248fc7d99bd254a61085226ded540de7c5445daf1398e339833
+  id_pac_bio_rw_metrics_tmp: 1733
+  include_kinetics: 0
+  insert_length_mean: 16407
+  insert_length_n50: 28250
+  instrument_name: 64222E
+  instrument_sw_version: 10.1.0.119549
+  instrument_type: Sequel2e
+  loading_conc: 80
+  local_base_rate: 2.80566
+  movie_minutes: 1800
+  movie_name: m64222e_220415_235643
+  p0_num: 4427179
+  p1_num: 3512385
+  p2_num: 75107
+  pac_bio_run_name: TRACTION-RUN-92
+  polymerase_num_reads: 3469423
+  polymerase_read_bases: 455958509506
+  polymerase_read_length_mean: 131422
+  polymerase_read_length_n50: 251750
+  primary_analysis_sw_version: 10.1.0.119549
+  productive_zmws_num: 7971709
+  run_complete: 2022-04-20 09:16:53
+  run_start: 2022-04-14 12:52:34
+  run_status: Complete
+  run_transfer_complete: 2022-04-20 16:03:18
+  sequencing_kit: Sequel II Sequencing Plate 2.0 (4 rxn)
+  sequencing_kit_lot_number: 123660
+  short_insert_percent: 0
+  sl_hostname: pacbio01.dnapipelines.sanger.ac.uk
+  sl_run_uuid: 7f5d45ed-aa93-46a6-92b2-4b11d4bf29da
+  ts_run_name: r64222e_20220414_125138
+  unique_molecular_bases: 45990051840
+  well_complete: 2022-04-17 23:16:35
+  well_label: B1
+  well_start: 2022-04-15 23:56:43
+  well_status: Complete
+- adapter_dimer_percent: 0
+  binding_kit: Sequel II Binding Kit 2.2
+  ccs_execution_mode: OnInstrument
+  cell_lot_number: 417079
+  chemistry_sw_version: 10.2.0.133424
+  chip_type: 8mChip
+  control_concordance_mean: 0.866249
+  control_concordance_mode: 0.89
+  control_num_reads: 40787
+  control_read_length_mean: 49421
+  created_by: eg18
+  heteroduplex_analysis: ~
+  hifi_low_quality_num_reads: 173039
+  hifi_low_quality_read_bases: 1743404181
+  hifi_low_quality_read_length_mean: 10075
+  hifi_low_quality_read_quality_median: 17
+  hifi_num_reads: 1698191
+  hifi_number_passes_mean: 17
+  hifi_only_reads: ~
+  hifi_read_bases: 16029605719
+  hifi_read_length_mean: 9439
+  hifi_read_quality_median: 40
+  id_pac_bio_product: a65eae06f3048a186aeb9104d0a8d3f46ca59dff7747eec9918fcfa85587a3c2
+  id_pac_bio_rw_metrics_tmp: 1734
+  include_kinetics: 0
+  insert_length_mean: 15260
+  insert_length_n50: 15750
+  instrument_name: 64222E
+  instrument_sw_version: 10.1.0.119549
+  instrument_type: Sequel2e
+  loading_conc: 130
+  local_base_rate: 2.76102
+  movie_minutes: 1800
+  movie_name: m64222e_220417_105320
+  p0_num: 5019384
+  p1_num: 2944690
+  p2_num: 50597
+  pac_bio_run_name: TRACTION-RUN-92
+  polymerase_num_reads: 2903903
+  polymerase_read_bases: 360656040891
+  polymerase_read_length_mean: 124197
+  polymerase_read_length_n50: 244750
+  primary_analysis_sw_version: 10.1.0.119549
+  productive_zmws_num: 7973884
+  run_complete: 2022-04-20 09:16:53
+  run_start: 2022-04-14 12:52:34
+  run_status: Complete
+  run_transfer_complete: 2022-04-20 16:03:18
+  sequencing_kit: Sequel II Sequencing Plate 2.0 (4 rxn)
+  sequencing_kit_lot_number: 123660
+  short_insert_percent: 0
+  sl_hostname: pacbio01.dnapipelines.sanger.ac.uk
+  sl_run_uuid: 7f5d45ed-aa93-46a6-92b2-4b11d4bf29da
+  ts_run_name: r64222e_20220414_125138
+  unique_molecular_bases: 37178580992
+  well_complete: 2022-04-19 04:22:35
+  well_label: C1
+  well_start: 2022-04-17 10:53:21
+  well_status: Complete
+- adapter_dimer_percent: 0
+  binding_kit: Sequel II Binding Kit 2.2
+  ccs_execution_mode: OnInstrument
+  cell_lot_number: 417079
+  chemistry_sw_version: 10.2.0.133424
+  chip_type: 8mChip
+  control_concordance_mean: 0.863292
+  control_concordance_mode: 0.91
+  control_num_reads: 24842
+  control_read_length_mean: 44982
+  created_by: eg18
+  heteroduplex_analysis: ~
+  hifi_low_quality_num_reads: 193115
+  hifi_low_quality_read_bases: 1672216211
+  hifi_low_quality_read_length_mean: 8659
+  hifi_low_quality_read_quality_median: 16
+  hifi_num_reads: 1912626
+  hifi_number_passes_mean: 18
+  hifi_only_reads: ~
+  hifi_read_bases: 14052550494
+  hifi_read_length_mean: 7347
+  hifi_read_quality_median: 41
+  id_pac_bio_product: c5babd5516f7b9faab8415927e5f300d5152bb96b8b922e768d876469a14fa5d
+  id_pac_bio_rw_metrics_tmp: 1735
+  include_kinetics: 0
+  insert_length_mean: 15043
+  insert_length_n50: 33750
+  instrument_name: 64222E
+  instrument_sw_version: 10.1.0.119549
+  instrument_type: Sequel2e
+  loading_conc: 80
+  local_base_rate: 2.71738
+  movie_minutes: 1800
+  movie_name: m64222e_220418_214938
+  p0_num: 3784476
+  p1_num: 4078117
+  p2_num: 152078
+  pac_bio_run_name: TRACTION-RUN-92
+  polymerase_num_reads: 4053275
+  polymerase_read_bases: 405355872925
+  polymerase_read_length_mean: 100007
+  polymerase_read_length_n50: 234250
+  primary_analysis_sw_version: 10.1.0.119549
+  productive_zmws_num: 7989829
+  run_complete: 2022-04-20 09:16:53
+  run_start: 2022-04-14 12:52:34
+  run_status: Complete
+  run_transfer_complete: 2022-04-20 16:03:18
+  sequencing_kit: Sequel II Sequencing Plate 2.0 (4 rxn)
+  sequencing_kit_lot_number: 123660
+  short_insert_percent: 0.01
+  sl_hostname: pacbio01.dnapipelines.sanger.ac.uk
+  sl_run_uuid: 7f5d45ed-aa93-46a6-92b2-4b11d4bf29da
+  ts_run_name: r64222e_20220414_125138
+  unique_molecular_bases: 48624848896
+  well_complete: 2022-04-20 16:03:18
+  well_label: D1
+  well_start: 2022-04-18 21:49:38
+  well_status: Complete
+
