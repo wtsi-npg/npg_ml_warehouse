@@ -17,7 +17,8 @@ cpanm --quiet --notest LWP::Protocol::https
 cpanm --quiet --notest https://github.com/chapmanb/vcftools-cpan/archive/v0.953.tar.gz
 
 # WTSI NPG Perl repo dependencies
-repo_names="perl-dnap-utilities perl-irods-wrap ml_warehouse npg_tracking npg_seq_common npg_qc"
+# Dependency on perl-irods-wrap comes from npg_qc
+repo_names="perl-dnap-utilities ml_warehouse npg_tracking npg_seq_common perl-irods-wrap npg_qc"
 
 for repo in $repo_names
 do
