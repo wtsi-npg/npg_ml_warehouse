@@ -323,3 +323,57 @@
   pac_bio_library_tube_legacy_id: ~
   library_created_at: ~
   pac_bio_run_name: TRACTION-RUN-219
+- id_pac_bio_tmp: 99594
+  last_updated: 2022-10-24 12:13:52
+  recorded_at: 2022-10-24 12:13:52
+  id_sample_tmp: 8246535
+  id_study_tmp: 5572
+  id_pac_bio_run_lims: TRACTION-RUN-157
+  pac_bio_run_uuid: 00d42a93-bdb2-430e-a536-9dc6213dd6e7
+  cost_code: S10417
+  id_lims: Traction
+  tag_identifier: ~
+  tag_sequence: ~
+  tag_set_id_lims: ~
+  tag_set_name: ~
+  tag2_sequence: ~
+  tag2_set_id_lims: ~
+  tag2_set_name: ~
+  tag2_identifier: ~
+  plate_barcode: plate_barcode placeholder
+  plate_uuid_lims: 3878244c-f775-496a-b3b1-947822f3d828
+  well_label: D1
+  well_uuid_lims: 16aaf7a9-9af3-4c73-b12f-f0359c019370
+  pac_bio_library_tube_id_lims: 615
+  pac_bio_library_tube_uuid: af839c0a-555d-437c-a5ac-cfd234bd2f4e
+  pac_bio_library_tube_name: 5736STDY12948068
+  pac_bio_library_tube_legacy_id: ~
+  library_created_at: ~
+  pac_bio_run_name: TRACTION-RUN-157
+- id_pac_bio_tmp: 99595
+  last_updated: 2022-10-24 12:13:52
+  recorded_at: 2022-10-24 12:13:52
+  id_sample_tmp: 8246535
+  id_study_tmp: 5572
+  id_pac_bio_run_lims: TRACTION-RUN-157
+  pac_bio_run_uuid: 00d42a93-bdb2-430e-a536-9dc6213dd6e7
+  cost_code: S10417
+  id_lims: Traction
+  tag_identifier: bc1012_BAK8A_OA
+  tag_sequence: ACACTAGATCGCGTGTT
+  tag_set_id_lims: 1
+  tag_set_name: Sequel_16_barcodes_v3
+  tag2_sequence: CTATACGTATATCTATT
+  tag2_set_id_lims: 1
+  tag2_set_name: Sequel_16_barcodes_v3
+  tag2_identifier: bc1011_BAK8A_OA
+  plate_barcode: plate_barcode placeholder
+  plate_uuid_lims: 3878244c-f775-496a-b3b1-947822f3d828
+  well_label: A1
+  well_uuid_lims: 16aaf7a9-9af3-4c73-b12f-f0359c019370
+  pac_bio_library_tube_id_lims: 615
+  pac_bio_library_tube_uuid: af839c0a-555d-437c-a5ac-cfd234bd2f4e
+  pac_bio_library_tube_name: 5736STDY12948068
+  pac_bio_library_tube_legacy_id: ~
+  library_created_at: ~
+  pac_bio_run_name: TRACTION-RUN-157

@@ -174,9 +174,6 @@ sub _build_run_wells {
       my $tki = $self->_well_tracking_info($well->{'uniqueId'});
       my $run = $self->_run;
 
-      $well_info{'id_pac_bio_product'} = $self->generate_product_id(
-        $run->{'pac_bio_run_name'}, $well->{'well'});
-
       my %all =  (%well_info, %{$qc}, %{$ccs}, %{$tki}, %{$run});
       push @run_wells, \%all;
     }
@@ -432,15 +429,42 @@ sub load_pacbiorunwellmetric_table {
     my $count = 0;
     my $rs = $self->mlwh_schema->resultset($RUN_WELL_TABLE_NAME);
     foreach my $row (@{$table_data}) {
-      $self->info(
-        "Will update or create record in $RUN_WELL_TABLE_NAME for " .
-        join q[ ], 'run', $row->{'pac_bio_run_name'}, 'well', $row->{'well_label'}
-      );
-      $rs->update_or_create($row, {key => 'pac_bio_metrics_run_well'});
+
+      my $run_name = $row->{'pac_bio_run_name'};
+      my $well_label = $row->{'well_label'};
+      my $message = "run $run_name well $well_label";
+
+      my $db_row = $rs->find({
+        pac_bio_run_name => $run_name, well_label => $well_label
+      });
+      if ($db_row) {
+        $self->info("Will update record in $RUN_WELL_TABLE_NAME for $message");
+        $db_row->update($row);
+        my $products_rs = $db_row->pac_bio_product_metrics();
+        my $unlinked = 0;
+        while (my $product_db_row = $products_rs->next()) {
+          if (not $product_db_row->id_pac_bio_tmp) {
+            $unlinked = 1;
+            last;
+          }
+        }
+        if ($unlinked) {
+          $self->warn("Found unlinked product rows for $message");
+          $self->warn("Will delete all product rows for $message");
+          $products_rs->delete();
+        }
+      } else {
+        $self->info("Will create record in $RUN_WELL_TABLE_NAME for $message");
+        $row->{'id_pac_bio_product'} =
+          $self->generate_product_id($run_name, $well_label);
+        $rs->create($row);
+      }
+
       $count++;
     }
     return $count;
   };
+
   return $self->mlwh_schema->txn_do($transaction);
 }
 
@@ -555,7 +579,7 @@ __END__
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2021 Genome Research Limited. All Rights Reserved.
+Copyright (C) 2021, 2022, 2023 Genome Research Limited. All Rights Reserved.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the Perl Artistic License or the GNU General
