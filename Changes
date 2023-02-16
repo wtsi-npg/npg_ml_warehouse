@@ -1,11 +1,15 @@
 LIST OF CHANGES
 
+release 45.8.0
  - PacBio loader:
    - move tag sequence parsing into separate function,
    - generate well's product IDs only for new records,
    - prior to creating run product records, drop product records for runs
      where at least one product record is not linked to the pac_bio_run
      table; this ensures that product records are properly relinked.
+ - drop the CI build dependency on npg_irods - the only package that was
+   sourced from that repo - WTSI::NPG::HTS::PacBio::Sequel::APIClient -
+   has been moved to https://github.com/wtsi-npg/perl-dnap-utilities
 
 release 45.7.1
  - small fix for PacBio SMRT Link v11 num control reads
