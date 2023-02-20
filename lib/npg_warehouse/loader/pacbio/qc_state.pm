@@ -6,8 +6,12 @@ use Readonly;
 use LWP::UserAgent;
 use HTTP::Request;
 use JSON;
+use WTSI::DNAP::Warehouse::Schema;
 
-with 'npg_warehouse::loader::pacbio::base';
+with qw/
+        MooseX::Getopt
+        npg_warehouse::loader::pacbio::base
+       /;
 
 our $VERSION = '0';
 
@@ -24,15 +28,51 @@ npg_warehouse::loader::pacbio::qc_state
 
 =head1 DESCRIPTION
 
+  This class retrieves QC state for entities of a PacBio run and undates
+  relevant columns of the pac_bio_run_well_metrics and pac_bio_product_metrics
+  of ml warehouse database. At the momemt only sequencing QC states for wells
+  are retrieved.
+
+  The QC states are retrieve via the API the is provided by the LangQC web
+  server.
+
+  This class can be used both as a part of the ml warehouse loader for the
+  PacBio data and in isolation. In the latter case a simple wrapper script
+  should be used.
+
+  Since this class inherits from the MooseX::Getopt role, the values of its
+  scalar attributes, if not set by the caller, will be filled in from the
+  content of the @ARGV array.
+
 =head1 SUBROUTINES/METHODS
 
 =cut
 
-has '+pb_api_client' => (required => 0,);
+has '+pb_api_client' => (
+  required => 0,
+  metaclass => 'NoGetopt',
+);
+
+=head2 mlwh_schema
+
+  DBIx handle for the mlwarehouse schema. Amended here to be built
+  lazily if not supplied.
+
+=cut
+
+has '+mlwh_schema' => (
+  metaclass  => 'NoGetopt',
+  required   => 0,
+  lazy_build => 1,
+);
+sub _build_mlwh_schema {
+  return WTSI::DNAP::Warehouse::Schema->connect();
+}
 
 =head2 server_url
 
-  The URL of the server to retrieve information about QC state, required.
+  The URL of the server from which to retrieve information about QC state,
+  required.
 
 =cut
 
@@ -233,13 +273,17 @@ __END__
 
 =item MooseX::StrictConstructor
 
+=item MooseX::Getopt
+
 =item Readonly
 
 =item LWP::UserAgent                                                           
 
 =item HTTP::Request
                                                         
-=item JSON::MaybeXS
+=item JSON
+
+=item WTSI::DNAP::Warehouse::Schema
 
 =back
 
