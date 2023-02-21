@@ -5,6 +5,7 @@ bin/npg_irods_locations2ml_warehouse
 bin/npg_manifest4study
 bin/npg_mlwarehouse_fkrepair
 bin/npg_mlwarehouse_run_delete
+bin/npg_pacbio_run_qcstate2mlwarehouse
 bin/npg_pacbio_runs2mlwarehouse
 bin/npg_products2mlwarehouse
 bin/npg_run_info2mlwarehouse
