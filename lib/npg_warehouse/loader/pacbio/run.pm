@@ -10,8 +10,6 @@ use Readonly;
 use Try::Tiny;
 use XML::LibXML;
 
-use npg_warehouse::loader::pacbio::qc_state;
-
 with 'npg_warehouse::loader::pacbio::product';
 
 our $VERSION = '0';
@@ -529,21 +527,6 @@ sub load_run {
     $num_errors or $num_loaded++;
   }
 
-  if (not $num_errors) {
-    try {
-      npg_warehouse::loader::pacbio::qc_state->new(
-        mlwh_schema => $self->mlwh_schema,
-        dry_run     => $self->dry_run,
-        run_name    => $run_name,
-        server_url  => q[my url],
-        product_ids => []
-      )->load_qc_state();
-    } catch {
-      $num_errors++; # Do we want to increase the error count?
-      $self->logwarn(qq[Failed to load QC outcomes for run $run_name : $_]);
-    };
-  }
-
   return ($num_processed, $num_loaded, $num_errors);
 }
 
@@ -578,8 +561,6 @@ __END__
 =item Try::Tiny
 
 =item XML::LibXML
-
-=item WTSI::DNAP::Utilities::Loggable
 
 =back
 
