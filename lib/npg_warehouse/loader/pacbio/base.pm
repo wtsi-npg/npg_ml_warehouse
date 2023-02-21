@@ -27,7 +27,7 @@ has 'dry_run' =>
    is            => 'ro',
    required      => 1,
    default       => 0,
-   documentation => 'dry run mode flag, false by default',);
+   documentation => 'Dry run mode flag, false by default',);
 
 has 'pb_api_client' =>
   (isa           => 'WTSI::NPG::HTS::PacBio::Sequel::APIClient',

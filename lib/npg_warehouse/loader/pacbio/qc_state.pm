@@ -34,7 +34,7 @@ npg_warehouse::loader::pacbio::qc_state
   are retrieved.
 
   The QC states are retrieve via the API the is provided by the LangQC web
-  server.
+  server, see L<example|https://github.com/wtsi-npg/npg_langqc/blob/devel/docs/qc_process.md#automation>
 
   This class can be used both as a part of the ml warehouse loader for the
   PacBio data and in isolation. In the latter case a simple wrapper script
@@ -50,6 +50,10 @@ npg_warehouse::loader::pacbio::qc_state
 
 has '+pb_api_client' => (
   required => 0,
+  metaclass => 'NoGetopt',
+);
+
+has '+logger' => (
   metaclass => 'NoGetopt',
 );
 
@@ -77,9 +81,10 @@ sub _build_mlwh_schema {
 =cut
 
 has 'server_url' => (
-  isa      => 'Str',
-  is       => 'ro',
-  required => 1,
+  isa           => 'Str',
+  is            => 'ro',
+  required      => 1,
+  documentation => 'The URL of the LangQC server',
 );
 
 =head2 run_name
@@ -92,6 +97,7 @@ has 'run_name' => (
   isa      => 'Str',
   is       => 'ro',
   required => 1,
+  documentation => 'PacBio run name',
 );
 
 =head2 product_ids
@@ -103,6 +109,7 @@ has 'run_name' => (
 =cut
 
 has 'product_ids' => (
+  metaclass => 'NoGetopt',
   isa        => 'ArrayRef',
   is         => 'ro',
   required   => 0,
@@ -126,6 +133,7 @@ sub _build_product_ids {
 =cut
 
 has 'useragent' => (
+  metaclass => 'NoGetopt',
   isa        => 'Object',
   is         => 'ro',
   required   => 0,
