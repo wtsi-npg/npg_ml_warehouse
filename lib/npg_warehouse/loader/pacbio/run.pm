@@ -36,9 +36,6 @@ npg_warehouse::loader::pacbio::run
 
 =cut
 
-has '+pb_api_client' =>
-  (required      => 1,);
-
 has 'hostname' =>
   (isa           => 'Str',
    is            => 'ro',
@@ -524,7 +521,7 @@ sub load_run {
         $count or last;
       }
     }
-    $num_errors or $num_loaded++;
+    if ($num_errors < 1) { $num_loaded++; }
   }
 
   return ($num_processed, $num_loaded, $num_errors);
