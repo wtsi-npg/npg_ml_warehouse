@@ -1,5 +1,10 @@
 LIST OF CHANGES
 
+release 46.9.0
+ - PacBio loader is extended to load the outcomes from PacBio manual QC,
+   see https://github.com/wtsi-npg/npg_langqc for information on the system
+   that supports PacBio manual QC.
+
 release 45.8.0
  - PacBio loader:
    - move tag sequence parsing into separate function,
