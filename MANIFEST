@@ -5,6 +5,7 @@ bin/npg_irods_locations2ml_warehouse
 bin/npg_manifest4study
 bin/npg_mlwarehouse_fkrepair
 bin/npg_mlwarehouse_run_delete
+bin/npg_pacbio_run_qcstate2mlwarehouse
 bin/npg_pacbio_runs2mlwarehouse
 bin/npg_products2mlwarehouse
 bin/npg_run_info2mlwarehouse
@@ -31,6 +32,7 @@ lib/npg_warehouse/loader/run_info.pm
 lib/npg_warehouse/loader/pacbio/base.pm
 lib/npg_warehouse/loader/pacbio/product.pm
 lib/npg_warehouse/loader/pacbio/run.pm
+lib/npg_warehouse/loader/pacbio/qc_state.pm
 lib/st/api/lims/ml_warehouse.pm
 lib/st/api/lims/ml_warehouse/driver.pm
 lib/st/api/lims/ml_warehouse_auto.pm
@@ -50,6 +52,7 @@ t/10-npg_warehouse-loader-fqc.t
 t/10-npg_warehouse-loader-irods-location.t
 t/10-npg_warehouse-loader-npg.t
 t/10-npg_warehouse-loader-pacbio-run.t
+t/10-npg_warehouse-loader-pacbio-run-qc_state.t
 t/10-npg_warehouse-loader-product_limited.t
 t/10-npg_warehouse-loader-qc.t
 t/10-npg_warehouse-loader-run.t
@@ -88,6 +91,11 @@ t/data/fixtures/wh_npg/200-SeqProductIrodsLocation.yml
 t/data/fixtures/wh_pacbio/000-Sample.yml
 t/data/fixtures/wh_pacbio/000-Study.yml
 t/data/fixtures/wh_pacbio/100-PacBioRun.yml
+t/data/fixtures/wh_pacbio2/100-Sample.yml
+t/data/fixtures/wh_pacbio2/100-Study.yml
+t/data/fixtures/wh_pacbio2/200-PacBioRun.yml
+t/data/fixtures/wh_pacbio2/200-PacBioRunWellMetric.yml
+t/data/fixtures/wh_pacbio2/300-PacBioProductMetric.yml
 t/data/fixtures_stlims_wh/000-Sample.yml
 t/data/fixtures_stlims_wh/000-Study.yml
 t/data/fixtures_stlims_wh/100-IseqFlowcell.yml
@@ -100,6 +108,10 @@ t/data/irods_locations/new_same_id.json
 t/data/irods_locations/new_same_row.json
 t/data/irods_locations/update_only.json
 t/data/irods_locations/update_same_row.json
+t/data/pacbio/langqc/README.md
+t/data/pacbio/langqc/TRACTION-RUN-333.json
+t/data/pacbio/langqc/TRACTION-RUN-351.json
+t/data/pacbio/langqc/TRACTION-RUN-92.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/0db5e2da-7b54-47dc-9c04-53bde0a80a3f.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/16ddd726-7931-43cb-8521-0b7ca2cf2cf5.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/1b70315e-03de-4344-bc16-0db4683e675e.json

@@ -4,6 +4,8 @@ use Moose::Role;
 use WTSI::NPG::HTS::PacBio::Sequel::APIClient;
 use WTSI::DNAP::Warehouse::Schema;
 
+with 'WTSI::DNAP::Utilities::Loggable';
+
 our $VERSION = '0';
 
 =head1 NAME
@@ -25,7 +27,7 @@ has 'dry_run' =>
    is            => 'ro',
    required      => 1,
    default       => 0,
-   documentation => 'dry run mode flag, false by default',);
+   documentation => 'Dry run mode flag, false by default',);
 
 has 'pb_api_client' =>
   (isa           => 'WTSI::NPG::HTS::PacBio::Sequel::APIClient',
@@ -83,6 +85,8 @@ __END__
 
 =item WTSI::DNAP::Warehouse::Schema
 
+=item WTSI::DNAP::Utilities::Loggable
+
 =back
 
 =head1 INCOMPATIBILITIES
@@ -93,7 +97,7 @@ __END__
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2021 Genome Research Limited. All Rights Reserved.
+Copyright (C) 2021, 2023  Genome Research Limited. All Rights Reserved.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the Perl Artistic License or the GNU General

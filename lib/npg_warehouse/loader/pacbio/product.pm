@@ -4,6 +4,8 @@ use Moose::Role;
 use Readonly;
 use English qw[-no_match_vars];
 
+with 'npg_warehouse::loader::pacbio::base';
+
 our $VERSION = '0';
 
 Readonly::Scalar my $PRODUCT_TABLE_NAME  => q[PacBioProductMetric];
@@ -210,7 +212,7 @@ __END__
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2021, 2022 Genome Research Limited. All Rights Reserved.
+Copyright (C) 2021, 2022, 2023 Genome Research Limited. All Rights Reserved.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the Perl Artistic License or the GNU General

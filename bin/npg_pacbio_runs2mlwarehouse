@@ -12,6 +12,7 @@ use Readonly;
 use Try::Tiny;
 
 use npg_warehouse::loader::pacbio::run;
+use npg_warehouse::loader::pacbio::qc_state;
 use WTSI::DNAP::Warehouse::Schema;
 use WTSI::NPG::HTS::PacBio::Sequel::APIClient;
 
@@ -20,6 +21,8 @@ our $VERSION = '0';
 Readonly::Scalar my $DEFAULT_INTERVAL_DAYS   => 100_000;
 Readonly::Scalar my $DEFAULT_OLDER_THAN_DAYS => 0;
 Readonly::Scalar my $DEFAULT_HOSTNAME => q[pacbio02.dnapipelines.sanger.ac.uk];
+Readonly::Scalar my $LANGQC_SERVER_URL =>
+                    q[https://langqc.dnapipelines.sanger.ac.uk];
 
 my $api_uri;
 my $debug;
@@ -28,6 +31,7 @@ my $hostname = $DEFAULT_HOSTNAME;
 my $interval = $DEFAULT_INTERVAL_DAYS;
 my $log4perl_config;
 my $older_than = $DEFAULT_OLDER_THAN_DAYS;
+my $langqc_server_url = $LANGQC_SERVER_URL;
 my $run_name;
 my $verbose;
 
@@ -39,6 +43,7 @@ GetOptions('api-uri|api_uri=s'          => \$api_uri,
            },
            'hostname=s'                 => \$hostname,
            'interval=i'                 => \$interval,
+           'langqc_url|langqc-url=s'    => \$langqc_server_url,
            'logconf=s'                  => \$log4perl_config,
            'older-than|older_than=i'    => \$older_than,
            'run-name|run_name=s'        => \$run_name,
@@ -92,12 +97,21 @@ foreach my $run (@runs_to_load) {
                    hostname             => $hostname,);
   try {
     my $loader = npg_warehouse::loader::pacbio::run->new(@load_args);
-
     my ($processed, $loaded, $errors) = $loader->load_run;
     $num_processed += $processed;
     $num_loaded += $loaded;
     $num_errors += $errors;
-  }catch {
+
+    if (not $errors) {
+      npg_warehouse::loader::pacbio::qc_state->new(
+        dry_run     => $dry_run,
+        mlwh_schema => $wh_schema,
+        run_name    => $loader->run_name,
+        server_url  => $langqc_server_url
+      )->load_qc_state();
+    }
+  } catch {
+    $log->error("Error loading run $run: $_");
     $num_errors++;
   };
 }
@@ -200,6 +214,8 @@ None
 
 =item npg_warehouse::loader::pacbio::run
 
+=item npg_warehouse::loader::pacbio::qc_state
+
 =item WTSI::DNAP::Warehouse::Schema
 
 =item WTSI::NPG::HTS::PacBio::Sequel::APIClient
@@ -214,7 +230,7 @@ None
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2021 Genome Research Limited. All Rights Reserved.
+Copyright (C) 2021, 2023 Genome Research Limited. All Rights Reserved.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the Perl Artistic License or the GNU General
