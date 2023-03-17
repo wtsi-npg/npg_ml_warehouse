@@ -1,19 +1,16 @@
 package npg_warehouse::loader::pacbio::run;
 
 use namespace::autoclean;
+use Moose;
 use English qw[-no_match_vars];
 use JSON;
-use Moose;
 use MooseX::StrictConstructor;
 use Perl6::Slurp;
 use Readonly;
 use Try::Tiny;
 use XML::LibXML;
 
-with qw[npg_warehouse::loader::pacbio::base
-        npg_warehouse::loader::pacbio::product
-        WTSI::DNAP::Utilities::Loggable
-       ];
+with 'npg_warehouse::loader::pacbio::product';
 
 our $VERSION = '0';
 
@@ -37,7 +34,7 @@ npg_warehouse::loader::pacbio::run
 
 =head1 SUBROUTINES/METHODS
 
-=cut 
+=cut
 
 has 'hostname' =>
   (isa           => 'Str',
@@ -526,12 +523,11 @@ sub load_run {
     }
     if ($num_errors < 1) { $num_loaded++; }
   }
+
   return ($num_processed, $num_loaded, $num_errors);
 }
 
 __PACKAGE__->meta->make_immutable;
-
-no Moose;
 
 1;
 
@@ -562,12 +558,6 @@ __END__
 =item Try::Tiny
 
 =item XML::LibXML
-
-=item npg_warehouse::loader::pacbio::base
-
-=item npg_warehouse::loader::pacbio::product
-
-=item WTSI::DNAP::Utilities::Loggable
 
 =back
 
