@@ -48,7 +48,7 @@ has 'run_uuid' =>
    required      => 1,
    documentation => 'The PacBio run unique identifier',);
 
-has '_run_name' =>
+has 'run_name' =>
   (isa           => 'Str',
    is            => 'ro',
    lazy          => 1,
@@ -481,7 +481,7 @@ sub load_run {
 
   my ($run_name, $version);
   try {
-    $run_name = $self->_run_name;
+    $run_name = $self->run_name;
     my @swv   = split /[.]/smx, $self->_run_sw_version;
     $version  = $swv[0];
   } catch {
