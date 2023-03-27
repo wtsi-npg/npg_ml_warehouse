@@ -32,13 +32,13 @@ has 'dry_run' =>
 has 'pb_api_client' =>
   (isa           => 'WTSI::NPG::HTS::PacBio::Sequel::APIClient',
    is            => 'ro',
-   required      => 1,
+   required      => 0,
    documentation => 'A PacBio Sequel API client',);
 
 has 'mlwh_schema' =>
   (is            => 'ro',
    isa           => 'WTSI::DNAP::Warehouse::Schema',
-   required      => 1,
+   required      => 0,
    documentation => 'A ML warehouse handle',);
 
 
