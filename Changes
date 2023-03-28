@@ -1,6 +1,12 @@
 LIST OF CHANGES
 
 release 46.9.1
+ - Relaxed the 'required' constraint for two attributes in
+   npg_warehouse::loader::pacbio::base. This is a short term solution to a
+   problem elsewhere. The change allows for using classes that consume this
+   role in the context of other packages.
+
+release 46.9.1
  - Bug fix: resolved the discrepancy in the attribute name between the
    npg_pacbio_runs2mlwarehouse script and the npg_warehouse::loader::pacbio::run
    class.
