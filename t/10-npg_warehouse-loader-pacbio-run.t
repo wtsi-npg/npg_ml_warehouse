@@ -76,7 +76,7 @@ my ($wh_schema)= $util->create_test_db(q[WTSI::DNAP::Warehouse::Schema],
 lives_ok{ $wh_schema } 'warehouse test db created';
 
 subtest 'load_completed_run_off_instrument_analysis' => sub {
-  plan tests => 40;
+  plan tests => 41;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
   my @load_args = (dry_run       => '1',
@@ -134,6 +134,7 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
   is ($r2->created_by, q[mls], 'correct created by for run 80685 well A1');
   is ($r2->sl_hostname, q[blah.sanger.ac.uk], 'correct sl hostname for run 80685 well A1');
   is ($r2->sl_run_uuid, q[288f2be0-9c7c-4930-b1ff-0ad71edae556], 'correct sl run uuid for run 80685 well A1');
+  is ($r2->sl_ccs_uuid, q[74f45b56-780f-48cc-9c20-69a89ba28731], 'correct sl ccs uuid for run 80685 well A1');
   is ($r2->movie_minutes, q[1440], 'correct movie minutes for run 80685 well A1');
   is ($r2->hifi_only_reads, undef, 'correct hifi only reads for run 80685 well A1');
   is ($r2->heteroduplex_analysis, undef, 'correct heteroduplex analysis for run 80685 well A1');
@@ -163,7 +164,7 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
 };
 
 subtest 'load_completed_run_mixed_analysis' => sub {
-  plan tests => 13;
+  plan tests => 16;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
 
@@ -195,6 +196,10 @@ subtest 'load_completed_run_mixed_analysis' => sub {
   is ($r2->well_status, q[Complete], 'correct well status for run 79174 well A1');
   is ($r2->run_complete, q[2021-01-18T23:03:43], 'correct run complete date for run 79174 well A1');
   is ($r2->run_transfer_complete, q[2021-01-19T06:17:32], 'correct run transfer complete for run 79174 well A1');
+
+  is ($r2->sl_hostname, q[blah.sanger.ac.uk], 'correct sl hostname for run 79174 well A1');
+  is ($r2->sl_run_uuid, q[89dfd7ed-c17a-452b-85b4-526d4a035d0d], 'correct sl run uuid for run 79174 well A1');
+  is ($r2->sl_ccs_uuid, q[1b70315e-03de-4344-bc16-0db4683e675e], 'correct sl ccs uuid for run 79174 well A1');
   
   my $id  = $r2->id_pac_bio_rw_metrics_tmp;
   my $rs3 = $wh_schema->resultset($PRODUCT_TABLE_NAME)->search({id_pac_bio_rw_metrics_tmp => $id,});
@@ -378,7 +383,7 @@ subtest 'detect_incorrect_id_length' => sub {
   $wh_schema->resultset('PacBioRunWellMetric')->search()->delete();
   $loader = npg_warehouse::loader::pacbio::run->new(@load_args);
   ($num_processed, $num_loaded, $num_errors) = $loader->load_run();
-  is($num_loaded, 0, "Loaded 0 runs - error generating prodict id");             
+  is($num_loaded, 0, "Loaded 0 runs - error generating product id");             
   is($num_processed, 1, "Processed one run");
   is($num_errors, 1, "Had one error");
 };
