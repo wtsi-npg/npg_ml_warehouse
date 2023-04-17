@@ -162,10 +162,16 @@ sub _build_run_wells {
         $ccs = $self->_ccs_info($well->{'ccsId'}, $CCSREADS);
       }
 
+      my ($ccsid);
       if (scalar keys %{$ccs} == 0 && defined $well->{'context'}) {
         ## find non linked ccs data e.g. off instrument initial ccs job failed data
-        my ($ccsid) = $self->_sift_for_dataset($well->{'name'}, $well->{'context'});
+        ($ccsid) = $self->_sift_for_dataset($well->{'name'}, $well->{'context'});
         if (defined $ccsid) { $ccs = $self->_ccs_info($ccsid, $CCSREADS); }
+      }
+
+      if (scalar keys %{$ccs} != 0 ) {
+        defined $ccsid ? $well_info{'sl_ccs_uuid'} = $ccsid :
+          $well_info{'sl_ccs_uuid'} = $well->{'ccsId'};
       }
 
       my $tki = $self->_well_tracking_info($well->{'uniqueId'});
@@ -183,7 +189,7 @@ has '_ccs_datasets' =>
    is            => 'ro',
    lazy          => 1,
    builder       => q[_build_ccs_datasets],
-   documentation => 'Fetch ccs datasets from the API',);
+   documentation => 'Fetch ccs datasets from the API (sorted newest to oldest)',);
 
 sub _build_ccs_datasets {
   my $self = shift;
