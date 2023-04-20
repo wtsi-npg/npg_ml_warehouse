@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+release 46.10.0
+ - add sl_ccs_uuid to the pacbio warehouse loader
+
 release 46.9.2
  - Relaxed the 'required' constraint for two attributes in
    npg_warehouse::loader::pacbio::base. This is a short term solution to a
