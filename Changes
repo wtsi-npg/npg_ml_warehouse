@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+release 46.10.0
  - add sl_ccs_uuid to the pacbio warehouse loader
 
 release 46.9.2
