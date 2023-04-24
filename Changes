@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+unreleased
+ - move get_tags method to ml_warehouse repo
+
 release 46.10.0
  - add sl_ccs_uuid to the pacbio warehouse loader
 
