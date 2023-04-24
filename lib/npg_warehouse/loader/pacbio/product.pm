@@ -127,7 +127,7 @@ sub generate_product_id {
   my ($self, $run_name, $well_label, $tags) = @_;
 
   my $command = join q[ ],
-    $ID_SCRIPT, $run_name, $well_label;
+    $ID_SCRIPT, '--run_name', $run_name, '--well_label', $well_label;
   if ($tags){
     $command .= join q[ ], ' --tags', $tags;
   }
