@@ -55,7 +55,7 @@ sub product_data {
       # samples from the same well with different tags and deplexed reads can
       # be differentiated
       while (my $row = $pac_bio_run->next) {
-        my $tags = WTSI::DNAP::Warehouse::Schema::Result::PacBioProductMetric->get_tags($row);
+        my $tags = $row->get_tags;
 
         my $id_product = $self->generate_product_id(
           $well->{'pac_bio_run_name'}, $well->{'well_label'}, $tags);
@@ -128,8 +128,8 @@ sub generate_product_id {
 
   my $command = join q[ ],
     $ID_SCRIPT, '--run_name', $run_name, '--well_label', $well_label;
-  if ($tags){
-    $command .= join q[ ], ' --tags', $tags;
+  foreach my $tag (@{$tags}){
+    $command .= join q[ ], ' --tag', $tag;
   }
   $self->info("Generating product id: $command");
   open my $id_product_script, q[-|], $command
