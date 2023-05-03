@@ -11,8 +11,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - id_gen: "2.0.0"
-            experimental: true
           - id_gen: "3.0.0"
             experimental: false
           - id_gen: "devel"
