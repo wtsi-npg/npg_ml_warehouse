@@ -5,6 +5,17 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    continue-on-error: ${{ matrix.experimental }} # Experimental builds may fail
+
+    strategy:
+      matrix:
+        include:
+          - id_gen: "3.0.0"
+            experimental: false
+          - id_gen: "devel"
+            experimental: true
+
     name: Distribution Perl
     steps:
     - uses: actions/checkout@v3
@@ -52,8 +63,7 @@ jobs:
 
     - name: install python dependencies
       run: |
-          python3 -m pip install git+https://github.com/wtsi-npg/npg_id_generation@$WTSI_NPG_BUILD_BRANCH ||
-          python3 -m pip install git+https://github.com/wtsi-npg/npg_id_generation@devel
+          python3 -m pip install git+https://github.com/wtsi-npg/npg_id_generation@${{ matrix.id_gen }}
 
     # build
     - name: run Build.PL and ./Build
