@@ -1,6 +1,6 @@
 LIST OF CHANGES
 
-unreleased
+release 47.0.0
  - move get_tags method to ml_warehouse repo
 
 release 46.10.0
