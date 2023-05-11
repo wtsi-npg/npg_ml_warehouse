@@ -1,8 +1,21 @@
 name: testing_and_building_repo
 on: [push, pull_request]
+env:
+  WTSI_NPG_BUILD_BRANCH: ${{ github.base_ref || github.ref }} #getting name of current github branch
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    continue-on-error: ${{ matrix.experimental }} # Experimental builds may fail
+
+    strategy:
+      matrix:
+        include:
+          - id_gen: "3.0.0"
+            experimental: false
+          - id_gen: "devel"
+            experimental: true
+
     name: Distribution Perl
     steps:
     - uses: actions/checkout@v3
@@ -41,7 +54,6 @@ jobs:
           ${GITHUB_WORKSPACE}/scripts/install_npg_perl_dependencies.sh $WTSI_NPG_GITHUB_URL $WTSI_NPG_BUILD_BRANCH
       env:
         WTSI_NPG_GITHUB_URL: https://github.com/wtsi-npg
-        WTSI_NPG_BUILD_BRANCH: ${{ github.base_ref || github.ref }} #getting name of current github branch
 
     - name: Install cpanm dependencies
       run: |
@@ -51,7 +63,7 @@ jobs:
 
     - name: install python dependencies
       run: |
-          python3 -m pip install git+https://github.com/wtsi-npg/npg_id_generation
+          python3 -m pip install git+https://github.com/wtsi-npg/npg_id_generation@${{ matrix.id_gen }}
 
     # build
     - name: run Build.PL and ./Build
