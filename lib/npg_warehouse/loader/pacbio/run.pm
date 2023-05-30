@@ -9,7 +9,7 @@ use Perl6::Slurp;
 use Readonly;
 use Try::Tiny;
 use XML::LibXML;
-
+use Data::Dump qw(pp);
 with 'npg_warehouse::loader::pacbio::product';
 
 our $VERSION = '0';
@@ -17,8 +17,8 @@ our $VERSION = '0';
 Readonly::Scalar my $RUN_WELL_TABLE_NAME  => q[PacBioRunWellMetric];
 Readonly::Scalar my $PRODUCT_TABLE_NAME   => q[PacBioProductMetric];
 Readonly::Scalar my $MIN_SW_VERSION       => 10;
-Readonly::Scalar my $XML_TRACKING_FIELDS  => 6;
-Readonly::Scalar my $XML_TRACKING_FIELDS2 => 8;
+Readonly::Scalar my $XML_TRACKING_FIELDS  => 7;
+Readonly::Scalar my $XML_TRACKING_FIELDS2 => 9;
 Readonly::Scalar my $SUBREADS             => q[subreads];
 Readonly::Scalar my $CCSREADS             => q[ccsreads];
 
@@ -117,7 +117,7 @@ sub _build_run {
     $run_info{'run_start'}             = $self->fix_date($run->{'startedAt'});
     $run_info{'run_complete'}          = $self->fix_date($run->{'completedAt'});
     $run_info{'run_status'}            = $run->{'status'};
-    $run_info{'run_transfer_complete' } = $self->fix_date($run->{'transfersCompletedAt'});
+    $run_info{'run_transfer_complete'} = $self->fix_date($run->{'transfersCompletedAt'});
     $run_info{'chemistry_sw_version'}  = $run->{'chemistrySwVersion'};
     $run_info{'instrument_sw_version'} = $run->{'instrumentSwVersion'};
     $run_info{'primary_analysis_sw_version'}
@@ -249,7 +249,7 @@ sub _well_qc_info {
 
   my $reports = $self->pb_api_client->query_dataset_reports($type, $id);
   my $qc_all  = $self->_slurp_reports($reports);
-
+  print pp($qc_all);
   my %qc;
   if (scalar keys %{$qc_all} > 0 && defined $qc_all->{'Polymerase Reads'}) {
     $qc{'polymerase_read_bases'}       = $qc_all->{'Polymerase Read Bases'};
@@ -272,6 +272,10 @@ sub _well_qc_info {
     $qc{'control_concordance_mode'}    = $qc_all->{'Control Read Concordance Mode'};
     $qc{'control_read_length_mean'}    = $qc_all->{'Control Read Length Mean'};
     $qc{'local_base_rate'}             = $qc_all->{'Local Base Rate'};
+    $qc{'hifi_barcoded_reads'}         = $qc_all->{'Barcoded HiFi Reads'};
+    #$qc{'hifi_percent_barcoded_reads'} = $qc_all->{'Barcoded HiFi Reads (%)'};
+    $qc{'hifi_bases_in_barcoded_reads'} = $qc_all->{'Barcoded HiFi Yield (bp)'};
+    #$qc{'hifi_percent_bases_in_barcoded_reads'} = $qc_all->{'Barcoded HiFi Yield (%)'};
   }
   return \%qc;
 }
@@ -365,6 +369,10 @@ sub _well_tracking_subset_parser {
     if ( defined $hda ) {
       $hda eq 'true' ?
         ($tracking{'heteroduplex_analysis'} = 1) : ($tracking{'heteroduplex_analysis'} = 0);
+    }
+    my $dmm = $self->_well_tracking_automation_parser($prefix, $sub,'DemultiplexMode');
+    if ( defined $dmm ) {
+      $tracking{'demultiplex_mode'} = $dmm;
     }
   }
   if ($sub->getElementsByTagName($prefix .'SequencingKitPlate')) {
