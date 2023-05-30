@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+ - PacBio loader is extended to load deplex stats where deplexing
+   has been run on board the instrument
+
 release 47.0.0
  - move get_tags method to ml_warehouse repo
 

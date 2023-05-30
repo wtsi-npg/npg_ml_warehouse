@@ -10,7 +10,7 @@ use Perl6::Slurp;
 use Readonly;
 use Test::Exception;
 use Test::LWP::UserAgent;
-use Test::More tests => 11;
+use Test::More tests => 12;
 
 use npg_testing::db;
 
@@ -202,7 +202,7 @@ subtest 'load_completed_run_mixed_analysis' => sub {
 };
 
 subtest 'load_completed_run_on_instrument_deplexing_analysis' => sub {
-  plan tests => 10;
+  plan tests => 11;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
 
@@ -214,8 +214,8 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis' => sub {
 
   my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
   my ($processed, $loaded, $errors) = $loader->load_run;
-  cmp_ok($loaded, '==', 1, "Loaded 1 completed run (mixed)");
-  cmp_ok($errors, '==', 0, "Loaded 1 completed run (mixed) with no errors");
+  cmp_ok($loaded, '==', 1, "Loaded 1 completed run (OnInstrument)");
+  cmp_ok($errors, '==', 0, "Loaded 1 completed run (OnInstrument) with no errors");
 
   my $rs = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
     ({pac_bio_run_name => 'TRACTION-RUN-142', well_label => 'A1'});
@@ -228,7 +228,42 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis' => sub {
   is ($r->polymerase_num_reads, q[5959113], 'correct polymerase reads for run TR142  well A1');
   is ($r->hifi_num_reads, q[2098821], 'correct hifi reads for run TR142  well A1');
   is ($r->hifi_low_quality_num_reads, undef, 'correct hifi low quality reads for run TR142  well A1'); 
-  is ($r->control_num_reads, 1061, 'correct num of control reads for run TR142  well A1'); 
+  is ($r->control_num_reads, 1061, 'correct num of control reads for run TR142  well A1');
+  is ($r->demultiplex_mode, q[OnInstrument], 'correct demultiplex mode for run TR142  well A1'); 
+};
+
+subtest 'load_completed_run_on_instrument_deplexing_analysis2' => sub {
+  plan tests => 13;
+
+  my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
+
+  my @load_args = (dry_run       => '0',
+                   pb_api_client => $pb_api,
+                   mlwh_schema   => $wh_schema,
+                   run_uuid      => q[75aae6f5-fdf2-4171-a189-513488dbc91f],
+                   hostname      => q[blah.sanger.ac.uk]);
+
+  my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
+  my ($processed, $loaded, $errors) = $loader->load_run;
+  cmp_ok($loaded, '==', 1, "Loaded 1 completed run (OnInstrument 2)");
+  cmp_ok($errors, '==', 0, "Loaded 1 completed run (OnInstrument 2) with no errors");
+
+  my $rs = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
+    ({pac_bio_run_name => 'TRACTION-RUN-539', well_label => 'C1'});
+  is ($rs->count, 1, '1 loaded row found for run TR539 well C1 in pac_bio_run_well_metrics');
+  my $r = $rs->next;
+  is ($r->ccs_execution_mode, q[OnInstrument], 'correct process type for run TR539 well C1');
+
+  is ($r->hifi_only_reads, 1, 'correct hifi only reads for run TR539 well C1');
+  is ($r->heteroduplex_analysis, 0, 'correct heteroduplex analysis for run TR539 well C1');
+  is ($r->polymerase_num_reads, q[17973166], 'correct polymerase reads for run TR539 well C1');
+  is ($r->hifi_num_reads, q[7884017], 'correct hifi reads for run TR539 well C1');
+  is ($r->hifi_low_quality_num_reads, undef, 'correct hifi low quality reads for run TR539 well C1'); 
+  is ($r->control_num_reads, 2802, 'correct num of control reads for run TR539 well C1');
+  is ($r->demultiplex_mode, q[OnInstrument], 'correct demultiplex_mode for run TR539 well C1'); 
+  is ($r->hifi_barcoded_reads, q[7861277], 'correct num of hifi barcoded reads for run TR539 well C1'); 
+  is ($r->hifi_bases_in_barcoded_reads, q[93682134754],
+     'correct num of hifi bases in barcoded reads for run TR539 well C1'); 
 };
 
 subtest 'load_in_progress_run' => sub {
