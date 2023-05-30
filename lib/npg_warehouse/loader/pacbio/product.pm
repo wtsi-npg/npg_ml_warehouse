@@ -3,6 +3,7 @@ package npg_warehouse::loader::pacbio::product;
 use Moose::Role;
 use Readonly;
 use English qw[-no_match_vars];
+use WTSI::DNAP::Warehouse::Schema::Result::PacBioProductMetric;
 
 with 'npg_warehouse::loader::pacbio::base';
 
@@ -11,7 +12,6 @@ our $VERSION = '0';
 Readonly::Scalar my $PRODUCT_TABLE_NAME  => q[PacBioProductMetric];
 Readonly::Scalar my $RUN_TABLE_NAME      => q[PacBioRun];
 Readonly::Scalar my $RUN_WELL_TABLE_NAME => q[PacBioRunWellMetric];
-Readonly::Scalar my $TAG_DELIM           => q[,]; # Delimiter chosen to comply with the id generation script
 Readonly::Scalar my $ID_SCRIPT           => q[generate_pac_bio_id];
 Readonly::Scalar my $ID_LENGTH           => 64;
 
@@ -55,7 +55,7 @@ sub product_data {
       # samples from the same well with different tags and deplexed reads can
       # be differentiated
       while (my $row = $pac_bio_run->next) {
-        my $tags = $self->get_tags($row);
+        my $tags = $row->get_tags;
 
         my $id_product = $self->generate_product_id(
           $well->{'pac_bio_run_name'}, $well->{'well_label'}, $tags);
@@ -71,33 +71,6 @@ sub product_data {
   return \@product_data;
 }
 
-=head2 get_tags
-
-  Arg [1]    : Row from pac_bio_run table, DBIx Result. Required.
-  Example    : $tags = npg_warehouse::loader::pacbio::product->get_tags($row);
-  Description: Checks whether there are tag sequences in the row, and
-               returns them as a comma separated list which can be used
-               as part of product id generation
-  Returntype : String
-
-=cut
-
-sub get_tags {
-  my ($self, $row) = @_;
-
-  if (!defined $row){
-    confess('A defined row argument is required');
-  }
-  my $tag1 = $row->tag_sequence;
-  my $tag2 = $row->tag2_sequence;
-  if ($tag1){
-    if ($tag2) {
-      return join $TAG_DELIM, $tag1, $tag2;
-    }
-    return $tag1;
-  }
-  return q[];
-}
 
 =head2 load_pacbioproductmetric_table
 
@@ -154,9 +127,9 @@ sub generate_product_id {
   my ($self, $run_name, $well_label, $tags) = @_;
 
   my $command = join q[ ],
-    $ID_SCRIPT, $run_name, $well_label;
-  if ($tags){
-    $command .= join q[ ], ' --tags', $tags;
+    $ID_SCRIPT, '--run_name', $run_name, '--well_label', $well_label;
+  foreach my $tag (@{$tags}){
+    $command .= join q[ ], ' --tag', $tag;
   }
   $self->info("Generating product id: $command");
   open my $id_product_script, q[-|], $command
