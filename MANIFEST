@@ -33,10 +33,6 @@ lib/npg_warehouse/loader/pacbio/base.pm
 lib/npg_warehouse/loader/pacbio/product.pm
 lib/npg_warehouse/loader/pacbio/run.pm
 lib/npg_warehouse/loader/pacbio/qc_state.pm
-lib/st/api/lims/ml_warehouse.pm
-lib/st/api/lims/ml_warehouse/driver.pm
-lib/st/api/lims/ml_warehouse_auto.pm
-lib/st/api/lims/ml_warehouse_fc_cache.pm
 MANIFEST			This list of files
 README
 scripts/install_npg_perl_dependencies.sh
@@ -58,7 +54,6 @@ t/10-npg_warehouse-loader-qc.t
 t/10-npg_warehouse-loader-run.t
 t/10-npg_warehouse-loader-run_files.t
 t/10-npg_warehouse-loader-run_info.t
-t/10-st-api-lims-ml_warehouse.t
 t/20-npg_warehouse-loader-run.t
 t/30-npg_tracking-daemon-fkrepair.t
 t/30-npg_tracking-daemon-samplesheet-auto.t
@@ -96,11 +91,6 @@ t/data/fixtures/wh_pacbio2/100-Study.yml
 t/data/fixtures/wh_pacbio2/200-PacBioRun.yml
 t/data/fixtures/wh_pacbio2/200-PacBioRunWellMetric.yml
 t/data/fixtures/wh_pacbio2/300-PacBioProductMetric.yml
-t/data/fixtures_stlims_wh/000-Sample.yml
-t/data/fixtures_stlims_wh/000-Study.yml
-t/data/fixtures_stlims_wh/100-IseqFlowcell.yml
-t/data/fixtures_stlims_wh/100-StudyUser.yml
-t/data/fixtures_stlims_wh/200-IseqProductMetric.yml
 t/data/irods_locations/new_and_update.json
 t/data/irods_locations/new_only.json
 t/data/irods_locations/new_same_coll.json
