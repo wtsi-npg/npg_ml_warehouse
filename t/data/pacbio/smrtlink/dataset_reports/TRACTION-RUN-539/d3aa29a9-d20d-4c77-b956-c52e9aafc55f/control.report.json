@@ -1,0 +1,68 @@
+{
+    "_comment": "Generated with pbcommand version  at 2023-04-16T05:08:54.229270",
+    "attributes": [
+        {
+            "id": "control.reads_n",
+            "name": "Number of Control Reads",
+            "value": 2802
+        },
+        {
+            "id": "control.readlength_mean",
+            "name": "Control Read Length Mean",
+            "value": 59324
+        },
+        {
+            "id": "control.concordance_mean",
+            "name": "Control Read Concordance Mean",
+            "value": 0.912744
+        },
+        {
+            "id": "control.concordance_mode",
+            "name": "Control Read Concordance Mode",
+            "value": 0.93
+        }
+    ],
+    "dataset_uuids": [
+        "d3aa29a9-d20d-4c77-b956-c52e9aafc55f"
+    ],
+    "id": "control",
+    "plotGroups": [
+        {
+            "id": "control.readlength_plotgroup",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "Control Polymerase RL",
+                    "id": "control.readlength_plotgroup.readlength_plot",
+                    "image": "readlength_plot.png",
+                    "plotType": "image",
+                    "thumbnail": "readlength_plot_thumb.png",
+                    "title": "Control Polymerase RL"
+                }
+            ],
+            "thumbnail": "readlength_plot_thumb.png",
+            "title": "Control Read Length"
+        },
+        {
+            "id": "control.concordance_plotgroup",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "Control Concordance",
+                    "id": "control.concordance_plotgroup.concordance_plot",
+                    "image": "concordance_plot.png",
+                    "plotType": "image",
+                    "thumbnail": "concordance_plot_thumb.png",
+                    "title": "Control Concordance"
+                }
+            ],
+            "thumbnail": "concordance_plot_thumb.png",
+            "title": "Control Read Quality"
+        }
+    ],
+    "tables": [],
+    "tags": [],
+    "title": "Control Report",
+    "uuid": "4902aeb2-63dd-4582-b7e2-f62513daac45",
+    "version": "1.0.1"
+}
