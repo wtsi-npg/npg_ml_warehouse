@@ -18,7 +18,7 @@ Readonly::Scalar my $RUN_WELL_TABLE_NAME  => q[PacBioRunWellMetric];
 Readonly::Scalar my $PRODUCT_TABLE_NAME   => q[PacBioProductMetric];
 Readonly::Scalar my $MIN_SW_VERSION       => 10;
 Readonly::Scalar my $XML_TRACKING_FIELDS  => 6;
-Readonly::Scalar my $XML_TRACKING_FIELDS2 => 8;
+Readonly::Scalar my $XML_TRACKING_FIELDS2 => 9;
 Readonly::Scalar my $SUBREADS             => q[subreads];
 Readonly::Scalar my $CCSREADS             => q[ccsreads];
 
@@ -117,7 +117,7 @@ sub _build_run {
     $run_info{'run_start'}             = $self->fix_date($run->{'startedAt'});
     $run_info{'run_complete'}          = $self->fix_date($run->{'completedAt'});
     $run_info{'run_status'}            = $run->{'status'};
-    $run_info{'run_transfer_complete' } = $self->fix_date($run->{'transfersCompletedAt'});
+    $run_info{'run_transfer_complete'} = $self->fix_date($run->{'transfersCompletedAt'});
     $run_info{'chemistry_sw_version'}  = $run->{'chemistrySwVersion'};
     $run_info{'instrument_sw_version'} = $run->{'instrumentSwVersion'};
     $run_info{'primary_analysis_sw_version'}
@@ -272,6 +272,8 @@ sub _well_qc_info {
     $qc{'control_concordance_mode'}    = $qc_all->{'Control Read Concordance Mode'};
     $qc{'control_read_length_mean'}    = $qc_all->{'Control Read Length Mean'};
     $qc{'local_base_rate'}             = $qc_all->{'Local Base Rate'};
+    $qc{'hifi_barcoded_reads'}         = $qc_all->{'Barcoded HiFi Reads'};
+    $qc{'hifi_bases_in_barcoded_reads'} = $qc_all->{'Barcoded HiFi Yield (bp)'};
   }
   return \%qc;
 }
@@ -334,9 +336,9 @@ sub _well_tracking_info {
       %well_tracking_info = %{$tracking};
     }
 
-    if ((scalar keys %well_tracking_info != $XML_TRACKING_FIELDS) &&
-        (scalar keys %well_tracking_info != $XML_TRACKING_FIELDS2) ) {
-      $self->error('Failed to get all expected XML info for ', $run->{'name'},' subset ', $id);
+    if ((scalar keys %well_tracking_info < $XML_TRACKING_FIELDS) ||
+        (scalar keys %well_tracking_info > $XML_TRACKING_FIELDS2) ) {
+      $self->error('Failed to get expected XML info for ', $run->{'name'},' subset ', $id);
     }
   }
   return \%well_tracking_info;
@@ -365,6 +367,10 @@ sub _well_tracking_subset_parser {
     if ( defined $hda ) {
       $hda eq 'true' ?
         ($tracking{'heteroduplex_analysis'} = 1) : ($tracking{'heteroduplex_analysis'} = 0);
+    }
+    my $dmm = $self->_well_tracking_automation_parser($prefix, $sub,'DemultiplexMode');
+    if ( defined $dmm ) {
+      $tracking{'demultiplex_mode'} = $dmm;
     }
   }
   if ($sub->getElementsByTagName($prefix .'SequencingKitPlate')) {

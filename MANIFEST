@@ -112,6 +112,7 @@ t/data/pacbio/langqc/README.md
 t/data/pacbio/langqc/TRACTION-RUN-333.json
 t/data/pacbio/langqc/TRACTION-RUN-351.json
 t/data/pacbio/langqc/TRACTION-RUN-92.json
+t/data/pacbio/smrtlink/dataset_ccsreads_reports/003d9713-7240-4e82-9d39-570964487cbb.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/0db5e2da-7b54-47dc-9c04-53bde0a80a3f.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/16ddd726-7931-43cb-8521-0b7ca2cf2cf5.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/1b70315e-03de-4344-bc16-0db4683e675e.json
@@ -130,6 +131,7 @@ t/data/pacbio/smrtlink/dataset_ccsreads_reports/90513ff4-94aa-418a-aef2-041daccd
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/9e2ef574-d2e2-4d15-bf4c-8c59c8f3f001.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/9e377088-f9eb-4a2e-bdd9-ea01f9a77159.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/b5790be4-8128-4701-8a38-80fa670b3998.json
+t/data/pacbio/smrtlink/dataset_ccsreads_reports/d3aa29a9-d20d-4c77-b956-c52e9aafc55f.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/e671b2c3-4344-4324-882a-af525461f619.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/f1d7398d-d995-4328-be57-7e8f11d3e6e3.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/fbd6e4f9-58a9-4f74-8542-7fd080d9a9b9.json
@@ -186,6 +188,15 @@ t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-219/6877122c-dc91-4e6b-93c0-
 t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-219/6877122c-dc91-4e6b-93c0-45abee4c0a9b/loading.report.json
 t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-219/6877122c-dc91-4e6b-93c0-45abee4c0a9b/m64089e_220823_150947.ccs_reports.json
 t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-219/6877122c-dc91-4e6b-93c0-45abee4c0a9b/raw_data.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-539/d3aa29a9-d20d-4c77-b956-c52e9aafc55f/adapter.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-539/d3aa29a9-d20d-4c77-b956-c52e9aafc55f/barcode.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-539/d3aa29a9-d20d-4c77-b956-c52e9aafc55f/ccs.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-539/d3aa29a9-d20d-4c77-b956-c52e9aafc55f/control.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-539/d3aa29a9-d20d-4c77-b956-c52e9aafc55f/detect_cpg_methyl.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-539/d3aa29a9-d20d-4c77-b956-c52e9aafc55f/loading.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-539/d3aa29a9-d20d-4c77-b956-c52e9aafc55f/m84047_230414_145408_s3.ccs_report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-539/d3aa29a9-d20d-4c77-b956-c52e9aafc55f/m84047_230414_145408_s3.summary.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-539/d3aa29a9-d20d-4c77-b956-c52e9aafc55f/raw_data.report.json
 t/data/pacbio/smrtlink/dataset_subreads_reports/22efc39e-cebd-4816-924c-86c5e07e0f20.json
 t/data/pacbio/smrtlink/dataset_subreads_reports/50039d88-90cd-4477-b509-0a1e803aece9.json
 t/data/pacbio/smrtlink/dataset_subreads_reports/511f764d-e4d5-4dca-b24f-0fd2bc43c1f1.json
@@ -198,11 +209,13 @@ t/data/pacbio/smrtlink/dataset_subreads_reports/a3cf64c5-75bc-4102-9f41-48362d1d
 t/data/pacbio/smrtlink/dataset_subreads_reports/c0fefab7-a61f-48ac-9cde-1237e8a8d313.json
 t/data/pacbio/smrtlink/dataset_subreads_reports/cd81205c-2878-46a6-81f1-f6ff7227fb40.json
 t/data/pacbio/smrtlink/runs_collections/288f2be0-9c7c-4930-b1ff-0ad71edae556.json
+t/data/pacbio/smrtlink/runs_collections/75aae6f5-fdf2-4171-a189-513488dbc91f.json
 t/data/pacbio/smrtlink/runs_collections/81913778-242d-401e-86c6-69bd4d619d8e.json
 t/data/pacbio/smrtlink/runs_collections/89dfd7ed-c17a-452b-85b4-526d4a035d0d.json
 t/data/pacbio/smrtlink/runs_collections/909d36e5-6385-4c2a-8886-72483eb6e31f.json
 t/data/pacbio/smrtlink/runs_collections/d4c8636a-25f3-4874-b816-b690bbe31b2c.json
 t/data/pacbio/smrtlink/runs/288f2be0-9c7c-4930-b1ff-0ad71edae556.json
+t/data/pacbio/smrtlink/runs/75aae6f5-fdf2-4171-a189-513488dbc91f.json
 t/data/pacbio/smrtlink/runs/81913778-242d-401e-86c6-69bd4d619d8e.json
 t/data/pacbio/smrtlink/runs/89dfd7ed-c17a-452b-85b4-526d4a035d0d.json
 t/data/pacbio/smrtlink/runs/909d36e5-6385-4c2a-8886-72483eb6e31f.json
