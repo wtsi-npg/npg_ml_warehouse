@@ -11,12 +11,10 @@ bin/npg_products2mlwarehouse
 bin/npg_run_info2mlwarehouse
 bin/npg_run_params2mlwarehouse
 bin/npg_runs2mlwarehouse
-bin/npg_samplesheet4MiSeq
 bin/warehouse_loader_launcher
 Build.PL
 Changes
 lib/npg_tracking/daemon/fkrepair.pm
-lib/npg_tracking/daemon/samplesheet/auto.pm
 lib/npg_warehouse/fk_repair.pm
 lib/npg_warehouse/loader/autoqc.pm
 lib/npg_warehouse/loader/base.pm
@@ -56,7 +54,6 @@ t/10-npg_warehouse-loader-run_files.t
 t/10-npg_warehouse-loader-run_info.t
 t/20-npg_warehouse-loader-run.t
 t/30-npg_tracking-daemon-fkrepair.t
-t/30-npg_tracking-daemon-samplesheet-auto.t
 t/data/fixtures/npg/000-InstrumentStatusDict.yml
 t/data/fixtures/npg/000-RunStatusDict.yml
 t/data/fixtures/npg/000-Tag.yml
@@ -334,7 +331,6 @@ t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_
 t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive/lane1/qc/26291_1.ref_match.json
 t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive/lane1/qc/26291_1.tag_metrics.json
 t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive/plex1/qc/26291#1.insert_size.json
-t/data/samplesheet/miseq_default.csv
 t/scripts/generate_pac_bio_id
 t/perlcriticrc
 t/util.pm
