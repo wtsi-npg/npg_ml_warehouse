@@ -174,6 +174,12 @@ sub _build_run_wells {
           $well_info{'sl_ccs_uuid'} = $well->{'ccsId'};
       }
 
+      if (! $well_info{'movie_name'} && defined $well_info{'sl_ccs_uuid'}) {
+        ## try to find movie name via ccsid if not associated with well
+        my $mname = $self->_moviename_by_dataset($well_info{'sl_ccs_uuid'},$CCSREADS);
+        if ( defined $mname ) { $well_info{'movie_name'} = $mname; }
+      }
+
       my $tki = $self->_well_tracking_info($well->{'uniqueId'});
       my $run = $self->_run;
 
@@ -216,6 +222,16 @@ sub _sift_for_dataset {
     }
   }
   return (scalar @ccsid == 1) ? $ccsid[0] : undef;
+}
+
+sub _moviename_by_dataset{
+  my ($self, $id, $type) = @_;
+
+  my $dataset  = $self->pb_api_client->query_dataset($type, $id);
+
+  my $mname;
+  if (ref $dataset eq 'HASH') { $mname = $dataset->{'metadataContextId'} }
+  return $mname;
 }
 
 sub _ccs_info {

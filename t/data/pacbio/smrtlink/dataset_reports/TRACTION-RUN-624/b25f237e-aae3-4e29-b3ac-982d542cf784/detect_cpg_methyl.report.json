@@ -1,0 +1,39 @@
+{
+    "_comment": "Generated with pbcommand version  at 2023-06-16T07:37:40.445457",
+    "attributes": [],
+    "dataset_uuids": [
+        "b25f237e-aae3-4e29-b3ac-982d542cf784"
+    ],
+    "id": "detect_cpg_methyl",
+    "plotGroups": [
+        {
+            "id": "detect_cpg_methyl.m5c_group",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "CpG Methylation in Reads",
+                    "id": "detect_cpg_methyl.m5c_group.m5c_detections",
+                    "image": "m5c_detections.png",
+                    "plotType": "image",
+                    "thumbnail": "m5c_detections_thumb.png",
+                    "title": "CpG Methylation in Reads"
+                },
+                {
+                    "caption": "CpG Methylation in Reads (Histogram)",
+                    "id": "detect_cpg_methyl.m5c_group.m5c_detections_hist",
+                    "image": "m5c_detections_hist.png",
+                    "plotType": "image",
+                    "thumbnail": "m5c_detections_hist_thumb.png",
+                    "title": "CpG Methylation in Reads (Histogram)"
+                }
+            ],
+            "thumbnail": "m5c_detections_thumb.png",
+            "title": "Methylation Probability"
+        }
+    ],
+    "tables": [],
+    "tags": [],
+    "title": "Report detect_cpg_methyl",
+    "uuid": "fcc782a3-66d8-436a-b7f0-e99e2a6b8a59",
+    "version": "1.0.1"
+}

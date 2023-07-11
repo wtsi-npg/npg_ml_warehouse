@@ -1,0 +1,264 @@
+{
+    "_comment": "Generated with pbcommand version  at 2023-06-15T02:53:05.284230",
+    "attributes": [
+        {
+            "id": "ccs2.number_of_ccs_reads",
+            "name": "HiFi Reads",
+            "value": 2210783
+        },
+        {
+            "id": "ccs2.total_number_of_ccs_bases",
+            "name": "HiFi Yield (bp)",
+            "value": 24479274065
+        },
+        {
+            "id": "ccs2.mean_ccs_readlength",
+            "name": "HiFi Read Length (mean, bp)",
+            "value": 11072
+        },
+        {
+            "id": "ccs2.median_accuracy",
+            "name": "HiFi Read Quality (median)",
+            "value": "Q34"
+        },
+        {
+            "id": "ccs2.median_qv",
+            "name": "HiFi Read Quality (median)",
+            "value": 34
+        },
+        {
+            "id": "ccs2.mean_npasses",
+            "name": "HiFi Number of Passes (mean)",
+            "value": 13
+        }
+    ],
+    "dataset_uuids": [
+        "71a2402f-4bc6-405f-889f-4f7601353248"
+    ],
+    "id": "ccs2",
+    "plotGroups": [
+        {
+            "id": "ccs2.readlength_group",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "HiFi Read Length Distribution",
+                    "id": "ccs2.readlength_group.readlength_hist",
+                    "image": "ccs_readlength_hist_plot.png",
+                    "plotType": "image",
+                    "thumbnail": "ccs_readlength_hist_plot_thumb.png",
+                    "title": "HiFi Read Length Distribution"
+                },
+                {
+                    "caption": "Yield by HiFi Read Length",
+                    "id": "ccs2.readlength_group.hifi_read_length_yield",
+                    "image": "ccs_hifi_read_length_yield_plot.png",
+                    "plotType": "image",
+                    "thumbnail": "ccs_hifi_read_length_yield_plot_thumb.png",
+                    "title": "Yield by HiFi Read Length"
+                },
+                {
+                    "caption": "Read Length Distribution",
+                    "id": "ccs2.readlength_group.all_readlength_hist",
+                    "image": "ccs_all_readlength_hist_plot.png",
+                    "plotType": "image",
+                    "thumbnail": "ccs_all_readlength_hist_plot_thumb.png",
+                    "title": "Read Length Distribution"
+                }
+            ],
+            "thumbnail": "ccs_readlength_hist_plot_thumb.png",
+            "title": "Read Length Distribution"
+        },
+        {
+            "id": "ccs2.npasses_group",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "Number of Passes",
+                    "id": "ccs2.npasses_group.npasses_hist",
+                    "image": "ccs_npasses_hist.png",
+                    "plotType": "image",
+                    "thumbnail": "ccs_npasses_hist_thumb.png",
+                    "title": "Number of Passes"
+                }
+            ],
+            "thumbnail": "ccs_npasses_hist_thumb.png",
+            "title": "Number of Passes"
+        },
+        {
+            "id": "ccs2.accuracy_group",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "Read Quality Distribution",
+                    "id": "ccs2.accuracy_group.accuracy_hist",
+                    "image": "ccs_accuracy_hist.png",
+                    "plotType": "image",
+                    "thumbnail": "ccs_accuracy_hist_thumb.png",
+                    "title": "Read Quality Distribution"
+                }
+            ],
+            "thumbnail": "ccs_accuracy_hist_thumb.png",
+            "title": "Read Quality Distribution"
+        },
+        {
+            "id": "ccs2.readlength_qv_hist2d_group",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "Predicted Accuracy vs. Read Length",
+                    "id": "ccs2.readlength_qv_hist2d_group.readlength_qv_hist2d",
+                    "image": "readlength_qv_hist2d.hexbin.png",
+                    "plotType": "image",
+                    "thumbnail": "readlength_qv_hist2d.hexbin_thumb.png",
+                    "title": "Predicted Accuracy vs. Read Length"
+                }
+            ],
+            "thumbnail": "readlength_qv_hist2d.hexbin_thumb.png",
+            "title": "Predicted Accuracy vs. Read Length"
+        }
+    ],
+    "tables": [
+        {
+            "columns": [
+                {
+                    "header": "Read Length (bp)",
+                    "id": "ccs2.hifi_length_summary.read_length",
+                    "values": [
+                        "\u2265 0",
+                        "\u2265 5,000",
+                        "\u2265 10,000",
+                        "\u2265 15,000",
+                        "\u2265 20,000",
+                        "\u2265 25,000",
+                        "\u2265 30,000",
+                        "\u2265 35,000",
+                        "\u2265 40,000"
+                    ]
+                },
+                {
+                    "header": "Reads",
+                    "id": "ccs2.hifi_length_summary.n_reads",
+                    "values": [
+                        2210783,
+                        1881283,
+                        1256710,
+                        514646,
+                        114438,
+                        6365,
+                        80,
+                        12,
+                        3
+                    ]
+                },
+                {
+                    "header": "Reads (%)",
+                    "id": "ccs2.hifi_length_summary.reads_pct",
+                    "values": [
+                        100.0,
+                        85.0957782830789,
+                        56.844565929808574,
+                        23.27890163801694,
+                        5.176356069320236,
+                        0.287907044698643,
+                        0.003618627427477052,
+                        0.0005427941141215579,
+                        0.00013569852853038947
+                    ]
+                },
+                {
+                    "header": "Yield (bp)",
+                    "id": "ccs2.hifi_length_summary.yield",
+                    "values": [
+                        24479274065,
+                        23193318080,
+                        18636087548,
+                        9344580699,
+                        2518705097,
+                        166053062,
+                        2614762,
+                        461143,
+                        124528
+                    ]
+                },
+                {
+                    "header": "Yield (%)",
+                    "id": "ccs2.hifi_length_summary.yield_pct",
+                    "values": [
+                        100.0,
+                        94.74675604519402,
+                        76.13006618789207,
+                        38.17343878003598,
+                        10.289133126709817,
+                        0.6783414473773939,
+                        0.010681534072689422,
+                        0.0018838099478584354,
+                        0.0005087078957870232
+                    ]
+                }
+            ],
+            "id": "ccs2.hifi_length_summary",
+            "title": "HiFi Read Length Summary"
+        },
+        {
+            "columns": [
+                {
+                    "header": "Read Quality (Phred)",
+                    "id": "ccs2.read_quality_summary.read_qv",
+                    "values": [
+                        "\u2265 Q20",
+                        "\u2265 Q30",
+                        "\u2265 Q40",
+                        "\u2265 Q50"
+                    ]
+                },
+                {
+                    "header": "Reads",
+                    "id": "ccs2.read_quality_summary.n_reads",
+                    "values": [
+                        2210783,
+                        1450265,
+                        593355,
+                        265988
+                    ]
+                },
+                {
+                    "header": "Reads (%)",
+                    "id": "ccs2.read_quality_summary.reads_pct",
+                    "values": [
+                        100.0,
+                        65.59960882637509,
+                        26.83913346538308,
+                        12.031393402247078
+                    ]
+                },
+                {
+                    "header": "Yield (bp)",
+                    "id": "ccs2.read_quality_summary.yield",
+                    "values": [
+                        24479274065,
+                        14618057042,
+                        4305743005,
+                        1445762341
+                    ]
+                },
+                {
+                    "header": "Yield (%)",
+                    "id": "ccs2.read_quality_summary.yield_pct",
+                    "values": [
+                        100.0,
+                        59.71605613460825,
+                        17.589341062839235,
+                        5.906067055587745
+                    ]
+                }
+            ],
+            "id": "ccs2.read_quality_summary",
+            "title": "HiFi Read Quality Summary"
+        }
+    ],
+    "tags": [],
+    "title": "CCS Analysis Report",
+    "uuid": "9562dbce-5ab0-4b2e-882c-5c775ada1eda",
+    "version": "1.0.1"
+}
