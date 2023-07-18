@@ -10,7 +10,7 @@ use Perl6::Slurp;
 use Readonly;
 use Test::Exception;
 use Test::LWP::UserAgent;
-use Test::More tests => 12;
+use Test::More tests => 13;
 
 use npg_testing::db;
 
@@ -50,6 +50,13 @@ foreach my $file (glob q[t/data/pacbio/smrtlink/dataset_ccsreads_reports/*.json]
   my ($name,$path,$suffix) = fileparse($file,'.json');
   $user_agent->map_response(
     qr{http://localhost:8071/smrt-link/datasets/ccsreads/$name/reports},
+    HTTP::Response->new('200', 'OK', ['Content-Type' => 'application/json'], slurp $file));
+}
+
+foreach my $file (glob q[t/data/pacbio/smrtlink/dataset_ccsreads/*.json]) {
+  my ($name,$path,$suffix) = fileparse($file,'.json'); 
+  $user_agent->map_response(
+    qr{http://localhost:8071/smrt-link/datasets/ccsreads/$name},
     HTTP::Response->new('200', 'OK', ['Content-Type' => 'application/json'], slurp $file));
 }
 
@@ -334,6 +341,39 @@ subtest 'load_multiple_sample_run' => sub {
   cmp_ok($p_r1->id_pac_bio_product, 'ne', $p_r2->id_pac_bio_product,
     'sample id_products are different for multi sample run');
 };
+
+subtest 'load_missing_moviename_run' => sub {
+  plan tests => 6;
+
+  my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
+
+  my @load_args = (dry_run       => '0',
+                   pb_api_client => $pb_api,
+                   mlwh_schema => $wh_schema,
+                   run_uuid => q[773e3b36-f33b-438a-bee4-fe85f07154fa],
+                   hostname => q[blah.sanger.ac.uk]);
+
+  my $loader = npg_warehouse::loader::pacbio::run->new(@load_args);
+  my ($processed, $loaded, $errors) = $loader->load_run;
+
+  cmp_ok ($loaded, '==', 1, "Loaded 1 missing moviename run");
+  cmp_ok ($errors, '==', 0, "Loaded 1 missing moviename run with no errors");
+
+  my $rw_rs = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
+    ({pac_bio_run_name => 'TRACTION-RUN-624', well_label => 'A1'});
+  is ($rw_rs->count, 1, '1 row loaded for run ... well A1 in pac_bio_run_well_metrics');
+  my $r = $rw_rs->next;
+  is ($r->movie_name, q[m64178e_230613_122744],
+      'correct movie name for TRACTION-RUN-624 well A1');
+
+  my $rw_rs2 = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
+    ({pac_bio_run_name => 'TRACTION-RUN-624', well_label => 'B1'});
+  is ($rw_rs2->count, 1, '1 row loaded for run ... well B1 in pac_bio_run_well_metrics');
+  my $r2 = $rw_rs2->next;
+  is ($r2->movie_name, q[m64178e_230614_172701],
+      'correct movie name for TRACTION-RUN-624 well B1');
+
+}; 
 
 subtest 'fail_to_load_non_existent_run' => sub {
   plan tests => 2;
