@@ -49,7 +49,8 @@ sub product_data {
     foreach my $well (@{$well_data}) {
       my $pac_bio_run = $rs->search({
         pac_bio_run_name => $well->{'pac_bio_run_name'},
-        well_label       => $well->{'well_label'}, });
+        well_label       => $well->{'well_label'},
+        plate_number     => $well->{'plate_number'}, });
 
       # The value for id product in run_well_metrics is not reused so that
       # samples from the same well with different tags and deplexed reads can
@@ -63,6 +64,7 @@ sub product_data {
           { 'id_pac_bio_tmp'     => $row->id_pac_bio_tmp,
             'pac_bio_run_name'   => $well->{'pac_bio_run_name'},
             'well_label'         => $well->{'well_label'},
+            'plate_number'       => $well->{'plate_number'},
             'id_pac_bio_product' => $id_product,
           };
       }
@@ -94,8 +96,9 @@ sub load_pacbioproductmetric_table {
     foreach my $row (@{$table_data}) {
       my $run  = delete $row->{'pac_bio_run_name'};
       my $well = delete $row->{'well_label'};
+      my $pn   = delete $row->{'plate_number'};
 
-      my ($fk) = $self->_get_run_well_fk($run,$well);
+      my ($fk) = $self->_get_run_well_fk($run,$well,$pn);
 
       if ($fk) {
         $row->{'id_pac_bio_rw_metrics_tmp'} = $fk;
@@ -145,12 +148,14 @@ sub generate_product_id {
 }
 
 sub _get_run_well_fk {
-  my ($self, $run, $well) = @_;
+  my ($self, $run, $well, $plate_number) = @_;
 
   my $rs = $self->mlwh_schema->resultset($RUN_WELL_TABLE_NAME);
 
   my $pbrwm = $rs->search({ pac_bio_run_name => $run,
-                            well_label       => $well,});
+                            well_label       => $well,
+                            plate_number     => $plate_number,
+                           });
 
   my $fk = $pbrwm->count == 1 ? $pbrwm->first->id_pac_bio_rw_metrics_tmp : q[];
   return $fk;
