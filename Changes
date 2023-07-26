@@ -1,8 +1,9 @@
 LIST OF CHANGES
 
-release 48.1.0
+release 49.0.0
  - Minor change to PacBio loader to find movie name from alternate source
    on ccs dataset if not in standard location on well.
+ - Removed samplesheet daemon class
 
 release 48.0.0
  - Removed all ml_warehouse lims drivers. Drivers moved to npg_tracking with
