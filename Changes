@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+release 48.1.0
  - Minor change to PacBio loader to find movie name from alternate source
    on ccs dataset if not in standard location on well.
 
