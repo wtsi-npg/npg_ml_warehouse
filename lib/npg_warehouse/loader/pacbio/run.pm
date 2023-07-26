@@ -490,13 +490,16 @@ sub load_pacbiorunwellmetric_table {
     my $rs = $self->mlwh_schema->resultset($RUN_WELL_TABLE_NAME);
     foreach my $row (@{$table_data}) {
 
-      my $run_name = $row->{'pac_bio_run_name'};
+      my $run_name   = $row->{'pac_bio_run_name'};
       my $well_label = $row->{'well_label'};
-      my $message = "run $run_name well $well_label";
+      my $pn         = $row->{'plate_number'};
+      my $message    = "run $run_name well $well_label";
+      if (defined $pn) { $message .= " plate_num $pn "; }
 
-      my $db_row = $rs->find({
-        pac_bio_run_name => $run_name, well_label => $well_label
-      });
+      my $query = { pac_bio_run_name => $run_name, well_label => $well_label, };
+      if (defined $pn) { $query->{plate_number} = $pn; };
+
+      my $db_row = $rs->find($query);
       if ($db_row) {
         $self->info("Will update record in $RUN_WELL_TABLE_NAME for $message");
         $db_row->update($row);
@@ -516,7 +519,7 @@ sub load_pacbiorunwellmetric_table {
       } else {
         $self->info("Will create record in $RUN_WELL_TABLE_NAME for $message");
         $row->{'id_pac_bio_product'} =
-          $self->generate_product_id($run_name, $well_label);
+          $self->generate_product_id($run_name, $well_label, undef, $pn);
         $rs->create($row);
       }
 
@@ -533,7 +536,7 @@ sub load_pacbiorunwellmetric_table {
   Arg [1]    : None
   Example    : my ($processed, $loaded, $errors) = $loader->load_run;
   Description: Publish data for one run to the mlwarehouse. 
-  Returntype : Array[Int]
+  Returntype : Array[Int]Sawbridgeworth
 
 =cut
 
