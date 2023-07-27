@@ -368,7 +368,7 @@ subtest 'load_missing_moviename_run' => sub {
   is ($r->movie_name, q[m64178e_230613_122744],
       'correct movie name for TRACTION-RUN-624 well A1');
   is ($r->plate_number, undef,
-      'correct underfined plate number for TRACTION-RUN-624 well A1');
+      'correct undefined plate number for TRACTION-RUN-624 well A1');
 
 
   my $rw_rs2 = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
