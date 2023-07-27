@@ -265,6 +265,8 @@ sub _get_plate_number {
   my $num;
   if( $path =~ /\/(\d)\_[[:upper:]]\d+$/smx ){
     $num = $1;
+  } else {
+    $self->logconfess('Plate number not found as expected in path: '. $path);
   }
   return $num;
 }
@@ -536,7 +538,7 @@ sub load_pacbiorunwellmetric_table {
   Arg [1]    : None
   Example    : my ($processed, $loaded, $errors) = $loader->load_run;
   Description: Publish data for one run to the mlwarehouse. 
-  Returntype : Array[Int]Sawbridgeworth
+  Returntype : Array[Int]
 
 =cut
 

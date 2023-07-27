@@ -52,6 +52,7 @@ sub product_data {
       my $pn         = $well->{'plate_number'};
       my $query = { pac_bio_run_name => $run_name, well_label => $well_label, };
       if (defined $pn) { $query->{plate_number} = $pn; }
+
       my $pac_bio_run = $rs->search($query);
 
       # The value for id product in run_well_metrics is not reused so that
