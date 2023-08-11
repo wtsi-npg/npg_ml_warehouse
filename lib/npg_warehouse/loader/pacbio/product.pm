@@ -47,22 +47,27 @@ sub product_data {
   my @product_data;
   if ($well_data) {
     foreach my $well (@{$well_data}) {
-      my $pac_bio_run = $rs->search({
-        pac_bio_run_name => $well->{'pac_bio_run_name'},
-        well_label       => $well->{'well_label'}, });
+      my $run_name   = $well->{'pac_bio_run_name'};
+      my $well_label = $well->{'well_label'};
+      my $pn         = $well->{'plate_number'};
+      my $query = { pac_bio_run_name => $run_name, well_label => $well_label, };
+      if (defined $pn) { $query->{plate_number} = $pn; }
+
+      my $pac_bio_run = $rs->search($query);
 
       # The value for id product in run_well_metrics is not reused so that
       # samples from the same well with different tags and deplexed reads can
-      # be differentiated
+      # be differentiated.
       while (my $row = $pac_bio_run->next) {
         my $tags = $row->get_tags;
 
         my $id_product = $self->generate_product_id(
-          $well->{'pac_bio_run_name'}, $well->{'well_label'}, $tags);
+          $run_name, $well_label, $tags, $pn);
         push @product_data,
           { 'id_pac_bio_tmp'     => $row->id_pac_bio_tmp,
-            'pac_bio_run_name'   => $well->{'pac_bio_run_name'},
-            'well_label'         => $well->{'well_label'},
+            'pac_bio_run_name'   => $run_name,
+            'well_label'         => $well_label,
+            'plate_number'       => $pn,
             'id_pac_bio_product' => $id_product,
           };
       }
@@ -94,8 +99,9 @@ sub load_pacbioproductmetric_table {
     foreach my $row (@{$table_data}) {
       my $run  = delete $row->{'pac_bio_run_name'};
       my $well = delete $row->{'well_label'};
+      my $pn   = delete $row->{'plate_number'};
 
-      my ($fk) = $self->_get_run_well_fk($run,$well);
+      my ($fk) = $self->_get_run_well_fk($run,$well,$pn);
 
       if ($fk) {
         $row->{'id_pac_bio_rw_metrics_tmp'} = $fk;
@@ -117,6 +123,7 @@ sub load_pacbioproductmetric_table {
   Arg [1]    : Run name, String. Required.
   Arg [2]    : Well label, String. Required.
   Arg [3]    : Comma separated list of tag sequences, String. Optional.
+  Arg [4]    : Plate number. Integer. Optional.
   Example    : $id = $self->generate_product_id($run, $well, $tags);
   Description: Runs a python script which generates a product id from run,
                well and tag data.
@@ -124,13 +131,15 @@ sub load_pacbioproductmetric_table {
 =cut
 
 sub generate_product_id {
-  my ($self, $run_name, $well_label, $tags) = @_;
+  my ($self, $run_name, $well_label, $tags, $pn) = @_;
 
   my $command = join q[ ],
     $ID_SCRIPT, '--run_name', $run_name, '--well_label', $well_label;
   foreach my $tag (@{$tags}){
     $command .= join q[ ], ' --tag', $tag;
   }
+  if (defined $pn) { $command .= ' --plate_number '. $pn; }
+
   $self->info("Generating product id: $command");
   open my $id_product_script, q[-|], $command
     or $self->logconfess('Cannot generate id_product ' . $CHILD_ERROR);
@@ -145,12 +154,13 @@ sub generate_product_id {
 }
 
 sub _get_run_well_fk {
-  my ($self, $run, $well) = @_;
+  my ($self, $run, $well, $plate_number) = @_;
 
   my $rs = $self->mlwh_schema->resultset($RUN_WELL_TABLE_NAME);
+  my $query = { pac_bio_run_name => $run, well_label => $well, };
+  if (defined $plate_number) { $query->{plate_number} = $plate_number; }
 
-  my $pbrwm = $rs->search({ pac_bio_run_name => $run,
-                            well_label       => $well,});
+  my $pbrwm = $rs->search($query);
 
   my $fk = $pbrwm->count == 1 ? $pbrwm->first->id_pac_bio_rw_metrics_tmp : q[];
   return $fk;

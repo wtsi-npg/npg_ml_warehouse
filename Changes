@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+
+- Change PacBio loader to support plate number for Revio runs.
+
 release 49.0.0
  - Minor change to PacBio loader to find movie name from alternate source
    on ccs dataset if not in standard location on well.
