@@ -21,6 +21,7 @@ Readonly::Scalar my $XML_TRACKING_FIELDS  => 6;
 Readonly::Scalar my $XML_TRACKING_FIELDS2 => 9;
 Readonly::Scalar my $SUBREADS             => q[subreads];
 Readonly::Scalar my $CCSREADS             => q[ccsreads];
+Readonly::Scalar my $MULTIPLATE_TYPE      => q[Revio];
 
 =head1 NAME
 
@@ -76,6 +77,15 @@ sub _build_run_sw_version {
   return $run->{'primary_analysis_sw_version'};
 }
 
+has '_is_multitype' =>
+  (isa           => 'Bool',
+   is            => 'rw',
+   init_arg      => undef,
+   predicate     => 'has_is_multitype',
+   reader        => 'get_is_multitype',
+   writer        => 'set_is_multitype',
+   documentation => 'Set to true if Revio instrument - which can handle multi plate runs.',);
+
 has '_run_data' =>
   (isa           => 'HashRef',
    is            => 'ro',
@@ -123,6 +133,12 @@ sub _build_run {
     $run_info{'primary_analysis_sw_version'}
                                        = $run->{'primaryAnalysisSwVersion'};
 
+    if (defined $run_info{'instrument_type'}) {
+      ($run_info{'instrument_type'} eq $MULTIPLATE_TYPE) ?
+        $self->set_is_multitype('1') : $self->set_is_multitype('0');
+    } else {
+      $self->logconfess('A defined instrument type is required for '. $self->run_uuid);
+    }
   }
   return \%run_info;
 }
@@ -151,6 +167,15 @@ sub _build_run_wells {
       $well_info{'well_status'}        = $well->{'status'};
       $well_info{'ccs_execution_mode'} = $well->{'ccsExecutionMode'};
       $well_info{'created_by'}         = $well->{'createdBy'};
+
+      if ($self->has_is_multitype) {
+        if ($self->get_is_multitype == 1 ){
+          my $platenum = $self->_get_plate_number($well->{'collectionPathUri'});
+          $well_info{'plate_number'} = $platenum;
+        }
+      } else {
+         $self->logconfess('A defined multitype is required for '. $self->run_uuid)
+      }
 
       my $qc = defined $well->{'ccsExecutionMode'} &&
         $well->{'ccsExecutionMode'} eq 'OnInstrument' ?
@@ -224,7 +249,7 @@ sub _sift_for_dataset {
   return (scalar @ccsid == 1) ? $ccsid[0] : undef;
 }
 
-sub _moviename_by_dataset{
+sub _moviename_by_dataset {
   my ($self, $id, $type) = @_;
 
   my $dataset  = $self->pb_api_client->query_dataset($type, $id);
@@ -232,6 +257,18 @@ sub _moviename_by_dataset{
   my $mname;
   if (ref $dataset eq 'HASH') { $mname = $dataset->{'metadataContextId'} }
   return $mname;
+}
+
+sub _get_plate_number {
+  my ($self, $path) = @_;
+
+  my $num;
+  if( $path =~ /\/(\d)\_[[:upper:]]\d+$/smx ){
+    $num = $1;
+  } else {
+    $self->logconfess('Plate number not found as expected in path: '. $path);
+  }
+  return $num;
 }
 
 sub _ccs_info {
@@ -455,13 +492,16 @@ sub load_pacbiorunwellmetric_table {
     my $rs = $self->mlwh_schema->resultset($RUN_WELL_TABLE_NAME);
     foreach my $row (@{$table_data}) {
 
-      my $run_name = $row->{'pac_bio_run_name'};
+      my $run_name   = $row->{'pac_bio_run_name'};
       my $well_label = $row->{'well_label'};
-      my $message = "run $run_name well $well_label";
+      my $pn         = $row->{'plate_number'};
+      my $message    = "run $run_name well $well_label";
+      if (defined $pn) { $message .= " plate_num $pn "; }
 
-      my $db_row = $rs->find({
-        pac_bio_run_name => $run_name, well_label => $well_label
-      });
+      my $query = { pac_bio_run_name => $run_name, well_label => $well_label, };
+      if (defined $pn) { $query->{plate_number} = $pn; };
+
+      my $db_row = $rs->find($query);
       if ($db_row) {
         $self->info("Will update record in $RUN_WELL_TABLE_NAME for $message");
         $db_row->update($row);
@@ -481,7 +521,7 @@ sub load_pacbiorunwellmetric_table {
       } else {
         $self->info("Will create record in $RUN_WELL_TABLE_NAME for $message");
         $row->{'id_pac_bio_product'} =
-          $self->generate_product_id($run_name, $well_label);
+          $self->generate_product_id($run_name, $well_label, undef, $pn);
         $rs->create($row);
       }
 

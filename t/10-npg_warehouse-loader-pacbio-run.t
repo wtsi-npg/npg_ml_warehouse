@@ -240,7 +240,7 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis' => sub {
 };
 
 subtest 'load_completed_run_on_instrument_deplexing_analysis2' => sub {
-  plan tests => 13;
+  plan tests => 14;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
 
@@ -270,7 +270,9 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis2' => sub {
   is ($r->demultiplex_mode, q[OnInstrument], 'correct demultiplex_mode for run TR539 well C1'); 
   is ($r->hifi_barcoded_reads, q[7861277], 'correct num of hifi barcoded reads for run TR539 well C1'); 
   is ($r->hifi_bases_in_barcoded_reads, q[93682134754],
-     'correct num of hifi bases in barcoded reads for run TR539 well C1'); 
+     'correct num of hifi bases in barcoded reads for run TR539 well C1');
+  is ($r->plate_number, 1, 'correct plate number 1 for run TR539 well C1');
+
 };
 
 subtest 'load_in_progress_run' => sub {
@@ -343,7 +345,7 @@ subtest 'load_multiple_sample_run' => sub {
 };
 
 subtest 'load_missing_moviename_run' => sub {
-  plan tests => 6;
+  plan tests => 7;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
 
@@ -365,6 +367,9 @@ subtest 'load_missing_moviename_run' => sub {
   my $r = $rw_rs->next;
   is ($r->movie_name, q[m64178e_230613_122744],
       'correct movie name for TRACTION-RUN-624 well A1');
+  is ($r->plate_number, undef,
+      'correct undefined plate number for TRACTION-RUN-624 well A1');
+
 
   my $rw_rs2 = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
     ({pac_bio_run_name => 'TRACTION-RUN-624', well_label => 'B1'});
