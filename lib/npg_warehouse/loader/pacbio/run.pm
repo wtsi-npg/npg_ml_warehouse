@@ -22,6 +22,7 @@ Readonly::Scalar my $XML_TRACKING_FIELDS2 => 9;
 Readonly::Scalar my $SUBREADS             => q[subreads];
 Readonly::Scalar my $CCSREADS             => q[ccsreads];
 Readonly::Scalar my $MULTIPLATE_TYPE      => q[Revio];
+Readonly::Scalar my $XML_ERROR            => q[PacBio.Core.IO.PBIOException];
 
 =head1 NAME
 
@@ -361,7 +362,7 @@ sub _well_tracking_info {
   my (%well_tracking_info, $tracking);
   my $errors = 0;
 
-  if ($run->{'dataModel'} ) {
+  if ($run->{'dataModel'} && $run->{'dataModel'} !~ m{$XML_ERROR}sxm ) {
     try {
       my $dom    =  XML::LibXML->load_xml(string => $run->{'dataModel'});
       my $prefix = q[];
@@ -394,6 +395,10 @@ sub _well_tracking_info {
       $self->error('Failed to get expected XML info for ', $run->{'name'},' subset ', $id);
     }
   }
+  if ($run->{'dataModel'} && $run->{'dataModel'} =~ m{$XML_ERROR}sxm ) {
+    $self->warn('Unable to parse  XML for ',  $run->{'name'},' subset ', $id);
+  }
+
   return \%well_tracking_info;
 }
 
