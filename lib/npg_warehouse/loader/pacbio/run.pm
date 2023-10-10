@@ -362,41 +362,44 @@ sub _well_tracking_info {
   my (%well_tracking_info, $tracking);
   my $errors = 0;
 
-  if ($run->{'dataModel'} && $run->{'dataModel'} !~ m{$XML_ERROR}sxm ) {
-    try {
-      my $dom    =  XML::LibXML->load_xml(string => $run->{'dataModel'});
-      my $prefix = q[];
+  if ($run->{'dataModel'} ){
 
-      my @subsets;
-      if (defined $dom->getElementsByTagName('pbds:SubreadSet')->[0]) {
-          @subsets = $dom->getElementsByTagName('pbds:SubreadSet');
-          $prefix = q[pbmeta:];
-      } elsif (defined $dom->getElementsByTagName('SubreadSet')->[0]) {
-          @subsets = $dom->getElementsByTagName('SubreadSet');
+    ## corrupt XML is causing a segfault even in the try-catch so explicitly avoid 
+    if( $run->{'dataModel'} !~ m{$XML_ERROR}sxm ) {
+      try {
+        my $dom    =  XML::LibXML->load_xml(string => $run->{'dataModel'});
+        my $prefix = q[];
+
+        my @subsets;
+        if (defined $dom->getElementsByTagName('pbds:SubreadSet')->[0]) {
+            @subsets = $dom->getElementsByTagName('pbds:SubreadSet');
+            $prefix = q[pbmeta:];
+        } elsif (defined $dom->getElementsByTagName('SubreadSet')->[0]) {
+            @subsets = $dom->getElementsByTagName('SubreadSet');
+        }
+
+        foreach my $sub ( @subsets ) {
+          my $idx   = $sub->getAttribute('UniqueId');
+          next if $id ne $idx;
+
+          $tracking = $self->_well_tracking_subset_parser($prefix, $sub);
+        }
+      } catch {
+        $self->error('Errors getting info for ', $run->{'name'},' subset ', $id, $_);
+        $errors++;
+      };
+
+      if ($errors < 1 && defined $tracking) {
+        %well_tracking_info = %{$tracking};
       }
 
-      foreach my $sub ( @subsets ) {
-        my $idx   = $sub->getAttribute('UniqueId');
-        next if $id ne $idx;
-
-        $tracking = $self->_well_tracking_subset_parser($prefix, $sub);
+      if ((scalar keys %well_tracking_info < $XML_TRACKING_FIELDS) ||
+          (scalar keys %well_tracking_info > $XML_TRACKING_FIELDS2) ) {
+        $self->error('Failed to get expected XML info for ', $run->{'name'},' subset ', $id);
       }
-    } catch {
-      $self->error('Errors getting info for ', $run->{'name'},' subset ', $id, $_);
-      $errors++;
-    };
-
-    if ($errors < 1 && defined $tracking) {
-      %well_tracking_info = %{$tracking};
+    } else {
+      $self->warn('Unable to parse  XML for ',  $run->{'name'},' subset ', $id);
     }
-
-    if ((scalar keys %well_tracking_info < $XML_TRACKING_FIELDS) ||
-        (scalar keys %well_tracking_info > $XML_TRACKING_FIELDS2) ) {
-      $self->error('Failed to get expected XML info for ', $run->{'name'},' subset ', $id);
-    }
-  }
-  if ($run->{'dataModel'} && $run->{'dataModel'} =~ m{$XML_ERROR}sxm ) {
-    $self->warn('Unable to parse  XML for ',  $run->{'name'},' subset ', $id);
   }
 
   return \%well_tracking_info;
