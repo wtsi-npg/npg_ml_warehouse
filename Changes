@@ -1,6 +1,8 @@
 LIST OF CHANGES
 
  - Minor PacBio run loader tweak to avoid trying to parse garbage XML
+ - Ensure that pull requests to the master branch source dependencies from
+   master branches (devel branch was hardcoded).
 
 release 50.1.0
  - Switch to Perlbrew to obtain multiple Perl versions
