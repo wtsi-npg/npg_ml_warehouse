@@ -39,6 +39,7 @@ Readonly::Hash   my %AUTOQC_MAPPING  => {
                            'adapters_percent_reverse_read' => 'reverse_percent_contam_reads',
                          },
      pulldown_metrics => { 'mean_bait_coverage'      => 'mean_bait_coverage',
+                           'mean_bait_target_coverage' => 'mean_target_coverage',
                            'on_bait_percent'         => 'on_bait_bases_percent',
                            'on_or_near_bait_percent' => 'selected_bases_percent',
                          },
@@ -438,6 +439,8 @@ sub _bam_flagstats {
                 filter length mapped_reads mapped_bases
                 proper_pair_mapped_reads coverage_threshold 
                 percent_gt_coverage_threshold
+                autosome_filter autosome_length
+                autosome_mapped_bases
                 autosome_coverage_threshold
                 autosome_percent_gt_coverage_threshold
                 )) {
