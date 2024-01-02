@@ -450,7 +450,7 @@ subtest 'retrieve gbs and generic data' => sub {
 };
 
 subtest 'retrieve target stats data' => sub {
-  plan tests => 13;
+  plan tests => 16;
 
   my $id_run = 27116;
   lives_ok {$schema_npg->resultset('Run')->update_or_create({folder_path_glob => $folder_glob, id_run => $id_run, })}
@@ -470,6 +470,10 @@ subtest 'retrieve target stats data' => sub {
   cmp_ok(sprintf('%.2f',$auto->{$d}->{target_mapped_reads}), q(==), 58704583, 'target - target_mapped_reads');
   cmp_ok(sprintf('%.2f',$auto->{$d}->{target_percent_gt_coverage_threshold}), q(==), 0.15, 'target - target_percent_gt_coverage_threshold');
   cmp_ok(sprintf('%.2f',$auto->{$d}->{target_proper_pair_mapped_reads}), q(==), 57355728, 'target - target_proper_pair_mapped_reads');
+
+  is ($auto->{$d}->{target_autosome_filter}, 'F0xF04_target_autosome',  'target - target_autosome_filter');
+  cmp_ok(sprintf('%.2f',$auto->{$d}->{target_autosome_length}), q(==), '2762956253', 'target - target_autosome_length');
+  cmp_ok(sprintf('%.2f',$auto->{$d}->{target_autosome_mapped_bases}), q(==), 8282053108, 'target - target_autosome_mapped_bases');
   cmp_ok(sprintf('%.2f',$auto->{$d}->{target_autosome_coverage_threshold}), q(==), 15, 'target - target_autosome_coverage_threshold');
   cmp_ok(sprintf('%.2f',$auto->{$d}->{target_autosome_percent_gt_coverage_threshold}), q(==), 0.17, 'target - target_autosome_percent_gt_coverage_threshold');
   cmp_ok(sprintf('%.2f',$auto->{$d}->{nrd_percent}), q(==), 0.00, 'nrd');

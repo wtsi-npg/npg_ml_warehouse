@@ -377,7 +377,7 @@ subtest 'indexed run' => sub {
 };
 
 subtest 'indexed run' => sub {
-  plan tests => 38;
+  plan tests => 39;
 
   my $id_run = 6624;
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
@@ -446,6 +446,7 @@ subtest 'indexed run' => sub {
 
   $plex = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run=>$id_run,position=>3,tag_index=>1})->first;
   cmp_ok(sprintf('%.2f',$plex->mean_bait_coverage()), q(==), 41.49, 'mean bait coverage');
+  cmp_ok(sprintf('%.2f',$plex->mean_bait_target_coverage()), q(==), 44.32, 'mean target coverage');
   cmp_ok(sprintf('%.2f',$plex->on_bait_percent()), q(==), 68.06, 'on bait percent');
   cmp_ok(sprintf('%.2f',$plex->on_or_near_bait_percent()), q(==), 88.92, 'on or near bait percent');
   is($plex->qc, 1, 'qc value 1');
