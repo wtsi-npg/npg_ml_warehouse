@@ -1,5 +1,11 @@
 LIST OF CHANGES
 
+release 50.3.0
+ - Minor change to Illumina product metrics loader to include extra metrics
+   for BGE libraries.
+ - Ensure that pull requests to the master branch source dependencies from
+   master branches (devel branch was hardcoded).
+
 release 50.2.0
  - Minor PacBio run loader tweak to avoid trying to parse garbage XML
 
