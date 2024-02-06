@@ -240,7 +240,7 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis' => sub {
 };
 
 subtest 'load_completed_run_on_instrument_deplexing_analysis2' => sub {
-  plan tests => 14;
+  plan tests => 18;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
 
@@ -272,6 +272,14 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis2' => sub {
   is ($r->hifi_bases_in_barcoded_reads, q[93682134754],
      'correct num of hifi bases in barcoded reads for run TR539 well C1');
   is ($r->plate_number, 1, 'correct plate number 1 for run TR539 well C1');
+
+  my $id = $r->id_pac_bio_rw_metrics_tmp;
+  my $pr = $wh_schema->resultset($PRODUCT_TABLE_NAME)->search({id_pac_bio_rw_metrics_tmp => $id,});
+  is ($pr->count, 1, '1 loaded row found for run TR539 well C1 in pac_bio_product_metrics');
+  my $p = $pr->next;
+  is ($p->hifi_read_bases, q[93682134754], 'correct hifi read bases for run TR539 well C1 barcode bc2073');
+  is ($p->hifi_num_reads, q[7861277], 'correct hifi reads for run TR539 well C1 barcode bc2073');
+  is ($p->hifi_bases_percent, q[99.71], 'correct hifi reads for run TR539 well C1 barcode bc2073');
 
 };
 

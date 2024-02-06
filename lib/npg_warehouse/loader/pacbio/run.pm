@@ -19,10 +19,11 @@ Readonly::Scalar my $PRODUCT_TABLE_NAME   => q[PacBioProductMetric];
 Readonly::Scalar my $MIN_SW_VERSION       => 10;
 Readonly::Scalar my $XML_TRACKING_FIELDS  => 6;
 Readonly::Scalar my $XML_TRACKING_FIELDS2 => 9;
-Readonly::Scalar my $SUBREADS             => q[subreads];
-Readonly::Scalar my $CCSREADS             => q[ccsreads];
 Readonly::Scalar my $MULTIPLATE_TYPE      => q[Revio];
 Readonly::Scalar my $XML_ERROR            => q[PacBio.Core.IO.PBIOException];
+Readonly::Scalar my $SUBREADS             => q[subreads];
+
+Readonly::Scalar our $CCSREADS            => q[ccsreads];
 
 =head1 NAME
 

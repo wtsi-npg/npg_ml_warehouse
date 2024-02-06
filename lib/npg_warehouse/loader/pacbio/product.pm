@@ -1,8 +1,10 @@
 package npg_warehouse::loader::pacbio::product;
 
-use Moose::Role;
-use Readonly;
 use English qw[-no_match_vars];
+use JSON;
+use Moose::Role;
+use Perl6::Slurp;
+use Readonly;
 use WTSI::DNAP::Warehouse::Schema::Result::PacBioProductMetric;
 
 with 'npg_warehouse::loader::pacbio::base';
@@ -14,6 +16,9 @@ Readonly::Scalar my $RUN_TABLE_NAME      => q[PacBioRun];
 Readonly::Scalar my $RUN_WELL_TABLE_NAME => q[PacBioRunWellMetric];
 Readonly::Scalar my $ID_SCRIPT           => q[generate_pac_bio_id];
 Readonly::Scalar my $ID_LENGTH           => 64;
+Readonly::Scalar my $BARCODE_REPORT_NAME => q[Report barcode];
+Readonly::Scalar my $IDX_DEFAULT_NAME    => q[default--default];
+Readonly::Scalar my $HUNDRED             => 100;
 
 
 =head1 NAME
@@ -52,24 +57,51 @@ sub product_data {
       my $pn         = $well->{'plate_number'};
       my $query = { pac_bio_run_name => $run_name, well_label => $well_label, };
       if (defined $pn) { $query->{plate_number} = $pn; }
-
       my $pac_bio_run = $rs->search($query);
+
+      my $bcdata;
+      my $rt = $npg_warehouse::loader::pacbio::run::CCSREADS;
+      if (defined $well->{'ccs_execution_mode'} &&
+        $well->{'ccs_execution_mode'} eq 'OnInstrument' &&
+        defined $well->{'sl_ccs_uuid'}) {
+        $bcdata = $self->_bc_deplex_info($well->{'sl_ccs_uuid'},$rt);
+      }
 
       # The value for id product in run_well_metrics is not reused so that
       # samples from the same well with different tags and deplexed reads can
       # be differentiated.
       while (my $row = $pac_bio_run->next) {
-        my $tags = $row->get_tags;
+        my $tags     = $row->get_tags;
+        my $sm_tname = $self->_make_sm_tname($row);
 
         my $id_product = $self->generate_product_id(
           $run_name, $well_label, $tags, $pn);
-        push @product_data,
-          { 'id_pac_bio_tmp'     => $row->id_pac_bio_tmp,
-            'pac_bio_run_name'   => $run_name,
-            'well_label'         => $well_label,
-            'plate_number'       => $pn,
-            'id_pac_bio_product' => $id_product,
+
+        my $product =
+          { 'id_pac_bio_tmp'             => $row->id_pac_bio_tmp,
+            'pac_bio_run_name'           => $run_name,
+            'well_label'                 => $well_label,
+            'plate_number'               => $pn,
+            'id_pac_bio_product'         => $id_product,
+            'barcode_quality_score_mean' => $self->_get_qual_metric
+              ('barcode_quality_score_mean', $well, $sm_tname, $bcdata),
+            'hifi_read_bases'            => $self->_get_qual_metric
+              ('hifi_read_bases', $well, $sm_tname, $bcdata),
+            'hifi_num_reads'             => $self->_get_qual_metric
+              ('hifi_num_reads', $well, $sm_tname, $bcdata),
+            'hifi_read_length_mean'      => $self->_get_qual_metric
+              ('hifi_read_length_mean', $well, $sm_tname, $bcdata),
+            'hifi_read_quality_mean'     => $self->_get_qual_metric
+              ('hifi_read_quality_mean', $well, $sm_tname, $bcdata, 1),
           };
+
+        if (defined $product->{'hifi_read_bases'} && defined $well->{'hifi_read_bases'}) {
+          my $perc = sprintf '%.2f',
+            (($product->{'hifi_read_bases'}/$well->{'hifi_read_bases'}) * $HUNDRED);
+          $product->{'hifi_bases_percent'} = $perc;
+        }
+
+        push @product_data, $product;
       }
     }
   }
@@ -166,6 +198,89 @@ sub _get_run_well_fk {
   return $fk;
 }
 
+sub _bc_deplex_info {
+  my ($self, $id, $type) = @_;
+
+  my $reports  = $self->pb_api_client->query_dataset_reports($type, $id);
+
+  my $decoded;
+  foreach my $rep(@{$reports}) {
+    next if $rep->{dataStoreFile}->{name} ne $BARCODE_REPORT_NAME;
+    if ($rep->{dataStoreFile}->{path} && -f $rep->{dataStoreFile}->{path}) {
+      my $file_contents = slurp $rep->{dataStoreFile}->{path};
+      $decoded = decode_json($file_contents);
+    }
+  }
+
+  my %binfo; # data stored by barcode
+  my %dinfo; # data hash to return
+
+  my %header = (
+    'Barcode Quality' => 'barcode_quality_score_mean',
+    'HiFi Yield (bp)' => 'hifi_read_bases',
+    'HiFi Reads'      => 'hifi_num_reads',
+    'HiFi Read Length (mean, bp)'  => 'hifi_read_length_mean',
+    'HiFi Read Quality (mean, QV)' => 'hifi_read_quality_mean',
+    );
+
+  if (defined $decoded && defined $decoded->{'tables'} ) {
+    foreach my $table ( @{$decoded->{'tables'}} ) {
+      foreach my $column ( @{$table->{'columns'}} ) {
+        if (defined $column->{'values'} && defined $column->{'values'}->[0]) {
+          if($column->{'header'} eq 'Barcode'){
+            my $count = 0;
+            %binfo = map { $count++ => $_ } @{$column->{'values'}};
+          }
+        }
+      }
+      foreach my $column ( @{$table->{'columns'}} ) {
+        if (defined $column->{'values'} && defined $column->{'values'}->[0] &&
+          defined $header{$column->{'header'}}) {
+          my $c = 0;
+          my %temp = map { $c++ => $_ } @{$column->{'values'}};
+          foreach my $t(keys %temp){
+            $dinfo{$binfo{$t}}{$header{$column->{'header'}}} = $temp{$t};
+          }
+        }
+      }
+    }
+  }
+  return \%dinfo;
+}
+
+sub _make_sm_tname {
+  my($self, $row) = @_;
+  my $tname;
+  if(defined $row->tag_identifier && defined $row->tag2_identifier) {
+    $tname = $row->tag_identifier .q[--]. $row->tag2_identifier;
+  } elsif (defined $row->tag_identifier) {
+    $tname = $row->tag_identifier .q[--]. $row->tag_identifier;
+  }
+  return($tname);
+}
+
+sub _get_qual_metric {
+  my($self, $type, $well, $sm_tname, $bcdata, $trimq) = @_;
+
+  my $value;
+  if ( defined $sm_tname && $bcdata->{$sm_tname}{$type} ) {
+    $value = $bcdata->{$sm_tname}{$type};
+  } elsif ( ! defined $sm_tname ) {
+    ## check for default barcode results and if
+    ## not present fall back to cell level results
+    if ( $bcdata->{$IDX_DEFAULT_NAME}{$type} ) {
+      $value = $bcdata->{$IDX_DEFAULT_NAME}{$type};
+    } elsif ( defined $well->{$type} ) {
+      $value = $well->{$type};
+    }
+  }
+
+  if (defined $value && defined $trimq) {
+    $value =~ s/^Q//smx;
+  }
+
+  return $value;
+}
 
 no Moose::Role;
 
@@ -181,7 +296,13 @@ __END__
 
 =over
 
+=item English
+
+=item JSON
+
 =item Moose::Role
+
+=item Perl6::Slurp
 
 =item Readonly
 
