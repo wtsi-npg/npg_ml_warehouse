@@ -250,7 +250,8 @@ sub _bc_deplex_info {
 
 sub _make_sm_tname {
   my($self, $row) = @_;
-  my $tname;
+
+  my $tname; ## the tag identifier used in SMRT Link
   if(defined $row->tag_identifier && defined $row->tag2_identifier) {
     $tname = $row->tag_identifier .q[--]. $row->tag2_identifier;
   } elsif (defined $row->tag_identifier) {

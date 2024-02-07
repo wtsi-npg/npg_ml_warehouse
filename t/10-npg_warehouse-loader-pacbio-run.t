@@ -10,7 +10,7 @@ use Perl6::Slurp;
 use Readonly;
 use Test::Exception;
 use Test::LWP::UserAgent;
-use Test::More tests => 13;
+use Test::More tests => 14;
 
 use npg_testing::db;
 
@@ -281,6 +281,47 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis2' => sub {
   is ($p->hifi_num_reads, q[7861277], 'correct hifi reads for run TR539 well C1 barcode bc2073');
   is ($p->hifi_bases_percent, q[99.71], 'correct hifi reads for run TR539 well C1 barcode bc2073');
 
+};
+
+subtest 'load_completed_run_on_instrument_deplexing_analysis3' => sub {
+## test default-default barcode (TRACTION-RUN-1079, plate 1, well C1)
+  plan tests => 14;
+
+  my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
+
+  my @load_args = (dry_run       => '0',
+                   pb_api_client => $pb_api,
+                   mlwh_schema   => $wh_schema,
+                   run_uuid      => q[b1fd8ec1-a27f-4d09-a844-4803789b1eda],
+                   hostname      => q[blah.sanger.ac.uk]);
+
+  my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
+  my ($processed, $loaded, $errors) = $loader->load_run;
+  cmp_ok($loaded, '==', 1, "Loaded 1 completed run (OnInstrument 3)");
+  cmp_ok($errors, '==', 0, "Loaded 1 completed run (OnInstrument 3) with no errors");
+
+  my $rs = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
+    ({pac_bio_run_name => 'TRACTION-RUN-1079', well_label => 'C1'});
+  is ($rs->count, 1, '1 loaded row found for run TR1079 well C1 in pac_bio_run_well_metrics');
+  my $r = $rs->next;
+  is ($r->ccs_execution_mode, q[OnInstrument], 'correct process type for run TR1079 well C1');
+
+  is ($r->hifi_num_reads, q[8433887], 'correct hifi reads for run TR1079 well C1');
+  is ($r->hifi_read_bases, q[86602249907], 'correct hifi read bases for run TR1079 well C1');
+  is ($r->hifi_low_quality_num_reads, undef, 'correct hifi low quality reads for run TR1079 well C1'); 
+  is ($r->hifi_barcoded_reads, q[8318930], 'correct num of hifi barcoded reads for run TR1079 well C1'); 
+  is ($r->hifi_bases_in_barcoded_reads, q[85416151678],
+     'correct num of hifi bases in barcoded reads for run TR1079 well C1');
+  is ($r->plate_number, 1, 'correct plate number 1 for run TR1079 well C1');
+
+
+  my $id1 = $r->id_pac_bio_rw_metrics_tmp;
+  my $pr = $wh_schema->resultset($PRODUCT_TABLE_NAME)->search({id_pac_bio_rw_metrics_tmp => $id1,});
+  is ($pr->count, 1, '1 loaded row found for run TR1079 well C1 in pac_bio_product_metrics');
+  my $p = $pr->next;
+  is ($p->hifi_read_bases, q[85416151678], 'correct hifi read bases for run TR539 well C1 barcode default');
+  is ($p->hifi_num_reads, q[8318930], 'correct hifi reads for run TR539 well C1 barcode default');
+  is ($p->hifi_bases_percent, q[98.63], 'correct hifi reads for run TR539 well C1 barcode default');
 };
 
 subtest 'load_in_progress_run' => sub {
