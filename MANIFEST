@@ -1,5 +1,4 @@
 .dir-locals
-.github/workflows/testing_and_building_repo.yml
 bin/npg_external_report2ml_warehouse
 bin/npg_irods_locations2ml_warehouse
 bin/npg_manifest4study
@@ -33,7 +32,6 @@ lib/npg_warehouse/loader/pacbio/run.pm
 lib/npg_warehouse/loader/pacbio/qc_state.pm
 MANIFEST			This list of files
 README
-scripts/install_npg_perl_dependencies.sh
 scripts/npg_mlwarehouse_link_products
 t/00-critic.t
 t/00-distribution.t
