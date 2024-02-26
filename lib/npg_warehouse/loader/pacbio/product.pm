@@ -83,19 +83,14 @@ sub product_data {
             'well_label'                 => $well_label,
             'plate_number'               => $pn,
             'id_pac_bio_product'         => $id_product,
-            'barcode_quality_score_mean' => $self->_get_qual_metric
-              ('barcode_quality_score_mean', $well, $sm_tname, $bcdata),
-            'hifi_read_bases'            => $self->_get_qual_metric
-              ('hifi_read_bases', $well, $sm_tname, $bcdata),
-            'hifi_num_reads'             => $self->_get_qual_metric
-              ('hifi_num_reads', $well, $sm_tname, $bcdata),
-            'hifi_read_length_mean'      => $self->_get_qual_metric
-              ('hifi_read_length_mean', $well, $sm_tname, $bcdata),
-            'hifi_read_quality_mean'     => $self->_get_qual_metric
-              ('hifi_read_quality_mean', $well, $sm_tname, $bcdata, 1),
           };
 
-        if (defined $product->{'hifi_read_bases'} && defined $well->{'hifi_read_bases'}) {
+        foreach my $column_name
+            (qw/ barcode_quality_score_mean hifi_read_bases hifi_num_reads hifi_read_length_mean/) {
+          $product->{$column_name} = $self->_get_qual_metric($column_name, $well, $sm_tname, $bcdata);
+        }
+
+        if (defined $product->{'hifi_read_bases'} && $well->{'hifi_read_bases'}) {
           my $perc = sprintf '%.2f',
             (($product->{'hifi_read_bases'}/$well->{'hifi_read_bases'}) * $HUNDRED);
           $product->{'hifi_bases_percent'} = $perc;
@@ -219,9 +214,8 @@ sub _bc_deplex_info {
     'Barcode Quality' => 'barcode_quality_score_mean',
     'HiFi Yield (bp)' => 'hifi_read_bases',
     'HiFi Reads'      => 'hifi_num_reads',
-    'HiFi Read Length (mean, bp)'  => 'hifi_read_length_mean',
-    'HiFi Read Quality (mean, QV)' => 'hifi_read_quality_mean',
-    );
+    'HiFi Read Length (mean, bp)' => 'hifi_read_length_mean',
+  );
 
   if (defined $decoded && defined $decoded->{'tables'} ) {
     foreach my $table ( @{$decoded->{'tables'}} ) {
@@ -261,7 +255,7 @@ sub _make_sm_tname {
 }
 
 sub _get_qual_metric {
-  my($self, $type, $well, $sm_tname, $bcdata, $trimq) = @_;
+  my($self, $type, $well, $sm_tname, $bcdata) = @_;
 
   my $value;
   if ( defined $sm_tname && $bcdata->{$sm_tname}{$type} ) {
@@ -274,10 +268,6 @@ sub _get_qual_metric {
     } elsif ( defined $well->{$type} ) {
       $value = $well->{$type};
     }
-  }
-
-  if (defined $value && defined $trimq) {
-    $value =~ s/^Q//smx;
   }
 
   return $value;
