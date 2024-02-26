@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - PacBio - minor tweak to hifi yield values due to SMRT Link v13
+
 release 50.3.0
  - Minor change to Illumina product metrics loader to include extra metrics
    for BGE libraries.

@@ -1,0 +1,99 @@
+{
+    "_comment": "Generated with pbcommand version  at 2024-02-17T05:22:37.137589",
+    "attributes": [
+        {
+            "id": "raw_data_report.nbases",
+            "name": "Polymerase Read Bases",
+            "value": 689116430909
+        },
+        {
+            "id": "raw_data_report.nreads",
+            "name": "Polymerase Reads",
+            "value": 7080264
+        },
+        {
+            "id": "raw_data_report.read_length",
+            "name": "Polymerase Read Length (mean)",
+            "value": 97329
+        },
+        {
+            "id": "raw_data_report.read_n50",
+            "name": "Polymerase read length (N50)",
+            "value": 175750
+        },
+        {
+            "id": "raw_data_report.insert_length",
+            "name": "Polymerase read length longest subread length (mean)",
+            "value": 13138
+        },
+        {
+            "id": "raw_data_report.insert_n50",
+            "name": "Polymerase read length longest subread length (N50)",
+            "value": 14750
+        },
+        {
+            "id": "raw_data_report.unique_molecular_yield",
+            "name": "Unique Molecular Yield",
+            "value": 85616066560
+        }
+    ],
+    "dataset_uuids": [
+        "6ec38727-870e-4729-bb29-c8bec79610a3"
+    ],
+    "id": "raw_data_report",
+    "plotGroups": [
+        {
+            "id": "raw_data_report.read_length_plot_group",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "Polymerase Read Length",
+                    "id": "raw_data_report.read_length_plot_group.read_length_plot_0",
+                    "image": "readLenDist0.png",
+                    "plotType": "image",
+                    "thumbnail": "readLenDist0_thumb.png",
+                    "title": "Polymerase Read Length"
+                }
+            ],
+            "thumbnail": "readLenDist0_thumb.png",
+            "title": "Polymerase Read Length"
+        },
+        {
+            "id": "raw_data_report.hexbin_length_plot_group",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "Longest Subread Length Versus Polymerase Read Length",
+                    "id": "raw_data_report.hexbin_length_plot_group.hexbin_length_plot",
+                    "image": "hexbin_length_plot.png",
+                    "plotType": "image",
+                    "thumbnail": "hexbin_length_plot_thumb.png",
+                    "title": "Longest Subread Length Versus Polymerase Read Length"
+                }
+            ],
+            "thumbnail": "hexbin_length_plot_thumb.png",
+            "title": "Longest Subread Length Versus Polymerase Read Length"
+        },
+        {
+            "id": "raw_data_report.base_yield_plot_group",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "Base Yield Density",
+                    "id": "raw_data_report.base_yield_plot_group.base_yield_plot",
+                    "image": "base_yield_plot.png",
+                    "plotType": "image",
+                    "thumbnail": "base_yield_plot_thumb.png",
+                    "title": "Base Yield Density"
+                }
+            ],
+            "thumbnail": "base_yield_plot_thumb.png",
+            "title": "Base Yield Density"
+        }
+    ],
+    "tables": [],
+    "tags": [],
+    "title": "Raw Data Report",
+    "uuid": "5ca04252-4fce-406d-8730-b89c08e58881",
+    "version": "1.0.1"
+}

@@ -10,7 +10,7 @@ use Perl6::Slurp;
 use Readonly;
 use Test::Exception;
 use Test::LWP::UserAgent;
-use Test::More tests => 13;
+use Test::More tests => 14;
 
 use npg_testing::db;
 
@@ -165,6 +165,7 @@ subtest 'load_completed_run_off_instrument_analysis' => sub {
   isnt($r4->id_pac_bio_product, $r3->id_pac_bio_product, 'product ids are different for different wells');
 };
 
+
 subtest 'load_completed_run_mixed_analysis' => sub {
   plan tests => 16;
 
@@ -275,6 +276,41 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis2' => sub {
 
 };
 
+
+subtest 'load_completed_run_on_instrument_deplexing_analysis4' => sub {
+  plan tests => 8;
+
+  my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
+
+  my @load_args = (dry_run       => '0',
+                   pb_api_client => $pb_api,
+                   mlwh_schema   => $wh_schema,
+                   run_uuid      => q[47cb98f3-b95d-4cec-95d2-1667afc118d1],
+                   hostname      => q[blah.sanger.ac.uk]);
+
+  my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
+  my ($processed, $loaded, $errors) = $loader->load_run;
+
+  cmp_ok($loaded, '==', 1, "Loaded 1 completed post v13 run");
+  cmp_ok($errors, '==', 0, "Loaded 1 completed post v13 run with no errors");
+
+  my $rs = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
+    ({pac_bio_run_name => 'TRACTION-RUN-1125', well_label => 'C1'});
+  is ($rs->count, 1, '1 loaded row found for run TR1125 well C1 in pac_bio_run_well_metrics');
+  my $r = $rs->next;
+
+  is ($r->ccs_execution_mode, q[OnInstrument], 'correct process type for run TR1125 well C1');
+  is ($r->hifi_num_reads, q[4100198], 'correct hifi reads for run TR1125 well C1');
+
+  is ($r->hifi_read_bases, q[43121860790],
+     'correct num of hifi bases for run TR1125 well C1');
+  is ($r->hifi_bases_in_barcoded_reads, q[43031425903],
+     'correct num of hifi bases in barcoded reads for run TR1125 well C1');
+  is ($r->plate_number, 1, 'correct plate number 1 for run TR1125 well C1');
+
+};
+
+
 subtest 'load_in_progress_run' => sub {
   plan tests => 7;
 
@@ -290,7 +326,7 @@ subtest 'load_in_progress_run' => sub {
   my ($processed, $loaded, $errors) = $loader->load_run;
 
   cmp_ok($loaded, '==', 1, "Loaded 1 in progress run");
-  cmp_ok($errors, '==', 0, "Loaded 1 in progress run");
+  cmp_ok($errors, '==', 0, "Loaded 1 in progress run with no errors");
 
   my $rs = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search({pac_bio_run_name => '80863',});
   is ($rs->count, 4, '4 loaded rows found for run 80863 in pac_bio_run_well_metrics');
