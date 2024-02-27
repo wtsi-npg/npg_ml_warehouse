@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+ - Extend npg_warehouse::loader::pacbio::product to load metrics per (usually
+   deplexed) product.
+
 release 50.3.0
  - Minor change to Illumina product metrics loader to include extra metrics
    for BGE libraries.
