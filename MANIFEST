@@ -1,5 +1,4 @@
 .dir-locals
-.github/workflows/testing_and_building_repo.yml
 bin/npg_external_report2ml_warehouse
 bin/npg_irods_locations2ml_warehouse
 bin/npg_manifest4study
@@ -33,7 +32,6 @@ lib/npg_warehouse/loader/pacbio/run.pm
 lib/npg_warehouse/loader/pacbio/qc_state.pm
 MANIFEST			This list of files
 README
-scripts/install_npg_perl_dependencies.sh
 scripts/npg_mlwarehouse_link_products
 t/00-critic.t
 t/00-distribution.t
@@ -108,9 +106,11 @@ t/data/pacbio/smrtlink/dataset_ccsreads_reports/2cd2c381-6c75-4871-a0fe-f0fdb2fe
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/3656ec2e-8765-42d5-9ee6-af93d940740a.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/3ac4e562-fe29-4b8b-b409-3382a525835a.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/4405081b-5e7e-42f1-a0a3-df8cafd8b90e.json
+t/data/pacbio/smrtlink/dataset_ccsreads_reports/42cab92b-fee8-4abb-9980-763fdd1ed726.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/4caf5d4d-f993-8512-0a3e-ff69a3571fbf.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/4ffcbae1-4afe-48fc-836a-f25d507fcedb.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/513ebe5a-f398-457a-9e9d-c2cc659c4757.json
+t/data/pacbio/smrtlink/dataset_ccsreads_reports/605d3b33-8705-49cb-b039-79309933ebbc.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/634500ae-3fac-43e2-8eee-58db46bb65ec.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/656ec2e-8765-42d5-9ee6-af93d940740a.json
 t/data/pacbio/smrtlink/dataset_ccsreads_reports/6877122c-dc91-4e6b-93c0-45abee4c0a9b.json
@@ -217,6 +217,22 @@ t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-624/b25f237e-aae3-4e29-b3ac-
 t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-624/b25f237e-aae3-4e29-b3ac-982d542cf784/loading.report.json
 t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-624/b25f237e-aae3-4e29-b3ac-982d542cf784/m64178e_230614_172701.ccs_reports.json
 t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-624/b25f237e-aae3-4e29-b3ac-982d542cf784/raw_data.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-1079/42cab92b-fee8-4abb-9980-763fdd1ed726/adapter.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-1079/42cab92b-fee8-4abb-9980-763fdd1ed726/barcode.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-1079/42cab92b-fee8-4abb-9980-763fdd1ed726/ccs.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-1079/42cab92b-fee8-4abb-9980-763fdd1ed726/control.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-1079/42cab92b-fee8-4abb-9980-763fdd1ed726/detect_cpg_methyl.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-1079/42cab92b-fee8-4abb-9980-763fdd1ed726/loading.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-1079/42cab92b-fee8-4abb-9980-763fdd1ed726/m84047_240124_152517_s1.ccs_report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-1079/42cab92b-fee8-4abb-9980-763fdd1ed726/raw_data.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-1079/605d3b33-8705-49cb-b039-79309933ebbc/adapter.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-1079/605d3b33-8705-49cb-b039-79309933ebbc/barcode.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-1079/605d3b33-8705-49cb-b039-79309933ebbc/ccs.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-1079/605d3b33-8705-49cb-b039-79309933ebbc/control.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-1079/605d3b33-8705-49cb-b039-79309933ebbc/detect_cpg_methyl.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-1079/605d3b33-8705-49cb-b039-79309933ebbc/loading.report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-1079/605d3b33-8705-49cb-b039-79309933ebbc/m84047_240124_155540_s2.ccs_report.json
+t/data/pacbio/smrtlink/dataset_reports/TRACTION-RUN-1079/605d3b33-8705-49cb-b039-79309933ebbc/raw_data.report.json
 t/data/pacbio/smrtlink/dataset_subreads_reports/22efc39e-cebd-4816-924c-86c5e07e0f20.json
 t/data/pacbio/smrtlink/dataset_subreads_reports/50039d88-90cd-4477-b509-0a1e803aece9.json
 t/data/pacbio/smrtlink/dataset_subreads_reports/511f764d-e4d5-4dca-b24f-0fd2bc43c1f1.json
@@ -235,6 +251,7 @@ t/data/pacbio/smrtlink/runs_collections/773e3b36-f33b-438a-bee4-fe85f07154fa.jso
 t/data/pacbio/smrtlink/runs_collections/81913778-242d-401e-86c6-69bd4d619d8e.json
 t/data/pacbio/smrtlink/runs_collections/89dfd7ed-c17a-452b-85b4-526d4a035d0d.json
 t/data/pacbio/smrtlink/runs_collections/909d36e5-6385-4c2a-8886-72483eb6e31f.json
+t/data/pacbio/smrtlink/runs_collections/b1fd8ec1-a27f-4d09-a844-4803789b1eda.json
 t/data/pacbio/smrtlink/runs_collections/d4c8636a-25f3-4874-b816-b690bbe31b2c.json
 t/data/pacbio/smrtlink/runs/288f2be0-9c7c-4930-b1ff-0ad71edae556.json
 t/data/pacbio/smrtlink/runs/47cb98f3-b95d-4cec-95d2-1667afc118d1.json
@@ -243,6 +260,7 @@ t/data/pacbio/smrtlink/runs/773e3b36-f33b-438a-bee4-fe85f07154fa.json
 t/data/pacbio/smrtlink/runs/81913778-242d-401e-86c6-69bd4d619d8e.json
 t/data/pacbio/smrtlink/runs/89dfd7ed-c17a-452b-85b4-526d4a035d0d.json
 t/data/pacbio/smrtlink/runs/909d36e5-6385-4c2a-8886-72483eb6e31f.json
+t/data/pacbio/smrtlink/runs/b1fd8ec1-a27f-4d09-a844-4803789b1eda.json
 t/data/pacbio/smrtlink/runs/d4c8636a-25f3-4874-b816-b690bbe31b2c.json
 t/data/pacbio/smrtlink/runs/XXXXXXXX.json
 t/data/runfolders/run_params/RunParameters_NovaSeq.xml
