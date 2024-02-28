@@ -329,6 +329,8 @@ sub _well_qc_info {
     $qc{'control_read_length_mean'}    = $qc_all->{'Control Read Length Mean'};
     $qc{'local_base_rate'}             = $qc_all->{'Local Base Rate'};
     $qc{'hifi_barcoded_reads'}         = $qc_all->{'Barcoded HiFi Reads'};
+
+    ## Barcoded HiFi yield labelled Gb in v13 but value stored is still in bp
     $qc{'hifi_bases_in_barcoded_reads'} = defined $qc_all->{'Barcoded HiFi Yield (bp)'} ?
       $qc_all->{'Barcoded HiFi Yield (bp)'} : $qc_all->{'Barcoded HiFi yield (Gb)'};
   }

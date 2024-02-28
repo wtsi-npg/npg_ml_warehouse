@@ -345,7 +345,7 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis4' => sub {
 
   my $rs = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
     ({pac_bio_run_name => 'TRACTION-RUN-1125', well_label => 'C1'});
-  is ($rs->count, 1, '1 loaded row found for run TR1125 well C1 in pac_bio_run_well_metrics');
+  cmp_ok ($rs->count, '==', 1, '1 loaded row found for run TR1125 well C1 in pac_bio_run_well_metrics');
   my $r = $rs->next;
 
   is ($r->ccs_execution_mode, q[OnInstrument], 'correct process type for run TR1125 well C1');
