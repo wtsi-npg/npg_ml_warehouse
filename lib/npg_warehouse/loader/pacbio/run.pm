@@ -21,6 +21,8 @@ Readonly::Scalar my $XML_TRACKING_FIELDS  => 6;
 Readonly::Scalar my $XML_TRACKING_FIELDS2 => 9;
 Readonly::Scalar my $MULTIPLATE_TYPE      => q[Revio];
 Readonly::Scalar my $XML_ERROR            => q[PacBio.Core.IO.PBIOException];
+Readonly::Scalar my $JSON_ID              => q[id];
+Readonly::Scalar my $JSON_NAME            => q[name];
 Readonly::Scalar my $SUBREADS             => q[subreads];
 
 Readonly::Scalar our $CCSREADS            => q[ccsreads];
@@ -277,22 +279,22 @@ sub _ccs_info {
   my ($self, $id, $type) = @_;
 
   my $reports  = $self->pb_api_client->query_dataset_reports($type, $id);
-  my $ccs_all  = $self->_slurp_reports($reports);
+  my $ccs_all  = $self->_slurp_reports($reports, $JSON_ID);
 
   my %ccs;
-  if (scalar keys %{$ccs_all} > 0 && defined $ccs_all->{'HiFi Yield (bp)'}) {
-    $ccs{'hifi_read_bases'} = $ccs_all->{'HiFi Yield (bp)'};
-    $ccs{'hifi_num_reads'} = $ccs_all->{'HiFi Reads'};
-    $ccs{'hifi_read_length_mean'} = $ccs_all->{'HiFi Read Length (mean, bp)'};
-    if ($ccs_all->{'HiFi Read Quality (median)'} =~ /^Q?(\d+)$/smx) {
+  if (scalar keys %{$ccs_all} > 0 && defined $ccs_all->{'ccs2.number_of_ccs_reads'}) {
+    $ccs{'hifi_read_bases'} = $ccs_all->{'ccs2.total_number_of_ccs_bases'};
+    $ccs{'hifi_num_reads'}  = $ccs_all->{'ccs2.number_of_ccs_reads'};
+    $ccs{'hifi_read_length_mean'} = $ccs_all->{'ccs2.mean_ccs_readlength'};
+    if ($ccs_all->{'ccs2.median_accuracy'} =~ /^Q?(\d+)$/smx) {
       $ccs{'hifi_read_quality_median'} = $1;
     }
-    $ccs{'hifi_number_passes_mean'} = $ccs_all->{'HiFi Number of Passes (mean)'};
-    $ccs{'hifi_low_quality_read_bases'} = $ccs_all->{'<Q20 Yield (bp)'};
-    $ccs{'hifi_low_quality_num_reads'} = $ccs_all->{'<Q20 Reads'};
-    $ccs{'hifi_low_quality_read_length_mean'}  = $ccs_all->{'<Q20 Read Length (mean, bp)'};
-    if ($ccs_all->{'<Q20 Read Quality (median)'} &&
-        $ccs_all->{'<Q20 Read Quality (median)'} =~ /^Q?(\d+)$/smx) {
+    $ccs{'hifi_number_passes_mean'} = $ccs_all->{'ccs2.mean_npasses'};
+    $ccs{'hifi_low_quality_read_bases'} = $ccs_all->{'ccs2.total_number_of_ccs_bases_lq'};
+    $ccs{'hifi_low_quality_num_reads'} = $ccs_all->{'ccs2.n_low_quality_reads'};
+    $ccs{'hifi_low_quality_read_length_mean'}  = $ccs_all->{'ccs2.mean_ccs_readlength_lq'};
+    if ($ccs_all->{'ccs2.median_accuracy_lq'} &&
+        $ccs_all->{'ccs2.median_accuracy_lq'} =~ /^Q?(\d+)$/smx) {
       $ccs{'hifi_low_quality_read_quality_median'} = $1;
     }
   }
@@ -328,16 +330,21 @@ sub _well_qc_info {
     $qc{'control_read_length_mean'}    = $qc_all->{'Control Read Length Mean'};
     $qc{'local_base_rate'}             = $qc_all->{'Local Base Rate'};
     $qc{'hifi_barcoded_reads'}         = $qc_all->{'Barcoded HiFi Reads'};
-    $qc{'hifi_bases_in_barcoded_reads'} = $qc_all->{'Barcoded HiFi Yield (bp)'};
+
+    ## Barcoded HiFi yield labelled Gb in v13 but value stored is still in bp
+    $qc{'hifi_bases_in_barcoded_reads'} = defined $qc_all->{'Barcoded HiFi Yield (bp)'} ?
+      $qc_all->{'Barcoded HiFi Yield (bp)'} : $qc_all->{'Barcoded HiFi yield (Gb)'};
   }
   return \%qc;
 }
 
 sub _slurp_reports {
-  my($self, $reports) = @_;
+  my($self, $reports, $id_type) = @_;
 
   defined $reports or
     $self->logconfess('A defined reports argument is required');
+
+  not defined $id_type and $id_type = $JSON_NAME;
 
   my %contents;
   foreach my $rep (@{$reports}) {
@@ -347,7 +354,7 @@ sub _slurp_reports {
       my $decoded       = decode_json($file_contents);
       if (defined $decoded->{'attributes'} ) {
         foreach my $att ( @{$decoded->{'attributes'}} ) {
-          $contents{$att->{'name'}} = $att->{'value'};
+          $contents{$att->{$id_type}} = $att->{'value'};
         }
       }
     }

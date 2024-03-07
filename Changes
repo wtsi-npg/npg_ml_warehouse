@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+ - PacBio - minor tweak to hifi yield values due to SMRT Link v13
  - Extend npg_warehouse::loader::pacbio::product to load metrics per (usually
    deplexed) product.
 
