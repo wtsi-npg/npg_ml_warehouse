@@ -1,5 +1,7 @@
 [Subroutines::ProhibitUnusedPrivateSubroutines]
     private_name_regex = _(?!build_)\w+
+[Subroutines::ProhibitManyArgs]
+skip_object = 1
 [ValuesAndExpressions::ProhibitLongChainsOfMethodCalls]
     max_chain_length = 4
 [Documentation::RequirePodSections]

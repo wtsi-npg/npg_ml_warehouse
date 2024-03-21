@@ -1,5 +1,10 @@
 LIST OF CHANGES
 
+release 50.4.0
+ - PacBio - minor tweak to hifi yield values due to SMRT Link v13
+ - Extend npg_warehouse::loader::pacbio::product to load metrics per (usually
+   deplexed) product.
+
 release 50.3.0
  - Minor change to Illumina product metrics loader to include extra metrics
    for BGE libraries.
