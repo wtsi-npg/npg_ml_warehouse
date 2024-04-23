@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+ - Minor change npg_warehouse::loader::pacbio::product to incorporate
+   loading 1 new field.
+
 release 50.4.0
  - PacBio - minor tweak to hifi yield values due to SMRT Link v13
  - Extend npg_warehouse::loader::pacbio::product to load metrics per (usually
