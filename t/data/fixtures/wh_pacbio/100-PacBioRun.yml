@@ -529,7 +529,7 @@
   pac_bio_run_uuid: d5445a0c-121c-4394-8c38-d75d22e4c9bf
   cost_code: S10417
   id_lims: Traction
-  tag_identifier: bc2023
+  tag_identifier: bc2024
   tag_sequence: TCGCATGACTGAGTAT
   tag_set_id_lims: 9
   tag_set_name: Pacbio_96_barcode_plate_v3
@@ -558,7 +558,7 @@
   pac_bio_run_uuid: d5445a0c-121c-4394-8c38-d75d22e4c9bf
   cost_code: S10417
   id_lims: Traction
-  tag_identifier: bc2023
+  tag_identifier: bc2048
   tag_sequence: TCGCATGACTGAGTAT
   tag_set_id_lims: 9
   tag_set_name: Pacbio_96_barcode_plate_v3

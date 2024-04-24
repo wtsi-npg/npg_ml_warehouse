@@ -286,7 +286,7 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis2' => sub {
 
 subtest 'load_completed_run_on_instrument_deplexing_analysis3' => sub {
 ## test default-default barcode (TRACTION-RUN-1079, plate 1, well C1)
-  plan tests => 16;
+  plan tests => 18;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
 
@@ -325,11 +325,13 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis3' => sub {
   is ($p->hifi_num_reads, q[8318930], 'correct hifi reads for run TR1079 well C1 barcode default');
   is ($p->hifi_bases_percent, q[98.63], 'correct hifi reads for run TR1079 well C1 barcode default');
   is ($p->hifi_read_length_mean, q[10267], 'correct hifi read length mean for run TR1079 well C1 barcode default');
+  is ($p->barcode4deplexing, q[default--default], 'correct barcode4deplexing for run TR1079 well C1 barcode default');
+  is ($p->barcode_quality_score_mean, q[95], 'correct barcode quality score mean for run TR1079 well C1 barcode default');
 };
 
 
 subtest 'load_completed_run_on_instrument_deplexing_analysis4' => sub {
-  plan tests => 11;
+  plan tests => 18;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
 
@@ -361,6 +363,18 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis4' => sub {
   is ($r->hifi_num_reads, q[4100198], 'correct hifi reads for run TR1125 well C1');
   is ($r->hifi_read_length_mean, q[10517], 'correct hifi read length mean for run TR1125 well C1');
   is ($r->hifi_read_quality_median, q[41], 'correct hifi read quality median for run TR1125 well C1');
+
+  my $id1 = $r->id_pac_bio_rw_metrics_tmp;
+  my $pr = $wh_schema->resultset($PRODUCT_TABLE_NAME)->search({id_pac_bio_rw_metrics_tmp => $id1,});
+  is ($pr->count, 1, '1 loaded row found for run TR1125 well C1 in pac_bio_product_metrics');
+  my $p = $pr->next;
+  is ($p->hifi_read_bases, q[43031425903], 'correct hifi read bases for run TR1125 well C1 barcode default');
+  is ($p->hifi_num_reads, q[4091213], 'correct hifi reads for run TR1125 well C1 barcode default');
+  is ($p->hifi_bases_percent, q[99.79], 'correct hifi reads for run TR1125 well C1 barcode default');
+  is ($p->hifi_read_length_mean, q[10518], 'correct hifi read length mean for run TR1125 well C1 barcode default');
+  is ($p->barcode4deplexing, q[bc2048--bc2048], 'correct barcode4deplexing for run TR1125 well C1 barcode default');
+  is ($p->barcode_quality_score_mean, q[97.0100811177516], 'correct barcode quality score mean for run TR1125 well C1 barcode default');
+
 };
 
 
