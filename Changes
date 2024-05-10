@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+ - Removing Tidyp dependency from CI
  - Minor change npg_warehouse::loader::pacbio::product to incorporate
    loading 1 new field.
 
