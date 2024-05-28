@@ -86,7 +86,8 @@ sub product_data {
           };
 
         foreach my $column_name
-            (qw/ barcode_quality_score_mean hifi_read_bases hifi_num_reads hifi_read_length_mean/) {
+            (qw/barcode4deplexing barcode_quality_score_mean hifi_read_bases
+                hifi_num_reads hifi_read_length_mean/) {
           $product->{$column_name} = $self->_get_qual_metric($column_name, $well, $sm_tname, $bcdata);
         }
 
@@ -211,6 +212,7 @@ sub _bc_deplex_info {
   my %dinfo; # data hash to return
 
   my %header = (
+    'Barcode'         => 'barcode4deplexing',
     'Barcode Quality' => 'barcode_quality_score_mean',
     'HiFi Yield (bp)' => 'hifi_read_bases',
     'HiFi Reads'      => 'hifi_num_reads',

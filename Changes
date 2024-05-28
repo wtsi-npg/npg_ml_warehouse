@@ -1,5 +1,10 @@
 LIST OF CHANGES
 
+release 50.5.0 (2024-05-24)
+ - Removing Tidyp dependency from CI
+ - Minor change npg_warehouse::loader::pacbio::product to incorporate
+   loading 1 new field.
+
 release 50.4.0
  - PacBio - minor tweak to hifi yield values due to SMRT Link v13
  - Extend npg_warehouse::loader::pacbio::product to load metrics per (usually
