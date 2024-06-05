@@ -13,7 +13,6 @@ bin/npg_runs2mlwarehouse
 bin/warehouse_loader_launcher
 Build.PL
 Changes
-lib/npg_tracking/daemon/fkrepair.pm
 lib/npg_warehouse/fk_repair.pm
 lib/npg_warehouse/loader/autoqc.pm
 lib/npg_warehouse/loader/base.pm
@@ -51,7 +50,6 @@ t/10-npg_warehouse-loader-run.t
 t/10-npg_warehouse-loader-run_files.t
 t/10-npg_warehouse-loader-run_info.t
 t/20-npg_warehouse-loader-run.t
-t/30-npg_tracking-daemon-fkrepair.t
 t/data/fixtures/npg/000-InstrumentStatusDict.yml
 t/data/fixtures/npg/000-RunStatusDict.yml
 t/data/fixtures/npg/000-Tag.yml
