@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+release 51.0.0 (2024-07-25)
  - PacBio loader - include loading from 3 fields with changed names in
    SMRT Link output files
  - Remove a plugin for npg_tracking::daemon, which was used to demonise
