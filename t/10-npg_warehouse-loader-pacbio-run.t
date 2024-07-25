@@ -241,7 +241,7 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis' => sub {
 };
 
 subtest 'load_completed_run_on_instrument_deplexing_analysis2' => sub {
-  plan tests => 19;
+  plan tests => 21;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
 
@@ -274,6 +274,9 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis2' => sub {
      'correct num of hifi bases in barcoded reads for run TR539 well C1');
   is ($r->plate_number, 1, 'correct plate number 1 for run TR539 well C1');
   is ($r->hifi_read_length_mean, q[11916], 'correct hifi read length mean for run TR539 well C1');
+
+  is ($r->insert_length_mean, q[14958], 'correct insert length mean for run TR539 well C1');
+  is ($r->insert_length_n50, q[20250], 'correct insert length n50 for run TR539 well C1');
 
   my $id = $r->id_pac_bio_rw_metrics_tmp;
   my $pr = $wh_schema->resultset($PRODUCT_TABLE_NAME)->search({id_pac_bio_rw_metrics_tmp => $id,});
@@ -331,7 +334,7 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis3' => sub {
 
 
 subtest 'load_completed_run_on_instrument_deplexing_analysis4' => sub {
-  plan tests => 18;
+  plan tests => 23;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
 
@@ -363,6 +366,13 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis4' => sub {
   is ($r->hifi_num_reads, q[4100198], 'correct hifi reads for run TR1125 well C1');
   is ($r->hifi_read_length_mean, q[10517], 'correct hifi read length mean for run TR1125 well C1');
   is ($r->hifi_read_quality_median, q[41], 'correct hifi read quality median for run TR1125 well C1');
+
+  is ($r->polymerase_num_reads, q[7080264], 'correct polymerase reads for run TR1125 well C1');
+  is ($r->polymerase_read_length_mean, q[97329], 'correct polymerase mean read length for run TR1125 well C1');
+  is ($r->polymerase_read_length_n50, q[175750], 'correct polymerase read length n50 for run TR1125 well C1');
+  is ($r->insert_length_mean, q[13138], 'correct insert length mean for run TR1125 well C1');
+  is ($r->insert_length_n50, q[14750], 'correct insert length n50 for run TR1125 well C1');
+
 
   my $id1 = $r->id_pac_bio_rw_metrics_tmp;
   my $pr = $wh_schema->resultset($PRODUCT_TABLE_NAME)->search({id_pac_bio_rw_metrics_tmp => $id1,});
