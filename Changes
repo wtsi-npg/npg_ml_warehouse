@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - GitHub CI - updated deprecated v2 runner action to v3
+
 release 51.0.0 (2024-07-25)
  - PacBio loader - include loading from 3 fields with changed names in
    SMRT Link output files
