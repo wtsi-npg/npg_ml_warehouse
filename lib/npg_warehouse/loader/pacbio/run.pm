@@ -312,9 +312,15 @@ sub _well_qc_info {
     $qc{'polymerase_read_bases'}       = $qc_all->{'Polymerase Read Bases'};
     $qc{'polymerase_num_reads'}        = $qc_all->{'Polymerase Reads'};
     $qc{'polymerase_read_length_mean'} = $qc_all->{'Polymerase Read Length (mean)'};
-    $qc{'polymerase_read_length_n50'}  = $qc_all->{'Polymerase Read N50'};
-    $qc{'insert_length_mean'}          = $qc_all->{'Longest Subread Length (mean)'};
-    $qc{'insert_length_n50'}           = $qc_all->{'Longest Subread N50'};
+    $qc{'polymerase_read_length_n50'}  = defined $qc_all->{'Polymerase Read N50'} ?
+      $qc_all->{'Polymerase Read N50'} :
+      $qc_all->{'Polymerase read length (N50)'};
+    $qc{'insert_length_mean'}          = defined $qc_all->{'Longest Subread Length (mean)'} ?
+      $qc_all->{'Longest Subread Length (mean)'} :
+      $qc_all->{'Polymerase read length longest subread length (mean)'};
+    $qc{'insert_length_n50'}           = defined $qc_all->{'Longest Subread N50'} ?
+      $qc_all->{'Longest Subread N50'} :
+      $qc_all->{'Polymerase read length longest subread length (N50)'};
     $qc{'unique_molecular_bases'}      = $qc_all->{'Unique Molecular Yield'};
     $qc{'productive_zmws_num'}         = $qc_all->{'Productive ZMWs'};
     $qc{'p0_num'}                      = $qc_all->{'Productivity 0'};
