@@ -27,21 +27,21 @@ jobs:
             experimental: true
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: "Get all git tags"
         run: |
           git fetch --prune --unshallow --tags --force
           git describe --always
 
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
           architecture: 'x64'
 
       - name: "Cache Perl"
         id: cache-perl
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.PERL_CACHE }}
           key: ${{ runner.os }}-${{ matrix.perl }}-perl
@@ -99,7 +99,7 @@ jobs:
 
       - name: "Archive CPAN logs on failure"
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: cpan_log
           path: ~/.cpanm/work/*/build.log
