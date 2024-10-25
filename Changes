@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+release 51.1.0 (2024-10-24)
+ - Added --drop_irods_locations argument for run deletion script
+
 release 51.0.1 (2024-10-04)
  - Added .github/dependabot.yml file to auto-update GitHub actions
  - GitHub CI - updated deprecated v2 runner action to v3
