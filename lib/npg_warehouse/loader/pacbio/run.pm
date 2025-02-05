@@ -267,7 +267,7 @@ sub _get_plate_number {
   my ($self, $path) = @_;
 
   my $num;
-  if( $path =~ /\/(\d)\_[[:upper:]]\d+(\/?)$/smx ){
+  if( $path =~ /\/(\d)\_[[:upper:]]\d+(?:\/?)$/smx ){
     $num = $1;
   } else {
     $self->logconfess('Plate number not found as expected in path: '. $path);
