@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - Small change to npg_warehouse::loader::pacbio::product to handle barcode
+   report renaming in SMRT Link v25.1
  - Tiny change to npg_warehouse::loader::pacbio::run to handle directory paths
    with an extra / at the end of the path in SMRT Link v25.1
   
