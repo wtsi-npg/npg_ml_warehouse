@@ -16,7 +16,7 @@ Readonly::Scalar my $RUN_TABLE_NAME      => q[PacBioRun];
 Readonly::Scalar my $RUN_WELL_TABLE_NAME => q[PacBioRunWellMetric];
 Readonly::Scalar my $ID_SCRIPT           => q[generate_pac_bio_id];
 Readonly::Scalar my $ID_LENGTH           => 64;
-Readonly::Scalar my $BARCODE_REPORT_NAME => q[Report barcode];
+Readonly::Scalar my $BARCODE_REPORT_NAME => q[Barcode];
 Readonly::Scalar my $IDX_DEFAULT_NAME    => q[default--default];
 Readonly::Scalar my $HUNDRED             => 100;
 
@@ -201,7 +201,7 @@ sub _bc_deplex_info {
 
   my $decoded;
   foreach my $rep(@{$reports}) {
-    next if $rep->{dataStoreFile}->{name} ne $BARCODE_REPORT_NAME;
+    next if $rep->{dataStoreFile}->{name} !~ /$BARCODE_REPORT_NAME/ismx;
     if ($rep->{dataStoreFile}->{path} && -f $rep->{dataStoreFile}->{path}) {
       my $file_contents = slurp $rep->{dataStoreFile}->{path};
       $decoded = decode_json($file_contents);

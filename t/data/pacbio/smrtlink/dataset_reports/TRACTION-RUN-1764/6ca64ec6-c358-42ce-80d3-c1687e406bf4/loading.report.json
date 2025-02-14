@@ -1,0 +1,35 @@
+{
+    "_comment": "Generated with pbcommand version  at 2025-02-08T22:13:08.938447",
+    "attributes": [
+        {
+            "id": "loading_xml_report.productive_zmws",
+            "name": "Productive ZMWs",
+            "value": 25165824
+        },
+        {
+            "id": "loading_xml_report.productivity_0_n",
+            "name": "Productivity 0",
+            "value": 11579620
+        },
+        {
+            "id": "loading_xml_report.productivity_1_n",
+            "name": "Productivity 1",
+            "value": 13496707
+        },
+        {
+            "id": "loading_xml_report.productivity_2_n",
+            "name": "Productivity 2",
+            "value": 89497
+        }
+    ],
+    "dataset_uuids": [
+        "6ca64ec6-c358-42ce-80d3-c1687e406bf4"
+    ],
+    "id": "loading_xml_report",
+    "plotGroups": [],
+    "tables": [],
+    "tags": [],
+    "title": "Loading Report",
+    "uuid": "78061100-a507-4611-83de-770e358d97d8",
+    "version": "1.0.1"
+}

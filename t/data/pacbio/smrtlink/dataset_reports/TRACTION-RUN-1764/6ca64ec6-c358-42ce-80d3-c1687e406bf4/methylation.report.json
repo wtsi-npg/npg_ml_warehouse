@@ -1,0 +1,78 @@
+{
+    "_comment": "Generated with pbcommand version  at 2025-02-08T22:13:08.937814",
+    "attributes": [],
+    "dataset_uuids": [
+        "6ca64ec6-c358-42ce-80d3-c1687e406bf4"
+    ],
+    "id": "methylation",
+    "plotGroups": [
+        {
+            "id": "methylation.methyl_plots",
+            "legend": null,
+            "plots": [
+                {
+                    "caption": "5mC methylation at CpG in reads",
+                    "id": "methylation.methyl_plots.5mc_detections_hist",
+                    "image": "5mc_detections_hist.png",
+                    "plotType": "image",
+                    "thumbnail": "5mc_detections_hist_thumb.png",
+                    "title": "5mC at CpG"
+                },
+                {
+                    "caption": "6mA methylation in reads",
+                    "id": "methylation.methyl_plots.6ma_detections_hist",
+                    "image": "6ma_detections_hist.png",
+                    "plotType": "image",
+                    "thumbnail": "6ma_detections_hist_thumb.png",
+                    "title": "6mA"
+                }
+            ],
+            "thumbnail": "5mc_detections_hist_thumb.png",
+            "title": "Score distributions"
+        }
+    ],
+    "tables": [
+        {
+            "columns": [
+                {
+                    "header": "Modification",
+                    "id": "methylation.summary.modification",
+                    "values": [
+                        "5mC",
+                        "6mA"
+                    ]
+                },
+                {
+                    "header": "Motif",
+                    "id": "methylation.summary.motif",
+                    "values": [
+                        "CpG",
+                        "A"
+                    ]
+                },
+                {
+                    "header": "Scored sites",
+                    "id": "methylation.summary.frac_sites_scored",
+                    "values": [
+                        0.9895096023624554,
+                        0.0034018906091461427
+                    ]
+                },
+                {
+                    "header": "Modified sites (Pr > 0.5)",
+                    "id": "methylation.summary.frac_sites_modified",
+                    "values": [
+                        0.05558226135033843,
+                        0.0034018906091461427
+                    ]
+                }
+            ],
+            "id": "methylation.summary",
+            "title": "Summary"
+        }
+    ],
+    "tags": [],
+    "title": "Methylation",
+    "uuid": "a618fb68-916d-4887-9a92-496d7070f34d",
+    "version": "1.0.1"
+}
