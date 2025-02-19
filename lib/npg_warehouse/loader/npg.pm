@@ -112,39 +112,23 @@ sub dates {
     # the latest run complete and qc complete date
 
     my $dates = {};
-    my $rs = $self->schema_npg->resultset('RunStatus')->search(
-       { 'me.id_run' => $self->id_run, 'run_status_dict.description' =>  'run pending', },
-       {
-           prefetch => 'run_status_dict',
-           order_by => [{-asc => q[me.date]}],
-       },
-    )->next;
-    if ($rs) {
-	$dates->{run_pending} = $rs->date;
-    }
-
-    $rs = $self->schema_npg->resultset('RunStatus')->search(
-       { 'me.id_run' => $self->id_run, 'run_status_dict.description' => 'qc complete' },
-       {
-           prefetch => 'run_status_dict',
-           order_by => [{-desc => q[me.date]}],
-       },
-    )->next;
-
-    if ($rs) {
-        $dates->{qc_complete} =  $rs->date;
-    }
-
-    $rs = $self->schema_npg->resultset('RunStatus')->search(
-       { 'me.id_run' => $self->id_run, 'run_status_dict.description' => 'run complete' },
-       {
-           prefetch => 'run_status_dict',
-           order_by => [{-desc => q[me.date]}],
-       },
-    )->next;
-
-    if ($rs) {
-        $dates->{run_complete} =  $rs->date;
+    for my $column_name (qw/run_pending qc_complete run_complete/) {
+        my $sort_order = $column_name eq 'run_pending' ? '-asc' : '-desc';
+        my $run_status = $column_name;
+        $run_status =~ s/_/ /smx;
+        my $rs = $self->schema_npg->resultset('RunStatus')->search(
+           {
+               'me.id_run' => $self->id_run,
+               'run_status_dict.description' => $run_status,
+           },
+           {
+               prefetch => 'run_status_dict',
+               order_by => [{$sort_order => q[me.date]}],
+           },
+        )->next;
+        if ($rs) {
+            $dates->{$column_name} = $rs->date;
+        }
     }
 
     return $dates;
