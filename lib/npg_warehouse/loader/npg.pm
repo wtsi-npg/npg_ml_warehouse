@@ -102,7 +102,13 @@ sub run_is_indexed {
 
 =head2 dates
 
-Returns dates for run pending run complete and qc complete
+Returns a hash reference containing dates for 'run pending', 'run complete'
+and 'qc complete' run statuses. The run statuses are the keys and corresponding
+dates are the values.
+
+If the run status history does not have a particular status, this status is
+not represented in the result. The earliest 'run pending' status date and the
+latest 'run complete' and 'qc complete' dates are returned.
 
 =cut
 sub dates {
@@ -110,7 +116,6 @@ sub dates {
 
     # Get the earliest run pending status date and
     # the latest run complete and qc complete date
-
     my $dates = {};
     for my $column_name (qw/run_pending qc_complete run_complete/) {
         my $sort_order = $column_name eq 'run_pending' ? '-asc' : '-desc';
@@ -134,6 +139,39 @@ sub dates {
     return $dates;
 }
 
+=head2 dates4lanes
+
+Returns a hash reference containing latest per-lane dates for 'lane released'
+lane status. If the lane does not have this status it its history, it is not
+represented in the result. The hash reference has lane positions as keys and
+a hash reference with (lane status -> date) mapping as the value. 
+
+=cut
+sub dates4lanes {
+    my $self = shift;
+
+    my $column_name = 'lane_released';
+    my $lane_status = $column_name;
+    $lane_status =~ s/_/ /smx;
+    # Sorting in ascending order because we are retrieving all rows for
+    # a run and then continuously hashing them on position so that the
+    # latest record is saved. 
+    my $rs = $self->schema_npg->resultset('RunLaneStatus')->search(
+        {
+            'run_lane.id_run' => $self->id_run,
+            'run_lane_status_dict.description' => $lane_status,
+        },
+        {
+            prefetch => ['run_lane_status_dict', 'run_lane'],
+            order_by => [{-asc => [qw/run_lane.position me.date/]}],
+        },
+    );
+    my %lane_dates = map { $_->run_lane->position => {$column_name => $_->date} }
+                     $rs->all();
+
+    return \%lane_dates;
+}
+
 =head2 run_is_cancelled
 
 Returns 1 if the run is cancelled, 0 otherwise
@@ -143,8 +181,12 @@ sub run_is_cancelled {
     my $self = shift;
     ##no critic (ProhibitNoisyQuotes)
     my $count = $self->schema_npg->resultset('RunStatus')->search(
-       { 'me.id_run' => $self->id_run, 'me.iscurrent' => 1, 'run_status_dict.description' => {'=', ['run cancelled', 'data discarded']}, },
-       { prefetch => 'run_status_dict',},
+        {
+            'me.id_run' => $self->id_run,
+            'me.iscurrent' => 1,
+            'run_status_dict.description' => {'=', ['run cancelled', 'data discarded']},
+        },
+        { prefetch => 'run_status_dict',},
     )->count;
     return $count > 0 ? 1 : 0;
 }

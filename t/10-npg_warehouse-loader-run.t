@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 22;
+use Test::More tests => 23;
 use Test::Exception;
 use Test::Warn;
 use Moose::Meta::Class;
@@ -1231,6 +1231,44 @@ subtest 'run with merged data - linking to product components' => sub {
     is ($component->id_run, $id_run, 'id_run of the component');
     is ($component->position, $i+1, 'position of the component');
     is ($component->tag_index, 1, 'tag_index of the component');
+  }
+};
+
+subtest 'run and lane status dates' => sub {
+  plan tests => 16;
+
+  my $id_run = 4799;
+  my $rlrs = $schema_wh->resultset($RUN_LANE_TABLE_NAME);
+  
+  $rlrs->delete();
+  is ($rlrs->search({id_run => $id_run})->count(), 0,
+    "no existing run-lane data for run $id_run");
+
+  my %in = %{$init};
+  $in{'id_run'} = $id_run;
+  $in{'verbose'} = 0;
+  my $loader  = npg_warehouse::loader::run->new(%in);
+  $loader->load();
+
+  my %rows = map { $_->position => $_ } $rlrs->search({id_run => $id_run})->all();
+  is (keys %rows, 8, "data for 8 lanes for run $id_run is present");
+
+  for my $lane ((1, 2)) {
+    is ($rows{$lane}->run_complete() . q[], '2010-06-04T17:14:31',
+      "run complete date is correct for run $id_run lane $lane");
+    is ($rows{$lane}->run_pending() . q[], '2010-06-02T11:15:42',
+      "run pending date is correct for run $id_run lane $lane");
+    is ($rows{$lane}->qc_complete() . q[], '2010-06-14T11:57:31',
+      "qc complete date is correct for run $id_run lane $lane");
+  }
+
+  is ($rows{1}->lane_released() . q[], '2010-10-14T10:04:23',
+    "run $id_run lane 1 release date is correct");
+  is ($rows{2}->lane_released() . q[], '2010-10-15T09:12:13',
+    "run $id_run lane 2 release date is correct");
+  for my $lane ((3 .. 8)) {
+    is ($rows{$lane}->lane_released(), undef,
+      "run $id_run lane $lane release date is undefined");
   }
 };
 
