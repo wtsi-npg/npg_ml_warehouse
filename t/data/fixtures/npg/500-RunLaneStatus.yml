@@ -1,0 +1,37 @@
+---
+- date: 2010-10-14 08:04:23
+  id_run_lane: 37968
+  id_run_lane_status: 1
+  id_run_lane_status_dict: 4
+  id_user: 1
+  iscurrent: 0
+- date: 2010-10-14 10:04:23
+  id_run_lane: 37968
+  id_run_lane_status: 2
+  id_run_lane_status_dict: 5
+  id_user: 1
+  iscurrent: 1
+- date: 2010-10-14 08:10:31
+  id_run_lane: 37969
+  id_run_lane_status: 3
+  id_run_lane_status_dict: 4
+  id_user: 1
+  iscurrent: 0
+- date: 2010-10-14 11:34:23
+  id_run_lane: 37969
+  id_run_lane_status: 4
+  id_run_lane_status_dict: 5
+  id_user: 1
+  iscurrent: 0
+- date: 2010-10-14 08:11:03
+  id_run_lane: 37970
+  id_run_lane_status: 5
+  id_run_lane_status_dict: 4
+  id_user: 1
+  iscurrent: 1
+- date: 2010-10-15 09:12:13
+  id_run_lane: 37969
+  id_run_lane_status: 6
+  id_run_lane_status_dict: 5
+  id_user: 1
+  iscurrent: 1
