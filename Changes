@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+ - Extended the loader for Illumina runs to load teh date of lane release.
  - Small change to npg_warehouse::loader::pacbio::product to handle barcode
    report renaming in SMRT Link v25.1
  - Tiny change to npg_warehouse::loader::pacbio::run to handle directory paths

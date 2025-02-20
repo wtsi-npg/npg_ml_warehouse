@@ -248,6 +248,7 @@ sub _build__data {
   my $self = shift;
 
   my $dates = $self->_npg_data_retriever()->dates();
+  my $dates4lanes = $self->_npg_data_retriever()->dates4lanes();
   my $instr = $self->_npg_data_retriever()->instrument_info;
   my $lane_data = {};
 
@@ -266,6 +267,11 @@ sub _build__data {
 
     foreach my $event_type (keys %{$dates}) {
       $values{$event_type} = $dates->{$event_type};
+    }
+    if ($dates4lanes->{$position}) {
+      foreach my $lane_status (keys %{$dates4lanes->{$position}}) {
+        $values{$lane_status} = $dates4lanes->{$position}->{$lane_status};
+      }
     }
 
     foreach my $column (keys %{ $self->_cluster_density->{$position} || {} }) {

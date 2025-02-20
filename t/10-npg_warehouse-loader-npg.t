@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 26;
+use Test::More tests => 35;
 use Test::Exception;
 use Test::Deep;
 use Moose::Meta::Class;
@@ -90,6 +90,29 @@ lives_ok{ $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
   my $npg;
   lives_ok {$npg  = npg_warehouse::loader::npg->new( schema_npg => $schema_npg )} 'object instantiated without id_run lives';
   throws_ok { $npg->run_ready2load } qr/Need run id/, 'error checking readiness to load without run id';
+}
+
+{
+  my $npg  = npg_warehouse::loader::npg
+    ->new(schema_npg => $schema_npg, id_run => 4799);
+  
+  my $run_dates = $npg->dates();
+  is (keys %{$run_dates}, 3, 'two run statuses returned');
+  is ($run_dates->{'run_complete'} . q[], '2010-06-04T17:14:31',
+    'run complete date is correct');
+  is ($run_dates->{'run_pending'} . q[], '2010-06-02T11:15:42',
+    'run pending date is correct');
+  is ($run_dates->{'qc_complete'} . q[], '2010-06-14T11:57:31',
+    'qc complete date is correct');
+
+  my $lane_dates = $npg->dates4lanes();
+  is (keys %{$lane_dates}, 2, 'data for two lanes is available');
+  is (keys %{$lane_dates->{1}}, 1, 'one status for lane 1');
+  is ($lane_dates->{1}->{'lane_released'} . q[], '2010-10-14T10:04:23',
+    'lane 1 release date is correct');
+  is (keys %{$lane_dates->{2}}, 1, 'one status for lane 2');
+  is ($lane_dates->{2}->{'lane_released'} . q[], '2010-10-15T09:12:13',
+    'lane 2 release date is correct');
 }
 
 1;
