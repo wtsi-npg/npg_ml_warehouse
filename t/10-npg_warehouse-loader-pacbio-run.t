@@ -10,7 +10,7 @@ use Perl6::Slurp;
 use Readonly;
 use Test::Exception;
 use Test::LWP::UserAgent;
-use Test::More tests => 15;
+use Test::More tests => 16;
 
 use npg_testing::db;
 
@@ -387,7 +387,61 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis4' => sub {
 
 };
 
+subtest 'load_completed_run_on_instrument_deplexing_analysis5' => sub {
+  plan tests => 23;
 
+  my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
+
+  my @load_args = (dry_run       => '0',
+                   pb_api_client => $pb_api,
+                   mlwh_schema   => $wh_schema,
+                   run_uuid      => q[8de24688-b56c-4422-b64e-e38af108469f],
+                   hostname      => q[blah.sanger.ac.uk]);
+
+  my $loader   = npg_warehouse::loader::pacbio::run->new(@load_args);
+  my ($processed, $loaded, $errors) = $loader->load_run;
+
+  cmp_ok($loaded, '==', 1, "Loaded 1 completed SMRT Link v25 Revio run");
+  cmp_ok($errors, '==', 0, "Loaded 1 completed SMRT Link v25 Revio run with no errors");
+
+  my $rs = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
+    ({pac_bio_run_name => 'TRACTION-RUN-1764', plate_number => 1, well_label => 'A1'});
+  cmp_ok ($rs->count, '==', 1, '1 loaded row found for run TR1764 well A1 in pac_bio_run_well_metrics');
+  my $r = $rs->next;
+
+  is ($r->ccs_execution_mode, q[OnInstrument], 'correct process type for run TR1764 well A1');
+  is ($r->hifi_num_reads, q[6065042], 'correct hifi reads for run TR1764 well A1');
+
+  is ($r->hifi_read_bases, q[64929855957],
+     'correct num of hifi bases for run TR1764 well A1');
+  is ($r->hifi_bases_in_barcoded_reads, q[64689094410],
+     'correct num of hifi bases in barcoded reads for run TR1764 well A1');
+  is ($r->plate_number, 1, 'correct plate number 1 for run TR1764 well A1');
+  is ($r->hifi_num_reads, q[6065042], 'correct hifi reads for run TR1764 well A1');
+  is ($r->hifi_read_length_mean, q[10705], 'correct hifi read length mean for run TR1764 well A1');
+  is ($r->hifi_read_quality_median, q[40], 'correct hifi read quality median for run TR1764 well A1');
+
+  is ($r->polymerase_num_reads, q[13490554], 'correct polymerase reads for run TR1764 well A1');
+  is ($r->polymerase_read_length_mean, q[75429], 'correct polymerase mean read length for run TR1764 well A1');
+  is ($r->polymerase_read_length_n50, q[151250], 'correct polymerase read length n50 for run TR1764 well A1');
+  is ($r->insert_length_mean, q[15801], 'correct insert length mean for run TR1764 well A1');
+  is ($r->insert_length_n50, q[16750], 'correct insert length n50 for run TR1764 well A1');
+
+
+  my $id1 = $r->id_pac_bio_rw_metrics_tmp;
+  my $pr = $wh_schema->resultset($PRODUCT_TABLE_NAME)->search({id_pac_bio_rw_metrics_tmp => $id1,});
+  is ($pr->count, 1, '1 loaded row found for run TR1764 well A1 in pac_bio_product_metrics');
+  my $p = $pr->next;
+  is ($p->hifi_read_bases, q[64689094410], 'correct hifi read bases for run TR1764 well C1 barcode default');
+  is ($p->hifi_num_reads, q[6042808], 'correct hifi reads for run TR1764 well C1 barcode default');
+  is ($p->hifi_bases_percent, q[99.63], 'correct hifi reads for run TR1764 well C1 barcode default');
+  is ($p->hifi_read_length_mean, q[10705], 'correct hifi read length mean for run TR1764 well A1 barcode default');
+  is ($p->barcode4deplexing, q[bc1016_BAK8B_OA--bc1016_BAK8B_OA], 'correct barcode4deplexing for run TR1764 well A1 barcode default');
+  is ($p->barcode_quality_score_mean, q[96.4013574483915], 'correct barcode quality score mean for run TR1764 well A1 barcode default');
+
+};
+
+  
 subtest 'load_in_progress_run' => sub {
   plan tests => 7;
 

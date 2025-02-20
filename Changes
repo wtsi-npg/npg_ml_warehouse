@@ -1,5 +1,11 @@
 LIST OF CHANGES
 
+release 51.1.2 (2025-02-20)
+ - Small change to npg_warehouse::loader::pacbio::product to handle barcode
+   report renaming in SMRT Link v25.1
+ - Tiny change to npg_warehouse::loader::pacbio::run to handle directory paths
+   with an extra / at the end of the path in SMRT Link v25.1
+  
 release 51.1.1 (2025-01-16)
  - Fixed perlbrew installation by installing libdevel-patchperl-perl in
    GitHub runner.
