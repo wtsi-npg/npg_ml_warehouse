@@ -1,0 +1,117 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use FindBin qw($Bin);
+use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
+use Log::Log4perl qw(:easy :levels);
+use Try::Tiny;
+
+use npg_warehouse::loader::elembio::run_info;
+
+our $VERSION = '0';
+
+my $layout = '%d %-5p %c - %m%n';
+my $level  = $INFO;
+Log::Log4perl->easy_init({layout => $layout,
+                          level  => $level,
+                          utf8   => 1});
+
+if (defined $ENV{dev} && $ENV{dev}) {
+  INFO(join q[ ], q[Using], $ENV{dev}, q[ml warehouse database]);
+}
+
+my $is_loaded = 0;
+try {
+  my $loader = npg_warehouse::loader::elembio::run_info->new_with_options();
+  INFO('Loading run parameters and stats for ' . $loader->runfolder_path);
+  $is_loaded = $loader->load();
+} catch {
+  FATAL($_);
+  exit 1;
+};
+
+$is_loaded ? INFO('Loading completed') : WARN('Loading aborted');
+
+exit 0;
+
+__END__
+
+=head1 NAME
+
+npg_elembio_run_params2mlwarehouse
+
+=head1 SYNOPSIS
+
+ Script to load JSON files with Elembio run parameters and stats to
+ ml warehouse.
+
+=head1 DESCRIPTION
+
+=head1 USAGE
+
+ npg_elembio_run_params2mlwarehouse --runfolder_path [RUN_FOLDER_PATH]
+
+=head1 REQUIRED ARGUMENTS
+
+  --runfolder_path
+
+=head1 OPTIONS
+
+  --help           brief help message
+  --runfolder_path directory path of the Elembio runfolder
+
+=head1 EXIT STATUS
+
+0 if exited normally
+
+1 if a fatal error occured
+
+=head1 CONFIGURATION
+
+=head1 DIAGNOSTICS
+
+=head1 DEPENDENCIES
+
+=over
+
+=item strict
+
+=item warnings
+
+=item lib
+
+=item FindBin
+
+=item Try::Tiny
+
+=item Log::Log4perl
+
+=item npg_warehouse::loader::elembio::run_info
+
+=back
+
+=head1 INCOMPATIBILITIES
+
+=head1 BUGS AND LIMITATIONS
+
+=head1 AUTHOR
+
+Marina Gourtovaia E<lt>mg8@sanger.ac.ukE<gt>
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (C) 2025 Genome Research Ltd.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.

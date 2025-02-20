@@ -13,7 +13,7 @@ my $builder = npg_tracking::util::build->new(
                  'license'        => 'gpl',
                  'dist'           => { COMPRESS => 'gzip', SUFFIX => 'gz', },
 
-		 'build_requires'      => {
+                 'build_requires'      => {
                     'Clone'                             => '0',
                     'Cwd'                               => 0,
                     'DBD::SQLite'                       => '1.37',
@@ -42,6 +42,7 @@ my $builder = npg_tracking::util::build->new(
                     'Carp'                       => 0,
                     'DateTime'                   => 0,
                     'DateTime::Duration'         => 0,
+                    'DateTime::Format::Strptime' => 0,
                     'DBIx::Class::ResultClass::HashRefInflator' => 0,
                     'English'                    => 0,
                     'File::Basename'             => 0,
@@ -49,6 +50,7 @@ my $builder = npg_tracking::util::build->new(
                     'File::Slurp'                => 0,
                     'File::Spec::Functions'      => 0,
                     'Getopt::Long'               => 0,
+                    'JSON'                       => 0,
                     'List::MoreUtils'            => 0,
                     'Log::Log4perl'              => 0,
                     'Math::Round'                => 0,
