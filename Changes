@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+ - Added a batch mode for bin/npg_elembio_run_params2mlwarehouse, will take
+   a list of Elembio run folders from STDIN.
+
 release 51.2.0 (2025-02-20)
  - Small change to npg_warehouse::loader::pacbio::product to handle barcode
    report renaming in SMRT Link v25.1
