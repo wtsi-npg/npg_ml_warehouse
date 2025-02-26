@@ -6,11 +6,17 @@ use FindBin qw($Bin);
 use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
 use Log::Log4perl qw(:easy :levels);
 use Try::Tiny;
+use Pod::Usage;
+use Getopt::Long qw(:config pass_through);
 
 use npg_warehouse::loader::elembio::run_info;
 use WTSI::DNAP::Warehouse::Schema;
 
 our $VERSION = '0';
+
+my $help = 0;
+GetOptions(q(help) => \$help);
+if ($help) { pod2usage(); }
 
 my $layout = '%d %-5p %c - %m%n';
 my $level  = $INFO;
@@ -77,8 +83,6 @@ npg_elembio_run_params2mlwarehouse
 Script to load JSON files with Elembio run parameters and stats and the
 dates for the start and end of the run to ml warehouse.
 
-=head1 DESCRIPTION
-
 If a run folder directory path is given as C<--runfolder_path> argument, the
 script reads available files and loads them to ml warehouse database. The script
 exist with an exit code 1 in case of any error during reading or uploading
@@ -93,6 +97,8 @@ is the same as when the script is called with the C<--runfolder_path> argument.
 The errors in loading are reported, but the script does not exit, it moves to
 the next run folder. If even a single error is recorded, the script exist with
 an exit code 1.
+
+=head1 DESCRIPTION
 
 =head1 USAGE
 
@@ -130,6 +136,10 @@ an exit code 1.
 =item FindBin
 
 =item Try::Tiny
+
+=item Pod::Usage
+
+=item Getopt::Long
 
 =item Log::Log4perl
 
