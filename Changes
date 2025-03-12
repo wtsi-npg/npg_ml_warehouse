@@ -1,5 +1,9 @@
 LIST OF CHANGES
 
+
+release 51.4.0 (2025-03-12)
+ - Extended the loader for Illumina runs to load the date of lane release.
+
 release 51.3.0 (2025-03-10)
  - Added a batch mode for bin/npg_elembio_run_params2mlwarehouse, will take
    a list of Elembio run folders from STDIN.
