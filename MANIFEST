@@ -55,6 +55,7 @@ t/10-npg_warehouse-loader-run_info.t
 t/20-npg_warehouse-loader-run.t
 t/data/fixtures/npg/000-InstrumentStatusDict.yml
 t/data/fixtures/npg/000-RunStatusDict.yml
+t/data/fixtures/npg/000-RunLaneStatusDict.yml
 t/data/fixtures/npg/000-Tag.yml
 t/data/fixtures/npg/000-User.yml
 t/data/fixtures/npg/100-InstrumentFormat.yml
@@ -63,6 +64,7 @@ t/data/fixtures/npg/300-Run.yml
 t/data/fixtures/npg/400-RunLane.yml
 t/data/fixtures/npg/400-RunStatus.yml
 t/data/fixtures/npg/400-TagRun.yml
+t/data/fixtures/npg/500-RunLaneStatus.yml
 t/data/fixtures/npgqc/100-SeqComponent.yml
 t/data/fixtures/npgqc/100-SeqComposition.yml
 t/data/fixtures/npgqc/200-SeqComponentComposition.yml
