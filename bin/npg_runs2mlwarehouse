@@ -76,12 +76,15 @@ my ($npg_schema, $qc_schema);
   $npg_schema = npg_tracking::Schema->connect();
   $qc_schema = npg_qc::Schema->connect();
 }
-
 if (!@{$id_run}) {
   $id_run = [ map { $_->id_run() }
               $npg_schema->resultset('Run')->search(
-                {}, {order_by => {-desc => 'id_run'},
-                     columns  => [qw/id_run/]})->all() ];
+                {'manufacturer.name'=>'Illumina'},
+                {
+                  prefetch=>{'instrument_format' => 'manufacturer'},
+                  order_by => {-desc => 'id_run'},
+                  columns  => [qw/id_run/]
+                })->all() ];
   if ($num_runs && ($num_runs < scalar @{$id_run})) {
     splice @{$id_run}, $num_runs;
   }
