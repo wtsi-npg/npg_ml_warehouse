@@ -2,6 +2,7 @@ LIST OF CHANGES
 
  - Ensured that npg_runs2mlwarehouse in batch mode does not load non-Illumina
    runs.
+ - Deleted unused warehouse_loader_launcher script.
 
 release 51.4.0 (2025-03-12)
  - Extended the loader for Illumina runs to load the date of lane release.
