@@ -1,4 +1,4 @@
-package npg_warehouse::loader::run_info;
+package npg_warehouse::loader::illumina::run_info;
 
 use Moose;
 use MooseX::StrictConstructor;
@@ -14,7 +14,7 @@ Readonly::Array  our @RUN_TABLES   => qw/ Run RunStatusDict RunStatus /;
 
 =head1 NAME
 
-npg_warehouse::loader::run_info
+npg_warehouse::loader::illumina::run_info
 
 =head1 SYNOPSIS
 

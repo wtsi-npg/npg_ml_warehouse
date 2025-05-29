@@ -7,7 +7,7 @@ use Moose::Meta::Class;
 use DateTime;
 use npg_testing::db;
 
-use_ok('npg_warehouse::loader::npg');
+use_ok('npg_warehouse::loader::illumina::npg');
 
 #####################################################################
 #         Test cases description                                     
@@ -35,25 +35,25 @@ lives_ok{ $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
 {
   my $npg;
   lives_ok {
-       $npg  = npg_warehouse::loader::npg->new( 
+       $npg  = npg_warehouse::loader::illumina::npg->new( 
                                              schema_npg => $schema_npg, 
                                              id_run => 1272,
                                               )
   } 'object instantiated by passing schema objects to the constructor';
-  isa_ok ($npg, 'npg_warehouse::loader::npg');
+  isa_ok ($npg, 'npg_warehouse::loader::illumina::npg');
   is ($npg->id_run, 1272, 'id run set correctly');
   is ($npg->verbose, 0, 'verbose mode is off by default');
 }
 
 {
-  my $n = npg_warehouse::loader::npg->new(schema_npg => $schema_npg, id_run => 1272);
+  my $n = npg_warehouse::loader::illumina::npg->new(schema_npg => $schema_npg, id_run => 1272);
   is($n->run_is_cancelled(), 0, 'run 1272 is not cancelled');
   cmp_deeply($n->instrument_info,
     {instrument_name => q[IL20], instrument_model => q[1G],
      instrument_side => undef, workflow_type => undef,
      instrument_external_name => undef}, 'instr info for run 1272');
 
-  $n = npg_warehouse::loader::npg->new(schema_npg => $schema_npg, id_run => 3519);
+  $n = npg_warehouse::loader::illumina::npg->new(schema_npg => $schema_npg, id_run => 3519);
   is($n->run_is_cancelled(), 1, 'run 3519 is cancelled');
   cmp_deeply($n->instrument_info,
    {instrument_name => q[IL42], instrument_model => q[HK],
@@ -76,24 +76,24 @@ lives_ok{ $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
 }
 
 {
-  is(npg_warehouse::loader::npg->new(schema_npg => $schema_npg, id_run => 3500)->run_is_paired_read(),
+  is(npg_warehouse::loader::illumina::npg->new(schema_npg => $schema_npg, id_run => 3500)->run_is_paired_read(),
                                     1, 'run 3500 is paired read');
-  is(npg_warehouse::loader::npg->new(schema_npg => $schema_npg, id_run => 3622)->run_is_paired_read(),
+  is(npg_warehouse::loader::illumina::npg->new(schema_npg => $schema_npg, id_run => 3622)->run_is_paired_read(),
                                     0, 'run 3622 is not paired read');
-  is(npg_warehouse::loader::npg->new(schema_npg => $schema_npg, id_run => 3622)->run_is_indexed(),
+  is(npg_warehouse::loader::illumina::npg->new(schema_npg => $schema_npg, id_run => 3622)->run_is_indexed(),
                                     0, 'run 3622 is not indexed');
-  is(npg_warehouse::loader::npg->new(schema_npg => $schema_npg, id_run => 4333)->run_is_indexed(),
+  is(npg_warehouse::loader::illumina::npg->new(schema_npg => $schema_npg, id_run => 4333)->run_is_indexed(),
                                     1, 'run 4333 is indexed');
 }
 
 {
   my $npg;
-  lives_ok {$npg  = npg_warehouse::loader::npg->new( schema_npg => $schema_npg )} 'object instantiated without id_run lives';
+  lives_ok {$npg  = npg_warehouse::loader::illumina::npg->new( schema_npg => $schema_npg )} 'object instantiated without id_run lives';
   throws_ok { $npg->run_ready2load } qr/Need run id/, 'error checking readiness to load without run id';
 }
 
 {
-  my $npg  = npg_warehouse::loader::npg
+  my $npg  = npg_warehouse::loader::illumina::npg
     ->new(schema_npg => $schema_npg, id_run => 4799);
   
   my $run_dates = $npg->dates();

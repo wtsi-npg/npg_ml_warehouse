@@ -14,21 +14,21 @@ my $RUN_LANE_TABLE_NAME      = q[IseqRunLaneMetric];
 my $PRODUCT_TABLE_NAME       = q[IseqProductMetric];
 my $LIMS_FK_COLUMN_NAME      = q[id_iseq_flowcell_tmp];
 
-use_ok ('npg_warehouse::fk_repair');
-isa_ok (npg_warehouse::fk_repair->new(), 'npg_warehouse::fk_repair');
+use_ok ('npg_warehouse::iseq_fk_repair');
+isa_ok (npg_warehouse::iseq_fk_repair->new(), 'npg_warehouse::iseq_fk_repair');
 
 {
-  my $r = npg_warehouse::fk_repair->new();
+  my $r = npg_warehouse::iseq_fk_repair->new();
   ok(!$r->loop, 'loop is false by default');
   ok(!$r->verbose, 'verbose is false by default');
   ok(!$r->explain, 'explain is false by default');
   is($r->sleep_time, 0, 'sleep time is zero by default');
 
-  $r = npg_warehouse::fk_repair->new(loop => 1);
+  $r = npg_warehouse::iseq_fk_repair->new(loop => 1);
   ok($r->loop, 'loop is set to true');
   is($r->sleep_time, 300, 'sleep time is set to 300');
 
-  $r = npg_warehouse::fk_repair->new(loop => 1, sleep_time => 120);
+  $r = npg_warehouse::iseq_fk_repair->new(loop => 1, sleep_time => 120);
   ok($r->loop, 'loop is set to true');
   is($r->sleep_time, 120, 'sleep time is set to 120');
 }
@@ -66,7 +66,7 @@ fcopy join(q[/],'t/data/runfolders/with_merges', $archive_dir, '26291_2.tag_metr
 my $folder_glob = q[t/data/runfolders/];
 t::util::create_nv_run($schema_npg, $id_run_nv, $tdir, 'with_merges');
 # and load it to the warehouse
-npg_warehouse::loader::run->new(
+npg_warehouse::loader::illumina::run->new(
     schema_npg   => $schema_npg, 
     schema_qc    => $schema_qc, 
     schema_wh    => $schema_wh,
@@ -97,7 +97,7 @@ npg_warehouse::loader::run->new(
   my $no_fk_count = $rs->search({id_run => 6998, id_iseq_flowcell_tmp => undef})->count;
   is ($no_fk_count, $total, 'no record for run 6998 has fk - test prerequisite');
 
-  my $r = npg_warehouse::fk_repair->new($init);
+  my $r = npg_warehouse::iseq_fk_repair->new($init);
   is (join(q[ ], $r->_runs_with_null_fks()) , '4486 6998 26291', 'runs to repair detected');
   lives_ok {$r->run()} 'repair runs OK';
 

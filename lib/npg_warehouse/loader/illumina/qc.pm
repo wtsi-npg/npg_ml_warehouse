@@ -1,4 +1,4 @@
-package npg_warehouse::loader::qc;
+package npg_warehouse::loader::illumina::qc;
 
 use Moose;
 use namespace::autoclean;
@@ -15,7 +15,7 @@ Readonly::Array my @CLUSTER_DENSITY_COLUMNS => qw/ raw_cluster_density
 
 =head1 NAME
 
-npg_warehouse::loader::qc
+npg_warehouse::loader::illumina::qc
 
 =head1 SYNOPSIS
 

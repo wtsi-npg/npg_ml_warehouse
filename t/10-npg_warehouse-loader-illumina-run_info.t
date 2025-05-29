@@ -6,7 +6,7 @@ use Moose::Meta::Class;
 
 use npg_testing::db;
 
-use_ok('npg_warehouse::loader::run_info');
+use_ok('npg_warehouse::loader::illumina::run_info');
 
 my $util = Moose::Meta::Class->create_anon_class(
   roles => [qw/npg_testing::db/])->new_object({});
@@ -21,12 +21,12 @@ lives_ok{ $wh  = $util->create_test_db(
 
 {
   my $rsloader;
-  lives_ok {$rsloader  = npg_warehouse::loader::run_info->new(
+  lives_ok {$rsloader  = npg_warehouse::loader::illumina::run_info->new(
                                              schema_npg => $schema_npg, 
                                              schema_wh  => $wh
                                            )
   } 'object instantiated by passing schema objects to the constructor';
-  isa_ok ($rsloader, 'npg_warehouse::loader::run_info');
+  isa_ok ($rsloader, 'npg_warehouse::loader::illumina::run_info');
 
   lives_ok {$rsloader->_copy_table('RunStatusDict')} 'copy run_status_dict table';
   lives_ok {$rsloader->_copy_table('RunStatus')} 'copy run_status table';

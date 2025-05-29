@@ -1,4 +1,4 @@
-package npg_warehouse::loader::product_limited;
+package npg_warehouse::loader::illumina::product_limited;
 
 use namespace::autoclean;
 use Moose;
@@ -11,7 +11,7 @@ use npg_tracking::util::types;
 use npg_tracking::glossary::composition;
 use npg_tracking::glossary::composition::factory::rpt_list;
 use npg_qc::autoqc::qc_store;
-use npg_warehouse::loader::autoqc;
+use npg_warehouse::loader::illumina::autoqc;
 
 my $parent_class = 'npg_warehouse::loader::base';
 extends $parent_class;
@@ -19,24 +19,24 @@ $parent_class->meta->remove_attribute('schema_npg');
 $parent_class->meta->remove_attribute('explain');
 
 with qw/ MooseX::Getopt
-         npg_warehouse::loader::product /;
+         npg_warehouse::loader::illumina::product /;
 
 our $VERSION  = '0';
 
 =head1 NAME
 
-npg_warehouse::loader::product_limited
+npg_warehouse::loader::illumina::product_limited
 
 =head1 SYNOPSIS
 
  # Load autoqc results from the given paths:
- npg::warehouse::loader::product_limited->new(
+ npg::warehouse::loader::illumina::product_limited->new(
    autoqc_path => [qw/path1 path2/])->load();
 
  # Use the QC database as a source of autoqc results:
- npg::warehouse::loader::product_limited->new(
+ npg::warehouse::loader::illumina::product_limited->new(
    composition_path => [qw/path1 path2/])->load();
- npg::warehouse::loader::product_limited->new(
+ npg::warehouse::loader::illumina::product_limited->new(
    rpt_list => [qw/223:1:3;223:2:3 224:1:5/])->load();
 
 =head1 DESCRIPTION
@@ -179,7 +179,7 @@ sub load {
     : $autoqc_store->load_from_db_via_composition(\@compositions);
 
   my $autoqc_data =
-    npg_warehouse::loader::autoqc->new(autoqc_store => $autoqc_store)
+    npg_warehouse::loader::illumina::autoqc->new(autoqc_store => $autoqc_store)
                                  ->process($collection);
   my $product_data = $self->product_data($autoqc_data);
 

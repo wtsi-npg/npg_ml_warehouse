@@ -1,4 +1,4 @@
-package npg_warehouse::loader::run;
+package npg_warehouse::loader::illumina::run;
 
 use Moose;
 use MooseX::StrictConstructor;
@@ -10,17 +10,17 @@ use npg_tracking::glossary::composition;
 use npg_tracking::glossary::composition::component::illumina;
 use npg_qc::autoqc::qc_store;
 
-use npg_warehouse::loader::autoqc;
-use npg_warehouse::loader::qc;
-use npg_warehouse::loader::fqc;
-use npg_warehouse::loader::npg;
+use npg_warehouse::loader::illumina::autoqc;
+use npg_warehouse::loader::illumina::qc;
+use npg_warehouse::loader::illumina::fqc;
+use npg_warehouse::loader::illumina::npg;
 
 extends 'npg_warehouse::loader::base';
 
 with qw/
   npg_tracking::glossary::run
   npg_tracking::glossary::flowcell
-  npg_warehouse::loader::product
+  npg_warehouse::loader::illumina::product
        /;
 with 'WTSI::DNAP::Warehouse::Schema::Query::IseqFlowcell';
 
@@ -42,11 +42,11 @@ Readonly::Scalar my $SPIKE_FALLBACK_TAG_INDEX => 888;
 
 =head1 NAME
 
-npg_warehouse::loader::run
+npg_warehouse::loader::illumina::run
 
 =head1 SYNOPSIS
 
- npg::warehouse::loader::run->new(id_run => 4444)->load;
+ npg::warehouse::loader::illumina::run->new(id_run => 4444)->load;
 
 =head1 DESCRIPTION
 
@@ -187,14 +187,14 @@ sub _build__old_forward_id_run {
   return $rp;
 }
 
-has '_npg_data_retriever'   =>   ( isa        => 'npg_warehouse::loader::npg',
+has '_npg_data_retriever'   =>   ( isa        => 'npg_warehouse::loader::illumina::npg',
                                    is         => 'ro',
                                    required   => 0,
                                    lazy_build => 1,
 );
 sub _build__npg_data_retriever {
   my $self = shift;
-  return npg_warehouse::loader::npg->new(schema_npg => $self->schema_npg,
+  return npg_warehouse::loader::illumina::npg->new(schema_npg => $self->schema_npg,
                                          verbose    => $self->verbose,
                                          id_run     => $self->id_run);
 }
@@ -219,14 +219,14 @@ sub _build__run_is_paired_read {
   return $self->_npg_data_retriever->run_is_paired_read();
 }
 
-has '_npgqc_data_retriever'   => ( isa        => 'npg_warehouse::loader::qc',
+has '_npgqc_data_retriever'   => ( isa        => 'npg_warehouse::loader::illumina::qc',
                                    is         => 'ro',
                                    required   => 0,
                                    lazy_build => 1,
 );
 sub _build__npgqc_data_retriever {
   my $self = shift;
-  return npg_warehouse::loader::qc->new(schema_qc => $self->schema_qc);
+  return npg_warehouse::loader::illumina::qc->new(schema_qc => $self->schema_qc);
 }
 
 has '_cluster_density'   =>    ( isa        => 'HashRef',
@@ -284,7 +284,7 @@ sub _build__data {
     ->resultset($RUN_LANE_TABLE_NAME)->result_source->columns();
   my @interop_column_names = grep { /\Ainterop_/xms } @run_lane_columns;
 
-  my $data_hash = npg_warehouse::loader::autoqc
+  my $data_hash = npg_warehouse::loader::illumina::autoqc
     ->new(autoqc_store => $self->_autoqc_store,
           interop_data_column_names => \@interop_column_names)
     ->retrieve($self->id_run, $self->schema_npg);
@@ -332,7 +332,7 @@ sub _explain_missing {
 
 sub _data4pipeline {
   my ($pp_name, $row) = @_;
-  return $row->{$npg_warehouse::loader::autoqc::PP_KEY}->{$pp_name};
+  return $row->{$npg_warehouse::loader::illumina::autoqc::PP_KEY}->{$pp_name};
 }
 
 sub _known_columns {

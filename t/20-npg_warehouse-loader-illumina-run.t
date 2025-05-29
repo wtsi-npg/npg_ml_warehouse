@@ -32,10 +32,10 @@ SKIP: {
   my $schema_wh = $util->create_test_db(q[WTSI::DNAP::Warehouse::Schema]);
   $schema_wh or die 'Failed to created warehouse test database';
 
-  use_ok('npg_warehouse::loader::run');
+  use_ok('npg_warehouse::loader::illumina::run');
 
   foreach my $id_run (@runs) {
-    lives_ok {npg_warehouse::loader::run->new( 
+    lives_ok {npg_warehouse::loader::illumina::run->new( 
                       schema_wh => $schema_wh,
                       verbose    => 0,
                       id_run     => $id_run)->load(); } "run $id_run loaded";

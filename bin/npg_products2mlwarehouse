@@ -5,11 +5,11 @@ use warnings;
 use FindBin qw($Bin);
 use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
 
-use npg_warehouse::loader::product_limited;
+use npg_warehouse::loader::illumina::product_limited;
 
 our $VERSION = '0';
 
-npg_warehouse::loader::product_limited->new_with_options()->load();
+npg_warehouse::loader::illumina::product_limited->new_with_options()->load();
 
 exit 0;
 
@@ -22,7 +22,7 @@ npg_products2mlwarehouse
 =head1 SYNOPSIS
 
 This script loads a summary of autoqc results to ml warehouse.
-See documentation in L<npg_warehouse::loader::product_limited>
+See documentation in L<npg_warehouse::loader::illumina::product_limited>
 for details.
  
 =head1 DESCRIPTION
@@ -70,7 +70,7 @@ None
 
 =item FindBin
 
-=item npg_warehouse::loader::product_limited
+=item npg_warehouse::loader::illumina::product_limited
 
 =back
 
