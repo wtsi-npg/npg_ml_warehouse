@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+release 52.0.0 (2025-05-29)
  - Ensured that npg_runs2mlwarehouse in batch mode does not load non-Illumina
    runs.
  - Deleted unused warehouse_loader_launcher script.
