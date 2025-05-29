@@ -11,7 +11,6 @@ bin/npg_products2mlwarehouse
 bin/npg_run_info2mlwarehouse
 bin/npg_run_params2mlwarehouse
 bin/npg_runs2mlwarehouse
-bin/warehouse_loader_launcher
 Build.PL
 Changes
 lib/npg_warehouse/fk_repair.pm
