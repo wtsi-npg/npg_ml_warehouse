@@ -270,7 +270,7 @@
   id_run: 50490
   id_run_pair: ~
   is_paired: 1
-  priority: 1
+  priority: 3
   team: SR
 - actual_cycle_count: 310
   batch_id: ~
@@ -281,6 +281,19 @@
   id_instrument: 100
   id_instrument_format: 20
   id_run: 50517
+  id_run_pair: ~
+  is_paired: 1
+  priority: 1
+  team: SR
+- actual_cycle_count: 0
+  batch_id: ~
+  expected_cycle_count: 140
+  flowcell_id: 2443597240
+  folder_name: 20250513_AV244103_NT1854819U_Run2
+  folder_path_glob: /lustre/scratch120/elembio/staging/AV244103
+  id_instrument: 100
+  id_instrument_format: 20
+  id_run: 50545
   id_run_pair: ~
   is_paired: 1
   priority: 1

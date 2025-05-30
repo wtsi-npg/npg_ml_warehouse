@@ -1565,4 +1565,16 @@
   id_run_status_dict: 4
   id_user: 7
   iscurrent: 1
+- date: 2025-05-13 14:57:41
+  id_run: 50545
+  id_run_status: 684683
+  id_run_status_dict: 2
+  id_user: 7
+  iscurrent: 0
+- date: 2025-05-13 19:08:17
+  id_run: 50545
+  id_run_status: 684684
+  id_run_status_dict: 22
+  id_user: 7
+  iscurrent: 1
 
