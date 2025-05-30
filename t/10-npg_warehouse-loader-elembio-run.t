@@ -1,0 +1,183 @@
+use strict;
+use warnings;
+use Test::More tests => 4;
+use Test::Exception;
+
+use npg_testing::db;
+use t::util;
+
+use_ok('npg_warehouse::loader::elembio::run');
+
+my $util = Moose::Meta::Class->create_anon_class(
+  roles => [qw/npg_testing::db/])->new_object({});
+
+my $schema_wh  = $util->create_test_db(q[WTSI::DNAP::Warehouse::Schema],
+  q[t/data/fixtures/wh]);
+my $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
+  q[t/data/fixtures/npg]);
+my $schema_qc = $util->create_test_db(q[npg_qc::Schema],
+  q[t/data/fixtures/npgqc]);
+
+subtest 'load data for a two-lane run, no LIMS' => sub {
+  plan tests => 32;
+
+  my $id_run = 50517;
+
+  my $rs = $schema_qc->resultset('MqcOutcomeEnt');
+  for my $p ((1, 2)) {
+    my $q = {id_run => $id_run, position => $p};
+    $q->{'id_seq_composition'} =
+      t::util::find_or_save_composition($schema_qc, $q);
+    $q->{'id_mqc_outcome'} = 3; #'Accepted final'
+    $rs->create($q);
+  }
+
+  my $loader = npg_warehouse::loader::elembio::run->new(
+    id_run => $id_run,
+    runfolder_path => 't/data/elembio/20250127_AV244103_NT1850075L',
+    npg_tracking_schema => $schema_npg,
+    npg_qc_schema => $schema_qc,
+    mlwh_schema => $schema_wh 
+  );
+  isa_ok ($loader, 'npg_warehouse::loader::elembio::run');
+  $loader->load();
+
+  my $rl_rs = $schema_wh->resultset('EseqRunLaneMetric')
+    ->search({id_run => $id_run}, {order_by => {'-asc' => 'lane'}});
+  is ($rl_rs->count(), 2, 'two rows are retrieved');
+  my $lane1 = $rl_rs->next();
+  is ($lane1->lane, 1, 'data for lane 1 is present');
+  my $lane2 = $rl_rs->next();
+  is ($lane2->lane, 2, 'data for lane 2 is present');
+
+  # Test values that are the same for both lanes.
+  for my $lane (($lane1, $lane2)) {
+    is ($lane->id_run, $id_run, 'run id is correct');
+    is ($lane->run_folder_name, '20250127_AV244103_NT1850075L', 'run folder name is correct');
+    is ($lane->run_started->datetime, '2025-01-27T15:41:07', 'run started date is correct');
+    is ($lane->run_complete->datetime, '2025-01-29T02:12:27', 'run complete date is correct');
+    is ($lane->cancelled, 0, 'run is not cancelled');
+    is ($lane->flowcell_barcode, '2427452508', 'flowcell barcode is corect');
+    is ($lane->paired_read, 1, 'the run has paired reads');
+    is ($lane->cycles, 310, 'actual cycle count is correct');
+    is ($lane->run_priority, 1, 'correct run priority');
+    is ($lane->instrument_name, 'AV2', 'correct instrument name');
+    is ($lane->instrument_external_name, 'AV244103', 'correct external instrument name');
+    is ($lane->instrument_model, 'AVITI24', 'correct instrument model');
+    is ($lane->instrument_side, 'A', 'correct instrument side');
+    is ($lane->qc_seq, 1, 'QC outcome is correct');
+  }
+};
+
+subtest 'load data for a one-lane run, no LIMS' => sub {
+  plan tests => 16;
+
+  my $id_run = 50490;
+
+  my $rs = $schema_qc->resultset('MqcOutcomeEnt');
+  my $q = {id_run => $id_run, position => 1};
+  $q->{'id_seq_composition'} =
+      t::util::find_or_save_composition($schema_qc, $q);
+  $q->{'id_mqc_outcome'} = 4; #'Rejected final'
+  $rs->create($q);
+
+  my $loader = npg_warehouse::loader::elembio::run->new(
+    id_run => $id_run,
+    runfolder_path => 't/data/elembio',
+    npg_tracking_schema => $schema_npg,
+    npg_qc_schema => $schema_qc,
+    mlwh_schema => $schema_wh 
+  );
+  $loader->load();
+
+  my $rl_rs = $schema_wh->resultset('EseqRunLaneMetric')
+    ->search({id_run => $id_run});
+  is ($rl_rs->count(), 1, 'one row are retrieved');
+  my $lane = $rl_rs->next();
+  is ($lane->lane, 1, 'data for lane 1 is present');
+  is ($lane->id_run, $id_run, 'run id is correct');
+  is ($lane->run_folder_name, '20240416_AV234003_16AprilSGEB2_2x300_NT1799722A',
+    'run folder name is correct');
+  is ($lane->run_started->datetime, '2024-04-16T10:24:16', 'run started date is correct');
+  is ($lane->run_complete->datetime, '2024-04-18T21:06:50', 'run complete date is correct');
+  is ($lane->cancelled, 0, 'run is not cancelled');
+  is ($lane->flowcell_barcode, '2335443584', 'flowcell barcode is corect');
+  is ($lane->paired_read, 1, 'the run has paired reads');
+  is ($lane->cycles, 618, 'actual cycle count is correct');
+  is ($lane->run_priority, 3, 'correct run priority');
+  is ($lane->instrument_name, 'AV1', 'correct instrument name');
+  is ($lane->instrument_external_name, 'AV234003', 'correct external instrument name');
+  is ($lane->instrument_model, 'AVITI23', 'correct instrument model');
+  is ($lane->instrument_side, 'B', 'correct instrument side');
+  is ($lane->qc_seq, 0, 'QC outcome is correct');
+};
+
+subtest 'load data for early finished/cancelled run' => sub {
+  plan tests => 39;
+
+  my $id_run = 50545;
+  my $loader = npg_warehouse::loader::elembio::run->new(
+    id_run => $id_run,
+    runfolder_path => 't/data/elembio',
+    npg_tracking_schema => $schema_npg,
+    npg_qc_schema => $schema_qc,
+    mlwh_schema => $schema_wh 
+  );
+  $loader->load();
+
+  my $rl_rs = $schema_wh->resultset('EseqRunLaneMetric')
+    ->search({id_run => $id_run}, {order_by => {'-asc' => 'lane'}});
+  is ($rl_rs->count(), 2, 'two rows are retrieved');
+ 
+  # Test values that are the same for both lanes.
+  my $lane_number = 0;
+  for my $lane (($rl_rs->next(), $rl_rs->next())) {
+    $lane_number++;
+    is ($lane->id_run, $id_run, 'run id is correct');
+    is ($lane->lane, $lane_number, "lane number is $lane_number");
+    is ($lane->run_folder_name, '20250513_AV244103_NT1854819U_Run2', 'run folder name is correct');
+    is ($lane->run_started->datetime, '2025-05-13T14:57:41', 'run started date is correct');
+    ok (!defined($lane->run_complete), 'run complete date is not set');
+    is ($lane->cancelled, 0, 'run is not cancelled');
+    is ($lane->flowcell_barcode, '2443597240', 'flowcell barcode is corect');
+    is ($lane->paired_read, 1, 'the run has paired reads');
+    is ($lane->cycles, 0, 'actual cycle count is zero');
+    is ($lane->run_priority, 1, 'correct run priority');
+    is ($lane->instrument_name, 'AV2', 'correct instrument name');
+    is ($lane->instrument_external_name, 'AV244103', 'correct external instrument name');
+    is ($lane->instrument_model, 'AVITI24', 'correct instrument model');
+    is ($lane->instrument_side, 'A', 'correct instrument side');
+    ok (!defined $lane->qc_seq, 'QC outcome for a lane is not defined');
+  }
+
+  my $p_rs = $schema_wh->resultset('EseqProductMetric')->search({id_run => $id_run});
+  is ($p_rs->count(), 0, 'no product data');
+
+  $schema_npg->resultset('RunStatus')->search({id_run => $id_run, iscurrent => 1})
+    ->update({iscurrent => 0});
+  $schema_npg->resultset('RunStatus')->create({
+    date => '2025-05-14 19:08:27',
+    id_run => $id_run,
+    id_run_status_dict => 5,
+    id_user => 7,
+    iscurrent => 1
+  });
+  is ($schema_npg->resultset('Run')->find($id_run)->current_run_status_description(),
+    'run cancelled', q(run status has been switched to 'run cancelled'));
+
+  $loader->load();
+  $rl_rs = $schema_wh->resultset('EseqRunLaneMetric')
+    ->search({id_run => $id_run}, {order_by => {'-asc' => 'lane'}});
+  is ($rl_rs->count(), 2, 'two rows are retrieved');
+  my $lane = $rl_rs->next();
+  is($lane->cancelled, 1, 'run is cancelled');
+  ok (!defined($lane->run_complete), 'run complete date is not set');
+  $lane = $rl_rs->next();
+  is($lane->cancelled, 1, 'run is cancelled');
+  ok (!defined($lane->run_complete), 'run complete date is not set');
+
+  $p_rs = $schema_wh->resultset('EseqProductMetric')->search({id_run => $id_run});
+  is ($p_rs->count(), 0, 'no product data');
+};
+
+1;
