@@ -102,38 +102,47 @@ sub run_is_indexed {
 
 =head2 dates
 
-Returns a hash reference containing dates for 'run pending', 'run complete'
-and 'qc complete' run statuses. The run statuses are the keys and corresponding
-dates are the values.
+Returns a hash reference containing dates for 'run pending', 'run in progress',
+'run complete', run archived'and 'qc complete' run statuses. The run statuses
+(with underscores replacing white space) are the keys and corresponding dates
+are the values. 'run in progress' status is returned under 'run_started' key.
 
 If the run status history does not have a particular status, this status is
-not represented in the result. The earliest 'run pending' status date and the
-latest 'run complete' and 'qc complete' dates are returned.
+not represented in the result. The earliest 'run pending' and 'run in progress'
+status dates and the latest 'run complete', 'run archives' and 'qc complete'
+dates are returned.
 
 =cut
 sub dates {
     my $self = shift;
 
-    # Get the earliest run pending status date and
-    # the latest run complete and qc complete date
-    my $dates = {};
-    for my $column_name (qw/run_pending qc_complete run_complete/) {
-        my $sort_order = $column_name eq 'run_pending' ? '-asc' : '-desc';
-        my $run_status = $column_name;
-        $run_status =~ s/_/ /smx;
-        my $rs = $self->schema_npg->resultset('RunStatus')->search(
-           {
-               'me.id_run' => $self->id_run,
-               'run_status_dict.description' => $run_status,
-           },
-           {
-               prefetch => 'run_status_dict',
-               order_by => [{$sort_order => q[me.date]}],
-           },
-        )->next;
-        if ($rs) {
-            $dates->{$column_name} = $rs->date;
+    my $rs = $self->schema_npg->resultset('RunStatus')->search(
+        { 'me.id_run' => $self->id_run },
+        { 'order_by' => [{-asc => q[me.date]}] }
+    );
+
+    my $status2date = {};
+    while (my $run_status = $rs->next()) {
+        my $description = $run_status->description();
+        if ($description eq 'run in progress') {
+            $description = 'run_started';
+        } else {
+            $description =~ s/\s/_/gsmx;
         }
+        push @{$status2date->{$description}}, $run_status->date;
+    }
+
+    my $dates = {};
+    for my $mlwh_column_name ( qw/ run_pending
+                                   run_started
+                                   run_complete
+                                   run_archived
+                                   qc_complete / ) {
+        exists $status2date->{$mlwh_column_name} or next;
+        $dates->{$mlwh_column_name} =
+            ($mlwh_column_name =~ /(?:started)|(?:pending)/xms) ?
+                $status2date->{$mlwh_column_name}->[0] :
+                $status2date->{$mlwh_column_name}->[-1];
     }
 
     return $dates;
@@ -250,11 +259,12 @@ __END__
 
 =head1 AUTHOR
 
-Andy Brown and Marina Gourtovaia
+Andy Brown
+Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2018 Genome Research Limited
+Copyright (C) 2018, 2025 Genome Research Ltd.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
