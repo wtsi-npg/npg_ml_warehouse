@@ -10,7 +10,7 @@ use npg_tracking::glossary::composition::component::illumina;
 use npg_testing::db;
 use t::util;
 
-use_ok('npg_warehouse::loader::fqc');
+use_ok('npg_warehouse::loader::illumina::fqc');
 
 my $compos_pkg = 'npg_tracking::glossary::composition';
 my $compon_pkg = 'npg_tracking::glossary::composition::component::illumina';
@@ -53,10 +53,10 @@ subtest 'object initialization and input checking' => sub {
   plan tests => 4;
 
   my $mqc;
-  lives_ok {$mqc = npg_warehouse::loader::fqc->new(
+  lives_ok {$mqc = npg_warehouse::loader::illumina::fqc->new(
                    digests => $digests, schema_qc => $schema_qc)}
     'object instantiated';
-  isa_ok ($mqc, 'npg_warehouse::loader::fqc');
+  isa_ok ($mqc, 'npg_warehouse::loader::illumina::fqc');
   throws_ok { $mqc->retrieve_seq_outcome() }
     qr/rpt key is required/, 'no composition digest - error';
   throws_ok { $mqc->retrieve_outcomes() }
@@ -66,7 +66,7 @@ subtest 'object initialization and input checking' => sub {
 subtest 'retrieve lane seq outcome' => sub {
   plan tests => 4; 
 
-  my $mqc  = npg_warehouse::loader::fqc->new( 
+  my $mqc  = npg_warehouse::loader::illumina::fqc->new( 
              digests => $digests, schema_qc => $schema_qc);
   is_deeply ($mqc->retrieve_seq_outcome('3:1'), {qc_seq => undef},
     'undefined for a non-final outcome');
@@ -83,7 +83,7 @@ subtest 'retrieve outcomes for a lane' => sub {
   $outcomes->{qc_seq} = undef;
   $outcomes->{qc_lib} = undef;
 
-  my $mqc = npg_warehouse::loader::fqc->new( 
+  my $mqc = npg_warehouse::loader::illumina::fqc->new( 
             digests => $digests, schema_qc => $schema_qc);
 
   my $c = $compos_pkg->new(components =>
@@ -127,7 +127,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   my $digest = $c->digest;
   $digests->{$digest} = $c;
 
-  my $mqc = npg_warehouse::loader::fqc->new( 
+  my $mqc = npg_warehouse::loader::illumina::fqc->new( 
             digests => $digests, schema_qc => $schema_qc);
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes, 'no record - all undefined');
 
@@ -135,7 +135,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
         $schema_qc, {id_run => 3, position => 8, tag_index => 1});
   $q->{'id_mqc_outcome'} = 1; #'Accepted preliminary' 
   $rsl->create($q);
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
             digests => $digests, schema_qc => $schema_qc);
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
     'no record for seq, no final record for lib - all undefined');
@@ -144,7 +144,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
       [$compon_pkg->new(id_run => 3, position => 7, tag_index => 1)]);
   $digest = $c->digest;
   $digests->{$digest} = $c;
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes, 'no record - all undefined');
 
@@ -153,7 +153,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $q->{'id_mqc_outcome'} = 3; #'Accepted final' 
   $rsl->create($q);
   $outcomes->{qc_lib} = 1;
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes, 'lib final pass, lane - no record - overall undefined');
   
@@ -162,7 +162,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
       [$compon_pkg->new(id_run => 3, position => 1, tag_index => 1)]);
   $digest = $c->digest;
   $digests->{$digest} = $c;
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
     'no lib outcome, non-final seq outcome - all undefined');
@@ -171,7 +171,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
       [$compon_pkg->new(id_run => 3, position => 3, tag_index => 1)]);
   $digest = $c->digest;
   $digests->{$digest} = $c;
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
     'no lib outcome, non-final seq outcome - all undefined');
@@ -181,7 +181,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
         $schema_qc, {id_run => 3, position => 3, tag_index => 1});
   $q->{'id_mqc_outcome'} = 1; #'Accepted preliminary' 
   my $o = $rsl->create($q);
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
     'both lib and seq outcomes non-final - all undefined');
@@ -190,7 +190,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $q->{'id_mqc_outcome'} = 3; #'Accepted final'
   $rsl->create($q);
   $outcomes->{qc_lib} = 1;
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
     'lib final, seq outcomes non-final - overall undefined');
@@ -205,7 +205,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
     'all undefined - digest not cached');
 
   $digests->{$digest} = $c;
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   $outcomes->{qc_seq} = 0;
   $outcomes->{qc} = 0;
@@ -217,7 +217,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
         $schema_qc, {id_run => 3, position => 5, tag_index => 1});
   $q->{'id_mqc_outcome'} = 1; #'Accepted preliminary' 
   $o = $rsl->create($q);
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
     'seq outcome final, lib not final - overall undefined');
@@ -225,7 +225,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $o->delete();
   $q->{'id_mqc_outcome'} = 3; #'Accepted final';
   $o = $rsl->create($q);
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   $outcomes->{qc_lib} = 1;
   $outcomes->{qc} = 0;
@@ -235,7 +235,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $o->delete();
   $q->{'id_mqc_outcome'} = 4; #'Rejected final';
   $o = $rsl->create($q);
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   $outcomes->{qc_lib} = 0;
   $outcomes->{qc} = 0;
@@ -245,7 +245,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $o->delete();
   $q->{'id_mqc_outcome'} = 6; #'Undecided final';
   $o = $rsl->create($q);
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   $outcomes->{qc_lib} = undef;
   $outcomes->{qc} = 0;
@@ -256,7 +256,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
       [$compon_pkg->new(id_run => 3, position => 2, tag_index => 1)]);
   $digest = $c->digest;
   $digests->{$digest} = $c;
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   $outcomes->{qc_seq} = 1;
   $outcomes->{qc} = 1;
@@ -268,7 +268,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
         $schema_qc, {id_run => 3, position => 2, tag_index => 1});
   $q->{'id_mqc_outcome'} = 1; #'Accepted preliminary' 
   $o = $rsl->create($q);
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
     'seq outcome pass final, lib not final - overall pass');
@@ -276,7 +276,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $o->delete();
   $q->{'id_mqc_outcome'} = 3; #'Accepted final';
   $o = $rsl->create($q);
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   $outcomes->{qc_lib} = 1;
   $outcomes->{qc} = 1;
@@ -286,7 +286,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $o->delete();
   $q->{'id_mqc_outcome'} = 4; #'Rejected final';
   $o = $rsl->create($q);
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   $outcomes->{qc_lib} = 0;
   $outcomes->{qc} = 0;
@@ -296,7 +296,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $o->delete();
   $q->{'id_mqc_outcome'} = 6; #'Undecided final';
   $o = $rsl->create($q);
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   $outcomes->{qc_lib} = undef;
   $outcomes->{qc} = 1;
@@ -309,14 +309,14 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   $q->{'username'} = 'cat';
   $q->{'modified_by'} = 'cat';
   $o = $schema_qc->resultset('UqcOutcomeEnt')->create($q);
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   $outcomes->{qc_user} = 1;
     is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
     'as above, uqc pass');
 
   $o->update({'id_uqc_outcome' => 2}); # rejected
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   $outcomes->{qc_user} = 0;
   $outcomes->{qc} = 0;
@@ -325,7 +325,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
 
   
   $o->update({'id_uqc_outcome' => 3}); # undecided
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   delete $outcomes->{qc_user};
   $outcomes->{qc} = 1;
@@ -343,7 +343,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
   my $digests_other = {};
   $digest = $o->composition->digest;
   $digests_other->{$digest} = $o->composition;
-  $mqc = npg_warehouse::loader::fqc->new(
+  $mqc = npg_warehouse::loader::illumina::fqc->new(
          digests => $digests_other, schema_qc => $schema_qc);
   $outcomes = {qc => 1, qc_user => 1, qc_lib => undef, qc_seq => undef};
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
@@ -351,7 +351,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
 
   $q->{'id_uqc_outcome'} = 2; # rejected
   $o->update($q);
-  $mqc = npg_warehouse::loader::fqc->new(
+  $mqc = npg_warehouse::loader::illumina::fqc->new(
          digests => $digests_other, schema_qc => $schema_qc);
   $outcomes = {qc => 0, qc_user => 0, qc_lib => undef, qc_seq => undef};
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
@@ -359,7 +359,7 @@ subtest 'retrieve outcomes for a one component plex' => sub {
 
   $q->{'id_uqc_outcome'} = 3; # undecided
   $o->update($q);
-  $mqc = npg_warehouse::loader::fqc->new(
+  $mqc = npg_warehouse::loader::illumina::fqc->new(
          digests => $digests_other, schema_qc => $schema_qc);
   $outcomes = {qc => undef, qc_lib => undef, qc_seq => undef};
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
@@ -407,7 +407,7 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
     push @compositions_unmerged, @single_c_compositions; 
   }
 
-  my $mqc  = npg_warehouse::loader::fqc->new( 
+  my $mqc  = npg_warehouse::loader::illumina::fqc->new( 
              digests => $digests, schema_qc => $schema_qc);
 
   for my $c (@compositions, @compositions_unmerged) {
@@ -429,7 +429,7 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
   for my $lane (@lane_rows) {
     $lane->update({'id_mqc_outcome' => 4});
   }
-  $mqc  = npg_warehouse::loader::fqc->new( 
+  $mqc  = npg_warehouse::loader::illumina::fqc->new( 
           digests => $digests, schema_qc => $schema_qc);
 
   for my $c (@compositions, @compositions_unmerged) {
@@ -448,7 +448,7 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
   }
 
   $lane_rows[0]->update({'id_mqc_outcome' => 3});
-  $mqc  = npg_warehouse::loader::fqc->new( 
+  $mqc  = npg_warehouse::loader::illumina::fqc->new( 
           digests => $digests, schema_qc => $schema_qc);
 
   for my $c (@compositions) {
@@ -478,7 +478,7 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
     $lane->update({'id_mqc_outcome' => 3});
   }
   $lane_rows[1]->update({'id_mqc_outcome' => 1});
-  $mqc  = npg_warehouse::loader::fqc->new( 
+  $mqc  = npg_warehouse::loader::illumina::fqc->new( 
           digests => $digests, schema_qc => $schema_qc);
 
   for my $c (@compositions, @compositions_unmerged) {
@@ -508,7 +508,7 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
   $q->{'id_mqc_outcome'} = 3; #'Accepted final';
   my $row = $rsl->create($q);
   my $digest = $row->composition_digest;
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   my $outcomes = {qc_seq => 1, qc_lib => 1, qc => 1};
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
@@ -521,14 +521,14 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
   $q->{'modified_by'} = 'cat';
   $q->{'id_seq_composition'} = $row->id_seq_composition;
   $row = $schema_qc->resultset('UqcOutcomeEnt')->create($q);
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   $outcomes->{qc_user} = 1;
   is_deeply ($mqc->retrieve_outcomes($digest), $outcomes,
     'as above, uqc pass, qc pass');
 
   $row->update({'id_uqc_outcome' => 2}); # rejected
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   $outcomes->{qc_user} = 0;
   $outcomes->{qc} = 0;
@@ -536,7 +536,7 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
     'as above, uqc fail, leading to qc fail');
 
   $row->update({'id_uqc_outcome' => 3}); # undecided
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   delete $outcomes->{qc_user};
   $outcomes->{qc} = 1;
@@ -552,7 +552,7 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
   $row = $rsl->create($q);
   $digest = $row->composition_digest;
   $digests->{$digest} = $row->composition;
-  $mqc = npg_warehouse::loader::fqc->new( 
+  $mqc = npg_warehouse::loader::illumina::fqc->new( 
          digests => $digests, schema_qc => $schema_qc);
   my $retrieved;
   warnings_like {$retrieved = $mqc->retrieve_outcomes($digest)}
@@ -571,7 +571,7 @@ subtest 'retrieve outcomes for a multi-component plex' => sub {
   $q->{'id_seq_composition'} = $id_comp;
   $schema_qc->resultset('UqcOutcomeEnt')->create($q);
 
-  $mqc = npg_warehouse::loader::fqc->new(
+  $mqc = npg_warehouse::loader::illumina::fqc->new(
          digests => $digests, schema_qc => $schema_qc);
   warnings_like {$retrieved = $mqc->retrieve_outcomes($digest)}
     [qr/Conflicting inferred outcomes for/, qr/Conflicting inferred outcomes for/],

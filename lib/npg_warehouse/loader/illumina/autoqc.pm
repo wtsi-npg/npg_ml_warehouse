@@ -1,4 +1,4 @@
-package npg_warehouse::loader::autoqc;
+package npg_warehouse::loader::illumina::autoqc;
 
 use Carp;
 use Moose;
@@ -83,12 +83,12 @@ Readonly::Hash   my %AUTOQC_MAPPING  => {
 
 =head1 NAME
 
-npg_warehouse::loader::autoqc
+npg_warehouse::loader::illumina::autoqc
 
 =head1 SYNOPSIS
  
  my $id_run = 222;
- my $autoqc_hash = npg_:warehouse::loader::autoqc->new()->retrieve($id_run);
+ my $autoqc_hash = npg_:warehouse::loader::illumina::autoqc->new()->retrieve($id_run);
 
 =head1 DESCRIPTION
 

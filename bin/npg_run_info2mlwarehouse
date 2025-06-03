@@ -8,7 +8,7 @@ use Getopt::Long;
 use Pod::Usage;
 
 use WTSI::DNAP::Warehouse::Schema;
-use npg_warehouse::loader::run_info;
+use npg_warehouse::loader::illumina::run_info;
 
 our $VERSION = '0';
 
@@ -16,7 +16,7 @@ my $help             = q[];
 GetOptions ('help' => \$help,);
 if ($help) { pod2usage(0); }
 
-npg_warehouse::loader::run_info->new(
+npg_warehouse::loader::illumina::run_info->new(
   schema_wh  => WTSI::DNAP::Warehouse::Schema->connect(),
 )->copy_npg_tables();
 
@@ -72,7 +72,7 @@ None
 
 =item WTSI::DNAP::Warehouse::Schema
 
-=item npg_warehouse::loader::run_info
+=item npg_warehouse::loader::illumina::run_info
 
 =back
 

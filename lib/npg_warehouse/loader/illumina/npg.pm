@@ -1,4 +1,4 @@
-package npg_warehouse::loader::npg;
+package npg_warehouse::loader::illumina::npg;
 
 use Carp;
 use Moose;
@@ -12,7 +12,7 @@ our $VERSION = '0';
 
 =head1 NAME
 
-npg_warehouse::loader::npg
+npg_warehouse::loader::illumina::npg
 
 =head1 SYNOPSIS
 

@@ -1,4 +1,4 @@
-package npg_warehouse::fk_repair;
+package npg_warehouse::iseq_fk_repair;
 
 use Moose;
 use MooseX::StrictConstructor;
@@ -7,7 +7,7 @@ use Log::Log4perl qw(:easy);
 use Readonly;
 use Carp;
 
-use npg_warehouse::loader::run;
+use npg_warehouse::loader::illumina::run;
 
 extends 'npg_warehouse::loader::base';
 with    'MooseX::Getopt';
@@ -22,18 +22,18 @@ Readonly::Scalar my $WAIT_HOURS_MULTIPLE => 4;
 
 =head1 NAME
 
-npg_warehouse::fk_repair
+npg_warehouse::iseq_fk_repair
 
 =head1 SYNOPSIS
 
- npg::warehouse::fk_repair->new()->run();
- npg::warehouse::fk_repair->new(loop => 1)->run();
+ npg::warehouse::iseq_fk_repair->new()->run();
+ npg::warehouse::iseq_fk_repair->new(loop => 1)->run();
 
 =head1 DESCRIPTION
 
 Sets (repairs)  NULL foreign keys from iseq_product_metrics
 table to iseq_flowcell table.
-Invokes ml warehouse loader npg_warehouse::loader::run
+Invokes ml warehouse loader npg_warehouse::loader::illumina::run
 to repair individual runs.
 
 =head1 SUBROUTINES/METHODS
@@ -196,7 +196,7 @@ sub _run_once {
     }
     $self->_logger->info(qq[Calling loader for run $id]);
 
-    my $loader = npg_warehouse::loader::run->new(
+    my $loader = npg_warehouse::loader::illumina::run->new(
       verbose        => $self->verbose,
       explain        => $self->explain,
       id_run         => $id,

@@ -1,4 +1,4 @@
-package npg_warehouse::loader::fqc;
+package npg_warehouse::loader::illumina::fqc;
 
 use Moose;
 use MooseX::StrictConstructor;
@@ -22,11 +22,11 @@ Readonly::Scalar my $IS_SINGLE_LANE   => 'is_single_lane';
 
 =head1 NAME
 
-npg_warehouse::loader::fqc
+npg_warehouse::loader::illumina::fqc
 
 =head1 SYNOPSIS
 
-  my $fqc = npg_warehouse::loader::fqc->new(digests => {
+  my $fqc = npg_warehouse::loader::illumina::fqc->new(digests => {
     'digest1' => $c1, 'digest2' => $c2, 'digest3' => $c3
   });
   $fqc->retrieve();
