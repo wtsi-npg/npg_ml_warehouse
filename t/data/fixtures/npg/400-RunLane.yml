@@ -694,4 +694,19 @@
   position: 1
   tile_count: 92
   tracks: 1
+- id_run: 50490
+  id_run_lane: 246174
+  position: 1
+  tile_count: 0
+  tracks: 0
+- id_run: 50517
+  id_run_lane: 246215
+  position: 1
+  tile_count: 0
+  tracks: 0
+- id_run: 50517
+  id_run_lane: 246216
+  position: 2
+  tile_count: 0
+  tracks: 0
 

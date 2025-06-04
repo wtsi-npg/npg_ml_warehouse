@@ -1,5 +1,9 @@
 LIST OF CHANGES
 
+release 52.2.0 (2025-06-04)
+ - Ensured iseq_run mlwh table is populated with data for runs performed on
+   Illumina instruments only.
+
 release 52.1.0 (2025-06-04)
  - Moved all illumina loader classes to npg_mlwarehouse::loader::illumina
    namespace

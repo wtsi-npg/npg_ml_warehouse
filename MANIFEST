@@ -53,6 +53,7 @@ t/10-npg_warehouse-loader-illumina-run_files.t
 t/10-npg_warehouse-loader-illumina-run_info.t
 t/20-npg_warehouse-loader-illumina-run.t
 t/data/fixtures/npg/000-InstrumentStatusDict.yml
+t/data/fixtures/npg/000-Manufacturer.yml
 t/data/fixtures/npg/000-RunStatusDict.yml
 t/data/fixtures/npg/000-RunLaneStatusDict.yml
 t/data/fixtures/npg/000-Tag.yml

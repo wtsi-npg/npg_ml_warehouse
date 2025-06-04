@@ -1541,4 +1541,28 @@
   id_run_status_dict: 20
   id_user: 7
   iscurrent: 1
+- date: 2024-04-16 10:24:16
+  id_run: 50490
+  id_run_status: 684573
+  id_run_status_dict: 2
+  id_user: 7
+  iscurrent: 0
+- date: 2024-04-18 21:06:50
+  id_run: 50490
+  id_run_status: 684574
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 1
+- date: 2025-01-27 15:41:07
+  id_run: 50517
+  id_run_status: 684627
+  id_run_status_dict: 2
+  id_user: 7
+  iscurrent: 0
+- date: 2025-01-29 02:12:27
+  id_run: 50517
+  id_run_status: 684628
+  id_run_status_dict: 4
+  id_user: 7
+  iscurrent: 1
 
