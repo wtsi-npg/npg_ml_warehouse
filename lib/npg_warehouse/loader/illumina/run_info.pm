@@ -65,10 +65,18 @@ sub _copy_table {
   my ($self, $table) = @_;
 
   my $rs_npg = $self->schema_npg->resultset($table);
+  if ($table eq 'Run') {
+    $rs_npg = $rs_npg->search(
+      { 'manufacturer.name' => 'Illumina' },
+      {
+        prefetch => {'instrument_format' => 'manufacturer'}
+      }
+    );
+  }
   $rs_npg->result_class('DBIx::Class::ResultClass::HashRefInflator');
   my $rs_wh = $self->schema_wh->resultset($self->_prefix . $table);
   while (my $row_hash = $rs_npg->next) {
-    if ($table eq 'Run'){
+    if ($table eq 'Run') {
       my $temp_hash = {
         id_run           => $row_hash->{id_run},
         id_flowcell_lims => $row_hash->{batch_id},

@@ -99,3 +99,44 @@
   id_tag: 20
   id_tag_run: 7656
   id_user: 7
+- date: 2025-06-03
+  id_run: 50490
+  id_tag: 17
+  id_tag_run: 251449
+  id_user: 7
+- date: 2025-06-03
+  id_run: 50490
+  id_tag: 19
+  id_tag_run: 251448
+  id_user: 7
+- date: 2025-06-03
+  id_run: 50490
+  id_tag: 20
+  id_tag_run: 251450
+  id_user: 7
+- date: 2025-06-03
+  id_run: 50490
+  id_tag: 23
+  id_tag_run: 251447
+  id_user: 7
+- date: 2025-06-03
+  id_run: 50517
+  id_tag: 17
+  id_tag_run: 251556
+  id_user: 7
+- date: 2025-06-03
+  id_run: 50517
+  id_tag: 19
+  id_tag_run: 251555
+  id_user: 7
+- date: 2025-06-03
+  id_run: 50517
+  id_tag: 20
+  id_tag_run: 251557
+  id_user: 7
+- date: 2025-06-03
+  id_run: 50517
+  id_tag: 22
+  id_tag_run: 251554
+  id_user: 7
+
