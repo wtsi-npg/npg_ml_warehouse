@@ -1,12 +1,12 @@
-package npg_warehouse::loader::product;
+package npg_warehouse::loader::illumina::product;
 
 use Moose::Role;
 use Readonly;
 use Carp;
 use Clone qw/clone/;
 
-use npg_warehouse::loader::fqc;
-use npg_warehouse::loader::autoqc;
+use npg_warehouse::loader::illumina::fqc;
+use npg_warehouse::loader::illumina::autoqc;
 
 requires qw/schema_qc schema_wh/;
 
@@ -17,7 +17,7 @@ Readonly::Scalar my $LIMS_FK_COLUMN_NAME => q[id_iseq_flowcell_tmp];
 
 =head1 NAME
 
-npg_warehouse::loader::product
+npg_warehouse::loader::illumina::product
 
 =head1 SYNOPSIS
 
@@ -41,7 +41,7 @@ sub product_data {
   my $indexed_lanes = _indexed_lanes_hash($data_hash);
   my %digests = map { $_ => $data_hash->{$_}->{'composition'} }
                 keys %{$data_hash};
-  my $fqc_retriever = npg_warehouse::loader::fqc->new(
+  my $fqc_retriever = npg_warehouse::loader::illumina::fqc->new(
     schema_qc => $self->schema_qc,
     digests   => \%digests
   );
@@ -212,7 +212,7 @@ sub _filter_column_names {
   my ($self, $values) = @_;
 
   # No harm deleting a key that might not exist.
-  delete  $values->{$npg_warehouse::loader::autoqc::PP_KEY};
+  delete  $values->{$npg_warehouse::loader::illumina::autoqc::PP_KEY};
 
   my @columns = keys %{$values};
   foreach my $name (@columns) {

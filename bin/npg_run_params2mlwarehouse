@@ -7,7 +7,7 @@ use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
 use Log::Log4perl qw(:easy :levels);
 use Try::Tiny;
 
-use npg_warehouse::loader::run_files;
+use npg_warehouse::loader::illumina::run_files;
 
 our $VERSION = '0';
 
@@ -25,7 +25,7 @@ my $loader;
 my $file;
 
 try {
-  $loader = npg_warehouse::loader::run_files->new_with_options();
+  $loader = npg_warehouse::loader::illumina::run_files->new_with_options();
   INFO('Loading run params. for run ' . $loader->id_run);
   $file = $loader->load();
 } catch {
@@ -91,7 +91,7 @@ Script to load a file with Illumina run parameters to ml warehouse.
 
 =item Log::Log4perl
 
-=item npg_warehouse::loader::run_param
+=item npg_warehouse::loader::illumina::run_param
 
 =back
 

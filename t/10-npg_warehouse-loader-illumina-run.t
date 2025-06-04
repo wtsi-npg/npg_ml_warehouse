@@ -40,8 +40,8 @@ my @basic_run_lane_columns = qw/cycles
  my @columns = qw/tags_decode_percent
                   tags_decode_cv/;
 
-use_ok('npg_warehouse::loader::run');
-throws_ok {npg_warehouse::loader::run->new()}
+use_ok('npg_warehouse::loader::illumina::run');
+throws_ok {npg_warehouse::loader::illumina::run->new()}
     qr/Attribute \(id_run\) is required/,
     'error in constructor when id_run attr is not defined';
 
@@ -97,9 +97,9 @@ subtest 'old paired (two runfolders) run' => sub {
   delete $in{'_autoqc_store'};
   my $loader;
 
-  lives_ok {$loader  = npg_warehouse::loader::run->new(\%in)}
+  lives_ok {$loader  = npg_warehouse::loader::illumina::run->new(\%in)}
     'loader object instantiated by passing schema objects to the constructor';
-  isa_ok ($loader, 'npg_warehouse::loader::run');
+  isa_ok ($loader, 'npg_warehouse::loader::illumina::run');
   ok (!$loader->_old_forward_id_run, 'old forward id run is not set');
   $loader->load();
   my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 1246});
@@ -107,7 +107,7 @@ subtest 'old paired (two runfolders) run' => sub {
   
   $in{'id_run'} = 1272;
   $in{'verbose'} = 1;
-  my $loader1 = npg_warehouse::loader::run->new(\%in);
+  my $loader1 = npg_warehouse::loader::illumina::run->new(\%in);
   is ($loader1->_old_forward_id_run, 1246, 'old forward id run is set');
   warning_like { $loader1->load() }
     qr/Run 1272 is an old reverse run for 1246, not loading/,
@@ -150,7 +150,7 @@ subtest 'old paired (two runfolders) run' => sub {
   delete $in{'_autoqc_store'};
   $in{'id_run'}  = 1246;
   $in{'explain'} = 1;
-  lives_ok {$loader  = npg_warehouse::loader::run->new(\%in)}
+  lives_ok {$loader  = npg_warehouse::loader::illumina::run->new(\%in)}
     'loader object instantiated by passing schema objects to the constructor';
   warning_like { $loader->_flowcell_table_fks } 
     qr/Tracking database has no flowcell information for run 1246/,
@@ -168,7 +168,7 @@ subtest 'old paired (two runfolders) run' => sub {
     $schema_qc->resultset('MqcLibraryOutcomeEnt')->create($q);
   }
   
-  npg_warehouse::loader::run->new(\%in)->load();
+  npg_warehouse::loader::illumina::run->new(\%in)->load();
   $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => 1246,});
   
   is ($rs->count, 1, '1 product row for run 1246');
@@ -184,13 +184,13 @@ subtest 'old paired (two runfolders) run' => sub {
 
   my %in = %{$init};
   $in{'id_run'} = 4138;
-  my $loader  = npg_warehouse::loader::run->new(\%in);
+  my $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   $loader->load();
   my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 4138,},);
   is ($rs->count, 8,'8 rows for run 4138');
 
   $in{'id_run'} = 3965;
-  $loader  = npg_warehouse::loader::run->new(\%in);
+  $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   $loader->load();
   my $r = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 3965,position=>1},)->next;
   is ($r->paired_read, 1, 'paired read flag updated correctly');
@@ -204,7 +204,7 @@ subtest 'old paired (two runfolders) run' => sub {
   is ($r->instrument_model, q[HK] , 'instr model');
 
   $in{'id_run'} = 3323;
-  $loader  = npg_warehouse::loader::run->new(\%in);
+  $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   $loader->load();
   $r = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => 3323,position=>1},)->next;
   is($r->pf_cluster_density, undef, 'pf_cluster_density undefined'); 
@@ -223,7 +223,7 @@ subtest 'indexed run' => sub {
 
   my %in = %{$init};
   $in{'id_run'} = $id_run;
-  my $loader  = npg_warehouse::loader::run->new(\%in);
+  my $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   $loader->load();
 
   my $values = {
@@ -293,7 +293,7 @@ subtest 'indexed run' => sub {
 
   my %in = %{$init};
   $in{'id_run'} = $id_run;
-  my $loader  = npg_warehouse::loader::run->new(\%in);
+  my $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   $loader->load();
 
   my @rows = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search(
@@ -404,7 +404,7 @@ subtest 'indexed run' => sub {
 
   my %in = %{$init};
   $in{'id_run'} = $id_run;
-  my $loader  = npg_warehouse::loader::run->new(\%in);
+  my $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   $loader->load();
 
   my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => $id_run},);
@@ -480,7 +480,7 @@ subtest 'indexed run' => sub {
 
   my %in = %{$init};
   $in{'id_run'} = $id_run;
-  my $loader  = npg_warehouse::loader::run->new(\%in);
+  my $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   $loader->load();
 
   my $rs = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search({id_run => $id_run},);
@@ -536,7 +536,7 @@ subtest 'linking to lims data - test 1' => sub {
   $in{'_autoqc_store'} = npg_qc::autoqc::qc_store->new(
     use_db => 1, qc_schema => $schema_qc, verbose => 0);
   $in{'lims_fk_repair'} = 1;
-  my $loader  = npg_warehouse::loader::run->new(\%in);
+  my $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   is ($loader->id_flowcell_lims, 14178, 'id_flowcell_lims populated correctly');
 
   $loader->load();
@@ -622,7 +622,7 @@ subtest 'linking to lims data - test 2' => sub {
   $in{'id_run'} = $id_run;
   $in{'_autoqc_store'} = npg_qc::autoqc::qc_store->new(use_db => 1, qc_schema => $schema_qc, verbose => 0);
   $in{'lims_fk_repair'} = 1;
-  my $loader  = npg_warehouse::loader::run->new(\%in);
+  my $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   warnings_exist { $loader->load() }
     [qr/Run 4486: multiple flowcell table records for library, pt key 1/],
     'warning about duplicate entries';
@@ -701,7 +701,7 @@ subtest 'not loading early stage runs' => sub {
   $in{'verbose'} = 1;
   my $sid = $schema_npg->resultset('RunStatusDict')->search({description => 'run in progress'})->next->id_run_status_dict();
   $schema_npg->resultset('Run')->find(1246)->current_run_status->update( {id_run_status_dict => $sid,} );
-  my $loader = npg_warehouse::loader::run->new(\%in);
+  my $loader = npg_warehouse::loader::illumina::run->new(\%in);
   warnings_like { $loader->load() } [
     qr/Run status is \'run in progress\'/,
     qr/Too early to load run 1246, not loading/],
@@ -720,7 +720,7 @@ subtest 'rna run' => sub {
   my %in = %{$init};
   $in{'id_run'} = $id_run;
   $in{'verbose'} = 0;
-  my $loader  = npg_warehouse::loader::run->new(\%in);
+  my $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   lives_ok {$loader->load()} 'data is loaded into the product table';
 
   my $rs = $schema_wh->resultset($PRODUCT_TABLE_NAME)->search({id_run => 24975,});
@@ -758,7 +758,7 @@ subtest 'gbs run' => sub {
   my %in = %{$init};
   $in{'id_run'} = $id_run;
   $in{'verbose'} = 0;
-  my $loader  = npg_warehouse::loader::run->new(\%in);
+  my $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   lives_ok {$loader->load()} 'data is loaded into the product table';
 
   my $r = $schema_wh->resultset($PRODUCT_TABLE_NAME)->find({id_run => $id_run, position => 1, tag_index=>60},);
@@ -785,7 +785,7 @@ subtest 'Generic autoqc artic data to heron table' => sub {
   my %in = %{$init};
   $in{'id_run'} = $id_run;
   $in{'verbose'} = 0;
-  my $loader  = npg_warehouse::loader::run->new(\%in);
+  my $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   lives_ok {$loader->load()} 'data is loaded into the product table';
   $rs = $schema_wh->resultset($HERON_PRODUCT_TABLE_NAME)
     ->search({}, {order_by => 'supplier_sample_name'});
@@ -853,7 +853,7 @@ subtest 'Generic autoqc ampliconstats data to ampliconstats table' => sub {
   my %in = %{$init};
   $in{'id_run'} = $id_run;
   $in{'verbose'} = 0;
-  my $loader  = npg_warehouse::loader::run->new(\%in);
+  my $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   lives_ok {$loader->load()} 'data is loaded';
   $rs = $schema_wh->resultset($ASTATS_TABLE_NAME)
     ->search({}, {order_by => 'amplicon_index'});
@@ -957,7 +957,7 @@ subtest 'NovaSeq run with merged data' => sub {
   my %in = %{$init};
   $in{'id_run'} = $id_run;
   $in{'verbose'} = 0;
-  my $loader  = npg_warehouse::loader::run->new(\%in);
+  my $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   warnings_like { $loader->load() }
     [qr/Failed to find the component product row/],
     'warning when the component product row is not found';
@@ -971,7 +971,7 @@ subtest 'NovaSeq run with merged data' => sub {
   fcopy join(q[/],'t/data/runfolders/with_merges', $archive_dir, '26291_2.tag_metrics.json'),
     "$lane_dir/qc";
 
-  $loader  = npg_warehouse::loader::run->new(\%in);
+  $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   lives_ok {$loader->load()} 'data loaded OK';
   my @rows = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search(
     {id_run => $id_run})->all();
@@ -1075,7 +1075,7 @@ subtest 'NovaSeq run with merged data' => sub {
   my $uqc = $schema_qc->resultset('UqcOutcomeEnt')->create($q);
 
   # Load data again
-  $loader = npg_warehouse::loader::run->new(\%in);
+  $loader = npg_warehouse::loader::illumina::run->new(\%in);
   lives_ok {$loader->load()} 'data is loaded';
 
   @rows = $schema_wh->resultset($RUN_LANE_TABLE_NAME)->search(
@@ -1143,7 +1143,7 @@ subtest 'run with merged data - linking to flowcell table' => sub {
   $in{'id_run'} = $id_run;
   $in{'verbose'} = 0;
 
-  my $loader  = npg_warehouse::loader::run->new(\%in);
+  my $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   ok(!$loader->lims_fk_repair, 'lims_fk_repair flag is false');
   lives_ok {$loader->load()} 'data is loaded';
   $rs = $prs->search({id_run => $id_run});
@@ -1152,7 +1152,7 @@ subtest 'run with merged data - linking to flowcell table' => sub {
     'none of these rows are linked to the flowcell table');
 
   $in{'lims_fk_repair'} = 1;
-  $loader  = npg_warehouse::loader::run->new(\%in);
+  $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   ok($loader->lims_fk_repair, 'lims_fk_repair flag is true');
 
   lives_ok {$loader->load()} 'data is loaded';
@@ -1172,7 +1172,7 @@ subtest 'run with merged data - linking to flowcell table' => sub {
   $test_after_loading->();
 
   $in{'lims_fk_repair'} = 0;
-  $loader  = npg_warehouse::loader::run->new(\%in);
+  $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   ok(!$loader->lims_fk_repair, 'lims_fk_repair flag is false');
   lives_ok {$loader->load()} 'data is loaded again';
   $test_after_loading->();
@@ -1183,7 +1183,7 @@ subtest 'run with merged data - linking to flowcell table' => sub {
   $rs = $prs->search({id_run => $id_run});
   is ($rs->count, 0, "all rows for run $id_run deleted from the product table");
   $in{'lims_fk_repair'} = 0;
-  $loader  = npg_warehouse::loader::run->new(\%in);
+  $loader  = npg_warehouse::loader::illumina::run->new(\%in);
   ok(!$loader->lims_fk_repair, 'lims_fk_repair flag is false');
   lives_ok {$loader->load()} 'data is loaded';
   $test_after_loading->();
@@ -1247,7 +1247,7 @@ subtest 'run and lane status dates' => sub {
   my %in = %{$init};
   $in{'id_run'} = $id_run;
   $in{'verbose'} = 0;
-  my $loader  = npg_warehouse::loader::run->new(%in);
+  my $loader  = npg_warehouse::loader::illumina::run->new(%in);
   $loader->load();
 
   my %rows = map { $_->position => $_ } $rlrs->search({id_run => $id_run})->all();

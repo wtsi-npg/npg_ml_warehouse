@@ -5,7 +5,7 @@ use Test::Exception;
 use Moose::Meta::Class;
 use npg_testing::db;
 
-use_ok('npg_warehouse::loader::qc');
+use_ok('npg_warehouse::loader::illumina::qc');
 
 my $util = Moose::Meta::Class->create_anon_class(
   roles => [qw/npg_testing::db/])->new_object({});
@@ -16,9 +16,9 @@ my $schema_qc = $util->create_test_db(
 {
   my $q;
   lives_ok {
-    $q = npg_warehouse::loader::qc->new(schema_qc => $schema_qc)
+    $q = npg_warehouse::loader::illumina::qc->new(schema_qc => $schema_qc)
   } 'object instantiated by passing schema objects to the constructor';
-  isa_ok ($q, 'npg_warehouse::loader::qc');
+  isa_ok ($q, 'npg_warehouse::loader::illumina::qc');
 
   throws_ok {$q->retrieve_cluster_density()} qr/Run id argument should be set/,
     'error if id_run arg not set';

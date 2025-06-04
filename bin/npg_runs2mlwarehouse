@@ -11,7 +11,7 @@ use Log::Log4perl qw(:easy :levels);
 use npg_tracking::Schema;
 use npg_qc::Schema;
 use WTSI::DNAP::Warehouse::Schema;
-use npg_warehouse::loader::run;
+use npg_warehouse::loader::illumina::run;
 
 our $VERSION = '0';
 
@@ -91,7 +91,7 @@ if (!@{$id_run}) {
 }
 
 foreach my $id (@{$id_run}) {
-  my $loader = npg_warehouse::loader::run->new(
+  my $loader = npg_warehouse::loader::illumina::run->new(
     verbose    => $verbose,
     explain    => $explain,
     id_run     => $id,
@@ -181,7 +181,7 @@ None
 
 =item WTSI::DNAP::Warehouse::Schema
 
-=item npg_warehouse::loader::run
+=item npg_warehouse::loader::illumina::run
 
 =back
 

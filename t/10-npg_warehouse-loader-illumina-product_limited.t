@@ -10,7 +10,7 @@ use File::Copy::Recursive qw/dircopy/;
 use npg_tracking::glossary::composition::factory::rpt_list;
 use t::util;
 
-use_ok('npg_warehouse::loader::product_limited');
+use_ok('npg_warehouse::loader::illumina::product_limited');
 
 my $dir = tempdir(CLEANUP => 1);
 
@@ -26,26 +26,26 @@ lives_ok{ $schema_qc  = $util->create_test_db(q[npg_qc::Schema],
 subtest 'object construction, presence of attributes' => sub {
   plan tests => 9;
 
-  throws_ok { npg_warehouse::loader::product_limited->new(schema_qc => $schema_qc,
+  throws_ok { npg_warehouse::loader::illumina::product_limited->new(schema_qc => $schema_qc,
                                                           schema_wh => $schema_wh)
   } qr/Either rpt_list or composition_path or autoqc_path should be set/,
     'error if neither of composition-defining attributes is set';
-  throws_ok { npg_warehouse::loader::product_limited->new(schema_qc => $schema_qc,
+  throws_ok { npg_warehouse::loader::illumina::product_limited->new(schema_qc => $schema_qc,
                                                           schema_wh => $schema_wh,
                                                           autoqc_path => ['t'],
                                                           composition_path => ['t'])
   } qr/Only one of rpt_list, composition_path, autoqc_path can be set/,
     'error if two composition-defining attributes are set';
-  throws_ok { npg_warehouse::loader::product_limited->new(schema_qc => $schema_qc,
+  throws_ok { npg_warehouse::loader::illumina::product_limited->new(schema_qc => $schema_qc,
                                                           schema_wh => $schema_wh,
                                                           autoqc_path => ['t'],
                                                           rpt_list => ['234:1:1'])
   } qr/Only one of rpt_list, composition_path, autoqc_path can be set/,
     'error if two composition-defining attributes are set';
 
-  my $l = npg_warehouse::loader::product_limited->new(
+  my $l = npg_warehouse::loader::illumina::product_limited->new(
     schema_qc => $schema_qc, schema_wh => $schema_wh, autoqc_path => ['t']);
-  isa_ok ($l, 'npg_warehouse::loader::product_limited');
+  isa_ok ($l, 'npg_warehouse::loader::illumina::product_limited');
   ok (!$l->can('schema_npg'), 'schema_npg accessor is not available');
   ok (!$l->can('explain'), 'explain accessor is not available');
   ok (!$l->can('get_lims_fk'), 'get_lims_fk method is not available');
@@ -65,7 +65,7 @@ subtest 'autoqc results from path' => sub {
   -e $interop or die 'Copying went wrong';
   unlink $interop; 
 
-  my $l_merged = npg_warehouse::loader::product_limited->new(
+  my $l_merged = npg_warehouse::loader::illumina::product_limited->new(
     schema_qc => $schema_qc,
     schema_wh => $schema_wh,
     autoqc_path => ["$temp_a/plex1/qc"]
@@ -73,7 +73,7 @@ subtest 'autoqc results from path' => sub {
   throws_ok { $l_merged->load() } qr/Failed to find the component product row/,
     'merged results cannot be loaded without rows for components being present';
 
-  my $l = npg_warehouse::loader::product_limited->new(
+  my $l = npg_warehouse::loader::illumina::product_limited->new(
     schema_qc => $schema_qc,
     schema_wh => $schema_wh,
     autoqc_path => [$temp_a, "$temp_a/lane1/qc"]
@@ -89,7 +89,7 @@ subtest 'autoqc results for rpt_list strings' => sub {
                   (13 .. 18);
   push @rpt_lists, '6998:3:153';
 
-  my $l = npg_warehouse::loader::product_limited->new(
+  my $l = npg_warehouse::loader::illumina::product_limited->new(
     schema_qc => $schema_qc,
     schema_wh => $schema_wh,
     rpt_list  => \@rpt_lists
@@ -97,21 +97,21 @@ subtest 'autoqc results for rpt_list strings' => sub {
   is ($l->load(), 7, '7 rows loaded');
 
   push @rpt_lists, '16998:3:153'; # no data
-  $l = npg_warehouse::loader::product_limited->new(
+  $l = npg_warehouse::loader::illumina::product_limited->new(
     schema_qc => $schema_qc,
     schema_wh => $schema_wh,
     rpt_list  => \@rpt_lists
   );
   is ($l->load(), 7, '7 rows loaded');
 
-  $l = npg_warehouse::loader::product_limited->new(
+  $l = npg_warehouse::loader::illumina::product_limited->new(
     schema_qc => $schema_qc,
     schema_wh => $schema_wh,
     rpt_list  => ['16998:3:153']
   );
   is ($l->load(), 0, 'no data loaded');
 
-  $l = npg_warehouse::loader::product_limited->new(
+  $l = npg_warehouse::loader::illumina::product_limited->new(
     schema_qc => $schema_qc,
     schema_wh => $schema_wh,
     rpt_list  => ['6998:3']
@@ -137,7 +137,7 @@ subtest 'autoqc results for compositions from a path' => sub {
   mkdir $other or die 'Failed to create a directory';
   rename "$dir/1.collection.json", "$other/1.collection.json" or die 'Failed to move a file';
 
-  my $l = npg_warehouse::loader::product_limited->new(
+  my $l = npg_warehouse::loader::illumina::product_limited->new(
     schema_qc => $schema_qc,
     schema_wh => $schema_wh,
     composition_path  => [$dir, $other]

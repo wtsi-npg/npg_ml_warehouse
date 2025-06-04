@@ -1,4 +1,4 @@
-package npg_warehouse::loader::run_files;
+package npg_warehouse::loader::illumina::run_files;
 
 use namespace::autoclean;
 use Moose;
@@ -15,11 +15,11 @@ our $VERSION  = '0';
 
 =head1 NAME
 
-npg_warehouse::loader::run_files
+npg_warehouse::loader::illumina::run_files
 
 =head1 SYNOPSIS
 
-  my $file = npg_warehouse::loader::run_files->new(
+  my $file = npg_warehouse::loader::illumina::run_files->new(
     id_run => 4567,
     path_glob = '/home/my/{r,R}unParameters.xml'
   )->load;
@@ -29,7 +29,7 @@ npg_warehouse::loader::run_files
 
   my $path = '/home/my/runParameters.xml';
   $path = -e $path ? $path : '/home/my/RunParameters.xml';
-  $file = npg_warehouse::loader::run_files->new(
+  $file = npg_warehouse::loader::illumina::run_files->new(
     id_run => 4567,
     path_glob = $path
   )->load;

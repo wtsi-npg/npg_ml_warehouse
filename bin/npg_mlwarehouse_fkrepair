@@ -5,11 +5,11 @@ use warnings;
 use FindBin qw($Bin);
 use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
 
-use npg_warehouse::fk_repair;
+use npg_warehouse::iseq_fk_repair;
 
 our $VERSION = '0';
 
-npg_warehouse::fk_repair->new_with_options()->run();
+npg_warehouse::iseq_fk_repair->new_with_options()->run();
 
 exit 0;
 
@@ -24,7 +24,7 @@ npg_mlwarehouse_fkrepair
 Script to set NULL foreign keys from iseq_product_metrics
 table to iseq_flowcell table.
 
-Invokes ml warehouse loader npg_warehouse::loader::run
+Invokes ml warehouse loader npg_warehouse::loader::illumina::run
 to repair individual runs.
 
 =head1 DESCRIPTION
@@ -74,7 +74,7 @@ None
 
 =item FindBin
 
-=item npg_warehouse::fk_repair
+=item npg_warehouse::iseq_fk_repair
 
 =back
 

@@ -17,7 +17,7 @@ Log::Log4perl->easy_init({layout => $layout,
                           file   => "$tdir/logfile",
                           utf8   => 1});
 
-use_ok('npg_warehouse::loader::run_files');
+use_ok('npg_warehouse::loader::illumina::run_files');
 
 my $util = Moose::Meta::Class->create_anon_class(
              roles => [qw/npg_testing::db/])->new_object({});
@@ -26,35 +26,35 @@ my $schema  = $util->create_test_db(q[WTSI::DNAP::Warehouse::Schema]);
 subtest 'create an object' => sub {
   plan tests => 4;
 
-  throws_ok { npg_warehouse::loader::run_files->new(
+  throws_ok { npg_warehouse::loader::illumina::run_files->new(
     schema_wh => $schema, path_glob =>q[t]) }
     qr/is required/, 'error if id_run is not given';
-  throws_ok { npg_warehouse::loader::run_files->new(
+  throws_ok { npg_warehouse::loader::illumina::run_files->new(
     schema_wh => $schema, id_run => 45) }
     qr/is required/, 'error if path glob is not given';
   my $loader;
-  lives_ok { $loader = npg_warehouse::loader::run_files->new(
+  lives_ok { $loader = npg_warehouse::loader::illumina::run_files->new(
     schema_wh => $schema, path_glob =>q[t], id_run => 45) }
     'no error if all required attributes are supplied';
-  isa_ok ($loader, 'npg_warehouse::loader::run_files');
+  isa_ok ($loader, 'npg_warehouse::loader::illumina::run_files');
 };
 
 subtest 'find file to load' => sub {
   plan tests => 7;
 
   my $input = {schema_wh => $schema, id_run => 45, path_glob =>q[]};  
-  my $loader = npg_warehouse::loader::run_files->new($input);
+  my $loader = npg_warehouse::loader::illumina::run_files->new($input);
   throws_ok { $loader->_file_path() }
     qr/Non-empty path glob is required/,
     'path glob cannot be represented by an empty string';
   
   $input->{path_glob} = "$tdir/*.xml";
-  $loader = npg_warehouse::loader::run_files->new($input);
+  $loader = npg_warehouse::loader::illumina::run_files->new($input);
   throws_ok { $loader->_file_path() }
     qr/No files found/, 'error if no files are found';
   
   mkdir "$tdir/some.xml";
-  $loader = npg_warehouse::loader::run_files->new($input);
+  $loader = npg_warehouse::loader::illumina::run_files->new($input);
   throws_ok { $loader->_file_path() }
     qr/No files found/, 'error if no files are found';
 
@@ -62,21 +62,21 @@ subtest 'find file to load' => sub {
   my $destination = "$tdir/$name";
   copy("t/data/runfolders/run_params/$name", $destination);
   $input->{path_glob} = "$tdir/{r,R}un*.xml";
-  $loader = npg_warehouse::loader::run_files->new($input);
+  $loader = npg_warehouse::loader::illumina::run_files->new($input);
   is ($loader->_file_path(), $destination, 'correct file path');
 
   # This type of input will be used by the pipeline
   $input->{path_glob} = "$tdir/{r,R}unParameters_NovaSeq.xml";
-  $loader = npg_warehouse::loader::run_files->new($input);
+  $loader = npg_warehouse::loader::illumina::run_files->new($input);
   is ($loader->_file_path(), $destination, 'correct file path');
   
   $input->{path_glob} = "$tdir/some.xml/../{r,R}un*.xml";
-  $loader = npg_warehouse::loader::run_files->new($input);
+  $loader = npg_warehouse::loader::illumina::run_files->new($input);
   is ($loader->_file_path(), $destination, 'relative file path is resolved');
 
   copy("t/data/runfolders/run_params/$name", "$tdir/RunParameters.xml");
   $input->{path_glob} = "$tdir/{r,R}un*.xml";
-  $loader = npg_warehouse::loader::run_files->new($input);
+  $loader = npg_warehouse::loader::illumina::run_files->new($input);
   throws_ok { $loader->_file_path() }
     qr/Multiple files found/, 'error when multiple files are found';
 };
@@ -88,7 +88,7 @@ subtest 'load the data' => sub {
   my $file = join q[/], getcwd(), $dir, 'RunParameters_NovaSeq.xml';
 
   # Use relative path and a glob.
-  my $loader = npg_warehouse::loader::run_files->new(
+  my $loader = npg_warehouse::loader::illumina::run_files->new(
     id_run => 45,
     path_glob => "$dir/{r,R}unParameters_Nova*.xml",
     schema_wh => $schema
@@ -96,7 +96,7 @@ subtest 'load the data' => sub {
   is ($loader->load(), $file, 'correct absolute file path is returned');
 
   # Use a full relative path.
-  $loader = npg_warehouse::loader::run_files->new(
+  $loader = npg_warehouse::loader::illumina::run_files->new(
     id_run => 45,
     path_glob => "$dir/RunParameters_NovaSeq.xml",
     schema_wh => $schema
@@ -104,7 +104,7 @@ subtest 'load the data' => sub {
   is ($loader->load(), $file, 'correct absolute file path is returned');
 
   # Use an absulute path.
-  $loader = npg_warehouse::loader::run_files->new(
+  $loader = npg_warehouse::loader::illumina::run_files->new(
     id_run => 45,
     path_glob => $file,
     schema_wh => $schema
@@ -126,7 +126,7 @@ subtest 'load the data' => sub {
 
   $file = "$tdir/some.txt";
   write_file($file, qw/first_line second_line/);
-  $loader = npg_warehouse::loader::run_files->new(
+  $loader = npg_warehouse::loader::illumina::run_files->new(
     id_run => 45,
     path_glob => $file,
     schema_wh => $schema

@@ -11,7 +11,7 @@ use npg_tracking::glossary::composition::component::illumina;
 use npg_qc::autoqc::qc_store;
 use npg_qc::autoqc::results::qX_yield;
 
-use_ok('npg_warehouse::loader::autoqc');
+use_ok('npg_warehouse::loader::illumina::autoqc');
 
 my $compos_pkg = 'npg_tracking::glossary::composition';
 my $compon_pkg = 'npg_tracking::glossary::composition::component::illumina';
@@ -29,11 +29,11 @@ subtest 'object creation and simple tests' => sub {
   plan tests => 3;
 
   my $autoqc;
-  lives_ok {$autoqc = npg_warehouse::loader::autoqc->new( 
+  lives_ok {$autoqc = npg_warehouse::loader::illumina::autoqc->new( 
                     autoqc_store => $store)}
     'autoqc retriever object instantiated by passing autoqc ' .
     'store object to the constructor';
-  isa_ok ($autoqc, 'npg_warehouse::loader::autoqc');
+  isa_ok ($autoqc, 'npg_warehouse::loader::illumina::autoqc');
   throws_ok {$autoqc->retrieve()}
     qr/Attribute \(id_run\) does not pass the type constraint/,
     'error when id_run is missing';
@@ -42,7 +42,7 @@ subtest 'object creation and simple tests' => sub {
 subtest 'retrieve yield' => sub {
   plan tests => 5;
 
-  my $autoqc = npg_warehouse::loader::autoqc->new( 
+  my $autoqc = npg_warehouse::loader::illumina::autoqc->new( 
                     autoqc_store => $store);
 
   my $result = npg_qc::autoqc::results::qX_yield->new(
@@ -69,7 +69,7 @@ subtest 'retrieve data for run 4799' => sub {
     'forder glob reset lives - test prerequisite';
 
   my $auto;
-  lives_ok { $auto = npg_warehouse::loader::autoqc->new( 
+  lives_ok { $auto = npg_warehouse::loader::illumina::autoqc->new( 
              autoqc_store => $store)->retrieve($id_run, $schema_npg)}
     'data for run 4799 retrieved';
   
@@ -114,7 +114,7 @@ subtest 'retrieve data for run 4333' => sub {
     ->update_or_create({folder_path_glob => $folder_glob, folder_name => '100330_IL21_4333', id_run => $id_run, })}
     'forder glob reset lives - test prerequisite';
   my $auto;
-  lives_ok {$auto = npg_warehouse::loader::autoqc->new( 
+  lives_ok {$auto = npg_warehouse::loader::illumina::autoqc->new( 
     autoqc_store => $store)->retrieve($id_run, $schema_npg)}
   'data for run 4333 retrieved';
 
@@ -155,7 +155,7 @@ subtest 'retrieve data for run 6624' => sub {
     'forder glob reset lives - test prerequisite';
 
   my $auto;
-  lives_ok {$auto = npg_warehouse::loader::autoqc->new(
+  lives_ok {$auto = npg_warehouse::loader::illumina::autoqc->new(
     autoqc_store => $store)->retrieve($id_run, $schema_npg);}
     'data for run 6624 retrieved';
   
@@ -239,7 +239,7 @@ subtest 'retrieve data for run 6642' => sub {
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run})->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
 
-  my $auto = npg_warehouse::loader::autoqc->new(autoqc_store => $store)->retrieve($id_run, $schema_npg);
+  my $auto = npg_warehouse::loader::illumina::autoqc->new(autoqc_store => $store)->retrieve($id_run, $schema_npg);
 
   my $d = $compos_pkg->new(components =>
     [$compon_pkg->new(id_run => $id_run, position => 4)])->digest;
@@ -290,7 +290,7 @@ subtest 'retrieve rna data' => sub {
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run, })->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
   my $auto;
-  lives_ok {$auto = npg_warehouse::loader::autoqc->new(autoqc_store => $store)->retrieve($id_run, $schema_npg)}
+  lives_ok {$auto = npg_warehouse::loader::illumina::autoqc->new(autoqc_store => $store)->retrieve($id_run, $schema_npg)}
     'data for run 24975 retrieved';
 
   my $d = $compos_pkg->new(components =>
@@ -317,7 +317,7 @@ subtest 'retrieve gbs and generic data' => sub {
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run})->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
   my $auto;
-  lives_ok {$auto = npg_warehouse::loader::autoqc->new(
+  lives_ok {$auto = npg_warehouse::loader::illumina::autoqc->new(
     autoqc_store => $store)->retrieve($id_run, $schema_npg)}
     'data for run 25710 retrieved';
 
@@ -458,7 +458,7 @@ subtest 'retrieve target stats data' => sub {
   lives_ok {$schema_npg->resultset('Run')->find({id_run => $id_run})->set_tag($user_id, 'staging')}
     'staging tag is set - test prerequisite';
   my $auto;
-  lives_ok {$auto = npg_warehouse::loader::autoqc->new(autoqc_store => $store)->retrieve($id_run, $schema_npg)}
+  lives_ok {$auto = npg_warehouse::loader::illumina::autoqc->new(autoqc_store => $store)->retrieve($id_run, $schema_npg)}
     'data for run 27116 retrieved';
  
   my $d = $compos_pkg->new(components =>
@@ -492,7 +492,7 @@ subtest 'retrieve data for multi-component compositions' => sub {
   $schema_npg->resultset('Run')
              ->find({id_run => $id_run})->set_tag($user_id, 'staging');
 
-  throws_ok { npg_warehouse::loader::autoqc->new(autoqc_store => $store)
+  throws_ok { npg_warehouse::loader::illumina::autoqc->new(autoqc_store => $store)
                                            ->retrieve($id_run, $schema_npg) }
     qr/Interop column names should be set/, 'errow when interop column names are not set';
  
@@ -511,7 +511,7 @@ subtest 'retrieve data for multi-component compositions' => sub {
     cluster_pf_stdev
   /;
 
-  my $auto = npg_warehouse::loader::autoqc->new(
+  my $auto = npg_warehouse::loader::illumina::autoqc->new(
      autoqc_store => $store,
      interop_data_column_names => [map { 'interop_' . $_ } @column_names]
   )->retrieve($id_run, $schema_npg);
