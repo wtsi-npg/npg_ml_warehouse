@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Test::Exception;
 use Moose::Meta::Class;
 
@@ -34,10 +34,16 @@ lives_ok{ $wh  = $util->create_test_db(
   lives_ok {$rsloader->copy_npg_tables()} 'copy  tables';
   is ($wh->resultset('IseqRunStatusDict')->search({})->count, 24,
     '24 rows loaded to the dictionary');
-  is ($wh->resultset('IseqRunStatus')->search({})->count, 257,
+  is ($wh->resultset('IseqRunStatus')->search({})->count, 261,
     'all rows loaded to the run status table');
-  is ($wh->resultset('IseqRun')->search({})->count, 20,
-    '20 rows loaded to the run table');
+  
+  my @expected_runs = map { int }
+                      qw/1246 1272 24975 25710 27116 3323 3351 3500 3519
+                         3529 3622 3965 4025 4138 4333 4486 4799 6624 6642 6998/;
+  my @rows = $wh->resultset('IseqRun')->search({})->all();
+  is (@rows, @expected_runs, '20 rows loaded to iseq_run table');
+  is_deeply ([sort map { $_->id_run } @rows], \@expected_runs,
+    'data for Illumina runs only loaded to iseq_run table');
 }
 
 1;
