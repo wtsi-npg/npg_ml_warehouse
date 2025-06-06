@@ -1,4 +1,5 @@
 .dir-locals
+bin/npg_elembio_run2mlwarehouse
 bin/npg_elembio_run_params2mlwarehouse
 bin/npg_external_report2ml_warehouse
 bin/npg_irods_locations2ml_warehouse
@@ -14,10 +15,11 @@ bin/npg_runs2mlwarehouse
 Build.PL
 Changes
 lib/npg_warehouse/iseq_fk_repair.pm
-lib/npg_warehouse/loader/illumina/autoqc.pm
 lib/npg_warehouse/loader/base.pm
+lib/npg_warehouse/loader/elembio/run.pm
+lib/npg_warehouse/loader/elembio/run_info.pm 
+lib/npg_warehouse/loader/illumina/autoqc.pm
 lib/npg_warehouse/loader/illumina/fqc.pm
-lib/npg_warehouse/loader/irods_location.pm
 lib/npg_warehouse/loader/illumina/npg.pm
 lib/npg_warehouse/loader/illumina/product.pm
 lib/npg_warehouse/loader/illumina/product_limited.pm
@@ -25,7 +27,7 @@ lib/npg_warehouse/loader/illumina/qc.pm
 lib/npg_warehouse/loader/illumina/run.pm
 lib/npg_warehouse/loader/illumina/run_files.pm
 lib/npg_warehouse/loader/illumina/run_info.pm
-lib/npg_warehouse/loader/elembio/run_info.pm
+lib/npg_warehouse/loader/irods_location.pm
 lib/npg_warehouse/loader/pacbio/base.pm
 lib/npg_warehouse/loader/pacbio/product.pm
 lib/npg_warehouse/loader/pacbio/run.pm
@@ -39,8 +41,9 @@ t/00-pod.t
 t/00-podcoverage.t
 t/00-scripts_compile.t
 t/10-npg_warehouse-iseqfkrepair.t
-t/10-npg_warehouse-loader-illumina-autoqc.t
+t/10-npg_warehouse-loader-elembio-run.t
 t/10-npg_warehouse-loader-elembio-run_info.t
+t/10-npg_warehouse-loader-illumina-autoqc.t
 t/10-npg_warehouse-loader-illumina-fqc.t
 t/10-npg_warehouse-loader-irods-location.t
 t/10-npg_warehouse-loader-illumina-npg.t
