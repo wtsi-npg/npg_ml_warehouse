@@ -1,0 +1,116 @@
+{
+  "FileVersion": "6.1.0",
+  "RunName": "QC_SLIDE_2",
+  "RecipeExecutionID": "rec.91aa474ec4044472816867b54fbe7409",
+  "RunID": "cto_683d7d040309335264911685",
+  "RunType": "Cytoprofiling",
+  "RunDescription": "",
+  "Side": "SideA",
+  "Date": "2025-06-02T11:46:40.812838542Z",
+  "InstrumentName": "AV244103",
+  "OperatorName": "somebody@sanger.ac.uk ",
+  "RunFolderName": "20250602_AV244103_QC_SLIDE_2",
+  "Tiles": [
+    "L1R01C01S1",
+    "L1R02C01S1"
+  ],
+  "KitType": "KitTypeCytoprofiling",
+  "PanelName": "MAPK-CC",
+  "Batches": [
+  ],
+  "ThroughputSelection": "tile_selections/High.txt",
+  "Zs": [
+    "00",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06"
+  ],
+  "ZPositions": [
+    2,
+    1,
+    0,
+    -1,
+    -2,
+    -3,
+    -4
+  ],
+  "CytoprofilingCartridge": "Teton Cartridge",
+  "CustomAddOnProteinPanelID": "",
+  "CustomAddOnProteinPanelName": "",
+  "PlatformVersion": "3.3.2",
+  "AnalysisLanes": "1+2",
+  "StorageConnectionID": "local:6759a6f581f0fa3ed001239c",
+  "Consumables": {
+    "Flowcell": {
+      "SerialNumber": "0124323943",
+      "PartNumber": "",
+      "LotNumber": "",
+      "Expiration": "2999-01-01T00:00:00Z",
+      "ExpirationStr": "",
+      "BarcodeStr": "0124323943"
+    },
+    "PanelCartridge": {
+      "SerialNumber": "25041500300046",
+      "PartNumber": "820-00036",
+      "LotNumber": "2504150030",
+      "Expiration": "2026-01-10T00:00:00Z",
+      "ExpirationStr": "",
+      "BarcodeStr": "25041500300046,820-00036,2504150030,20260110"
+    },
+    "Buffer": {
+      "SerialNumber": "25030500020074",
+      "PartNumber": "820-00002",
+      "LotNumber": "2503050002",
+      "Expiration": "2027-03-11T00:00:00Z",
+      "ExpirationStr": "",
+      "BarcodeStr": "25030500020074,820-00002,2503050002,20270311"
+    }
+  },
+  "RecipeValues": null,
+  "BaseForChannels": [
+    "C",
+    "A",
+    "G",
+    "T"
+  ],
+  "Channels": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "ColorForChannels": [
+    "RED",
+    "RED",
+    "GRN",
+    "GRN"
+  ],
+  "CycleFormat": "D3",
+  "ImageInfo": {
+    "ImageHeight": 3648,
+    "ImageWidth": 5472,
+    "PixelSizeUm": 0.48
+  },
+  "Lanes": [
+    1,
+    2
+  ],
+  "WellLayout": "TwelveWellStandard",
+  "Wells": [
+    {
+      "WellLocation": "A1",
+      "Tiles": [
+        {
+          "Name": "L2R01C01S1",
+          "XMillimeters": 11.68,
+          "YMillimeters": -0.15
+        }
+      ]
+    }
+  ],
+  "Tags": null,
+  "AdvancedSettings": null
+}
