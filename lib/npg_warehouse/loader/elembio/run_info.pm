@@ -113,27 +113,23 @@ sub load {
   my $run_data = {};
   $run_data->{folder_name} = $self->run_folder;
 
-  my $file_name = $RUN_PARAMS_FILE_NAME;
-  my ($column_name) = $file_name =~ /(Run [[:upper:]] [[:lower:]]+)[.]json\Z/smx;
-  $column_name =~ s/Run/Run_/smx;
-  $column_name = lc $column_name;
-  my $file_path = join q[/], $self->runfolder_path, $file_name;
+  my $file_path = join q[/], $self->runfolder_path, $RUN_PARAMS_FILE_NAME;
   if (-f $file_path) {
-    $run_data->{$column_name} = slurp $file_path;
+    $run_data->{run_parameters} = slurp $file_path;
   } else {
     croak "File $file_path does not exist";
   }
 
-  $run_data->{flowcell_id} =
-    _get_value_from_json($run_data->{$column_name}, 'FlowcellID');
+  my $json = decode_json $run_data->{run_parameters};
+  $run_data->{flowcell_id} = $json->{FlowcellID};
+  # Try the cytoprofiling format:
+  $run_data->{flowcell_id} ||= $json->{Consumables}->{Flowcell}->{BarcodeStr};
   if (!$run_data->{flowcell_id}) { # A technical run, no data.
     WARN('Flowcell ID is not recorded, not loading');
     return 0;
   }
-  $run_data->{run_name} =
-    _get_value_from_json($run_data->{$column_name}, 'RunName');
-  $run_data->{date_started} = _parse_date_string(
-    _get_value_from_json($run_data->{$column_name}, 'Date'));
+  $run_data->{run_name} = $json->{RunName};
+  $run_data->{date_started} = _parse_date_string($json->{Date});
 
   my $run_uploaded_file = join q[/], $self->runfolder_path, $RUN_UPLOADED_FILE_NAME;
   if (-f $run_uploaded_file) {

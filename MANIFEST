@@ -96,12 +96,13 @@ t/data/irods_locations/new_same_id.json
 t/data/irods_locations/new_same_row.json
 t/data/irods_locations/update_only.json
 t/data/irods_locations/update_same_row.json
-t/data/elembio/20250127_AV244103_NT1850075L/AvitiRunStats.json
 t/data/elembio/20250127_AV244103_NT1850075L/RunParameters.json
 t/data/elembio/20250127_AV244103_NT1850075L/RunUploaded.json
 t/data/elembio/20231218_AV234003_FluidicsRun_1_A/RunParameters.json
 t/data/elembio/20240216_AV234003_16feb_sge_1x300/RunParameters.json
 t/data/elembio/20240216_AV234003_16feb_sge_1x300/RunUploaded.json
+t/data/elembio/20250602_AV244103_QC_SLIDE_2/RunParameters.json
+t/data/elembio/20250602_AV244103_QC_SLIDE_2/RunUploaded.json
 t/data/pacbio/langqc/README.md
 t/data/pacbio/langqc/TRACTION-RUN-333.json
 t/data/pacbio/langqc/TRACTION-RUN-351.json
