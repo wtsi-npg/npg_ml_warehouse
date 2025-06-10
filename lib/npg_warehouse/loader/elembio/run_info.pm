@@ -19,7 +19,6 @@ with qw/ MooseX::Getopt
 our $VERSION = '0';
 
 Readonly::Scalar my $RUN_PARAMS_FILE_NAME => 'RunParameters.json';
-Readonly::Array  my @FILE_NAMES => ($RUN_PARAMS_FILE_NAME, 'AvitiRunStats.json');
 Readonly::Scalar my $RUN_UPLOADED_FILE_NAME => 'RunUploaded.json';
 Readonly::Scalar my $RUN_INFO_RS_NAME => 'EseqRun';
 
@@ -37,8 +36,7 @@ npg_warehouse::loader::elembio::run_info
 Uploads (updates or inserts) manufacturer-supplied run information to
 C<eseq_run> table of the ml warehouse database.
 
-C<RunParameters.json> are C<ElembioRunStatus.json> files are uploaded to the
-table as are, without any reductions.
+C<RunParameters.json> file is uploaded to the table as is, without any reductions.
 
 This Moose class, via inheritance from C<npg_tracking::illumina::run::folder>,
 has a number of attributes for accessing paths inside the run folder. These
@@ -115,32 +113,23 @@ sub load {
   my $run_data = {};
   $run_data->{folder_name} = $self->run_folder;
 
-  foreach my $file_name (@FILE_NAMES) {
-
-    my ($column_name) = $file_name =~ /(Run [[:upper:]] [[:lower:]]+)[.]json\Z/smx;
-    $column_name =~ s/Run/Run_/smx;
-    $column_name = lc $column_name;
-    my $file_path = join q[/], $self->runfolder_path, $file_name;
-    if (-f $file_path) {
-      $run_data->{$column_name} = slurp $file_path;
-    } else {
-      my $m = "File $file_path does not exist";
-      ($file_name eq $RUN_PARAMS_FILE_NAME) ? croak $m : WARN($m);
-    }
-
-    if ($file_name eq $RUN_PARAMS_FILE_NAME) {
-      $run_data->{flowcell_id} =
-        _get_value_from_json($run_data->{$column_name}, 'FlowcellID');
-      if (!$run_data->{flowcell_id}) { # A technical run, no data.
-        WARN('Flowcell ID is not recorded, not loading');
-        return 0;
-      }
-      $run_data->{run_name} =
-        _get_value_from_json($run_data->{$column_name}, 'RunName');
-      $run_data->{date_started} = _parse_date_string(
-        _get_value_from_json($run_data->{$column_name}, 'Date'));
-    }
+  my $file_path = join q[/], $self->runfolder_path, $RUN_PARAMS_FILE_NAME;
+  if (-f $file_path) {
+    $run_data->{run_parameters} = slurp $file_path;
+  } else {
+    croak "File $file_path does not exist";
   }
+
+  my $json = decode_json $run_data->{run_parameters};
+  $run_data->{flowcell_id} = $json->{FlowcellID};
+  # Try the cytoprofiling format:
+  $run_data->{flowcell_id} ||= $json->{Consumables}->{Flowcell}->{BarcodeStr};
+  if (!$run_data->{flowcell_id}) { # A technical run, no data.
+    WARN('Flowcell ID is not recorded, not loading');
+    return 0;
+  }
+  $run_data->{run_name} = $json->{RunName};
+  $run_data->{date_started} = _parse_date_string($json->{Date});
 
   my $run_uploaded_file = join q[/], $self->runfolder_path, $RUN_UPLOADED_FILE_NAME;
   if (-f $run_uploaded_file) {

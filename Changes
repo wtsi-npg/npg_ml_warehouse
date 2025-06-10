@@ -1,5 +1,10 @@
 LIST OF CHANGES
 
+ - Stopped loading manufacturer-provided run statistics information to
+   eseq_run table since information about samples and barcodes there
+   might be notup-to-date.
+ - Ensured data for cytoprofiling runs are loaded to eseq_run table.
+
 release 52.2.0 (2025-06-04)
  - Ensured iseq_run mlwh table is populated with data for runs performed on
    Illumina instruments only.
