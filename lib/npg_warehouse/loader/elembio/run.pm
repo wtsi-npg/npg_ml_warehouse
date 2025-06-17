@@ -157,14 +157,18 @@ sub load {
   };
   $self->mlwh_schema->txn_do($loader);
 
-  my $linker = sub {
-    return; #TODO - link
-  };
   # If we have LIMS reference for a run, we will try to link eseq_product_metrics
   # run data to relevant records in eseq_flowcell table or relink if the foreign
   # keys have been already set.
-  if ($self->tracking_run->batch_id) {
-    $self->mlwh_schema->txn_do($linker);
+  # my $batch_id = $self->tracking_run->batch_id;
+  my $batch_id = 0;
+  if ($batch_id) {
+    $self->mlwh_schema->txn_do(
+      \&{ $self->_link2lims->($batch_id) }
+    );
+  } else {
+    carp 'No batch ID, cannot link product data for run folder ' .
+      $self->runfolder_path . ' run ID ' . $self->id_run;
   }
 
   return;
@@ -216,6 +220,7 @@ sub _get_run_lane_data {
     $data{cancelled} = $run_is_cancelled;
     $data{run_priority} = $self->tracking_run->priority;
     $data{tags_decode_percent} = undef; #TODO
+    $data{num_polonies} = undef; #TODO 
     for my $column_name ( keys %data ) {
       exists $column_names->{$column_name} or delete $data{$column_name};
     }
@@ -223,6 +228,67 @@ sub _get_run_lane_data {
   }
 
   return \@per_lane_data;
+}
+
+sub _link2lims {
+  my ($self, $batch_id) = @_;
+
+  # Do we have any LIMS data for this batch?
+  my $fc_rs = $self->mlwh_schema->resultset('EseqFlowcell')
+     ->search({if_flowcell_lims => $batch_id});
+  my $num_fc_rows = $fc_rs->count();
+  if ($num_fc_rows == 0) {
+    carp "No LIMS data for batch ID $batch_id"; # Normal for walk-up runs.
+    return;
+  }
+
+  my $na = q[NA];
+  my $done = q[done];
+  my $lims_data = {};
+  while (my $fc_row = $fc_rs->next) {
+    my $tag2 = $fc_row->tag2_sequence;
+    $tag2 ||= $na;
+    $lims_data->{$fc_row->lane}->{$fc_row->tag_sequence}->{$tag2} =
+      $fc_row->id_eseq_flowcell_tmp;
+  }
+
+  # Pick up rows to link.
+  my $id_run = $self->id_run;
+  my $pr_rs = $self->mlwh_schema->resultset('EseqProductMetric')->search({
+    id_run => $id_run,
+    position => { q[!=] => undef},
+    tag_sequence => { q[!=] => undef},
+  });
+
+  # Establish mapping between the rows in eseq_flowcell and eseq_product_metrics
+  # rows. If the mapping is partial, link whatever maps and warn.
+  my $num2link = $pr_rs->count();
+  my $original_num2link = $num2link;
+  while (my $pr_row = $fc_rs->next) {
+    my $tag2 = $pr_row->tag2_sequence;
+    $tag2 ||= $na;
+    my $fc_id = $lims_data->{$pr_row->lane}->{$pr_row->tag_sequence}->{$tag2};
+    if ($fc_id) {
+      if ( $fc_id eq $done ) {
+        croak 'Should not have this';
+      }
+      $num2link--;
+      $pr_row->update(id_eseq_flowcell_tmp => $fc_id);
+      $lims_data->{$pr_row->lane}->{$pr_row->tag_sequence}->{$tag2} = $done;
+    }
+  }
+  if ($num2link) {
+    if ($num2link == $original_num2link) {
+      carp "No products for run $id_run is linked to LIMS data";
+    } else {
+      # OK for controls?
+      carp "$num2link products for run $id_run have not been linked to LIMS data";
+    }
+  }
+  # Should we figure out if there are any unlinked LIMS rows?
+  # Not for now, might be a costly exercise for a batch loader.
+
+  return ($original_num2link - $num2link);
 }
 
 
