@@ -3,7 +3,10 @@ package npg_warehouse::loader::elembio::run;
 use Moose;
 use MooseX::StrictConstructor;
 use Carp;
+use Readonly;
 
+use npg_tracking::glossary::composition::component::illumina;
+use npg_tracking::glossary::composition::factory;
 use npg_tracking::glossary::rpt;
 use npg_tracking::illumina::run::folder;
 use npg_tracking::Schema;
@@ -16,6 +19,12 @@ with qw/ MooseX::Getopt
          npg_tracking::illumina::run::folder /;
 
 our $VERSION = '0';
+
+Readonly::Scalar my $CONTROL_SAMPLE_NAME_REGEXP => m/(?:adept)|(?:phix_third)/ismx;
+
+Readonly::Scalar my $DIGEST_COLUMN_NAME           => 'id_eseq_product';
+Readonly::Scalar my $COMPOSITION_JSON_COLUMN_NAME => 'id_eseq_flowcell_tmp';
+Readonly::Scalar my $COMPOSITION_OBJECT_KEY       => 'c_object';
 
 =head1 NAME
 
@@ -49,7 +58,7 @@ Run folder name. Inherited from npg_tracking::illumina::run::folder
 
 =head2 id_run
 
-Run ID as recorded in NPG trackign database. Required.
+Run ID as recorded in NPG tracking database. Required.
 
 =head2 npg_tracking_schema
 
@@ -153,7 +162,11 @@ sub load {
       $self->tracking_run->current_run_status_description() eq 'run stopped early') {
       return;
     }
-    #TODO - load product data
+
+    my $pr_rs = $self->mlwh_schema->resultset('EseqProductMetric');
+    for my $data (@{$self->_get_product_data()}) {
+      $pr_rs->update_or_create($data);
+    }
   };
   $self->mlwh_schema->txn_do($loader);
 
@@ -228,6 +241,70 @@ sub _get_run_lane_data {
   }
 
   return \@per_lane_data;
+}
+
+sub _get_product_data {
+  my $self = shift;
+
+  my @product_data = (); #TODO
+  my $compositions = {};
+
+  foreach my $product (@product_data) {
+    my $lane = $product->lane;
+    my $ti = $product->tag_index;
+    if (!exists $compositions->{$lane}->{$ti}) {
+      $compositions->{$lane}->{$ti} =
+        $self->_composition4single_component($lane, $ti);
+    }
+    for my $name (($DIGEST_COLUMN_NAME, $COMPOSITION_JSON_COLUMN_NAME)) {
+      $product->{$name} = $compositions->{$lane}->{$ti}->{$name};
+    }
+  }
+
+  #TODO
+  # $CONTROL_SAMPLE_NAME_REGEXP -> is_sequencing_control
+
+  my %digests = map {
+    $_->{$DIGEST_COLUMN_NAME} =>
+      $compositions->{$_->lane}->{$_->tag_index}->{$COMPOSITION_OBJECT_KEY}
+  } @product_data;
+
+  # Batch-retrieve QC outcomes for all products and cache.
+  my $qc_outcomes_data_source = npg_warehouse::loader::illumina::fqc->new(
+    schema_qc => $self->npg_qc_schema, digests => \%digests
+  );
+  $qc_outcomes_data_source->retrieve();
+
+  # Copy retrieved QC outcomes to product data.
+  foreach my $product (@product_data) {
+    my $qc_outcomes = $qc_outcomes_data_source
+      ->retrieve_outcomes($product->{$DIGEST_COLUMN_NAME});
+    delete $qc_outcomes->{'qc_user'}; # This key is unlikely to exist.
+    for my $qc_type (keys %{$qc_outcomes}) {
+      $product->{$qc_type} = $qc_outcomes->{$qc_type};
+    }
+  }
+
+  return \@product_data;
+}
+
+sub _composition4single_component {
+  my ($self, $lane, $tag_index) = @_;
+
+  my $component = npg_tracking::glossary::composition::component::illumina->new(
+    id_run => $self->id_run,
+    position => $lane,
+    tag_index => $tag_index
+  );
+  my $factory = npg_tracking::glossary::composition::factory->new();
+  $factory->add_component($component);
+  my $composition = $factory->create_composition();
+
+  return {
+    $COMPOSITION_OBJECT_KEY => $composition,
+    $DIGEST_COLUMN_NAME     => $composition->digest(),
+    $COMPOSITION_JSON_COLUMN_NAME => $composition->freeze()
+  };
 }
 
 sub _link2lims {
@@ -314,6 +391,8 @@ __END__
 
 =item MooseX::Getopt
 
+=item Readonly
+
 =item npg_tracking::glossary::rpt
 
 =item WTSI::DNAP::Warehouse::Schema
@@ -321,6 +400,10 @@ __END__
 =item npg_tracking::illumina::run::folder
 
 =item npg_tracking::Schema
+
+=item npg_tracking::glossary::composition::component::illumina
+
+=item npg_tracking::glossary::composition::factory
 
 =item npg_qc::Schema
 
