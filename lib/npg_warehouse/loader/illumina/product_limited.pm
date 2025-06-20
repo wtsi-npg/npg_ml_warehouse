@@ -165,8 +165,8 @@ sub load {
     @compositions = map { npg_tracking::glossary::composition->thaw($_) }
                     map { read_file $_ }
                     glob( join q[ ],
-	                  map { "$_/*.collection.json" }
-	                  @{$self->composition_path} );
+                    map { "$_/*.collection.json" }
+                    @{$self->composition_path} );
   }
 
   my $autoqc_store = npg_qc::autoqc::qc_store->new(

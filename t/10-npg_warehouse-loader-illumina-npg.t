@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 35;
+use Test::More tests => 37;
 use Test::Exception;
 use Test::Deep;
 use Moose::Meta::Class;
@@ -97,13 +97,17 @@ lives_ok{ $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
     ->new(schema_npg => $schema_npg, id_run => 4799);
   
   my $run_dates = $npg->dates();
-  is (keys %{$run_dates}, 3, 'two run statuses returned');
+  is (keys %{$run_dates}, 5, 'five run statuses returned');
   is ($run_dates->{'run_complete'} . q[], '2010-06-04T17:14:31',
     'run complete date is correct');
   is ($run_dates->{'run_pending'} . q[], '2010-06-02T11:15:42',
     'run pending date is correct');
   is ($run_dates->{'qc_complete'} . q[], '2010-06-14T11:57:31',
     'qc complete date is correct');
+  is ($run_dates->{'run_started'} . q[], '2010-06-02T11:51:24',
+    'run started date is correct');
+  is ($run_dates->{'run_archived'} . q[], '2010-06-09T11:21:01',
+    'run archived date is correct');
 
   my $lane_dates = $npg->dates4lanes();
   is (keys %{$lane_dates}, 2, 'data for two lanes is available');

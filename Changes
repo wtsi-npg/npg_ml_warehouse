@@ -1,5 +1,9 @@
 LIST OF CHANGES
 
+
+ - Added a loader for Elembio (Element Biosciences) run data for
+   eseq_run_lane_metrics and eseq_product_metrics tables.
+
 release 53.0.0 (2025-06-20)
  - Stopped loading manufacturer-provided run statistics information to
    eseq_run table since information about samples and barcodes there
