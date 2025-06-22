@@ -11,6 +11,7 @@ use npg_tracking::glossary::rpt;
 use npg_tracking::illumina::run::folder;
 use npg_tracking::Schema;
 use npg_qc::Schema;
+use npg_qc::elembio::run_stats;
 use WTSI::DNAP::Warehouse::Schema;
 use npg_warehouse::loader::illumina::npg;
 use npg_warehouse::loader::illumina::fqc;
@@ -21,7 +22,7 @@ with qw/ MooseX::Getopt
 our $VERSION = '0';
 
 Readonly::Scalar my $CONTROL_SAMPLE_NAME_REGEXP => m/(?:adept)|(?:phix_third)/ismx;
-
+Readonly::Scalar my $HUNDRED => 100;
 Readonly::Scalar my $DIGEST_COLUMN_NAME           => 'id_eseq_product';
 Readonly::Scalar my $COMPOSITION_JSON_COLUMN_NAME => 'id_eseq_flowcell_tmp';
 Readonly::Scalar my $COMPOSITION_OBJECT_KEY       => 'c_object';
@@ -151,31 +152,45 @@ sub load {
 
   my $rl_rs = $self->mlwh_schema->resultset('EseqRunLaneMetric');
   my %column_names = map { $_ => 1 } $rl_rs->result_source->columns;
-  my $lane_data = $self->_get_run_lane_data(\%column_names);
+  my $run_stopped_early =
+    $self->tracking_run->current_run_status_description() eq 'run stopped early';
+  my $lane_data = $self->_get_run_lane_data(\%column_names, $run_stopped_early);
 
   my $loader = sub {
+
+    my $have_product_data = 1;
+
     for my $data (@{$lane_data}) {
       $rl_rs->update_or_create($data);
     }
 
-    if ($lane_data->[0]->{cancelled} ||
-      $self->tracking_run->current_run_status_description() eq 'run stopped early') {
-      return;
+    if ($lane_data->[0]->{cancelled} || $run_stopped_early ) {
+      $have_product_data = 0;
+    } else {
+      my $pr_rs = $self->mlwh_schema->resultset('EseqProductMetric');
+      my $product_data = $self->_get_product_data();
+      if (@{$product_data}) {
+        for my $data (@{$product_data}) {
+          $pr_rs->update_or_create($data);
+        }
+      } else {
+        $have_product_data = 0;
+      }
     }
 
-    my $pr_rs = $self->mlwh_schema->resultset('EseqProductMetric');
-    for my $data (@{$self->_get_product_data()}) {
-      $pr_rs->update_or_create($data);
-    }
+    return $have_product_data;
   };
-  $self->mlwh_schema->txn_do($loader);
+  my $have_product_data = $self->mlwh_schema->txn_do($loader);
+  if (!$have_product_data) {
+    carp 'No product data';
+  }
 
   # If we have LIMS reference for a run, we will try to link eseq_product_metrics
   # run data to relevant records in eseq_flowcell table or relink if the foreign
   # keys have been already set.
   # my $batch_id = $self->tracking_run->batch_id;
   my $batch_id = 0;
-  if ($batch_id) {
+  if ($have_product_data && $batch_id) {
     $self->mlwh_schema->txn_do(
       \&{ $self->_link2lims->($batch_id) }
     );
@@ -187,8 +202,31 @@ sub load {
   return;
 }
 
+has '_lane_qc_stats' => (
+  isa        => 'Maybe[HashRef]',
+  is         => 'ro',
+  lazy_build => 1,
+);
+sub _build__lane_qc_stats {
+  my $self = shift;
+
+  my $elembio_analysis_path = join q[/], $self->runfolder_path,
+    $self->tracking_run->folder_name;
+  my $run_stats_file = "$elembio_analysis_path/RunStats.json";
+  my $run_manifest_file = "$elembio_analysis_path/RunManifest.json";
+  if (-e $run_stats_file && -e $run_manifest_file) {
+    my $run_stats = npg_qc::elembio::run_stats::run_stats_from_file(
+      $run_stats_file, $run_manifest_file
+    );
+    return $run_stats->lanes();
+  }
+  carp "Either $run_stats_file or $run_manifest_file does not exist";
+
+  return;
+}
+
 sub _get_run_lane_data {
-  my ($self, $column_names) = @_;
+  my ($self, $column_names, $run_stopped_early) = @_;
 
   my $data_source = npg_warehouse::loader::illumina::npg->new(
     id_run => $self->id_run,
@@ -232,11 +270,20 @@ sub _get_run_lane_data {
     $data{cycles} = $self->tracking_run->actual_cycle_count;
     $data{cancelled} = $run_is_cancelled;
     $data{run_priority} = $self->tracking_run->priority;
-    $data{tags_decode_percent} = undef; #TODO
-    $data{num_polonies} = undef; #TODO 
+
+    # Tag deplexing stats is not available for unfinished runs.
+    if (!($run_is_cancelled || $run_stopped_early) && $self->_lane_qc_stats()) {
+      my $lane_qc = $self->_lane_qc_stats()->{$lane};
+      $data{tags_decode_percent} = sprintf '%.2f',
+        (($lane_qc->num_polonies - $lane_qc->unassigned_reads)/
+          $lane_qc->num_polonies) * $HUNDRED;
+      $data{num_polonies} = $lane_qc->num_polonies();
+    }
+
     for my $column_name ( keys %data ) {
       exists $column_names->{$column_name} or delete $data{$column_name};
     }
+
     push @per_lane_data, \%data;
   }
 
@@ -246,7 +293,7 @@ sub _get_run_lane_data {
 sub _get_product_data {
   my $self = shift;
 
-  my @product_data = (); #TODO
+  my @product_data = $self->_get_product_qc_stats();
   my $compositions = {};
 
   foreach my $product (@product_data) {
@@ -286,6 +333,11 @@ sub _get_product_data {
   }
 
   return \@product_data;
+}
+
+sub _get_product_qc_stats {
+  my $self = shift;
+  return;
 }
 
 sub _composition4single_component {
@@ -406,6 +458,8 @@ __END__
 =item npg_tracking::glossary::composition::factory
 
 =item npg_qc::Schema
+
+=item npg_qc::elembio::run_stats
 
 =back
 

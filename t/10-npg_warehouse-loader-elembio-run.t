@@ -19,7 +19,7 @@ my $schema_qc = $util->create_test_db(q[npg_qc::Schema],
   q[t/data/fixtures/npgqc]);
 
 subtest 'load data for a two-lane run, no LIMS' => sub {
-  plan tests => 32;
+  plan tests => 36;
 
   my $id_run = 50517;
 
@@ -67,53 +67,15 @@ subtest 'load data for a two-lane run, no LIMS' => sub {
     is ($lane->instrument_side, 'A', 'correct instrument side');
     is ($lane->qc_seq, 1, 'QC outcome is correct');
   }
-};
 
-subtest 'load data for a one-lane run, no LIMS' => sub {
-  plan tests => 16;
-
-  my $id_run = 50490;
-
-  my $rs = $schema_qc->resultset('MqcOutcomeEnt');
-  my $q = {id_run => $id_run, position => 1};
-  $q->{'id_seq_composition'} =
-      t::util::find_or_save_composition($schema_qc, $q);
-  $q->{'id_mqc_outcome'} = 4; #'Rejected final'
-  $rs->create($q);
-
-  my $loader = npg_warehouse::loader::elembio::run->new(
-    id_run => $id_run,
-    runfolder_path => 't/data/elembio',
-    npg_tracking_schema => $schema_npg,
-    npg_qc_schema => $schema_qc,
-    mlwh_schema => $schema_wh 
-  );
-  $loader->load();
-
-  my $rl_rs = $schema_wh->resultset('EseqRunLaneMetric')
-    ->search({id_run => $id_run});
-  is ($rl_rs->count(), 1, 'one row are retrieved');
-  my $lane = $rl_rs->next();
-  is ($lane->lane, 1, 'data for lane 1 is present');
-  is ($lane->id_run, $id_run, 'run id is correct');
-  is ($lane->run_folder_name, '20240416_AV234003_16AprilSGEB2_2x300_NT1799722A',
-    'run folder name is correct');
-  is ($lane->run_started->datetime, '2024-04-16T10:24:16', 'run started date is correct');
-  is ($lane->run_complete->datetime, '2024-04-18T21:06:50', 'run complete date is correct');
-  is ($lane->cancelled, 0, 'run is not cancelled');
-  is ($lane->flowcell_barcode, '2335443584', 'flowcell barcode is corect');
-  is ($lane->paired_read, 1, 'the run has paired reads');
-  is ($lane->cycles, 618, 'actual cycle count is correct');
-  is ($lane->run_priority, 3, 'correct run priority');
-  is ($lane->instrument_name, 'AV1', 'correct instrument name');
-  is ($lane->instrument_external_name, 'AV234003', 'correct external instrument name');
-  is ($lane->instrument_model, 'AVITI23', 'correct instrument model');
-  is ($lane->instrument_side, 'B', 'correct instrument side');
-  is ($lane->qc_seq, 0, 'QC outcome is correct');
+  is ($lane1->tags_decode_percent, 99.17, 'tags decode percent lane1');
+  is ($lane1->num_polonies, 375961923, 'number of polonies lane 1');
+  is ($lane2->tags_decode_percent, 99.16, 'tags decode percent lane2');
+  is ($lane2->num_polonies, 388791863, 'number of polonies lane 2');
 };
 
 subtest 'load data for early finished/cancelled run' => sub {
-  plan tests => 39;
+  plan tests => 47;
 
   my $id_run = 50545;
   my $loader = npg_warehouse::loader::elembio::run->new(
@@ -148,6 +110,8 @@ subtest 'load data for early finished/cancelled run' => sub {
     is ($lane->instrument_model, 'AVITI24', 'correct instrument model');
     is ($lane->instrument_side, 'A', 'correct instrument side');
     ok (!defined $lane->qc_seq, 'QC outcome for a lane is not defined');
+    ok (!$lane->tags_decode_percent, 'tags decode percent is not defined');
+    ok (!$lane->num_polonies, 'number of polonies is not defined');
   }
 
   my $p_rs = $schema_wh->resultset('EseqProductMetric')->search({id_run => $id_run});
@@ -172,12 +136,61 @@ subtest 'load data for early finished/cancelled run' => sub {
   my $lane = $rl_rs->next();
   is($lane->cancelled, 1, 'run is cancelled');
   ok (!defined($lane->run_complete), 'run complete date is not set');
+  ok (!$lane->tags_decode_percent, 'tags decode percent is not defined');
+  ok (!$lane->num_polonies, 'number of polonies is not defined');
+
   $lane = $rl_rs->next();
   is($lane->cancelled, 1, 'run is cancelled');
   ok (!defined($lane->run_complete), 'run complete date is not set');
+  ok (!$lane->tags_decode_percent, 'tags decode percent is not defined');
+  ok (!$lane->num_polonies, 'number of polonies is not defined');
 
   $p_rs = $schema_wh->resultset('EseqProductMetric')->search({id_run => $id_run});
   is ($p_rs->count(), 0, 'no product data');
 };
 
+subtest 'load data for a one-lane run, no LIMS' => sub {
+  plan tests => 18;
+
+  my $id_run = 50490;
+
+  my $rs = $schema_qc->resultset('MqcOutcomeEnt');
+  my $q = {id_run => $id_run, position => 1};
+  $q->{'id_seq_composition'} =
+      t::util::find_or_save_composition($schema_qc, $q);
+  $q->{'id_mqc_outcome'} = 4; #'Rejected final'
+  $rs->create($q);
+
+  my $loader = npg_warehouse::loader::elembio::run->new(
+    id_run => $id_run,
+    runfolder_path => 't/data/elembio/20240416_AV234003_16AprilSGEB2_2x300_NT1799722A',
+    npg_tracking_schema => $schema_npg,
+    npg_qc_schema => $schema_qc,
+    mlwh_schema => $schema_wh 
+  );
+  $loader->load();
+
+  my $rl_rs = $schema_wh->resultset('EseqRunLaneMetric')
+    ->search({id_run => $id_run});
+  is ($rl_rs->count(), 1, 'one row are retrieved');
+  my $lane = $rl_rs->next();
+  is ($lane->lane, 1, 'data for lane 1 is present');
+  is ($lane->id_run, $id_run, 'run id is correct');
+  is ($lane->run_folder_name, '20240416_AV234003_16AprilSGEB2_2x300_NT1799722A',
+    'run folder name is correct');
+  is ($lane->run_started->datetime, '2024-04-16T10:24:16', 'run started date is correct');
+  is ($lane->run_complete->datetime, '2024-04-18T21:06:50', 'run complete date is correct');
+  is ($lane->cancelled, 0, 'run is not cancelled');
+  is ($lane->flowcell_barcode, '2335443584', 'flowcell barcode is corect');
+  is ($lane->paired_read, 1, 'the run has paired reads');
+  is ($lane->cycles, 618, 'actual cycle count is correct');
+  is ($lane->run_priority, 3, 'correct run priority');
+  is ($lane->instrument_name, 'AV1', 'correct instrument name');
+  is ($lane->instrument_external_name, 'AV234003', 'correct external instrument name');
+  is ($lane->instrument_model, 'AVITI23', 'correct instrument model');
+  is ($lane->instrument_side, 'B', 'correct instrument side');
+  is ($lane->qc_seq, 0, 'QC outcome is correct');
+  ok ($lane->tags_decode_percent, 'tags decode percent is defined');
+  ok ($lane->num_polonies, 'number of polonies is defined');
+};
 1;
