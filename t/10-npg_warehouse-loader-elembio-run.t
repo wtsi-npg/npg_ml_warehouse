@@ -2,7 +2,10 @@ use strict;
 use warnings;
 use Test::More tests => 4;
 use Test::Exception;
+use JSON;
+use Perl6::Slurp;
 
+use npg_tracking::glossary::composition;
 use npg_testing::db;
 use t::util;
 
@@ -18,8 +21,8 @@ my $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
 my $schema_qc = $util->create_test_db(q[npg_qc::Schema],
   q[t/data/fixtures/npgqc]);
 
-subtest 'load data for a two-lane run, no LIMS' => sub {
-  plan tests => 36;
+subtest 'load data for a two-lane run, with LIMS' => sub {
+  plan tests => 581;
 
   my $id_run = 50517;
 
@@ -31,6 +34,17 @@ subtest 'load data for a two-lane run, no LIMS' => sub {
     $q->{'id_mqc_outcome'} = 3; #'Accepted final'
     $rs->create($q);
   }
+  $rs = $schema_qc->resultset('MqcLibraryOutcomeEnt');
+  my $q = {id_run => $id_run, position => 1, tag_index => 5};
+  $q->{'id_seq_composition'} =
+    t::util::find_or_save_composition($schema_qc, $q);
+  $q->{'id_mqc_outcome'} = 3; #'Accepted final'
+  $rs->create($q);
+  $q = {id_run => $id_run, position => 1, tag_index => 15};
+  $q->{'id_seq_composition'} =
+    t::util::find_or_save_composition($schema_qc, $q);
+  $q->{'id_mqc_outcome'} = 4; #'Rejected final'
+  $rs->create($q);
 
   my $loader = npg_warehouse::loader::elembio::run->new(
     id_run => $id_run,
@@ -72,6 +86,92 @@ subtest 'load data for a two-lane run, no LIMS' => sub {
   is ($lane1->num_polonies, 375961923, 'number of polonies lane 1');
   is ($lane2->tags_decode_percent, 99.16, 'tags decode percent lane2');
   is ($lane2->num_polonies, 388791863, 'number of polonies lane 2');
+
+  # The same pool in both lanes
+
+  my $num_pooled_samples = 22;
+  my $pr_rs = $schema_wh->resultset('EseqProductMetric')->search({id_run => $id_run});
+  is ($pr_rs->count, $num_pooled_samples*2+2, 'number of product entries');
+  my @lane1_products = $pr_rs->search({lane => 1})->all();
+  my $lane1_tag0 = shift @lane1_products;
+  is ($lane1_tag0->tag_index, 0, 'tag zero is the first product');
+  my @lane2_products = $pr_rs->search({lane => 2})->all();
+  my $lane2_tag0 = shift @lane2_products;
+  is ($lane2_tag0->tag_index, 0, 'tag zero is the first product');
+  
+  for my $tag0_row ( $lane1_tag0, $lane2_tag0 ) {
+    ok (!$tag0_row->elembio_samplename, 'sample name is undefined');
+    ok (!$tag0_row->elembio_project, 'project is undefined');
+    ok (!$tag0_row->tag_sequence, 'index1 barcode is undefined');
+    ok (!$tag0_row->tag2_sequence, 'index2 barcode is undefined');
+    ok (!defined $tag0_row->id_eseq_flowcell_tmp, 'tag0 row is not linked to LIMS');
+  }
+  is ($lane1_tag0->tag_decode_count, 3136248, 'read count is correct');
+  is (sprintf('%0.2f', $lane1_tag0->tag_decode_percent), 0.83,
+    'percent of reads is correct');
+  is ($lane2_tag0->tag_decode_count, 3252034, 'read count is correct');
+  is (sprintf('%0.2f', $lane2_tag0->tag_decode_percent), 0.84,
+    'percent of reads is correct');
+
+  my $expected = from_json(slurp
+    't/data/elembio/20250127_AV244103_NT1850075L/20250127_AV244103_NT1850075L/expected_sample_stats.json'
+  );
+  my @fks = map { int } qw/289 290 292 293 277 287 279 280 296
+                           288 291 299 298 294 284 300 295 286/;
+  for my $lane ((1, 2)) {
+    my @products = $lane == 1 ? @lane1_products : @lane2_products;
+    my $num_polonies_lane = $lane == 1 ? 375961923 : 388791863;
+    for  my $p (@products) {
+      my $ti = $p->tag_index;
+      is ($p->elembio_samplename, $expected->{$lane}->{$ti}->[0]->{"SampleName"},
+        "sample name for tag $ti lane $lane is correct");
+      is ($p->tag_decode_count, $expected->{$lane}->{$ti}->[0]->{"NumPolonies"},
+        "number of polonies for tag $ti lane $lane is correct");
+      is (sprintf('%0.4f', $p->tag_decode_percent),
+          sprintf('%0.4f', ($p->tag_decode_count/$num_polonies_lane)*100),
+          'tag_decode percent is correct');
+
+      my $expected_sequence = $expected->{$lane}->{$ti}->[0]->{"ExpectedSequence"};
+      is ($p->tag_sequence, substr($expected_sequence, 0, 10),
+        "index1 barcode for tag $ti lane $lane is correct");
+      is ($p->tag2_sequence, substr($expected_sequence, 10),
+        "index2 barcode for tag $ti lane $lane is correct");
+     
+      my $composition_json = qq({"components":[{"id_run":$id_run,"position":$lane,"tag_index":$ti}]});
+      is ($p->eseq_composition_tmp, $composition_json,
+        "composition string for tag $ti lane $lane is correct");
+      my $composition = npg_tracking::glossary::composition->thaw($composition_json,
+        'component_class' => 'npg_tracking::glossary::composition::component::illumina');
+      is ($p->id_eseq_product, $composition->digest, 'product ID is corrcet');
+
+      my $flag = (($ti <= 4) && ($ti >= 1)) ? 1 : 0;
+      is ($p->is_sequencing_control, $flag,
+        "sequencing control flag $flag is set correctly for tag $ti lane $lane");
+      if ($flag) {
+        ok (!defined $p->id_eseq_flowcell_tmp, 'Adept control row is not linked to LIMS');
+      } else {
+        my $id = $fks[$ti-5];
+        if ($lane == 2) {
+          $id += 100;
+        }
+        is ($p->id_eseq_flowcell_tmp, $id, "plex $ti lane $lane row is correctly linked to LIMS data");
+      }
+
+      is ($p->qc_seq, 1, 'QC seq is 1');
+      if ( ($lane == 1) && (($ti == 5) || ($ti == 15)) ) {
+        if ($ti == 5) {
+          is ($p->qc_lib, 1, 'QC lib is 1');
+          is ($p->qc, 1, 'QC overall is 1');
+        } else {
+          is ($p->qc_lib, 0, 'QC lib is 0');
+          is ($p->qc, 0, 'QC overall is 0');
+        }
+      } else {
+        ok (!defined $p->qc_lib, 'QC lib is undefined');
+        is ($p->qc, 1, 'QC overall is 1');
+      }
+    }
+  }
 };
 
 subtest 'load data for early finished/cancelled run' => sub {

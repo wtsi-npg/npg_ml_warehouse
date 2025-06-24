@@ -21,11 +21,13 @@ with qw/ MooseX::Getopt
 
 our $VERSION = '0';
 
-Readonly::Scalar my $CONTROL_SAMPLE_NAME_REGEXP => m/(?:adept)|(?:phix_third)/ismx;
+Readonly::Scalar my $CONTROL_SAMPLE_NAME_REGEXP => qr/(?:adept)|(?:phix_third)/ismx;
 Readonly::Scalar my $HUNDRED => 100;
+Readonly::Scalar my $UNASSIGNED_DATA_TAG_INDEX => 0;
 Readonly::Scalar my $DIGEST_COLUMN_NAME           => 'id_eseq_product';
-Readonly::Scalar my $COMPOSITION_JSON_COLUMN_NAME => 'id_eseq_flowcell_tmp';
+Readonly::Scalar my $COMPOSITION_JSON_COLUMN_NAME => 'eseq_composition_tmp';
 Readonly::Scalar my $COMPOSITION_OBJECT_KEY       => 'c_object';
+Readonly::Scalar my $FLOWCELL_FK_COLUMN_NAME      => 'id_eseq_flowcell_tmp';
 
 =head1 NAME
 
@@ -188,12 +190,12 @@ sub load {
   # If we have LIMS reference for a run, we will try to link eseq_product_metrics
   # run data to relevant records in eseq_flowcell table or relink if the foreign
   # keys have been already set.
-  # my $batch_id = $self->tracking_run->batch_id;
-  my $batch_id = 0;
-  if ($have_product_data && $batch_id) {
-    $self->mlwh_schema->txn_do(
-      \&{ $self->_link2lims->($batch_id) }
-    );
+  my $batch_id = $self->tracking_run->batch_id;
+  if ($have_product_data && defined $batch_id) {
+    my $link_to_batch = sub {
+      return $self->_link2lims($batch_id);
+    };
+    $self->mlwh_schema->txn_do($link_to_batch);
   } else {
     carp 'No batch ID, cannot link product data for run folder ' .
       $self->runfolder_path . ' run ID ' . $self->id_run;
@@ -293,12 +295,12 @@ sub _get_run_lane_data {
 sub _get_product_data {
   my $self = shift;
 
-  my @product_data = $self->_get_product_qc_stats();
+  my @product_data = @{$self->_get_product_qc_stats()};
   my $compositions = {};
 
   foreach my $product (@product_data) {
-    my $lane = $product->lane;
-    my $ti = $product->tag_index;
+    my $lane = $product->{lane};
+    my $ti = $product->{tag_index};
     if (!exists $compositions->{$lane}->{$ti}) {
       $compositions->{$lane}->{$ti} =
         $self->_composition4single_component($lane, $ti);
@@ -308,12 +310,9 @@ sub _get_product_data {
     }
   }
 
-  #TODO
-  # $CONTROL_SAMPLE_NAME_REGEXP -> is_sequencing_control
-
   my %digests = map {
     $_->{$DIGEST_COLUMN_NAME} =>
-      $compositions->{$_->lane}->{$_->tag_index}->{$COMPOSITION_OBJECT_KEY}
+      $compositions->{$_->{lane}}->{$_->{tag_index}}->{$COMPOSITION_OBJECT_KEY}
   } @product_data;
 
   # Batch-retrieve QC outcomes for all products and cache.
@@ -337,7 +336,58 @@ sub _get_product_data {
 
 sub _get_product_qc_stats {
   my $self = shift;
-  return;
+
+  return if !$self->_lane_qc_stats();
+
+  my @products = ();
+  foreach my $lane (sort keys %{$self->_lane_qc_stats()}) {
+    my $lane_stats = $self->_lane_qc_stats()->{$lane};
+
+    # Add tag zero data for this lane. No sample name, no project info,
+    # no tag sequences.
+    my $tag_zero = {
+      'id_run' => $self->id_run,
+      'lane' => $lane,
+      'tag_index' => $UNASSIGNED_DATA_TAG_INDEX,
+      'is_sequencing_control' => 0,
+      'tag_decode_count' => $lane_stats->unassigned_reads,
+      'tag_decode_percent' => 0,
+    };
+    if ($lane_stats->num_polonies) {
+      $tag_zero->{'tag_decode_percent'} =
+        ($lane_stats->unassigned_reads/$lane_stats->num_polonies) * $HUNDRED;
+    }
+    push @products, $tag_zero;
+
+    foreach my $sample_stats ( sort { $a->tag_index <=> $b->tag_index }
+                               values %{$lane_stats->deplexed_samples} ) {
+
+      my $is_control = $sample_stats->sample_name =~ /$CONTROL_SAMPLE_NAME_REGEXP/smx ? 1 : 0;
+
+      foreach my $barcode_string (sort keys %{$sample_stats->barcodes}) {
+        my $lib_stats = $sample_stats->barcodes->{$barcode_string};
+        my $product = {
+          'id_run' => $self->id_run,
+          'lane' => $lane,
+          'tag_index' => $sample_stats->tag_index,
+          'elembio_samplename' => $sample_stats->sample_name,
+          'is_sequencing_control' => $is_control,
+          'tag_sequence' => $lib_stats->barcodes->[0],
+          'tag2_sequence' => $lib_stats->barcodes->[1],
+          'tag_decode_count' => $lib_stats->num_polonies,
+          'tag_decode_percent' => 0
+        };
+        if ($lane_stats->num_polonies) {
+          $product->{'tag_decode_percent'} =
+            ($lib_stats->num_polonies/$lane_stats->num_polonies) * $HUNDRED;
+        }
+        #TODO - set elembio_Project
+        push @products, $product;
+      }
+    }
+  }
+
+  return \@products;
 }
 
 sub _composition4single_component {
@@ -364,7 +414,7 @@ sub _link2lims {
 
   # Do we have any LIMS data for this batch?
   my $fc_rs = $self->mlwh_schema->resultset('EseqFlowcell')
-     ->search({if_flowcell_lims => $batch_id});
+     ->search({id_flowcell_lims => $batch_id});
   my $num_fc_rows = $fc_rs->count();
   if ($num_fc_rows == 0) {
     carp "No LIMS data for batch ID $batch_id"; # Normal for walk-up runs.
@@ -378,31 +428,34 @@ sub _link2lims {
     my $tag2 = $fc_row->tag2_sequence;
     $tag2 ||= $na;
     $lims_data->{$fc_row->lane}->{$fc_row->tag_sequence}->{$tag2} =
-      $fc_row->id_eseq_flowcell_tmp;
+      $fc_row->$FLOWCELL_FK_COLUMN_NAME;
   }
+    #use Test::More; use Data::Dumper; diag Dumper $lims_data ;
 
-  # Pick up rows to link.
+  # Pick up rows for lane-level deplexed data to link.
   my $id_run = $self->id_run;
   my $pr_rs = $self->mlwh_schema->resultset('EseqProductMetric')->search({
     id_run => $id_run,
-    position => { q[!=] => undef},
-    tag_sequence => { q[!=] => undef},
+    lane => { q[!=] => undef},
+    tag_sequence => { q[!=] => $UNASSIGNED_DATA_TAG_INDEX },
   });
 
   # Establish mapping between the rows in eseq_flowcell and eseq_product_metrics
   # rows. If the mapping is partial, link whatever maps and warn.
   my $num2link = $pr_rs->count();
   my $original_num2link = $num2link;
-  while (my $pr_row = $fc_rs->next) {
+
+  while (my $pr_row = $pr_rs->next) {
     my $tag2 = $pr_row->tag2_sequence;
     $tag2 ||= $na;
     my $fc_id = $lims_data->{$pr_row->lane}->{$pr_row->tag_sequence}->{$tag2};
-    if ($fc_id) {
+    #use Test::More; diag "IDIDIDIDI $fc_id for ". join q[ ], $pr_row->lane, $pr_row->tag_sequence, $tag2;
+    if (defined $fc_id) {
       if ( $fc_id eq $done ) {
         croak 'Should not have this';
       }
       $num2link--;
-      $pr_row->update(id_eseq_flowcell_tmp => $fc_id);
+      $pr_row->update({$FLOWCELL_FK_COLUMN_NAME => $fc_id});
       $lims_data->{$pr_row->lane}->{$pr_row->tag_sequence}->{$tag2} = $done;
     }
   }

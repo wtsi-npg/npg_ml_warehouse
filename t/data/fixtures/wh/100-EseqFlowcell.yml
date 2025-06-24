@@ -1,0 +1,649 @@
+---
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 289
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:E2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252329
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: ATGGCTTCTA
+  tag_sequence: ATGTTGCCAC
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 290
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:F2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252330
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: CAACAGTGGA
+  tag_sequence: ACAACAGGCT
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 292
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:H2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252331
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: ACGATGCAAC
+  tag_sequence: TATCCGCGTC
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 293
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:A3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252332
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: TCACTTCGCA
+  tag_sequence: AATCTGCAGT
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 277
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:A1
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252333
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: AACGCCATTC
+  tag_sequence: GAGATGAGAG
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 287
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:C2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252334
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: CTTCCTAGGC
+  tag_sequence: TGACACGATT
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 279
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:C1
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252335
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: CGTAGACGTG
+  tag_sequence: CCTCCTGTGA
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 280
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:D1
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252336
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: GTGCCTCTGA
+  tag_sequence: TATGCGTAGC
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 296
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:D3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252337
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: ATCTCTGGTA
+  tag_sequence: TGACATAGGT
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 288
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:D2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252338
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: TGTCGTTAAG
+  tag_sequence: TTACGCGCAT
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 291
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:G2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 1234191
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: AACGTCCAGT
+  tag_sequence: AGGATGTCCA
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 299
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:G3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 1268205
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: AATAGCTGTG
+  tag_sequence: AGTTCAGGCG
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 298
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:F3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 1268815
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: TCCTGAACTT
+  tag_sequence: TCACCATAAG
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 294
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:B3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 1268816
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: CGTTGGTAAC
+  tag_sequence: GTGCTCTAGG
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 284
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:H1
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 1268817
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: TCACTGGACT
+  tag_sequence: TAGGCGAATG
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 300
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:H3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 1268818
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: TAGCCTAGCG
+  tag_sequence: CCAGTCGTCA
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 295
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:C3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 1268819
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: CCTTACCTAT
+  tag_sequence: TCTAGCTGCG
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 286
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:B2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 1268820
+  id_study_tmp: 1957
+  lane: 1
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: AGCTCGAGGA
+  tag_sequence: TTCTCTTAGC
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 389
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:E2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252329
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: ATGGCTTCTA
+  tag_sequence: ATGTTGCCAC
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 390
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:F2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252330
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: CAACAGTGGA
+  tag_sequence: ACAACAGGCT
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 392
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:H2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252331
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: ACGATGCAAC
+  tag_sequence: TATCCGCGTC
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 393
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:A3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252332
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: TCACTTCGCA
+  tag_sequence: AATCTGCAGT
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 377
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:A1
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252333
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: AACGCCATTC
+  tag_sequence: GAGATGAGAG
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 387
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:C2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252334
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: CTTCCTAGGC
+  tag_sequence: TGACACGATT
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 379
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:C1
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252335
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: CGTAGACGTG
+  tag_sequence: CCTCCTGTGA
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 380
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:D1
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252336
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: GTGCCTCTGA
+  tag_sequence: TATGCGTAGC
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 396
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:D3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252337
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: ATCTCTGGTA
+  tag_sequence: TGACATAGGT
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 388
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:D2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 252338
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: TGTCGTTAAG
+  tag_sequence: TTACGCGCAT
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 391
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:G2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 1234191
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: AACGTCCAGT
+  tag_sequence: AGGATGTCCA
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 399
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:G3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 1268205
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: AATAGCTGTG
+  tag_sequence: AGTTCAGGCG
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 398
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:F3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 1268815
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: TCCTGAACTT
+  tag_sequence: TCACCATAAG
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 394
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:B3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 1268816
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: CGTTGGTAAC
+  tag_sequence: GTGCTCTAGG
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 384
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:H1
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 1268817
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: TCACTGGACT
+  tag_sequence: TAGGCGAATG
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 400
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:H3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 1268818
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: TAGCCTAGCG
+  tag_sequence: CCAGTCGTCA
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 395
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:C3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 1268819
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: CCTTACCTAT
+  tag_sequence: TCTAGCTGCG
+- bait_name: Mouse all exon
+  entity_type: library_indexed
+  id_eseq_flowcell_tmp: 386
+  id_flowcell_lims: 32
+  id_library_lims: SQPU-241296-E:B2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT24396M
+  id_sample_tmp: 1268820
+  id_study_tmp: 1957
+  lane: 2
+  last_updated: 2025-06-09 13:24:17
+  pipeline_id_lims: Agilent Pulldown
+  primer_panel: ~
+  recorded_at: 2025-06-10 09:48:31
+  requested_insert_size_from: 100
+  requested_insert_size_to: 400
+  tag2_sequence: AGCTCGAGGA
+  tag_sequence: TTCTCTTAGC
