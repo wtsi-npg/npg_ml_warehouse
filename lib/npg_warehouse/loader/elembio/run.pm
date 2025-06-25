@@ -218,7 +218,7 @@ sub _build__lane_qc_stats {
   my $run_manifest_file = "$elembio_analysis_path/RunManifest.json";
   if (-e $run_stats_file && -e $run_manifest_file) {
     my $run_stats = npg_qc::elembio::run_stats::run_stats_from_file(
-      $run_stats_file, $run_manifest_file
+      $run_stats_file, $run_manifest_file, $self->tracking_run->run_lanes->count()
     );
     return $run_stats->lanes();
   }
@@ -430,7 +430,6 @@ sub _link2lims {
     $lims_data->{$fc_row->lane}->{$fc_row->tag_sequence}->{$tag2} =
       $fc_row->$FLOWCELL_FK_COLUMN_NAME;
   }
-    #use Test::More; use Data::Dumper; diag Dumper $lims_data ;
 
   # Pick up rows for lane-level deplexed data to link.
   my $id_run = $self->id_run;
@@ -449,7 +448,6 @@ sub _link2lims {
     my $tag2 = $pr_row->tag2_sequence;
     $tag2 ||= $na;
     my $fc_id = $lims_data->{$pr_row->lane}->{$pr_row->tag_sequence}->{$tag2};
-    #use Test::More; diag "IDIDIDIDI $fc_id for ". join q[ ], $pr_row->lane, $pr_row->tag_sequence, $tag2;
     if (defined $fc_id) {
       if ( $fc_id eq $done ) {
         croak 'Should not have this';
