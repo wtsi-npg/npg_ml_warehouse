@@ -19,6 +19,7 @@ Readonly::Scalar my $LIB_OUTCOME_ENT  => 'mqc_library_outcome_ent';
 Readonly::Scalar my $UQC_OUTCOME_ENT  => 'uqc_outcome_ent';
 Readonly::Scalar my $COMPONENT_LANES  => 'component_lanes';
 Readonly::Scalar my $IS_SINGLE_LANE   => 'is_single_lane';
+Readonly::Scalar my $MAX_NUMBER_DIGESTS => 900;
 
 =head1 NAME
 
@@ -110,8 +111,30 @@ sub _build__outcomes {
   my $outcomes = {};
 
   my $digests = [keys %{$self->digests}];
-  my $rs = $self->schema_qc->resultset('SeqComposition')
-                ->search({digest => $digests});
+  my $num_digests = @{$digests};
+
+  if ($num_digests == 0) {
+    return $outcomes;
+  }
+
+  # DBI does not alow more than 1000 members for a list of values
+  # for a query XX in (x, y, z); Therefore a list of digests that is
+  # too long is split into chunks of length up to 900.
+  my $num_chunks = int($num_digests / $MAX_NUMBER_DIGESTS) + 1;
+  my $i = 0;
+  my @rss = [1..$num_chunks];
+  while ($i < $num_chunks) {
+    my $first_index = $i * $MAX_NUMBER_DIGESTS;
+    my $last_index = ($i + 1 == $num_chunks)
+      ? ($num_digests - 1) : ($first_index + $MAX_NUMBER_DIGESTS -1);
+    # The code below creates a sub-list without affecting the original array.
+    my @digests_chunk = @{$digests}[$first_index .. $last_index];
+    # Cannot just push onto the array since in list context DBIx returns
+    # a list of result rows rather than a resultset object.
+    $rss[$i] = $self->schema_qc->resultset('SeqComposition')
+                    ->search({digest => \@digests_chunk});
+    $i++;
+  }
 
   my $lanes_from_components = sub {
     return map { join q[:], $_->id_run, $_->position } @_;
@@ -123,28 +146,30 @@ sub _build__outcomes {
 
   my $lib_outcomes_decomposed = {};
 
-  while (my $crow = $rs->next) {
-    my $digest = $crow->digest;
-    for my $related_outcome (($SEQ_OUTCOME_ENT, $LIB_OUTCOME_ENT, $UQC_OUTCOME_ENT)) {
-      my $orow = $crow->$related_outcome;
-      # It's a pass or a fail, or, for library QC, a final undefined.
-      if ($orow) {
-        if (($related_outcome ne $UQC_OUTCOME_ENT) && !$orow->has_final_outcome) {
-          next;
-        }
-        my $o = $orow->is_accepted ? 1 : ($orow->is_rejected ? 0 : undef);
-        $outcomes->{$digest}->{$related_outcome} = $o;
-        if ( (defined $o) && ($related_outcome eq $LIB_OUTCOME_ENT) &&
-            ($self->digests->{$digest}->num_components() > 1) ) {
-          $self->_cache_lib_outcome($lib_outcomes_decomposed, $digest, $o);
+  for my $rs (@rss) {
+    while (my $crow = $rs->next) {
+      my $digest = $crow->digest;
+      for my $related_outcome (($SEQ_OUTCOME_ENT, $LIB_OUTCOME_ENT, $UQC_OUTCOME_ENT)) {
+        my $orow = $crow->$related_outcome;
+        # It's a pass or a fail, or, for library QC, a final undefined.
+        if ($orow) {
+          if (($related_outcome ne $UQC_OUTCOME_ENT) && !$orow->has_final_outcome) {
+            next;
+          }
+          my $o = $orow->is_accepted ? 1 : ($orow->is_rejected ? 0 : undef);
+          $outcomes->{$digest}->{$related_outcome} = $o;
+          if ( (defined $o) && ($related_outcome eq $LIB_OUTCOME_ENT) &&
+              ($self->digests->{$digest}->num_components() > 1) ) {
+            $self->_cache_lib_outcome($lib_outcomes_decomposed, $digest, $o);
+          }
         }
       }
-    }
 
-    my @components = map {$_->seq_component}
-                     $crow->seq_component_compositions->all();
-    $outcomes->{$crow->digest}->{$IS_SINGLE_LANE}  = $is_single_lane->(@components);
-    $outcomes->{$crow->digest}->{$COMPONENT_LANES} = [$lanes_from_components->(@components)];
+      my @components = map {$_->seq_component}
+                      $crow->seq_component_compositions->all();
+      $outcomes->{$crow->digest}->{$IS_SINGLE_LANE}  = $is_single_lane->(@components);
+      $outcomes->{$crow->digest}->{$COMPONENT_LANES} = [$lanes_from_components->(@components)];
+    }
   }
 
   foreach my $digest (@{$digests}) {
