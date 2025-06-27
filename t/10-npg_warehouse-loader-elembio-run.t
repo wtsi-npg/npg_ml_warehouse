@@ -1,9 +1,10 @@
 use strict;
 use warnings;
-use Test::More tests => 4;
+use Test::More tests => 6;
 use Test::Exception;
 use JSON;
 use Perl6::Slurp;
+use List::MoreUtils qw/uniq/;
 
 use npg_tracking::glossary::composition;
 use npg_testing::db;
@@ -82,9 +83,9 @@ subtest 'load data for a two-lane run, with LIMS' => sub {
     is ($lane->qc_seq, 1, 'QC outcome is correct');
   }
 
-  is ($lane1->tags_decode_percent, 99.17, 'tags decode percent lane1');
+  is ($lane1->tags_decode_percent, 95.53, 'tags decode percent lane1');
   is ($lane1->num_polonies, 375961923, 'number of polonies lane 1');
-  is ($lane2->tags_decode_percent, 99.16, 'tags decode percent lane2');
+  is ($lane2->tags_decode_percent, 95.43, 'tags decode percent lane2');
   is ($lane2->num_polonies, 388791863, 'number of polonies lane 2');
 
   # The same pool in both lanes
@@ -106,11 +107,11 @@ subtest 'load data for a two-lane run, with LIMS' => sub {
     ok (!$tag0_row->tag2_sequence, 'index2 barcode is undefined');
     ok (!defined $tag0_row->id_eseq_flowcell_tmp, 'tag0 row is not linked to LIMS');
   }
-  is ($lane1_tag0->tag_decode_count, 3136248, 'read count is correct');
-  is (sprintf('%0.2f', $lane1_tag0->tag_decode_percent), 0.83,
+  is ($lane1_tag0->tag_decode_count, 16802647, 'read count is correct');
+  is (sprintf('%0.2f', $lane1_tag0->tag_decode_percent), '4.47',
     'percent of reads is correct');
-  is ($lane2_tag0->tag_decode_count, 3252034, 'read count is correct');
-  is (sprintf('%0.2f', $lane2_tag0->tag_decode_percent), 0.84,
+  is ($lane2_tag0->tag_decode_count, 17753846, 'read count is correct');
+  is (sprintf('%0.2f', $lane2_tag0->tag_decode_percent), '4.57',
     'percent of reads is correct');
 
   my $expected = from_json(slurp
@@ -250,7 +251,7 @@ subtest 'load data for early finished/cancelled run' => sub {
 };
 
 subtest 'load data for a one-lane run, no LIMS' => sub {
-  plan tests => 18;
+  plan tests => 24;
 
   my $id_run = 50490;
 
@@ -272,7 +273,7 @@ subtest 'load data for a one-lane run, no LIMS' => sub {
 
   my $rl_rs = $schema_wh->resultset('EseqRunLaneMetric')
     ->search({id_run => $id_run});
-  is ($rl_rs->count(), 1, 'one row are retrieved');
+  is ($rl_rs->count(), 1, 'one row is loaded');
   my $lane = $rl_rs->next();
   is ($lane->lane, 1, 'data for lane 1 is present');
   is ($lane->id_run, $id_run, 'run id is correct');
@@ -290,7 +291,112 @@ subtest 'load data for a one-lane run, no LIMS' => sub {
   is ($lane->instrument_model, 'AVITI23', 'correct instrument model');
   is ($lane->instrument_side, 'B', 'correct instrument side');
   is ($lane->qc_seq, 0, 'QC outcome is correct');
-  ok ($lane->tags_decode_percent, 'tags decode percent is defined');
-  ok ($lane->num_polonies, 'number of polonies is defined');
+  is (sprintf('%0.2f', $lane->tags_decode_percent), '99.30', 'tags decode percent is correct');
+  is ($lane->num_polonies, 363641937, 'number of polonies is correct');
+
+  my @pr_rows = $schema_wh->resultset('EseqProductMetric')
+    ->search({id_run => $id_run})->all();
+  is (scalar @pr_rows, 95, '95 product rows are created'); # 90 samples, 4 controls, 1 tag zero
+  is (scalar(grep { $_->lane == 1 } @pr_rows), 95, 'All rows belong to lane 1');
+  is (scalar(grep { $_->id_eseq_flowcell_tmp } @pr_rows), 0,
+    'no rows are linked to LIMS data');
+  is (scalar(grep { defined $_->qc && ($_->qc==0) } @pr_rows), 95, 'Overall QC is 0 for all');
+  is (scalar(grep { defined $_->qc_seq && ($_->qc_seq==0) } @pr_rows), 95, 'QC seq is 0 for all');
+  is (scalar(grep { !defined $_->qc_lib } @pr_rows), 95, 'QC lib is undefined for all');
 };
+
+subtest 'load data for a one-lane run, Sample_barcodes 1:N, no LIMS' => sub {
+  plan tests => 23;
+
+  my $id_run = 50556;
+  my $loader = npg_warehouse::loader::elembio::run->new(
+    id_run => $id_run,
+    runfolder_path => 't/data/elembio/20250401_AV244103_NT1853579T',
+    npg_tracking_schema => $schema_npg,
+    npg_qc_schema => $schema_qc,
+    mlwh_schema => $schema_wh 
+  );
+  $loader->load();
+
+  my $rl_rs = $schema_wh->resultset('EseqRunLaneMetric')
+    ->search({id_run => $id_run});
+  is ($rl_rs->count(), 1, 'one run-lane row is loaded');
+
+  my $pr_rs = $schema_wh->resultset('EseqProductMetric')
+    ->search({id_run => $id_run});
+  # 4 control samples
+  # 2 samples with one pair of barcodes
+  # 6 samples with 144 pairs of barcodes each
+  # tag zero
+  is ($pr_rs->count(), 871, '871 product rows are created');
+  my $samples = {};
+  for ($pr_rs->all()) {
+    my $name = $_->elembio_samplename;
+    $name ||= 'tagzero';
+    my $tag = $_->tag_sequence ? join(q[],$_->tag_sequence,$_->tag2_sequence) : 'none';
+    push @{$samples->{$name}->{$_->tag_index}}, $tag;
+  }
+  is (scalar(keys %{$samples}), 13, '13 samples are recorded');
+  ok (((exists $samples->{'tagzero'}->{0}) && (scalar @{$samples->{'tagzero'}->{0}} == 1)),
+    'one row for tag zero');
+  ok (((exists $samples->{'Inzolia_a'}->{11}) && (scalar @{$samples->{'Inzolia_a'}->{11}} == 1)),
+    'one row for Inzolia_a');
+  ok (((exists $samples->{'Inzolia_b'}->{12}) && (scalar @{$samples->{'Inzolia_b'}->{12}} == 1)),
+    'one row for Inzolia_b');
+  my $name2index = {'64_1_2_single_ok' => 10,
+                    '64_1_1_double_good' => 5,
+                    '64_1_1_single_good' => 6,
+                    '64_1_2_double_contaminated' => 7,
+                    '64_1_2_double_good' => 8,
+                    '64_1_2_single_good' => 9};
+  for my $name (keys %{$name2index}) {
+    my $ti = $name2index->{$name};
+    ok (((exists $samples->{$name}->{$ti}) && (scalar @{$samples->{$name}->{$ti}} == 144)),
+      "144 rows for $name");
+    is (scalar(uniq @{$samples->{$name}->{$ti}}), 144, "144 unique tag pair for $name");
+  }
+  my $sample_name = 'Inzolia_a';
+  my $row = $schema_wh->resultset('EseqProductMetric')
+    ->search({id_run => $id_run, elembio_samplename => $sample_name})->next();
+  is ($row->tag_decode_count, 6880504, "tag decode count is correct for $sample_name");
+  is ($row->tag_sequence, 'CAAGGATCGA', "first index is correct for $sample_name");
+  is ($row->tag2_sequence, 'TTGTGTCTGC', "second index is correct for $sample_name");
+  $sample_name = '64_1_1_double_good';
+  $row = $schema_wh->resultset('EseqProductMetric')->search({
+    id_run => $id_run,
+    elembio_samplename => $sample_name,
+    tag_sequence =>  'ACAACAGGCT',
+    tag2_sequence => 'ACATTACTCG'
+  })->next();
+  is ($row->tag_index, 5, 'tag index is correct');
+  is ($row->tag_decode_count, 214527, "tag decode count is correct for $sample_name");
+};
+
+subtest 'load data for a two-lane run, one index read, no LIMS' => sub {
+  plan tests => 5;
+
+  my $id_run = 50550;
+  my $loader = npg_warehouse::loader::elembio::run->new(
+    id_run => $id_run,
+    runfolder_path => 't/data/elembio/20250225_AV244103_NT1850075L_NT1850808B_repeat3',
+    npg_tracking_schema => $schema_npg,
+    npg_qc_schema => $schema_qc,
+    mlwh_schema => $schema_wh 
+  );
+  $loader->load();
+
+  my $rl_rs = $schema_wh->resultset('EseqRunLaneMetric')
+    ->search({id_run => $id_run});
+  is ($rl_rs->count(), 2, 'two run-lane rows are loaded');
+  my $pr_rs = $schema_wh->resultset('EseqProductMetric')
+    ->search({id_run => $id_run});
+  is ($pr_rs->count(), 3082, 'two product rows are loaded');
+  is ($pr_rs->search({tag2_sequence => {'!=' => undef}})->count(), 0,
+    'second tag sequence is not defined for any of the products');
+  is ($pr_rs->search({tag_sequence => undef})->count(), 2,
+    'first tag sequence is undefined for two products (tag zero)');
+  is ($pr_rs->search({is_sequencing_control => 1})->count(), 8,
+    '8 controls are present');
+};
+
 1;

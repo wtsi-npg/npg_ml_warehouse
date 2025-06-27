@@ -34,8 +34,8 @@ lives_ok{ $wh  = $util->create_test_db(
   lives_ok {$rsloader->copy_npg_tables()} 'copy  tables';
   is ($wh->resultset('IseqRunStatusDict')->search({})->count, 24,
     '24 rows loaded to the dictionary');
-  is ($wh->resultset('IseqRunStatus')->search({})->count, 263,
-    'all statuses for both Illumina ans Elembio runs are loaded');
+  is ($wh->resultset('IseqRunStatus')->search({})->count, 267,
+    'all statuses for both Illumina and Elembio runs are loaded');
   
   my @expected_runs = map { int }
                       qw/1246 1272 24975 25710 27116 3323 3351 3500 3519
