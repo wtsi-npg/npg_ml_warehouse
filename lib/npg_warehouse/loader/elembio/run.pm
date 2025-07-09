@@ -218,7 +218,7 @@ sub _build__lane_qc_stats {
   my $run_manifest_file = "$elembio_analysis_path/RunManifest.json";
   if (-e $run_stats_file && -e $run_manifest_file) {
     my $run_stats = npg_qc::elembio::run_stats::run_stats_from_file(
-      $run_stats_file, $run_manifest_file, $self->tracking_run->run_lanes->count()
+      $run_manifest_file, $run_stats_file, $self->tracking_run->run_lanes->count()
     );
     return $run_stats->lanes();
   }
