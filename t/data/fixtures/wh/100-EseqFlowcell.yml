@@ -1,6 +1,7 @@
 ---
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 289
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:E2
@@ -19,6 +20,7 @@
   tag_sequence: ATGTTGCCAC
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678 
   id_eseq_flowcell_tmp: 290
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:F2
@@ -37,6 +39,7 @@
   tag_sequence: ACAACAGGCT
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 292
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:H2
@@ -55,6 +58,7 @@
   tag_sequence: TATCCGCGTC
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 293
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:A3
@@ -73,6 +77,7 @@
   tag_sequence: AATCTGCAGT
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 277
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:A1
@@ -91,6 +96,7 @@
   tag_sequence: GAGATGAGAG
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 287
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:C2
@@ -109,6 +115,7 @@
   tag_sequence: TGACACGATT
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 279
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:C1
@@ -127,6 +134,7 @@
   tag_sequence: CCTCCTGTGA
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 280
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:D1
@@ -145,6 +153,7 @@
   tag_sequence: TATGCGTAGC
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 296
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:D3
@@ -163,6 +172,7 @@
   tag_sequence: TGACATAGGT
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 288
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:D2
@@ -181,6 +191,7 @@
   tag_sequence: TTACGCGCAT
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 291
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:G2
@@ -199,6 +210,7 @@
   tag_sequence: AGGATGTCCA
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 299
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:G3
@@ -217,6 +229,7 @@
   tag_sequence: AGTTCAGGCG
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 298
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:F3
@@ -235,6 +248,7 @@
   tag_sequence: TCACCATAAG
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 294
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:B3
@@ -253,6 +267,7 @@
   tag_sequence: GTGCTCTAGG
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 284
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:H1
@@ -271,6 +286,7 @@
   tag_sequence: TAGGCGAATG
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 300
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:H3
@@ -289,6 +305,7 @@
   tag_sequence: CCAGTCGTCA
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 295
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:C3
@@ -307,6 +324,7 @@
   tag_sequence: TCTAGCTGCG
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345678
   id_eseq_flowcell_tmp: 286
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:B2
@@ -325,6 +343,7 @@
   tag_sequence: TTCTCTTAGC
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 389
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:E2
@@ -343,6 +362,7 @@
   tag_sequence: ATGTTGCCAC
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 390
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:F2
@@ -361,6 +381,7 @@
   tag_sequence: ACAACAGGCT
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 392
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:H2
@@ -379,6 +400,7 @@
   tag_sequence: TATCCGCGTC
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 393
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:A3
@@ -397,6 +419,7 @@
   tag_sequence: AATCTGCAGT
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 377
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:A1
@@ -415,6 +438,7 @@
   tag_sequence: GAGATGAGAG
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 387
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:C2
@@ -433,6 +457,7 @@
   tag_sequence: TGACACGATT
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 379
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:C1
@@ -451,6 +476,7 @@
   tag_sequence: CCTCCTGTGA
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 380
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:D1
@@ -469,6 +495,7 @@
   tag_sequence: TATGCGTAGC
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 396
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:D3
@@ -487,6 +514,7 @@
   tag_sequence: TGACATAGGT
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 388
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:D2
@@ -505,6 +533,7 @@
   tag_sequence: TTACGCGCAT
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 391
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:G2
@@ -523,6 +552,7 @@
   tag_sequence: AGGATGTCCA
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 399
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:G3
@@ -541,6 +571,7 @@
   tag_sequence: AGTTCAGGCG
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 398
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:F3
@@ -559,6 +590,7 @@
   tag_sequence: TCACCATAAG
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 394
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:B3
@@ -577,6 +609,7 @@
   tag_sequence: GTGCTCTAGG
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 384
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:H1
@@ -595,6 +628,7 @@
   tag_sequence: TAGGCGAATG
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 400
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:H3
@@ -613,6 +647,7 @@
   tag_sequence: CCAGTCGTCA
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 395
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:C3
@@ -631,6 +666,7 @@
   tag_sequence: TCTAGCTGCG
 - bait_name: Mouse all exon
   entity_type: library_indexed
+  entity_id_lims: 12345679
   id_eseq_flowcell_tmp: 386
   id_flowcell_lims: 32
   id_library_lims: SQPU-241296-E:B2

@@ -205,26 +205,32 @@ sub load {
 }
 
 has '_lane_qc_stats' => (
-  isa        => 'Maybe[HashRef]',
+  isa        => 'HashRef',
   is         => 'ro',
   lazy_build => 1,
 );
 sub _build__lane_qc_stats {
   my $self = shift;
 
+  my $stats = {};
   my $elembio_analysis_path = join q[/], $self->runfolder_path,
     $self->tracking_run->folder_name;
-  my $run_stats_file = "$elembio_analysis_path/RunStats.json";
-  my $run_manifest_file = "$elembio_analysis_path/RunManifest.json";
-  if (-e $run_stats_file && -e $run_manifest_file) {
-    my $run_stats = npg_qc::elembio::run_stats::run_stats_from_file(
-      $run_manifest_file, $run_stats_file, $self->tracking_run->run_lanes->count()
-    );
-    return $run_stats->lanes();
+  if (-d $elembio_analysis_path) {
+    my $run_stats_file = "$elembio_analysis_path/RunStats.json";
+    my $run_manifest_file = "$elembio_analysis_path/RunManifest.json";
+    if (-e $run_stats_file && -e $run_manifest_file) {
+      my $run_stats = npg_qc::elembio::run_stats::run_stats_from_file(
+        $run_manifest_file, $run_stats_file, $self->tracking_run->run_lanes->count()
+      );
+      $stats = $run_stats->lanes();
+    } else {
+      carp "Either $run_stats_file or $run_manifest_file does not exist";
+    }
+  } else {
+    carp "Elembio deplexing directory $elembio_analysis_path does not exist";
   }
-  carp "Either $run_stats_file or $run_manifest_file does not exist";
 
-  return;
+  return $stats;
 }
 
 sub _get_run_lane_data {
@@ -274,12 +280,14 @@ sub _get_run_lane_data {
     $data{run_priority} = $self->tracking_run->priority;
 
     # Tag deplexing stats is not available for unfinished runs.
-    if (!($run_is_cancelled || $run_stopped_early) && $self->_lane_qc_stats()) {
-      my $lane_qc = $self->_lane_qc_stats()->{$lane};
-      $data{tags_decode_percent} = sprintf '%.2f',
-        (($lane_qc->num_polonies - $lane_qc->unassigned_reads)/
-          $lane_qc->num_polonies) * $HUNDRED;
-      $data{num_polonies} = $lane_qc->num_polonies();
+    if (!($run_is_cancelled || $run_stopped_early)) {
+      if (exists $self->_lane_qc_stats()->{$lane}) {
+        my $lane_qc = $self->_lane_qc_stats()->{$lane};
+        $data{tags_decode_percent} = sprintf '%.2f',
+          (($lane_qc->num_polonies - $lane_qc->unassigned_reads)/
+            $lane_qc->num_polonies) * $HUNDRED;
+        $data{num_polonies} = $lane_qc->num_polonies();
+      }
     }
 
     for my $column_name ( keys %data ) {
@@ -337,9 +345,8 @@ sub _get_product_data {
 sub _get_product_qc_stats {
   my $self = shift;
 
-  return if !$self->_lane_qc_stats();
-
   my @products = ();
+
   foreach my $lane (sort keys %{$self->_lane_qc_stats()}) {
     my $lane_stats = $self->_lane_qc_stats()->{$lane};
 
