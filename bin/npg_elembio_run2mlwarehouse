@@ -21,7 +21,12 @@ if (defined $ENV{dev} && $ENV{dev}) {
   INFO(join q[ ], q[Using], $ENV{dev}, q[databases]);
 }
 
-npg_warehouse::loader::elembio::run->new_with_options();
+try {
+  npg_warehouse::loader::elembio::run->new_with_options()->load();
+} catch {
+  my $error = $_;
+  FATAL($error);
+};
 
 exit 0;
 
@@ -77,17 +82,11 @@ any non-zero if a fatal error occured
 
 =item FindBin
 
-=item Try::Tiny
-
-=item Pod::Usage
-
-=item Getopt::Long
-
 =item Log::Log4perl
 
-=item npg_warehouse::loader::elembio::run
+=item Try::Tiny
 
-=item WTSI::DNAP::Warehouse::Schema
+=item npg_warehouse::loader::elembio::run
 
 =back
 

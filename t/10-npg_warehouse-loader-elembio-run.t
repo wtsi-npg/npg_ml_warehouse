@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 6;
+use Test::More tests => 7;
 use Test::Exception;
 use JSON;
 use Perl6::Slurp;
@@ -21,6 +21,21 @@ my $schema_npg  = $util->create_test_db(q[npg_tracking::Schema],
   q[t/data/fixtures/npg]);
 my $schema_qc = $util->create_test_db(q[npg_qc::Schema],
   q[t/data/fixtures/npgqc]);
+
+subtest 'Test raising errors' => sub {
+  plan tests => 1;
+
+  my $loader = npg_warehouse::loader::elembio::run->new(
+    id_run => 1,
+    runfolder_path => 't/data/elembio/doesnotexist',
+    npg_tracking_schema => $schema_npg,
+    npg_qc_schema => $schema_qc,
+    mlwh_schema => $schema_wh 
+  );
+  throws_ok { $loader->load() }
+    qr{Run folder path t/data/elembio/doesnotexist does not exist},
+    'Error when run folder does not exist';
+};
 
 subtest 'load data for a two-lane run, with LIMS' => sub {
   plan tests => 581;

@@ -2,7 +2,6 @@ package npg_warehouse::loader::elembio::run;
 
 use Moose;
 use MooseX::StrictConstructor;
-use Carp;
 use Readonly;
 
 use npg_tracking::glossary::composition::component::illumina;
@@ -17,6 +16,7 @@ use npg_warehouse::loader::illumina::npg;
 use npg_warehouse::loader::illumina::fqc;
 
 with qw/ MooseX::Getopt
+         WTSI::DNAP::Utilities::Loggable
          npg_tracking::illumina::run::folder /;
 
 our $VERSION = '0';
@@ -36,7 +36,9 @@ npg_warehouse::loader::elembio::run
 =head1 SYNOPSIS
  
   my $path = 'some/path';
-  npg_warehouse::loader::elembio::run->new(runfolder_path => $path)->load();
+  npg_warehouse::loader::elembio::run->new(
+    runfolder_path => $path, id_run => 88
+  )->load();
 
 =head1 DESCRIPTION
 
@@ -134,6 +136,10 @@ sub _build_npg_qc_schema {
 Loads C<eseq_run_lane_metrics> and C<eseq_product_metrics> tables.
 Either creates records or updates existing records.
 
+No existing rows are deleted. If anything has changed in the composition of
+the sequenced pools, it is advisable to drop all records prior to invoking
+this method.
+
 The loader does not load product data for cancelled or stopped early runs.
 Runs marked as stopped early will either be analysed and picked up by
 the mlwh loader that runs within the analysis pipeline or manually moved to
@@ -149,8 +155,9 @@ made.
 sub load {
   my $self = shift;
 
-  -d $self->runfolder_path or croak
-    sprintf 'Run folder path %s does not exist', $self->runfolder_path;
+  -d $self->runfolder_path or $self->logger()->logcroak(
+    sprintf 'Run folder path %s does not exist', $self->runfolder_path
+  );
 
   my $rl_rs = $self->mlwh_schema->resultset('EseqRunLaneMetric');
   my %column_names = map { $_ => 1 } $rl_rs->result_source->columns;
@@ -184,7 +191,7 @@ sub load {
   };
   my $have_product_data = $self->mlwh_schema->txn_do($loader);
   if (!$have_product_data) {
-    carp 'No product data';
+    $self->logger()->warn('No product data');
   }
 
   # If we have LIMS reference for a run, we will try to link eseq_product_metrics
@@ -197,8 +204,10 @@ sub load {
     };
     $self->mlwh_schema->txn_do($link_to_batch);
   } else {
-    carp 'No batch ID, cannot link product data for run folder ' .
-      $self->runfolder_path . ' run ID ' . $self->id_run;
+    $self->logger()->warn(
+      'No batch ID, cannot link product data for run folder ' .
+      $self->runfolder_path . ' run ID ' . $self->id_run
+    );
   }
 
   return;
@@ -224,10 +233,14 @@ sub _build__lane_qc_stats {
       );
       $stats = $run_stats->lanes();
     } else {
-      carp "Either $run_stats_file or $run_manifest_file does not exist";
+      $self->logger()->error(
+        "Either $run_stats_file or $run_manifest_file does not exist"
+      );
     }
   } else {
-    carp "Elembio deplexing directory $elembio_analysis_path does not exist";
+    $self->logger()->error(
+      "Elembio deplexing directory $elembio_analysis_path does not exist"
+    );
   }
 
   return $stats;
@@ -424,7 +437,8 @@ sub _link2lims {
      ->search({id_flowcell_lims => $batch_id});
   my $num_fc_rows = $fc_rs->count();
   if ($num_fc_rows == 0) {
-    carp "No LIMS data for batch ID $batch_id"; # Normal for walk-up runs.
+    # Normal for walk-up runs.
+    $self->logger()->warn("No LIMS data for batch ID $batch_id");
     return;
   }
 
@@ -457,7 +471,7 @@ sub _link2lims {
     my $fc_id = $lims_data->{$pr_row->lane}->{$pr_row->tag_sequence}->{$tag2};
     if (defined $fc_id) {
       if ( $fc_id eq $done ) {
-        croak 'Should not have this';
+        $self->logger()->logcroak('Should not have this');
       }
       $num2link--;
       $pr_row->update({$FLOWCELL_FK_COLUMN_NAME => $fc_id});
@@ -466,10 +480,12 @@ sub _link2lims {
   }
   if ($num2link) {
     if ($num2link == $original_num2link) {
-      carp "No products for run $id_run is linked to LIMS data";
+      $self->logger()->warn("No products for run $id_run is linked to LIMS data");
     } else {
       # OK for controls?
-      carp "$num2link products for run $id_run have not been linked to LIMS data";
+      $self->logger()->warn(
+        "$num2link products for run $id_run have not been linked to LIMS data"
+      );
     }
   }
   # Should we figure out if there are any unlinked LIMS rows?
@@ -502,6 +518,8 @@ __END__
 =item MooseX::Getopt
 
 =item Readonly
+
+=item WTSI::DNAP::Utilities::Loggable
 
 =item npg_tracking::glossary::rpt
 
