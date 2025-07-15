@@ -92,7 +92,7 @@ has [map {q[+] . $_ } @no_script_arg_attrs] => (metaclass => 'NoGetopt',);
 # Annotate script arguments attributes as required.
 has [map {q[+] . $_ } @script_args] => (required => 1,);
 
-# Always require trackign db connection.
+# Always require tracking db connection.
 sub _build_npg_tracking_schema {
   return npg_tracking::Schema->connect;
 }
@@ -143,7 +143,7 @@ this method.
 The loader does not load product data for cancelled or stopped early runs.
 Runs marked as stopped early will either be analysed and picked up by
 the mlwh loader that runs within the analysis pipeline or manually moved to
-'run calcelled' status. See C<npg_warehouse::loader::illumina::npg::run_is_cancelled>
+'run cancelled' status. See C<npg_warehouse::loader::illumina::npg::run_is_cancelled>
 for the definition of a cancelled run.
 
 If LIMS batch ID value is set in the tracking database for this run,
@@ -249,6 +249,11 @@ sub _build__lane_qc_stats {
 sub _get_run_lane_data {
   my ($self, $column_names, $run_stopped_early) = @_;
 
+  # Elembio runs and their statuses are registered in the run tracking
+  # database exactly in the same way as Illumina runs. The same tables
+  # are used. Therefore the code for retrieving run and lane data from
+  # the tracking database can be reused for Elembio data.
+
   my $data_source = npg_warehouse::loader::illumina::npg->new(
     id_run => $self->id_run,
     schema_npg => $self->npg_tracking_schema
@@ -292,7 +297,7 @@ sub _get_run_lane_data {
     $data{cancelled} = $run_is_cancelled;
     $data{run_priority} = $self->tracking_run->priority;
 
-    # Tag deplexing stats is not available for unfinished runs.
+    # Tag deplexing data is not available for unfinished runs.
     if (!($run_is_cancelled || $run_stopped_early)) {
       if (exists $self->_lane_qc_stats()->{$lane}) {
         my $lane_qc = $self->_lane_qc_stats()->{$lane};
@@ -336,7 +341,12 @@ sub _get_product_data {
       $compositions->{$_->{lane}}->{$_->{tag_index}}->{$COMPOSITION_OBJECT_KEY}
   } @product_data;
 
+  ######
   # Batch-retrieve QC outcomes for all products and cache.
+  #
+  # Both Elembio and Illumina QC outcomes are saved to QC database
+  # to the same tables. Therefore, it is possible to reuse the code,
+  # which was originally written for Illumina data.
   my $qc_outcomes_data_source = npg_warehouse::loader::illumina::fqc->new(
     schema_qc => $self->npg_qc_schema, digests => \%digests
   );
@@ -374,6 +384,8 @@ sub _get_product_qc_stats {
       'tag_decode_percent' => 0,
     };
     if ($lane_stats->num_polonies) {
+      # Assign data that didn't decode to tag zero - this is NPG's Illumina
+      # convention, which we follow for Elembio platform as well.
       $tag_zero->{'tag_decode_percent'} =
         ($lane_stats->unassigned_reads/$lane_stats->num_polonies) * $HUNDRED;
     }

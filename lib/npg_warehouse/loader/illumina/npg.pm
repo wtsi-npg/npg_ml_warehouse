@@ -103,7 +103,7 @@ sub run_is_indexed {
 =head2 dates
 
 Returns a hash reference containing dates for 'run pending', 'run in progress',
-'run complete', run archived'and 'qc complete' run statuses. The run statuses
+'run complete', 'run archived' and 'qc complete' run statuses. The run statuses
 (with underscores replacing white space) are the keys and corresponding dates
 are the values. 'run in progress' status is returned under 'run_started' key.
 

@@ -117,9 +117,9 @@ sub _build__outcomes {
     return $outcomes;
   }
 
-  # DBI does not alow more than 1000 members for a list of values
-  # for a query XX in (x, y, z); Therefore a list of digests that is
-  # too long is split into chunks of length up to 900.
+  # DBI does not allow more than 1000 members for a list of values
+  # for a query XX in (x, y, z). Therefore a list of digests that is
+  # too long is split into chunks of length of up to 900.
   my $num_chunks = int($num_digests / $MAX_NUMBER_DIGESTS) + 1;
   my $i = 0;
   my @rss = [1..$num_chunks];

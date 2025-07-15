@@ -4,7 +4,7 @@ LIST OF CHANGES
  - Added a loader for Elembio (Element Biosciences) run data for
    eseq_run_lane_metrics and eseq_product_metrics tables.
  - Changed the retriever for final QC outcomes so that it does not error
-   when outcomes are requested for a a large (over 1000) number of products.
+   when outcomes are requested for a large (over 1000) number of products.
 
 release 53.0.0 (2025-06-20)
  - Stopped loading manufacturer-provided run statistics information to
