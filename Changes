@@ -1,6 +1,6 @@
 LIST OF CHANGES
 
-
+release 53.1.0 (2025-07-17)
  - Added a loader for Elembio (Element Biosciences) run data for
    eseq_run_lane_metrics and eseq_product_metrics tables.
  - Changed the retriever for final QC outcomes so that it does not error
