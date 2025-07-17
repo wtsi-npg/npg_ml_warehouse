@@ -373,22 +373,18 @@ sub _get_product_qc_stats {
   foreach my $lane (sort keys %{$self->_lane_qc_stats()}) {
     my $lane_stats = $self->_lane_qc_stats()->{$lane};
 
-    # Add tag zero data for this lane. No sample name, no project info,
-    # no tag sequences.
+    # Assign data that didn't decode to tag zero - this is NPG's Illumina
+    # convention, which we follow for Elembio platform as well.
+    # No sample name, no project info, no tag sequences. 
     my $tag_zero = {
       'id_run' => $self->id_run,
       'lane' => $lane,
       'tag_index' => $UNASSIGNED_DATA_TAG_INDEX,
       'is_sequencing_control' => 0,
       'tag_decode_count' => $lane_stats->unassigned_reads,
-      'tag_decode_percent' => 0,
+      'tag_decode_percent' => _tag_decode_percent(
+        $lane_stats->unassigned_reads, $lane_stats->num_polonies),
     };
-    if ($lane_stats->num_polonies) {
-      # Assign data that didn't decode to tag zero - this is NPG's Illumina
-      # convention, which we follow for Elembio platform as well.
-      $tag_zero->{'tag_decode_percent'} =
-        ($lane_stats->unassigned_reads/$lane_stats->num_polonies) * $HUNDRED;
-    }
     push @products, $tag_zero;
 
     foreach my $sample_stats ( sort { $a->tag_index <=> $b->tag_index }
@@ -407,12 +403,9 @@ sub _get_product_qc_stats {
           'tag_sequence' => $lib_stats->barcodes->[0],
           'tag2_sequence' => $lib_stats->barcodes->[1],
           'tag_decode_count' => $lib_stats->num_polonies,
-          'tag_decode_percent' => 0
+          'tag_decode_percent' => _tag_decode_percent(
+             $lib_stats->num_polonies, $lane_stats->num_polonies),
         };
-        if ($lane_stats->num_polonies) {
-          $product->{'tag_decode_percent'} =
-            ($lib_stats->num_polonies/$lane_stats->num_polonies) * $HUNDRED;
-        }
         #TODO - set elembio_Project
         push @products, $product;
       }
@@ -420,6 +413,11 @@ sub _get_product_qc_stats {
   }
 
   return \@products;
+}
+
+sub _tag_decode_percent {
+  my ($lib_num_polonies, $lane_num_polonies) = @_;
+  return $lane_num_polonies ? ($lib_num_polonies/$lane_num_polonies) * $HUNDRED : 0;
 }
 
 sub _composition4single_component {
