@@ -19,6 +19,7 @@ Readonly::Scalar my $LIB_OUTCOME_ENT  => 'mqc_library_outcome_ent';
 Readonly::Scalar my $UQC_OUTCOME_ENT  => 'uqc_outcome_ent';
 Readonly::Scalar my $COMPONENT_LANES  => 'component_lanes';
 Readonly::Scalar my $IS_SINGLE_LANE   => 'is_single_lane';
+Readonly::Scalar my $MAX_NUMBER_DIGESTS => 900;
 
 =head1 NAME
 
@@ -108,10 +109,18 @@ sub _build__outcomes {
   my $self = shift;
 
   my $outcomes = {};
+  my @digests = keys %{$self->digests};
 
-  my $digests = [keys %{$self->digests}];
-  my $rs = $self->schema_qc->resultset('SeqComposition')
-                ->search({digest => $digests});
+  if (@digests == 0) {
+    return $outcomes;
+  }
+
+  my @qc_outcomes_tables = ($SEQ_OUTCOME_ENT, $LIB_OUTCOME_ENT, $UQC_OUTCOME_ENT);
+
+  my $rs = $self->schema_qc->resultset('SeqComposition');
+  my @rows = grep { defined } map {
+    $rs->search({digest => $_}, {prefetch => \@qc_outcomes_tables})->next()
+  } @digests;
 
   my $lanes_from_components = sub {
     return map { join q[:], $_->id_run, $_->position } @_;
@@ -123,9 +132,9 @@ sub _build__outcomes {
 
   my $lib_outcomes_decomposed = {};
 
-  while (my $crow = $rs->next) {
+  for my $crow (@rows) {
     my $digest = $crow->digest;
-    for my $related_outcome (($SEQ_OUTCOME_ENT, $LIB_OUTCOME_ENT, $UQC_OUTCOME_ENT)) {
+    for my $related_outcome (@qc_outcomes_tables) {
       my $orow = $crow->$related_outcome;
       # It's a pass or a fail, or, for library QC, a final undefined.
       if ($orow) {
@@ -140,14 +149,13 @@ sub _build__outcomes {
         }
       }
     }
-
     my @components = map {$_->seq_component}
                      $crow->seq_component_compositions->all();
-    $outcomes->{$crow->digest}->{$IS_SINGLE_LANE}  = $is_single_lane->(@components);
-    $outcomes->{$crow->digest}->{$COMPONENT_LANES} = [$lanes_from_components->(@components)];
+    $outcomes->{$digest}->{$IS_SINGLE_LANE}  = $is_single_lane->(@components);
+    $outcomes->{$digest}->{$COMPONENT_LANES} = [$lanes_from_components->(@components)];
   }
 
-  foreach my $digest (@{$digests}) {
+  foreach my $digest (@digests) {
     if (!exists $outcomes->{$digest}) {
       #####
       # Either this entity has not been qc-ed or the outcome is not final yet or

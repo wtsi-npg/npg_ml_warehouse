@@ -117,7 +117,7 @@ subtest 'old paired (two runfolders) run' => sub {
 
   my $r  = $rs->next;
   is ($r->position, 1, 'position from a result set for position 1');
-  is ($r->qc_complete->datetime, '2008-09-25T13:18:20', 'run complete for position 1');
+  is ($r->qc_complete->datetime, '2008-09-25T13:18:20', 'run qc complete for position 1');
   is ($r->run_pending->datetime, '2008-08-19T09:55:12', 'run pending for position 1');
 
   my @found = ();

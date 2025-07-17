@@ -270,10 +270,10 @@
   id_run: 50490
   id_run_pair: ~
   is_paired: 1
-  priority: 1
+  priority: 3
   team: SR
 - actual_cycle_count: 310
-  batch_id: ~
+  batch_id: 32
   expected_cycle_count: 310
   flowcell_id: 2427452508
   folder_name: 20250127_AV244103_NT1850075L
@@ -281,6 +281,45 @@
   id_instrument: 100
   id_instrument_format: 20
   id_run: 50517
+  id_run_pair: ~
+  is_paired: 1
+  priority: 1
+  team: SR
+- actual_cycle_count: 0
+  batch_id: ~
+  expected_cycle_count: 140
+  flowcell_id: 2443597240
+  folder_name: 20250513_AV244103_NT1854819U_Run2
+  folder_path_glob: /lustre/scratch120/elembio/staging/AV244103
+  id_instrument: 100
+  id_instrument_format: 20
+  id_run: 50545
+  id_run_pair: ~
+  is_paired: 1
+  priority: 1
+  team: SR
+- actual_cycle_count: 622
+  batch_id: ~
+  expected_cycle_count: 622
+  flowcell_id: 2441455406
+  folder_name: 20250401_AV244103_NT1853579T
+  folder_path_glob: /lustre/scratch120/elembio/staging/AV244103
+  id_instrument: 100
+  id_instrument_format: 20
+  id_run: 50556
+  id_run_pair: ~
+  is_paired: 1
+  priority: 1
+  team: SR
+- actual_cycle_count: 210
+  batch_id: ~
+  expected_cycle_count: 210
+  flowcell_id: 2437688146
+  folder_name: 20250225_AV244103_NT1850075L_NT1850808B_repeat3
+  folder_path_glob: /lustre/scratch120/elembio/staging/AV244103
+  id_instrument: 99
+  id_instrument_format: 20
+  id_run: 50550
   id_run_pair: ~
   is_paired: 1
   priority: 1

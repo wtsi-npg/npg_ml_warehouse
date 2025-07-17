@@ -71,7 +71,7 @@ sub product_data {
         # not the end product.
         if ($data->{'tags_decode_percent'} || $indexed_lanes->{$position}) {
           next;
-	}
+        }
       }
       $data->{'id_run'}    = $component->id_run;
       $data->{'position'}  = $position;
@@ -87,7 +87,7 @@ sub product_data {
         $data->{'id_run'} = (keys %id_runs_h)[0];
         if (scalar keys %tis_h == 1) {
           $data->{'tag_index'} = (keys %tis_h)[0];
-	}
+        }
       }
     }
 
@@ -154,7 +154,7 @@ sub load_iseqproductmetric_table {
         if ($calc_fk) {
           my $fk = $self->get_lims_fk($result);
           $fk && $result->set_column($LIMS_FK_COLUMN_NAME => $fk);
-	}
+        }
         $result = $result->insert();
         $self->_create_linking_rows(
           $result, $h->{'num_components'}, $h->{'composition'});
