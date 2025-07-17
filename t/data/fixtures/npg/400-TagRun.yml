@@ -139,4 +139,24 @@
   id_tag: 22
   id_tag_run: 251554
   id_user: 7
+- date: 2025-06-03
+  id_run: 50545
+  id_tag: 17
+  id_tag_run: 251665
+  id_user: 7
+- date: 2025-06-03
+  id_run: 50545
+  id_tag: 19
+  id_tag_run: 251664
+  id_user: 7
+- date: 2025-06-03
+  id_run: 50545
+  id_tag: 20
+  id_tag_run: 251666
+  id_user: 7
+- date: 2025-06-03
+  id_run: 50545
+  id_tag: 22
+  id_tag_run: 251663
+  id_user: 7
 

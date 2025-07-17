@@ -1,4 +1,5 @@
 .dir-locals
+bin/npg_elembio_run2mlwarehouse
 bin/npg_elembio_run_params2mlwarehouse
 bin/npg_external_report2ml_warehouse
 bin/npg_irods_locations2ml_warehouse
@@ -14,10 +15,11 @@ bin/npg_runs2mlwarehouse
 Build.PL
 Changes
 lib/npg_warehouse/iseq_fk_repair.pm
-lib/npg_warehouse/loader/illumina/autoqc.pm
 lib/npg_warehouse/loader/base.pm
+lib/npg_warehouse/loader/elembio/run.pm
+lib/npg_warehouse/loader/elembio/run_info.pm 
+lib/npg_warehouse/loader/illumina/autoqc.pm
 lib/npg_warehouse/loader/illumina/fqc.pm
-lib/npg_warehouse/loader/irods_location.pm
 lib/npg_warehouse/loader/illumina/npg.pm
 lib/npg_warehouse/loader/illumina/product.pm
 lib/npg_warehouse/loader/illumina/product_limited.pm
@@ -25,7 +27,7 @@ lib/npg_warehouse/loader/illumina/qc.pm
 lib/npg_warehouse/loader/illumina/run.pm
 lib/npg_warehouse/loader/illumina/run_files.pm
 lib/npg_warehouse/loader/illumina/run_info.pm
-lib/npg_warehouse/loader/elembio/run_info.pm
+lib/npg_warehouse/loader/irods_location.pm
 lib/npg_warehouse/loader/pacbio/base.pm
 lib/npg_warehouse/loader/pacbio/product.pm
 lib/npg_warehouse/loader/pacbio/run.pm
@@ -39,8 +41,9 @@ t/00-pod.t
 t/00-podcoverage.t
 t/00-scripts_compile.t
 t/10-npg_warehouse-iseqfkrepair.t
-t/10-npg_warehouse-loader-illumina-autoqc.t
+t/10-npg_warehouse-loader-elembio-run.t
 t/10-npg_warehouse-loader-elembio-run_info.t
+t/10-npg_warehouse-loader-illumina-autoqc.t
 t/10-npg_warehouse-loader-illumina-fqc.t
 t/10-npg_warehouse-loader-irods-location.t
 t/10-npg_warehouse-loader-illumina-npg.t
@@ -77,6 +80,7 @@ t/data/fixtures/npgqc/MqcOutcomeDict.yml
 t/data/fixtures/npgqc/UqcOutcomeDict.yml
 t/data/fixtures/wh/000-Sample.yml
 t/data/fixtures/wh/000-Study.yml
+t/data/fixtures/wh/100-EseqFlowcell.yml
 t/data/fixtures/wh/100-IseqFlowcell.yml
 t/data/fixtures/wh_npg/200-IseqProductMetric.yml
 t/data/fixtures/wh_npg/200-IseqRunLaneMetric.yml
@@ -96,7 +100,14 @@ t/data/irods_locations/new_same_id.json
 t/data/irods_locations/new_same_row.json
 t/data/irods_locations/update_only.json
 t/data/irods_locations/update_same_row.json
+t/data/elembio/20240416_AV234003_16AprilSGEB2_2x300_NT1799722A/20240416_AV234003_16AprilSGEB2_2x300_NT1799722A/RunManifest.json
+t/data/elembio/20240416_AV234003_16AprilSGEB2_2x300_NT1799722A/20240416_AV234003_16AprilSGEB2_2x300_NT1799722A/RunStats.json
+t/data/elembio/20250225_AV244103_NT1850075L_NT1850808B_repeat3/20250225_AV244103_NT1850075L_NT1850808B_repeat3/RunManifest.json
+t/data/elembio/20250225_AV244103_NT1850075L_NT1850808B_repeat3/20250225_AV244103_NT1850075L_NT1850808B_repeat3/RunStats.json
 t/data/elembio/20250127_AV244103_NT1850075L/RunParameters.json
+t/data/elembio/20250127_AV244103_NT1850075L/20250127_AV244103_NT1850075L/RunStats.json
+t/data/elembio/20250127_AV244103_NT1850075L/20250127_AV244103_NT1850075L/RunManifest.json
+t/data/elembio/20250127_AV244103_NT1850075L/20250127_AV244103_NT1850075L/expected_sample_stats.json
 t/data/elembio/20250127_AV244103_NT1850075L/RunUploaded.json
 t/data/elembio/20231218_AV234003_FluidicsRun_1_A/RunParameters.json
 t/data/elembio/20240216_AV234003_16feb_sge_1x300/RunParameters.json
