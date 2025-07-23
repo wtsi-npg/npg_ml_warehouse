@@ -130,13 +130,16 @@ sub product_data {
 sub load_iseqproductmetric_table {
   my ($self, $data_list) = @_;
 
+  my %product_columns = map { $_ => 1 } $self->schema_wh
+    ->resultset($PRODUCT_TABLE_NAME)->result_source->columns();
+
   my @rows = ();
 
   foreach my $original_row (@{$data_list}) {
     my $row = clone($original_row);
     my $composition    = delete $row->{'composition'};
     my $num_components = delete $row->{'num_components'};
-    $self->_filter_column_names($row);
+    $self->_filter_column_names($row, \%product_columns);
     push @rows, {data           => $row,
                  num_components => $num_components,
                  composition    => $composition};
@@ -209,7 +212,7 @@ sub _indexed_lanes_hash {
 }
 
 sub _filter_column_names {
-  my ($self, $values) = @_;
+  my ($self, $values, $table_column_names) = @_;
 
   # No harm deleting a key that might not exist.
   delete  $values->{$npg_warehouse::loader::illumina::autoqc::PP_KEY};
@@ -225,6 +228,7 @@ sub _filter_column_names {
       $values->{$name} = $values->{$old_name};
       delete $values->{$old_name};
     }
+    exists $table_column_names->{$name} or delete $values->{$name};
   }
   return;
 }
