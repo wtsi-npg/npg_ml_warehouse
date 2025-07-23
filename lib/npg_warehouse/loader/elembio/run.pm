@@ -10,6 +10,7 @@ use npg_tracking::glossary::rpt;
 use npg_tracking::illumina::run::folder;
 use npg_tracking::Schema;
 use npg_qc::Schema;
+use npg_qc::elembio::sample_stats;
 use npg_qc::elembio::run_stats;
 use WTSI::DNAP::Warehouse::Schema;
 use npg_warehouse::loader::illumina::npg;
@@ -21,7 +22,8 @@ with qw/ MooseX::Getopt
 
 our $VERSION = '0';
 
-Readonly::Scalar my $CONTROL_SAMPLE_NAME_REGEXP => qr/(?:adept)|(?:phix_third)/ismx;
+Readonly::Scalar my $CONTROL_SAMPLE_NAME_REGEXP =>
+  $npg_qc::elembio::sample_stats::CONTROL_SAMPLE_NAME_REGEXP;
 Readonly::Scalar my $HUNDRED => 100;
 Readonly::Scalar my $UNASSIGNED_DATA_TAG_INDEX => 0;
 Readonly::Scalar my $DIGEST_COLUMN_NAME           => 'id_eseq_product';
@@ -544,6 +546,8 @@ __END__
 =item npg_tracking::glossary::composition::factory
 
 =item npg_qc::Schema
+
+=item npg_qc::elembio::sample_stats
 
 =item npg_qc::elembio::run_stats
 
