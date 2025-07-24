@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+ - Elembio run loader to use control sample definition from QC stats
+   parser.
+
 release 53.1.0 (2025-07-17)
  - Added a loader for Elembio (Element Biosciences) run data for
    eseq_run_lane_metrics and eseq_product_metrics tables.
