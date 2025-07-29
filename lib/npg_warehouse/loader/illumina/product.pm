@@ -228,6 +228,19 @@ sub _filter_column_names {
       $values->{$name} = $values->{$old_name};
       delete $values->{$old_name};
     }
+
+    #####
+    # When there is just one library per lane, both lane-level and library-level
+    # QC checks are performed on the same entity. These QC checks might or
+    # might not be represented in the product table. Most of them are, while
+    # for example interop data is only meaningful on lane level. In future
+    # there might be other lane-level QC checks that are not appropriate for
+    # the product level.
+    #
+    # The line below is to ensure that the values for which there are no product
+    # columns are not loaded into the product table thus avoiding run-time
+    # failures.
+    #
     exists $table_column_names->{$name} or delete $values->{$name};
   }
   return;
