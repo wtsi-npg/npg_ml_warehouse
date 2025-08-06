@@ -1,5 +1,15 @@
 LIST OF CHANGES
 
+release 53.2.0 (2025-08-06)
+ - Elembio run loader to use control sample definition from QC stats
+   parser.
+ - When there is a single library in an Illumina lane, the same set of
+   autoqc results is loaded into both iseq_run_lane_metrics and
+   iseq_product_metrics tables. Some lane-level data, for example interop,
+   is not represented in the iseq_product_metrics table. The code is changed
+   to ensure that the values for which there are no product columns are
+   not loaded into the product table thus avoiding run-time failures.
+
 release 53.1.0 (2025-07-17)
  - Added a loader for Elembio (Element Biosciences) run data for
    eseq_run_lane_metrics and eseq_product_metrics tables.
