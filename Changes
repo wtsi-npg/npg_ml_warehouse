@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+release 53.2.0 (2025-08-06)
  - Elembio run loader to use control sample definition from QC stats
    parser.
  - When there is a single library in an Illumina lane, the same set of
