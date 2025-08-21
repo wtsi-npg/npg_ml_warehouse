@@ -1,5 +1,12 @@
 LIST OF CHANGES
 
+ - npg_warehouse::loader::elembio::run_info refactored to use
+   Monitor::Elembo::RunParametersParser to retrieve all relevant data from
+   RunParameters.json (previously a custom parser was used). One of the unit
+   tests had to be updated since the name of the run folder now comes from
+   the RunParameters.json file rather than from the name of the directory on
+   the file system.
+
 release 53.2.0 (2025-08-06)
  - Elembio run loader to use control sample definition from QC stats
    parser.
