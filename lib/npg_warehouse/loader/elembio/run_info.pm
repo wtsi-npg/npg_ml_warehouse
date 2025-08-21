@@ -97,6 +97,7 @@ sub load {
   $run_data->{folder_name} = $self->folder_name;
   $run_data->{flowcell_id} = $flowcell_id;
   $run_data->{run_name} = $self->run_name;
+  $run_data->{run_type} = $self->run_type;
   $run_data->{date_started} = $self->date_created;
   $run_data->{run_parameters} = slurp $self->runparams_path;
 

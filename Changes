@@ -6,6 +6,7 @@ LIST OF CHANGES
    tests had to be updated since the name of the run folder now comes from
    the RunParameters.json file rather than from the name of the directory on
    the file system.
+ - Added loading run type to the eseq_run table.
 
 release 53.2.0 (2025-08-06)
  - Elembio run loader to use control sample definition from QC stats

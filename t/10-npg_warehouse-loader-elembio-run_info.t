@@ -17,7 +17,7 @@ my $tdir = tempdir(CLEANUP => 1);
 mkdir "$tdir/elembio";
 
 subtest 'load the data for a sequencing run' => sub {
-  plan tests => 25;
+  plan tests => 27;
 
   my $rs = $schema_wh->resultset('EseqRun');
   is ($rs->count(), 0, 'eseq_run table is initially empty');
@@ -39,7 +39,8 @@ subtest 'load the data for a sequencing run' => sub {
   
   my $row = $rs->next();
   is ($row->folder_name, $rf_name, 'run folder name is saved correctly');
-  ok (!defined $row->run_stats, 'run statistics file is not saved');
+  is ($row->run_type, 'Sequencing', 'sequencing run type is recorded');
+  ok (!defined $row->run_stats, 'run stats is not saved');
   is ($row->run_parameters, slurp($params_file),
     'run parameters file is saved correctly');
 
@@ -66,6 +67,7 @@ subtest 'load the data for a sequencing run' => sub {
   is ($row->outcome, undef, 'run outcome is undefined');
   is ($row->run_name, 'NT1850075L_NT1850808B_repeat3', 'run name is correct');
   is ($row->flowcell_id, '2437688146', 'flowcell ID is correct');
+  is ($row->run_type, 'Sequencing', 'sequencing run type is recorded');
   is ($row->date_started,  '2025-02-25T14:11:44', 'start date is correct');
 
   `cp $path/RunUploaded.json $new_dir/RunUploaded.json`;
@@ -99,7 +101,7 @@ subtest 'load the data for a sequencing run' => sub {
 };
 
 subtest 'load the data for a cytoprofiling run' => sub {
-  plan tests => 6;
+  plan tests => 7;
 
   my $rf_name = '20250602_AV244103_QC_SLIDE_2';
   my $new_dir = "$tdir/elembio/$rf_name";
@@ -122,6 +124,7 @@ subtest 'load the data for a cytoprofiling run' => sub {
   ok ($row->run_parameters, 'run params file content is loaded');
   is ($row->run_name, 'QC_SLIDE_2', 'run name is correct');
   is ($row->flowcell_id, '0124323943', 'flowcell ID is correct');
+  is ($row->run_type, 'Cytoprofiling', 'cytoprofiling run type is recorded');
   is ($row->date_started, '2025-06-02T11:46:40', 'start date is correct');
   is ($row->outcome, 'OutcomeCompleted', 'run outcome is correct');
   is ($row->date_completed, '2025-06-03T03:11:10', 'run completion date is correct');
