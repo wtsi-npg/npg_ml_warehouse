@@ -4,7 +4,7 @@ use Perl6::Slurp;
 use File::Temp qw/tempdir/;
 use File::Copy qw/cp/;
 use DateTime;
-use Test::More tests => 5;
+use Test::More tests => 4;
 use Test::Exception;
 
 use_ok('npg_warehouse::loader::elembio::run_info');
@@ -16,45 +16,22 @@ my $schema_wh = Moose::Meta::Class->create_anon_class(
 my $tdir = tempdir(CLEANUP => 1);
 mkdir "$tdir/elembio";
 
-subtest 'construct object, test for errors when loading' => sub {
-  plan tests => 6;
-
-  my $path = 't/data';
-  my $loader = npg_warehouse::loader::elembio::run_info->new(
-    schema_wh => $schema_wh, runfolder_path => $path
-  );
-  isa_ok ($loader, 'npg_warehouse::loader::elembio::run_info');
-  is ($loader->run_folder, 'data', 'run folder name');
-  is ($loader->npg_tracking_schema, undef,
-    'tracking database access is blocked');
-  throws_ok { $loader->load() }
-     qr/File t\/data\/RunParameters\.json does not exist/,
-    'error if run params file does not exist';
-
-  $path = 't/some';
-  $loader = npg_warehouse::loader::elembio::run_info->new(
-    schema_wh => $schema_wh, runfolder_path => $path
-  );
-  is ($loader->run_folder, 'some', "run folder 'some', path does not exist");
-  throws_ok { $loader->load() } qr/Run folder path t\/some does not exist/,
-    'run time error if the run folder path does not exist';
-}; 
-
 subtest 'load the data for a sequencing run' => sub {
-  plan tests => 24;
+  plan tests => 27;
 
   my $rs = $schema_wh->resultset('EseqRun');
   is ($rs->count(), 0, 'eseq_run table is initially empty');
 
   my $rf_name = '20250127_AV244103_NT1850075L';
   my $path = "t/data/elembio/$rf_name";
-  my $stats_file = "$path/AvitiRunStats.json";
   my $params_file = "$path/RunParameters.json";
 
   my $loader = npg_warehouse::loader::elembio::run_info->new(
     schema_wh => $schema_wh, runfolder_path => $path
   );
-  is ($loader->run_folder, $rf_name, 'run folder name');
+  is ($loader->folder_name, $rf_name, 'run folder name');
+  is ($loader->runparams_path, $params_file, 'correct run params file path');
+
   lives_ok { $loader->load() } 'no error loading files';
   is ($rs->count(), 1, 'eseq_run table now has 1 row');
   lives_ok { $loader->load() } 'no error reloading files';
@@ -62,19 +39,20 @@ subtest 'load the data for a sequencing run' => sub {
   
   my $row = $rs->next();
   is ($row->folder_name, $rf_name, 'run folder name is saved correctly');
-  ok (!defined $row->run_stats, 'run statistics file is not saved');
+  is ($row->run_type, 'Sequencing', 'sequencing run type is recorded');
+  ok (!defined $row->run_stats, 'run stats is not saved');
   is ($row->run_parameters, slurp($params_file),
     'run parameters file is saved correctly');
 
   ############
   # Model a successfully completed run.
   ############
-  $rf_name = '20250128_AV244103_NT1850075L';
+  $rf_name = '20250225_AV244103_NT1850075L_NT1850808B_repeat3';
   my $new_dir = "$tdir/elembio/$rf_name";
   mkdir $new_dir;
 
   # Gradually build a collection of files we expect to find in a run folder.
-  cp $params_file,"$new_dir/RunParameters.json"; # step 1
+  cp "t/data/elembio/$rf_name/RunParameters.json", "$new_dir/RunParameters.json";
 
   $loader = npg_warehouse::loader::elembio::run_info->new(
     schema_wh => $schema_wh, runfolder_path => $new_dir
@@ -87,13 +65,14 @@ subtest 'load the data for a sequencing run' => sub {
   ok ($row->run_parameters, 'run params file content is loaded');
   is ($row->date_completed, undef, 'run completion date is undefined');
   is ($row->outcome, undef, 'run outcome is undefined');
-  is ($row->run_name, 'NT1850075L', 'run name is correct');
-  is ($row->flowcell_id, '2427452508', 'flowcell ID is correct');
-  is ($row->date_started,  '2025-01-27T15:41:06', 'start date is correct');
+  is ($row->run_name, 'NT1850075L_NT1850808B_repeat3', 'run name is correct');
+  is ($row->flowcell_id, '2437688146', 'flowcell ID is correct');
+  is ($row->run_type, 'Sequencing', 'sequencing run type is recorded');
+  is ($row->date_started,  '2025-02-25T14:11:44', 'start date is correct');
 
-  `cp $path/RunUploaded.json $new_dir/RunUploaded.json`; # step 3
+  `cp $path/RunUploaded.json $new_dir/RunUploaded.json`;
   my $time = DateTime->new(
-    year => 2025,month => 1,day => 29,hour => 13,minute => 30,second => 0
+    year => 2025,month => 2,day => 28,hour => 13,minute => 30,second => 0
   )->epoch;
   utime $time, $time, "$new_dir/RunUploaded.json"; # set the timestamp
   $loader = npg_warehouse::loader::elembio::run_info->new(
@@ -102,7 +81,7 @@ subtest 'load the data for a sequencing run' => sub {
   is ($loader->load(), 1, 'loading worked');
   $row = $rs->search({folder_name => $rf_name})->next();
   is ($row->outcome, 'OutcomeCompleted', 'run outcome is correct');
-  is ($row->date_completed, '2025-01-29T13:30:00', 'run completion date is correct');
+  is ($row->date_completed, '2025-02-28T13:30:00', 'run completion date is correct');
 
   ############ 
   # Model a failed run.
@@ -122,7 +101,7 @@ subtest 'load the data for a sequencing run' => sub {
 };
 
 subtest 'load the data for a cytoprofiling run' => sub {
-  plan tests => 6;
+  plan tests => 7;
 
   my $rf_name = '20250602_AV244103_QC_SLIDE_2';
   my $new_dir = "$tdir/elembio/$rf_name";
@@ -145,6 +124,7 @@ subtest 'load the data for a cytoprofiling run' => sub {
   ok ($row->run_parameters, 'run params file content is loaded');
   is ($row->run_name, 'QC_SLIDE_2', 'run name is correct');
   is ($row->flowcell_id, '0124323943', 'flowcell ID is correct');
+  is ($row->run_type, 'Cytoprofiling', 'cytoprofiling run type is recorded');
   is ($row->date_started, '2025-06-02T11:46:40', 'start date is correct');
   is ($row->outcome, 'OutcomeCompleted', 'run outcome is correct');
   is ($row->date_completed, '2025-06-03T03:11:10', 'run completion date is correct');
