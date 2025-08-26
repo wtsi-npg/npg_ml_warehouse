@@ -7,6 +7,11 @@ LIST OF CHANGES
    the RunParameters.json file rather than from the name of the directory on
    the file system.
  - Added loading run type to the eseq_run table.
+ - Stopped using update_or_create resultset method for loading data to
+   eseq_product_metrics data. This method relies on a unique key working
+   correctly. The unique constraint (id_eseq_product, tag_sequence, tag2_sequence)
+   does not work well on insert since tag_sequence and tag2_sequence can be
+   undefined (either one of them or both).
 
 release 53.2.0 (2025-08-06)
  - Elembio run loader to use control sample definition from QC stats

@@ -182,7 +182,36 @@ sub load {
       my $product_data = $self->_get_product_data();
       if (@{$product_data}) {
         for my $data (@{$product_data}) {
-          $pr_rs->update_or_create($data);
+          #####
+          # A unique constraint (id_eseq_product, tag_sequence, tag2_sequence)
+          # in eseq_product_metrics does not work well on insert since
+          # tag_sequence and tag2_sequence can be undefined (either one of them
+          # or both). In the context of evaluating the uniqueness MySQL considers
+          # NULL values as unknown different values. Therefore if we use
+          # update_or_create(), on loading product data repeatedly over
+          # existing data we end up with multiple rows for, for example, tag zero.
+          #
+          # This problem can be solved by creating a different component class
+          # for elembio data so that each eseq_product_metrics table row has a
+          # distinct id_eseq_product value. Then the unique key can be based
+          # on a single column. This approach has been tried. Unfortunately,
+          # these new id_eseq_product values (compositions' digests) do not match
+          # the ones for the same entities in the QC database. Therefore this
+          # approach was rejected.
+          #
+          my $where = {};
+          for my $column_name (qw/id_eseq_product tag_sequence tag2_sequence/) {
+            $where->{$column_name} = $data->{$column_name};
+          }
+          my $found_rs = $pr_rs->search($where);
+          my $row = $found_rs->next();
+          if ($found_rs->next) {
+            $self->logger()->fatal('Multiple product rows for ' .
+              sprintf 'id_eseq_product %s, tag_sequence %s, tag2_sequence %s',
+              $where->{id_eseq_product}, $where->{tag_sequence} || 'NULL',
+              $where->{tag2_sequence} || 'NULL');
+          }
+          $row ? $row->update($data) : $pr_rs->create($data);
         }
       } else {
         $have_product_data = 0;
