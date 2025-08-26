@@ -266,7 +266,7 @@ subtest 'load data for early finished/cancelled run' => sub {
 };
 
 subtest 'load data for a one-lane run, no LIMS' => sub {
-  plan tests => 24;
+  plan tests => 26;
 
   my $id_run = 50490;
 
@@ -277,14 +277,14 @@ subtest 'load data for a one-lane run, no LIMS' => sub {
   $q->{'id_mqc_outcome'} = 4; #'Rejected final'
   $rs->create($q);
 
-  my $loader = npg_warehouse::loader::elembio::run->new(
+  my $init = {
     id_run => $id_run,
     runfolder_path => 't/data/elembio/20240416_AV234003_16AprilSGEB2_2x300_NT1799722A',
     npg_tracking_schema => $schema_npg,
     npg_qc_schema => $schema_qc,
-    mlwh_schema => $schema_wh 
-  );
-  $loader->load();
+    mlwh_schema => $schema_wh
+  };
+  npg_warehouse::loader::elembio::run->new($init)->load();
 
   my $rl_rs = $schema_wh->resultset('EseqRunLaneMetric')
     ->search({id_run => $id_run});
@@ -318,6 +318,16 @@ subtest 'load data for a one-lane run, no LIMS' => sub {
   is (scalar(grep { defined $_->qc && ($_->qc==0) } @pr_rows), 95, 'Overall QC is 0 for all');
   is (scalar(grep { defined $_->qc_seq && ($_->qc_seq==0) } @pr_rows), 95, 'QC seq is 0 for all');
   is (scalar(grep { !defined $_->qc_lib } @pr_rows), 95, 'QC lib is undefined for all');
+
+  $rl_rs = $schema_wh->resultset('EseqProductMetric')
+    ->search({id_run => $id_run, lane => 1, tag_index => 0});
+  is ($rl_rs->count, 1, 'one row for tag zero');
+
+  # Load the same run again.
+  npg_warehouse::loader::elembio::run->new($init)->load();
+  $rl_rs = $schema_wh->resultset('EseqProductMetric')
+    ->search({id_run => $id_run, lane => 1, tag_index => 0});
+  is ($rl_rs->count, 1, 'one row for tag zero');
 };
 
 subtest 'load data for a one-lane run, Sample_barcodes 1:N, no LIMS' => sub {
