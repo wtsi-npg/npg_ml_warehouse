@@ -33,7 +33,7 @@ if (@ARGV) {
   my $is_loaded = 0;
   try {
     my $loader = npg_warehouse::loader::elembio::run_info->new_with_options();
-    INFO('Loading run parameters and stats for ' . $loader->runfolder_path);
+    INFO('Loading run parameters for ' . $loader->runfolder_path);
     $is_loaded = $loader->load();
   } catch {
     FATAL($_);
@@ -50,7 +50,7 @@ if (@ARGV) {
   while ( my $path = <> ) {
     chomp $path;
     $path or next;
-    INFO("Loading run parameters and stats for $path");
+    INFO("Loading run parameters for $path");
     try {
       my $loader = npg_warehouse::loader::elembio::run_info->new(
         runfolder_path => $path,

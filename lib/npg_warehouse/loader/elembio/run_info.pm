@@ -7,18 +7,17 @@ use Readonly;
 use Perl6::Slurp;
 use JSON;
 use DateTime;
-use DateTime::Format::Strptime;
 use Log::Log4perl qw(:easy :levels);
+use Try::Tiny;
 
-use npg_tracking::illumina::run::folder;
 use WTSI::DNAP::Warehouse::Schema;
 
-with qw/ MooseX::Getopt
-         npg_tracking::illumina::run::folder /;
+extends 'Monitor::Elembio::RunParametersParser';
+
+with 'MooseX::Getopt';
 
 our $VERSION = '0';
 
-Readonly::Scalar my $RUN_PARAMS_FILE_NAME => 'RunParameters.json';
 Readonly::Scalar my $RUN_UPLOADED_FILE_NAME => 'RunUploaded.json';
 Readonly::Scalar my $RUN_INFO_RS_NAME => 'EseqRun';
 
@@ -38,25 +37,12 @@ C<eseq_run> table of the ml warehouse database.
 
 C<RunParameters.json> file is uploaded to the table as is, without any reductions.
 
-This Moose class, via inheritance from C<npg_tracking::illumina::run::folder>,
-has a number of attributes for accessing paths inside the run folder. These
-attributes might be useful in future, if and when Elembio runs are registered
-in the tracking database. At the time of writing only the methods documented
-below are meaningful and safe to use.
-
-Access to the run tracking database is blocked unless the C<npg_tracking_schema>
-attribute is set by the caller. 
-
 =head1 SUBROUTINES/METHODS
 
 =head2 runfolder_path
 
 Elembio run folder path, including the run folder name. Required.
-Inherited from npg_tracking::illumina::run::folder
-
-=head2 run_folder
-
-Run folder name. Inherited from npg_tracking::illumina::run::folder
+Inherited from Monitor::Elembio::RunParametersParser
 
 =cut
 
@@ -65,17 +51,8 @@ Run folder name. Inherited from npg_tracking::illumina::run::folder
 # Amend attributes which we do not want to show up as scripts' arguments.
 my @no_script_arg_attrs =
   grep { $_ ne 'runfolder_path' }
-  npg_tracking::illumina::run::folder->meta->get_attribute_list();
+  Monitor::Elembio::RunParametersParser->meta->get_attribute_list();
 has [map {q[+] . $_ } @no_script_arg_attrs] => (metaclass => 'NoGetopt',);
-
-# Amend the builder method for the npg_tracking_schema attribute.
-# Blocks implicit access to the tracking database.
-# Delete this method if/when the access is required.
-sub _build_npg_tracking_schema {
-  return;
-}
-
-has '+runfolder_path' => (required => 1,);
 
 ##### End of customisation
 
@@ -98,42 +75,41 @@ sub _build_schema_wh {
 
 =head2 load
 
-Loads the content of C<RunParameters.json> and C<ElembioRunStatus.json> files
-to eseq_run table. Errors if the run folder does not exist or the expected
-files are not found in the run folder.
+Loads the content of C<RunParameters.json> file to eseq_run table.
+Errors if the run folder does not exist or the expected files are not
+found in the run folder.
 
 =cut
 
 sub load {
   my $self = shift;
 
-  -d $self->runfolder_path or croak
-    sprintf 'Run folder path %s does not exist', $self->runfolder_path;
+  my $flowcell_id;
+  try {
+    $flowcell_id = $self->flowcell_id;
+  } catch {
+    WARN("Error retrieving flowcell id: $_");
+    WARN('Not loading data for run folder ' . $self->runfolder_path);
+  };
+  $flowcell_id || return 0;
 
   my $run_data = {};
-  $run_data->{folder_name} = $self->run_folder;
-
-  my $file_path = join q[/], $self->runfolder_path, $RUN_PARAMS_FILE_NAME;
-  if (-f $file_path) {
-    $run_data->{run_parameters} = slurp $file_path;
-  } else {
-    croak "File $file_path does not exist";
-  }
-
-  my $json = decode_json $run_data->{run_parameters};
-  $run_data->{flowcell_id} = $json->{FlowcellID};
-  # Try the cytoprofiling format:
-  $run_data->{flowcell_id} ||= $json->{Consumables}->{Flowcell}->{BarcodeStr};
-  if (!$run_data->{flowcell_id}) { # A technical run, no data.
-    WARN('Flowcell ID is not recorded, not loading');
-    return 0;
-  }
-  $run_data->{run_name} = $json->{RunName};
-  $run_data->{date_started} = _parse_date_string($json->{Date});
+  $run_data->{folder_name} = $self->folder_name;
+  $run_data->{flowcell_id} = $flowcell_id;
+  $run_data->{run_name} = $self->run_name;
+  $run_data->{run_type} = $self->run_type;
+  $run_data->{date_started} = $self->date_created;
+  $run_data->{run_parameters} = slurp $self->runparams_path;
 
   my $run_uploaded_file = join q[/], $self->runfolder_path, $RUN_UPLOADED_FILE_NAME;
   if (-f $run_uploaded_file) {
-    $run_data->{outcome} = _get_value_from_json(slurp($run_uploaded_file), 'outcome');
+    my $file_content = slurp $run_uploaded_file;
+    if ($file_content) {
+      my $hash_data = decode_json $file_content;
+      $run_data->{outcome} = $hash_data->{'outcome'};
+    } else {
+      WARN "$run_uploaded_file file is empty";
+    }
     $run_data->{date_completed} = _get_date_from_file_stats($run_uploaded_file);
   } else {
     INFO('The run has not completed yet');
@@ -144,36 +120,11 @@ sub load {
   return 1;
 }
 
-sub _get_value_from_json {
-  my ($json_string, $key) = @_;
-
-  $json_string or croak 'Got an empty JSON string';
-  $key or croak 'Got a empty key value';
-  my $hash_data = decode_json $json_string;
-
-  return $hash_data->{$key};
-}
-
-sub _parse_date_string {
-  my $date_string = shift;
-
-  my $date_obj;
-  if ($date_string) {
-    $date_obj = DateTime::Format::Strptime->new(
-      pattern=>q[%Y-%m-%dT%T],
-      strict=>1,
-      on_error=>q[croak]
-    )->parse_datetime($date_string); # 2023-12-19T13:31:17.461926614Z
-  }
-  return $date_obj;
-}
-
 sub _get_date_from_file_stats {
   my $file_path = shift;
   ## no critic (ValuesAndExpressions::ProhibitMagicNumbers)
   return DateTime->from_epoch((stat $file_path)[9]);
 }
-
 
 __PACKAGE__->meta->make_immutable;
 
@@ -206,13 +157,13 @@ __END__
 
 =item DateTime
 
-=item DateTime::Format::Strptime
-
 =item Log::Log4perl
+
+=item Try::Tiny
 
 =item WTSI::DNAP::Warehouse::Schema
 
-=item npg_tracking::illumina::run::folder
+=item Monitor::Elembio::RunParametersParser
 
 =back
 
