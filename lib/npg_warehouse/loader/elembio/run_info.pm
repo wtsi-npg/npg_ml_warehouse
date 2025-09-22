@@ -9,6 +9,7 @@ use JSON;
 use DateTime;
 use Log::Log4perl qw(:easy :levels);
 use Try::Tiny;
+use File::Spec::Functions qw( catfile );
 
 use WTSI::DNAP::Warehouse::Schema;
 
@@ -21,12 +22,15 @@ our $VERSION = '0';
 Readonly::Scalar my $RUN_UPLOADED_FILE_NAME => 'RunUploaded.json';
 Readonly::Scalar my $RUN_INFO_RS_NAME => 'EseqRun';
 
+Readonly::Scalar my $RUN_MANIFEST_FILE_NAME => 'RunManifest.json';
+Readonly::Scalar my $RUN_STATS_FILE_NAME => 'RunStats.json';
+
 =head1 NAME
 
 npg_warehouse::loader::elembio::run_info
 
 =head1 SYNOPSIS
- 
+
   my $path = 'some/path';
   npg_warehouse::loader::elembio::run_info->new(runfolder_path => $path)->load();
 
@@ -35,7 +39,8 @@ npg_warehouse::loader::elembio::run_info
 Uploads (updates or inserts) manufacturer-supplied run information to
 C<eseq_run> table of the ml warehouse database.
 
-C<RunParameters.json> file is uploaded to the table as is, without any reductions.
+C<RunParameters.json>, C<RunManifest.json> and C<RunStats.json> files are
+uploaded to eseq_run as is.
 
 =head1 SUBROUTINES/METHODS
 
@@ -100,6 +105,15 @@ sub load {
   $run_data->{run_type} = $self->run_type;
   $run_data->{date_started} = $self->date_created;
   $run_data->{run_parameters} = slurp $self->runparams_path;
+
+  my $potential_manifest = catfile($self->runfolder_path, $RUN_MANIFEST_FILE_NAME);
+  my $potential_stats = catfile($self->runfolder_path, $RUN_STATS_FILE_NAME);
+  if (-f $potential_manifest) {
+    $run_data->{run_manifest} = slurp $potential_manifest;
+  }
+  if (-f $potential_stats) {
+    $run_data->{run_stats} = slurp $potential_stats;
+  }
 
   my $run_uploaded_file = join q[/], $self->runfolder_path, $RUN_UPLOADED_FILE_NAME;
   if (-f $run_uploaded_file) {
