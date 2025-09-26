@@ -175,7 +175,11 @@ subtest 'partial source data does not harm the warehouse record' => sub {
   ok(!defined $db_run_info->run_stats, "No stats here");
 
   unlink "$new_dir/RunManifest.json";
-  unlink "$new_dir/RunParameters.json";
+  # Make sure any attributes of run_info are not retained between loads
+  $loader = npg_warehouse::loader::elembio::run_info->new(
+    schema_wh => $schema_wh,
+    runfolder_path => "$new_dir"
+  );
   ok($loader->load(), 'Loading ran fine again');
 
   my $later_run_info = $db_run_info->get_from_storage;
