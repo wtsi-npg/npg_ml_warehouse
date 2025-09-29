@@ -21,7 +21,7 @@ jobs:
       matrix:
         perl: [ "5.26.3", "5.34.1" ]
         include:
-          - id_gen: "4.0.0"
+          - id_gen: "5.0.1"
             experimental: false
           - id_gen: "devel"
             experimental: true
