@@ -1,5 +1,10 @@
 LIST OF CHANGES
 
+ - npg_warehouse::loader::elembio::run_info extended to inject RunStats.json
+   and RunManifest.json where possible into eseq_run table. Requires
+   npg_elembio_run_params2mlwarehouse to be run on the deplex folder as well
+   as the run folder.
+
 release 53.3.0 (2025-09-01)
  - npg_warehouse::loader::elembio::run_info refactored to use
    Monitor::Elembio::RunParametersParser to retrieve all relevant data from
@@ -63,7 +68,7 @@ release 51.2.0 (2025-02-20)
    with an extra / at the end of the path in SMRT Link v25.1
  - Added a loader bin/npg_elembio_run_params2mlwarehouse for Elembio run
    information.
-  
+
 release 51.1.1 (2025-01-16)
  - Fixed perlbrew installation by installing libdevel-patchperl-perl in
    GitHub runner.
@@ -201,7 +206,7 @@ release 45.1.0
  - add npg_irods_locations2ml_warehouse - a generic script to load iRODS location
    for sequencing products from different pipelines to ml warehouse
  - extend npg_external_report2ml_warehouse  - add loading data for file status columns
- 
+
 release 45.0.0
  - remove provisions for loading the old Sequencescape warehouse
    since the data is not longer loaded to that warehouse and the loader
@@ -224,7 +229,7 @@ release 44.2.0
     - xxxxx_y-y#z.cram
  - add control metrics to pacbio loader
  - load data to new columns in the iseq_heron_metrics_table
-   (pp_repo_url, ivar_md, ivar_amd, pct_n_bases_amd, longest_no_n_run_amd) 
+   (pp_repo_url, ivar_md, ivar_amd, pct_n_bases_amd, longest_no_n_run_amd)
 
 release 44.1.0
  - inital ml warehouse run data loader for pacbio data
@@ -257,7 +262,7 @@ release 43.1.0
       is now more flexible, it becomes possible to accomodate
       multiple data sets, for example, storing ampliconstats data
       per entity per amplicon, rather than flattenning ampliconstats
-      data 
+      data
  - retrieval of ampiconstats autoqc data and loading the data to the
    new iseq_product_ampliconstats table
 
@@ -284,7 +289,7 @@ release 42.10.0
 release 42.9.0
  - manifest generation:
      flag-driven upload of an empty manifest for external products
-     flag-driven skipping of validation against staging md5 
+     flag-driven skipping of validation against staging md5
      a bug in counting the number of remote files is fixed
 
 release 42.8.0
@@ -381,7 +386,7 @@ release 39.11
    ask for lanes and plexes separately
  - stop loading Illumina qc data that came from chached_query table
    of the npg_qc database (pf_cluster_count, raw_cluster_count, pf_bases)
- - load q30 and q40 yields from qX_yield autoqc check results     
+ - load q30 and q40 yields from qX_yield autoqc check results
  - load bam_flagstats target metrics into iseq_product_metrics table
  - a script to launch warehouse loader script for certain runs
 
@@ -414,7 +419,7 @@ release 39.5
  - early failure with a clear error message when essential parts of
    a flowcell database record are missing
  - correct computation of expected abs path in test
- 
+
 release 39.4
  - correct computation of expected abs path in test
 
@@ -452,16 +457,16 @@ release 37.9
    table in ml warehouse to iseq_flowcell table
 
 release 37.8
- - Load unexpected tag and chimeric fields in iseq_product_metric and 
+ - Load unexpected tag and chimeric fields in iseq_product_metric and
    iseq_run_lane_metric tables
 
 release 37.7
  - wh loader bug fix to prevent dropping existing product data if
    no new data is available (GCLP staging data not visible from seq farm
-   and other way around)  
+   and other way around)
 
 release 37.6.1
- - update/fix tests to comply with ml_warehouse v1.5 and npg_tracking v84.7 
+ - update/fix tests to comply with ml_warehouse v1.5 and npg_tracking v84.7
 
 release 37.6
  - delay wh loader till the run is finished so that we have time to
@@ -508,4 +513,4 @@ release 37.0
  - initial version of the module (npg_warehous::loade::run) for loading the analysis data to
      the ml warehouse
  - initial version of scripts for loading run statuses and analysis data to the ml warehouse
- 
+
