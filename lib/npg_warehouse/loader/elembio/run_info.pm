@@ -80,9 +80,9 @@ sub _build_schema_wh {
 
 =head2 load
 
-Loads the content of C<RunParameters.json> file to eseq_run table.
-Errors if the run folder does not exist or the expected files are not
-found in the run folder.
+Loads the content of C<RunParameters.json>, C<RunManifest.json> and
+C<RunStats.json> files to eseq_run table. Errors if the run folder does not
+exist or the expected files are not found in the run folder.
 
 =cut
 
@@ -115,7 +115,7 @@ sub load {
     $run_data->{run_stats} = slurp $potential_stats;
   }
 
-  my $run_uploaded_file = join q[/], $self->runfolder_path, $RUN_UPLOADED_FILE_NAME;
+  my $run_uploaded_file = catfile($self->runfolder_path, $RUN_UPLOADED_FILE_NAME);
   if (-f $run_uploaded_file) {
     my $file_content = slurp $run_uploaded_file;
     if ($file_content) {
