@@ -4,7 +4,7 @@ use Perl6::Slurp;
 use File::Temp qw/tempdir/;
 use File::Copy qw/cp/;
 use DateTime;
-use Test::More tests => 4;
+use Test::More tests => 5;
 use Test::Exception;
 
 use_ok('npg_warehouse::loader::elembio::run_info');
@@ -36,7 +36,7 @@ subtest 'load the data for a sequencing run' => sub {
   is ($rs->count(), 1, 'eseq_run table now has 1 row');
   lives_ok { $loader->load() } 'no error reloading files';
   is ($rs->count(), 1, 'eseq_run table still has 1 row');
-  
+
   my $row = $rs->next();
   is ($row->folder_name, $rf_name, 'run folder name is saved correctly');
   is ($row->run_type, 'Sequencing', 'sequencing run type is recorded');
@@ -77,13 +77,13 @@ subtest 'load the data for a sequencing run' => sub {
   utime $time, $time, "$new_dir/RunUploaded.json"; # set the timestamp
   $loader = npg_warehouse::loader::elembio::run_info->new(
     schema_wh => $schema_wh, runfolder_path => $new_dir
-  );  
+  );
   is ($loader->load(), 1, 'loading worked');
   $row = $rs->search({folder_name => $rf_name})->next();
   is ($row->outcome, 'OutcomeCompleted', 'run outcome is correct');
   is ($row->date_completed, '2025-02-28T13:30:00', 'run completion date is correct');
 
-  ############ 
+  ############
   # Model a failed run.
   # A failed run has RunParameters.json and RunUploaded.json files in its
   # run folder. Might have any number of other files. RunUploaded.json file
@@ -116,7 +116,7 @@ subtest 'load the data for a cytoprofiling run' => sub {
   utime $time, $time, "$new_dir/RunUploaded.json"; # set the timestamp
   my $loader = npg_warehouse::loader::elembio::run_info->new(
     schema_wh => $schema_wh, runfolder_path => $new_dir
-  );  
+  );
   $loader->load();
 
   my $row = $schema_wh->resultset('EseqRun')
@@ -133,7 +133,7 @@ subtest 'load the data for a cytoprofiling run' => sub {
 subtest 'do not load the data for a technical run' => sub {
   plan tests => 2;
 
-  ############ 
+  ############
   # Model a 'technical' run.
   # Normally only RunParameters.json is present in a run folder, no data,
   # no RunUploaded.json. FlowcellID value in RunParameters.json is unset.
@@ -146,4 +146,43 @@ subtest 'do not load the data for a technical run' => sub {
   is ($loader->load(), 0, 'loading was skipped');
   is ($schema_wh->resultset('EseqRun')->search({folder_name => $rf_name})->count(),
     0, 'a record for a technical run is not present');
+};
+
+subtest 'partial source data does not harm the warehouse record' => sub {
+  plan tests => 5;
+
+  my $rf_name = '20250815_AV244103_NT1861581K';
+
+  # Create an empty run folder
+  my $new_dir = "$tdir/elembio/$rf_name";
+  mkdir $new_dir;
+
+  cp "t/data/elembio/$rf_name/RunParameters.json", "$new_dir/RunParameters.json";
+  cp "t/data/elembio/$rf_name/RunManifest.json", "$new_dir/RunManifest.json";
+  cp "t/data/elembio/$rf_name/RunStats.json", "$new_dir/RunStats.json";
+
+  my $loader = npg_warehouse::loader::elembio::run_info->new(
+    schema_wh => $schema_wh,
+    runfolder_path => "$new_dir"
+  );
+  ok($loader->load(), 'loading was performed');
+
+  # Now check to see if the RunParameters.json data is still in the DB?
+  my $pr_rs = $schema_wh->resultset('EseqRun')
+    ->search({folder_name => $rf_name});
+
+  my $db_run_info = $pr_rs->next;
+  ok($db_run_info->run_manifest, "RunManifest.json data in DB");
+  ok($db_run_info->run_stats, "RunStats.json data in DB");
+
+  unlink "$new_dir/RunManifest.json";
+  # Make sure any attributes of run_info are not retained between loads
+  $loader = npg_warehouse::loader::elembio::run_info->new(
+    schema_wh => $schema_wh,
+    runfolder_path => "$new_dir"
+  );
+  ok($loader->load(), 'Loading ran fine again');
+
+  my $later_run_info = $db_run_info->get_from_storage;
+  ok($later_run_info->run_manifest, "RunManifest.json data still in DB");
 };
