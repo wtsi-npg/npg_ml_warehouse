@@ -159,6 +159,7 @@ subtest 'partial source data does not harm the warehouse record' => sub {
 
   cp "t/data/elembio/$rf_name/RunParameters.json", "$new_dir/RunParameters.json";
   cp "t/data/elembio/$rf_name/RunManifest.json", "$new_dir/RunManifest.json";
+  cp "t/data/elembio/$rf_name/RunStats.json", "$new_dir/RunStats.json";
 
   my $loader = npg_warehouse::loader::elembio::run_info->new(
     schema_wh => $schema_wh,
@@ -172,7 +173,7 @@ subtest 'partial source data does not harm the warehouse record' => sub {
 
   my $db_run_info = $pr_rs->next;
   ok($db_run_info->run_manifest, "RunManifest.json data in DB");
-  ok(!defined $db_run_info->run_stats, "No stats here");
+  ok($db_run_info->run_stats, "RunStats.json data in DB");
 
   unlink "$new_dir/RunManifest.json";
   # Make sure any attributes of run_info are not retained between loads
