@@ -1,9 +1,11 @@
 LIST OF CHANGES
 
+release 53.4.0 (2025-10-09)
  - npg_warehouse::loader::elembio::run_info extended to inject RunStats.json
    and RunManifest.json where possible into eseq_run table. Requires
    npg_elembio_run_params2mlwarehouse to be run on the deplex folder as well
    as the run folder.
+ - CI updates
 
 release 53.3.0 (2025-09-01)
  - npg_warehouse::loader::elembio::run_info refactored to use
