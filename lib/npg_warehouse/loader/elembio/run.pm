@@ -3,6 +3,8 @@ package npg_warehouse::loader::elembio::run;
 use Moose;
 use MooseX::StrictConstructor;
 use Readonly;
+use File::Temp q/tempdir/;
+use Carp qw/croak/;
 
 use npg_tracking::glossary::composition::component::illumina;
 use npg_tracking::glossary::composition::factory;
@@ -36,7 +38,7 @@ Readonly::Scalar my $FLOWCELL_FK_COLUMN_NAME      => 'id_eseq_flowcell_tmp';
 npg_warehouse::loader::elembio::run
 
 =head1 SYNOPSIS
- 
+
   my $path = 'some/path';
   npg_warehouse::loader::elembio::run->new(
     runfolder_path => $path, id_run => 88
@@ -83,7 +85,7 @@ Inherited from npg_tracking::illumina::run::folder
 
 # Amend attributes which we do not want to show up as script's arguments.
 
-my @script_args = qw/runfolder_path id_run/;
+my @script_args = qw/runfolder_path id_run load_from_db/;
 
 my @no_script_arg_attrs =
   grep { ($_ ne $script_args[0]) && ($_ ne $script_args[1]) }
@@ -91,8 +93,7 @@ my @no_script_arg_attrs =
 
 has [map {q[+] . $_ } @no_script_arg_attrs] => (metaclass => 'NoGetopt',);
 
-# Annotate script arguments attributes as required.
-has [map {q[+] . $_ } @script_args] => (required => 1,);
+has '+id_run' => (required => 1,);
 
 # Always require tracking db connection.
 sub _build_npg_tracking_schema {
@@ -133,6 +134,63 @@ sub _build_npg_qc_schema {
   return npg_qc::Schema->connect();
 }
 
+has 'load_from_db' => (
+  is        => 'ro',
+  isa       => 'Bool',
+  default   => 0,
+  metaclass => 'Getopt',
+  documentation => 'If true, load metrics for id_run from databases rather than staging area',
+);
+
+has '_lane_qc_stats' => (
+  isa        => 'HashRef',
+  is         => 'ro',
+  lazy_build => 1,
+);
+sub _build__lane_qc_stats {
+  my $self = shift;
+
+  my $stats = {};
+
+  if ($self->load_from_db) {
+    $self->_preload_from_mlwh();
+  }
+  my $elembio_analysis_path = join q[/], $self->runfolder_path,
+    $self->tracking_run->folder_name;
+
+  if (-d $elembio_analysis_path) {
+    my $run_stats_file = "$elembio_analysis_path/RunStats.json";
+    my $run_manifest_file = "$elembio_analysis_path/RunManifest.json";
+    if (-e $run_stats_file && -e $run_manifest_file) {
+      my $run_stats = npg::elembio::run_stats::run_stats_from_file(
+        $run_manifest_file, $self->tracking_run->run_lanes->count()
+      );
+      $stats = $run_stats->lanes();
+    } else {
+      $self->logger()->error("Either $run_stats_file or $run_manifest_file does not exist");
+    }
+  } else {
+    $self->logger()->error(
+      "Elembio deplexing directory $elembio_analysis_path does not exist"
+    );
+  }
+
+  return $stats;
+}
+
+around BUILDARGS => sub {
+  my ($orig, $class, @args) = @_;
+  my $outer_args = $class->$orig(@args);
+
+  if ($outer_args->{load_from_db} && $outer_args->{runfolder_path}) {
+    die "runfolder_path argument is not compatible with load_from_db argument\n";
+  }
+  if (!$outer_args->{load_from_db} && !$outer_args->{runfolder_path}) {
+    die "One of runfolder_path and load_from_db arguments is required\n";
+  }
+  return $outer_args;
+};
+
 =head2 load
 
 Loads C<eseq_run_lane_metrics> and C<eseq_product_metrics> tables.
@@ -167,60 +225,7 @@ sub load {
     $self->tracking_run->current_run_status_description() eq 'run stopped early';
   my $lane_data = $self->_get_run_lane_data(\%column_names, $run_stopped_early);
 
-  my $loader = sub {
-
-    my $have_product_data = 1;
-
-    for my $data (@{$lane_data}) {
-      $rl_rs->update_or_create($data);
-    }
-
-    if ($lane_data->[0]->{cancelled} || $run_stopped_early ) {
-      $have_product_data = 0;
-    } else {
-      my $pr_rs = $self->mlwh_schema->resultset('EseqProductMetric');
-      my $product_data = $self->_get_product_data();
-      if (@{$product_data}) {
-        for my $data (@{$product_data}) {
-          #####
-          # A unique constraint (id_eseq_product, tag_sequence, tag2_sequence)
-          # in eseq_product_metrics does not work well on insert since
-          # tag_sequence and tag2_sequence can be undefined (either one of them
-          # or both). In the context of evaluating the uniqueness MySQL considers
-          # NULL values as unknown different values. Therefore if we use
-          # update_or_create(), on loading product data repeatedly over
-          # existing data we end up with multiple rows for, for example, tag zero.
-          #
-          # This problem can be solved by creating a different component class
-          # for elembio data so that each eseq_product_metrics table row has a
-          # distinct id_eseq_product value. Then the unique key can be based
-          # on a single column. This approach has been tried. Unfortunately,
-          # these new id_eseq_product values (compositions' digests) do not match
-          # the ones for the same entities in the QC database. Therefore this
-          # approach was rejected.
-          #
-          my $where = {};
-          for my $column_name (qw/id_eseq_product tag_sequence tag2_sequence/) {
-            $where->{$column_name} = $data->{$column_name};
-          }
-          my $found_rs = $pr_rs->search($where);
-          my $row = $found_rs->next();
-          if ($found_rs->next) {
-            $self->logger()->fatal('Multiple product rows for ' .
-              sprintf 'id_eseq_product %s, tag_sequence %s, tag2_sequence %s',
-              $where->{id_eseq_product}, $where->{tag_sequence} || 'NULL',
-              $where->{tag2_sequence} || 'NULL');
-          }
-          $row ? $row->update($data) : $pr_rs->create($data);
-        }
-      } else {
-        $have_product_data = 0;
-      }
-    }
-
-    return $have_product_data;
-  };
-  my $have_product_data = $self->mlwh_schema->txn_do($loader);
+  my $have_product_data = $self->_metrics_loader($run_stopped_early, $lane_data);
   if (!$have_product_data) {
     $self->logger()->warn('No product data');
   }
@@ -244,37 +249,91 @@ sub load {
   return;
 }
 
-has '_lane_qc_stats' => (
-  isa        => 'HashRef',
-  is         => 'ro',
-  lazy_build => 1,
-);
-sub _build__lane_qc_stats {
+=head2 _preload_from_mlwh
+
+Fetches the manifest and statistics files from the eseq_run table and creates
+a temporary runfolder in lieu of a staging area.
+
+=cut
+
+sub _preload_from_mlwh {
   my $self = shift;
 
-  my $stats = {};
-  my $elembio_analysis_path = join q[/], $self->runfolder_path,
-    $self->tracking_run->folder_name;
-  if (-d $elembio_analysis_path) {
-    my $run_stats_file = "$elembio_analysis_path/RunStats.json";
-    my $run_manifest_file = "$elembio_analysis_path/RunManifest.json";
-    if (-e $run_stats_file && -e $run_manifest_file) {
-      my $run_stats = npg_qc::elembio::run_stats::run_stats_from_file(
-        $run_manifest_file, $run_stats_file, $self->tracking_run->run_lanes->count()
-      );
-      $stats = $run_stats->lanes();
-    } else {
-      $self->logger()->error(
-        "Either $run_stats_file or $run_manifest_file does not exist"
-      );
-    }
-  } else {
-    $self->logger()->error(
-      "Elembio deplexing directory $elembio_analysis_path does not exist"
-    );
+  my $run_rs = $self->mlwh_schema->resultset('EseqRun');
+  my $run = $run_rs->search({id_run => $self->id_run})->next;
+
+  my $not_a_run_folder = tempdir(CLEANUP => 1);
+  my $run_name = $self->tracking_run->run_folder_name;
+  my $not_an_analysis_folder = "$not_a_run_folder/$run_name";
+  mkdir $not_an_analysis_folder;
+  open my $fh, '>', "$not_an_analysis_folder/RunManifest.json" || croak q[Couldn't write manifest to file];
+  print {$fh} $run->run_manifest || croak q[Cannot print];
+  close $fh || croak q[Manifest handle did not close];
+
+  open my $stats_fh, '>', "$not_an_analysis_folder/RunStats.json" || croak q[Couldn't write stats to file];
+  print {$stats_fh} $run->run_stats || croak q[Cannot print];
+  close $stats_fh || croak q[Stats handle did not close];
+
+  $self->runfolder_path($not_a_run_folder);
+  return;
+}
+
+sub _metrics_loader {
+  my ($self, $run_stopped_early, $lane_data) = @_;
+
+  my $transaction = $self->mlwh_schema->txn_scope_guard;
+  my $rl_rs = $self->mlwh_schema->resultset('EseqRunLaneMetric');
+
+  my $have_product_data = 1;
+
+  for my $data (@{$lane_data}) {
+    $rl_rs->update_or_create($data);
   }
 
-  return $stats;
+  if ($lane_data->[0]->{cancelled} || $run_stopped_early ) {
+    $have_product_data = 0;
+  } else {
+    my $pr_rs = $self->mlwh_schema->resultset('EseqProductMetric');
+    my $product_data = $self->_get_product_data();
+    if (@{$product_data}) {
+      for my $data (@{$product_data}) {
+        #####
+        # A unique constraint (id_eseq_product, tag_sequence, tag2_sequence)
+        # in eseq_product_metrics does not work well on insert since
+        # tag_sequence and tag2_sequence can be undefined (either one of them
+        # or both). In the context of evaluating the uniqueness MySQL considers
+        # NULL values as unknown different values. Therefore if we use
+        # update_or_create(), on loading product data repeatedly over
+        # existing data we end up with multiple rows for, for example, tag zero.
+        #
+        # This problem can be solved by creating a different component class
+        # for elembio data so that each eseq_product_metrics table row has a
+        # distinct id_eseq_product value. Then the unique key can be based
+        # on a single column. This approach has been tried. Unfortunately,
+        # these new id_eseq_product values (compositions' digests) do not match
+        # the ones for the same entities in the QC database. Therefore this
+        # approach was rejected.
+        #
+        my $where = {};
+        for my $column_name (qw/id_eseq_product tag_sequence tag2_sequence/) {
+          $where->{$column_name} = $data->{$column_name};
+        }
+        my $found_rs = $pr_rs->search($where);
+        my $row = $found_rs->next();
+        if ($found_rs->next) {
+          $self->logger()->fatal('Multiple product rows for ' .
+            sprintf 'id_eseq_product %s, tag_sequence %s, tag2_sequence %s',
+            $where->{id_eseq_product}, $where->{tag_sequence} || 'NULL',
+            $where->{tag2_sequence} || 'NULL');
+        }
+        $row ? $row->update($data) : $pr_rs->create($data);
+      }
+    } else {
+      $have_product_data = 0;
+    }
+  }
+  $transaction->commit;
+  return $have_product_data;
 }
 
 sub _get_run_lane_data {
@@ -406,7 +465,7 @@ sub _get_product_qc_stats {
 
     # Assign data that didn't decode to tag zero - this is NPG's Illumina
     # convention, which we follow for Elembio platform as well.
-    # No sample name, no project info, no tag sequences. 
+    # No sample name, no project info, no tag sequences.
     my $tag_zero = {
       'id_run' => $self->id_run,
       'lane' => $lane,
@@ -554,6 +613,8 @@ __END__
 
 =item Moose
 
+=item File::Temp
+
 =item MooseX::StrictConstructor
 
 =item MooseX::Getopt
@@ -589,6 +650,7 @@ __END__
 =head1 AUTHOR
 
 Marina Gourtovaia E<lt>mg8@sanger.ac.ukE<gt>
+Kieron Taylor E<lt>kt19@sanger.ac.ukE<gt>
 
 =head1 LICENSE AND COPYRIGHT
 
