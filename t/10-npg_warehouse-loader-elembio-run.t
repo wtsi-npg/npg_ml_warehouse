@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 7;
+use Test::More tests => 8;
 use Test::Exception;
 use JSON;
 use Perl6::Slurp;
@@ -30,7 +30,7 @@ subtest 'Test raising errors' => sub {
     runfolder_path => 't/data/elembio/doesnotexist',
     npg_tracking_schema => $schema_npg,
     npg_qc_schema => $schema_qc,
-    mlwh_schema => $schema_wh 
+    mlwh_schema => $schema_wh
   );
   throws_ok { $loader->load() }
     qr{Run folder path t/data/elembio/doesnotexist does not exist},
@@ -67,7 +67,7 @@ subtest 'load data for a two-lane run, with LIMS' => sub {
     runfolder_path => 't/data/elembio/20250127_AV244103_NT1850075L',
     npg_tracking_schema => $schema_npg,
     npg_qc_schema => $schema_qc,
-    mlwh_schema => $schema_wh 
+    mlwh_schema => $schema_wh
   );
   isa_ok ($loader, 'npg_warehouse::loader::elembio::run');
   $loader->load();
@@ -114,7 +114,7 @@ subtest 'load data for a two-lane run, with LIMS' => sub {
   my @lane2_products = $pr_rs->search({lane => 2})->all();
   my $lane2_tag0 = shift @lane2_products;
   is ($lane2_tag0->tag_index, 0, 'tag zero is the first product');
-  
+
   for my $tag0_row ( $lane1_tag0, $lane2_tag0 ) {
     ok (!$tag0_row->elembio_samplename, 'sample name is undefined');
     ok (!$tag0_row->elembio_project, 'project is undefined');
@@ -152,7 +152,7 @@ subtest 'load data for a two-lane run, with LIMS' => sub {
         "index1 barcode for tag $ti lane $lane is correct");
       is ($p->tag2_sequence, substr($expected_sequence, 10),
         "index2 barcode for tag $ti lane $lane is correct");
-     
+
       my $composition_json = qq({"components":[{"id_run":$id_run,"position":$lane,"tag_index":$ti}]});
       is ($p->eseq_composition_tmp, $composition_json,
         "composition string for tag $ti lane $lane is correct");
@@ -199,14 +199,14 @@ subtest 'load data for early finished/cancelled run' => sub {
     runfolder_path => 't/data/elembio',
     npg_tracking_schema => $schema_npg,
     npg_qc_schema => $schema_qc,
-    mlwh_schema => $schema_wh 
+    mlwh_schema => $schema_wh
   );
   $loader->load();
 
   my $rl_rs = $schema_wh->resultset('EseqRunLaneMetric')
     ->search({id_run => $id_run}, {order_by => {'-asc' => 'lane'}});
   is ($rl_rs->count(), 2, 'two rows are retrieved');
- 
+
   # Test values that are the same for both lanes.
   my $lane_number = 0;
   for my $lane (($rl_rs->next(), $rl_rs->next())) {
@@ -339,7 +339,7 @@ subtest 'load data for a one-lane run, Sample_barcodes 1:N, no LIMS' => sub {
     runfolder_path => 't/data/elembio/20250401_AV244103_NT1853579T',
     npg_tracking_schema => $schema_npg,
     npg_qc_schema => $schema_qc,
-    mlwh_schema => $schema_wh 
+    mlwh_schema => $schema_wh
   );
   $loader->load();
 
@@ -406,7 +406,7 @@ subtest 'load data for a two-lane run, one index read, no LIMS' => sub {
     runfolder_path => 't/data/elembio/20250225_AV244103_NT1850075L_NT1850808B_repeat3',
     npg_tracking_schema => $schema_npg,
     npg_qc_schema => $schema_qc,
-    mlwh_schema => $schema_wh 
+    mlwh_schema => $schema_wh
   );
   $loader->load();
 
@@ -422,6 +422,24 @@ subtest 'load data for a two-lane run, one index read, no LIMS' => sub {
     'first tag sequence is undefined for two products (tag zero)');
   is ($pr_rs->search({is_sequencing_control => 1})->count(), 8,
     '8 controls are present');
+};
+
+subtest 'load data from eseq_run table rather than disk' => sub {
+  plan tests => 1;
+
+  my $id_run = 50550;
+  my $loader = npg_warehouse::loader::elembio::run->new(
+    id_run => $id_run,
+    npg_tracking_schema => $schema_npg,
+    npg_qc_schema => $schema_qc,
+    mlwh_schema => $schema_wh,
+    load_from_db => 1
+  );
+  $loader->load();
+  my $rl_rs = $schema_wh->resultset('EseqRunLaneMetric')
+    ->search({id_run => $id_run});
+  is ($rl_rs->count(), 2, 'two run-lane rows are still loaded');
+  fail("Needs some useful testing");
 };
 
 1;

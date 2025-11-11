@@ -3,8 +3,6 @@ package npg_warehouse::loader::elembio::run;
 use Moose;
 use MooseX::StrictConstructor;
 use Readonly;
-use File::Temp q/tempdir/;
-use Carp qw/croak/;
 
 use npg_tracking::glossary::composition::component::illumina;
 use npg_tracking::glossary::composition::factory;
@@ -153,28 +151,31 @@ sub _build__lane_qc_stats {
   my $stats = {};
 
   if ($self->load_from_db) {
-    $self->_preload_from_mlwh();
-  }
-  my $elembio_analysis_path = join q[/], $self->runfolder_path,
-    $self->tracking_run->folder_name;
-
-  if (-d $elembio_analysis_path) {
-    my $run_stats_file = "$elembio_analysis_path/RunStats.json";
-    my $run_manifest_file = "$elembio_analysis_path/RunManifest.json";
-    if (-e $run_stats_file && -e $run_manifest_file) {
-      my $run_stats = npg::elembio::run_stats::run_stats_from_file(
-        $run_manifest_file, $self->tracking_run->run_lanes->count()
-      );
-      $stats = $run_stats->lanes();
-    } else {
-      $self->logger()->error("Either $run_stats_file or $run_manifest_file does not exist");
-    }
-  } else {
-    $self->logger()->error(
-      "Elembio deplexing directory $elembio_analysis_path does not exist"
+    my ($run_manifest_json, $run_stats_json) = $self->_preload_from_mlwh();
+    my $run_stats = npg_qc::elembio::run_stats::run_stats_from_json(
+      $run_manifest_json, $run_stats_json, $self->tracking_run->run_lanes->count()
     );
+    $stats = $run_stats->lanes();
+  } else {
+    my $elembio_analysis_path = join q[/], $self->runfolder_path,
+      $self->tracking_run->folder_name;
+    if (-d $elembio_analysis_path) {
+      my $run_stats_file = "$elembio_analysis_path/RunStats.json";
+      my $run_manifest_file = "$elembio_analysis_path/RunManifest.json";
+      if (-e $run_stats_file && -e $run_manifest_file) {
+        my $run_stats = npg_qc::elembio::run_stats::run_stats_from_file(
+          $run_manifest_file, $run_stats_file, $self->tracking_run->run_lanes->count()
+        );
+        $stats = $run_stats->lanes();
+      } else {
+        $self->logger()->error("Either $run_stats_file or $run_manifest_file does not exist");
+      }
+    } else {
+      $self->logger()->error(
+        "Elembio deplexing directory $elembio_analysis_path does not exist"
+      );
+    }
   }
-
   return $stats;
 }
 
@@ -215,9 +216,11 @@ made.
 sub load {
   my $self = shift;
 
-  -d $self->runfolder_path or $self->logger()->logcroak(
-    sprintf 'Run folder path %s does not exist', $self->runfolder_path
-  );
+  if ($self->has_runfolder_path) {
+    -d $self->runfolder_path or $self->logger()->logcroak(
+      sprintf 'Run folder path %s does not exist', $self->runfolder_path
+    );
+  }
 
   my $rl_rs = $self->mlwh_schema->resultset('EseqRunLaneMetric');
   my %column_names = map { $_ => 1 } $rl_rs->result_source->columns;
@@ -249,6 +252,8 @@ sub load {
   return;
 }
 
+# TODO: Get QC result from npg_qc, splash that into lane and product tables. We don't currently observe manual QC outcomes.
+
 =head2 _preload_from_mlwh
 
 Fetches the manifest and statistics files from the eseq_run table and creates
@@ -259,23 +264,22 @@ a temporary runfolder in lieu of a staging area.
 sub _preload_from_mlwh {
   my $self = shift;
 
+  # CAN USE THIS SAFELY AFTER DATA LOSS
+  my $run_lane_rs = $self->mlwh_schema->resultset('EseqRunLaneMetric');
   my $run_rs = $self->mlwh_schema->resultset('EseqRun');
-  my $run = $run_rs->search({id_run => $self->id_run})->next;
 
-  my $not_a_run_folder = tempdir(CLEANUP => 1);
-  my $run_name = $self->tracking_run->run_folder_name;
-  my $not_an_analysis_folder = "$not_a_run_folder/$run_name";
-  mkdir $not_an_analysis_folder;
-  open my $fh, '>', "$not_an_analysis_folder/RunManifest.json" || croak q[Couldn't write manifest to file];
-  print {$fh} $run->run_manifest || croak q[Cannot print];
-  close $fh || croak q[Manifest handle did not close];
+  my $run_lane = $run_lane_rs->search({
+    id_run => $self->id_run
+  })->next;
 
-  open my $stats_fh, '>', "$not_an_analysis_folder/RunStats.json" || croak q[Couldn't write stats to file];
-  print {$stats_fh} $run->run_stats || croak q[Cannot print];
-  close $stats_fh || croak q[Stats handle did not close];
+  my $run = $run_lane->eseq_run;
+  my $manifest = $run->run_manifest; # THIS MIGHT BE PERL OBJ, not JSON string
+  my $stats = $run->run_stats;
 
-  $self->runfolder_path($not_a_run_folder);
-  return;
+  if (!$manifest && !$stats) {
+    $self->logcroak($self->id_run . ' has missing manifest and/or RunStats data in MLWH');
+  }
+  return \$manifest, \$stats;
 }
 
 sub _metrics_loader {
@@ -609,11 +613,7 @@ __END__
 
 =over
 
-=item Carp
-
 =item Moose
-
-=item File::Temp
 
 =item MooseX::StrictConstructor
 
