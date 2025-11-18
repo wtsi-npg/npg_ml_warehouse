@@ -80,8 +80,8 @@ npg_elembio_run_params2mlwarehouse
 
 =head1 SYNOPSIS
 
-Script to load JSON files with Elembio run parameters and stats and the
-dates for the start and end of the run to ml warehouse.
+Script to load JSON files with Elembio run parameters and the dates for the
+start and end of the run to ml warehouse.
 
 If a run folder directory path is given as C<--runfolder_path> argument, the
 script reads available files and loads them to ml warehouse database. The script
