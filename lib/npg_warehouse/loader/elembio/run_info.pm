@@ -20,10 +20,9 @@ with 'MooseX::Getopt';
 our $VERSION = '0';
 
 Readonly::Scalar my $RUN_UPLOADED_FILE_NAME => 'RunUploaded.json';
-Readonly::Scalar my $RUN_INFO_RS_NAME => 'EseqRun';
-
 Readonly::Scalar my $RUN_MANIFEST_FILE_NAME => 'RunManifest.json';
-Readonly::Scalar my $RUN_STATS_FILE_NAME => 'RunStats.json';
+
+Readonly::Scalar my $RUN_INFO_RS_NAME => 'EseqRun';
 
 =head1 NAME
 
@@ -39,8 +38,11 @@ npg_warehouse::loader::elembio::run_info
 Uploads (updates or inserts) manufacturer-supplied run information to
 C<eseq_run> table of the ml warehouse database.
 
-C<RunParameters.json>, C<RunManifest.json> and C<RunStats.json> files are
-uploaded to eseq_run as is.
+C<RunParameters.json> and  C<RunManifest.json> files are uploaded to eseq_run
+as they are.
+
+C<RunStats.json> is currently not loaded because some of these files are
+prohibitively large (hundreds of MBs).
 
 =head1 SUBROUTINES/METHODS
 
@@ -107,12 +109,8 @@ sub load {
   $run_data->{run_parameters} = slurp $self->runparams_path;
 
   my $potential_manifest = catfile($self->runfolder_path, $RUN_MANIFEST_FILE_NAME);
-  my $potential_stats = catfile($self->runfolder_path, $RUN_STATS_FILE_NAME);
   if (-f $potential_manifest) {
     $run_data->{run_manifest} = slurp $potential_manifest;
-  }
-  if (-f $potential_stats) {
-    $run_data->{run_stats} = slurp $potential_stats;
   }
 
   my $run_uploaded_file = catfile($self->runfolder_path, $RUN_UPLOADED_FILE_NAME);

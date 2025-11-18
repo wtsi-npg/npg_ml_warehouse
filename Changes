@@ -1,5 +1,13 @@
 LIST OF CHANGES
 
+release 53.4.1 (2025-11-1
+ - Rolled back loading RunStats.json files to eseq_run table. Initially on
+   loading a file of 200MB size a database error "Got a packet bigger than
+   'max_allowed_packet' bytes" was observed. When the packet size had been
+   increased to 200MB, the retrieval of rows with large size data became very
+   slow. We will keep the column in case the data is needed at some point.
+   A copy of this data is available in iRODS.
+
 release 53.4.0 (2025-10-09)
  - npg_warehouse::loader::elembio::run_info extended to inject RunStats.json
    and RunManifest.json where possible into eseq_run table. Requires
