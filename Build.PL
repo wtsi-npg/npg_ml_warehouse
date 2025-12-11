@@ -14,7 +14,8 @@ my $builder = npg_tracking::util::build->new(
                  'dist'           => { COMPRESS => 'gzip', SUFFIX => 'gz', },
 
                  'build_requires'      => {
-                    'Clone'                             => '0',
+                    'Archive::Extract'                  => 0,
+                    'Clone'                             => 0,
                     'Cwd'                               => 0,
                     'DBD::SQLite'                       => '1.37',
                     'File::Copy::Recursive'             => 0,
@@ -36,6 +37,7 @@ my $builder = npg_tracking::util::build->new(
                     'npg_tracking::util::build'         => 0,
                     'npg_tracking::glossary::composition::factory::rpt_list' => 0,
                     'npg_qc::autoqc::results::qX_yield' => 0,
+                    'npg_qc::autoqc::db_loader'         => 0,
                  },
 
                  'requires'            => {

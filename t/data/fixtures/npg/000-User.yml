@@ -1,19 +1,26 @@
 ---
 - id_user: 7
-  rfid: ~
   username: pipeline
+  iscurrent: 1
 - id_user: 8
-  rfid: ~
   username: first
+  iscurrent: 1
 - id_user: 9
-  rfid: ~
   username: second
+  iscurrent: 1
 - id_user: 10
-  rfid: ~
   username: third
+  iscurrent: 1
 - id_user: 12
-  rfid: ~
   username: fourth
+  iscurrent: 1
 - id_user: 13
-  rfid: ~
   username: fifth
+  iscurrent: 1
+- id_user: 228
+  username: eseq_pipeline
+  iscurrent: 1
+- id_user: 229
+  username: useq_pipeline
+  iscurrent: 1
+

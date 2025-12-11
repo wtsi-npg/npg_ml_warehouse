@@ -1,0 +1,3074 @@
+---
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:A1
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462520
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 481
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAGCTCGAATGCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:B1
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462521
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 482
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATGTGCAGCCATCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:C1
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462522
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 483
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATCACACATGAATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:D1
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462523
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 484
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTGTGTAGGCATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:E1
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462524
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 485
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATGTATCCTCTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:F1
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462525
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 486
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATATAGCCTATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:G1
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462526
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 487
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CGATTCATGCTCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:H1
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462527
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 488
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CACATCCTGCATGTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:A2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462528
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 489
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CGCGCATCCTGCATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:B2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462529
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 490
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CACTGCACGAATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:C2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462530
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 491
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CACGCACTGCCAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:D2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462531
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 492
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTGCCATAGCACGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:E2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462532
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 493
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAGTTGTGCTGTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:F2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462533
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 494
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATGGCGCGATCATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:G2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462534
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 495
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTTAGATATCATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:H2
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462535
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 496
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATCCTGTGCGCATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:A3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462536
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 497
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CACGTGGCACATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:B3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462537
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 498
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATGCGTCCTGTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:C3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462538
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 499
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAATGCTCTGCATAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:D3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462539
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 500
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTACATTGCACAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:E3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462540
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 501
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATAGCGAGCCAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:F3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462541
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 502
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CGGAGTGCATGCATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:G3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462542
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 503
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATGGAGATACTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:H3
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462544
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 504
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTGAGCCTGTCAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:A4
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462545
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 505
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTCGAGATTGATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:B4
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462546
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 506
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATCCATCTCATCTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:C4
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462547
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 507
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CACTGTCAGCCAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:D4
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462548
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 508
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAGACTTGCTGCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:E4
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462549
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 509
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATATAGCAGGAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:F4
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462550
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 510
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATGTCTAAGATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:G4
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462551
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 511
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATCGCAGCTGAATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:H4
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462552
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 512
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTCTGTATTGCAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:A5
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462553
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 513
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATCATCGATTCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:B5
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462554
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 514
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTGTGAATATGCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:C5
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462555
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 515
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTGAATGATCTCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:D5
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462556
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 516
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAGAAGCTGCATGAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:E5
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462557
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 517
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTAGATTGCGCAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:F5
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462558
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 518
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CGCATCCTCACAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:G5
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462559
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 519
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CACAACATATCAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:H5
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462561
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 520
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATCCTGCATCGCAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:A6
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462562
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 521
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CACATCAGCTCAATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:B6
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462563
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 522
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATGCATATAATGCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:C6
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462564
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 523
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTCAATGCATCAGCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:D6
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462565
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 524
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAATGTGTGCTAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:E6
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462566
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 525
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTCAGCCTCATGCTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:F6
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462567
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 526
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTCTCGCATGCAATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:G6
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462570
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 527
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTAGCAGCCAGCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:H6
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462571
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 528
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTGCCAGACTGTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:A7
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462572
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 529
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CGCACTGCTCCTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:B7
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462573
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 530
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CACATGGCAGCACAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:C7
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462574
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 531
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CACTTGCAGATCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:D7
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462575
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 532
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTATGCCACAGCATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:E7
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462576
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 533
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAACATCAGCATGAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:F7
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462577
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 534
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTGCAGTGATTCATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:G7
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462578
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 535
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAGCACCTGCATCAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:H7
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462580
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 536
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTTATGCTATCAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:A8
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462581
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 537
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAATGCGTGCTGCAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:B8
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462582
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 538
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATCTCAGTGCAATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:C8
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462583
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 539
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATGTGCTTCGCATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:D8
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462584
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 540
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATGAGTGCAGCCAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:E8
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462585
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 541
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTCAAGCATGTGCTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:F8
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462588
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 542
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CACAGTCAATGTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:G8
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462589
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 543
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CACACTTGATGCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:H8
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462590
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 544
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATAGAGCCTCAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:A9
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462591
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 545
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTTGTGTCATGAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:B9
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462592
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 546
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAATGCACTCGAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:C9
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462593
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 547
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTTATGAGCGCTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:D9
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462594
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 548
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CGTCATTGCACAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:E9
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462596
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 549
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATCACTGCAACGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:F9
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462597
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 550
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTTGCATGCGATGCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:G9
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462598
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 551
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CGTGCGCAAGCAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:H9
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462600
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 552
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTATCTCATAATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:A10
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462601
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 553
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATGGCTATGCACTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:B10
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462604
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 554
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTATGAATGAGCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:C10
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462605
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 555
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTATGCACCATCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:D10
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462606
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 556
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CACAATGTGCGCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:E10
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462608
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 557
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAATGACTATCTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:F10
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462611
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 558
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAGCCGCTGCTCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:G10
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462612
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 559
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CGCGCGCAGAATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:H10
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462613
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 560
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAGCCTCAGCGTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:A11
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462614
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 561
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTTGATCATACAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:B11
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462616
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 562
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTCTGCTGTGCAATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:C11
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462617
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 563
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAGTGTATTGCTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:D11
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462618
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 564
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTGTGCATCTGCCTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:E11
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462619
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 565
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTCTATGTTGCTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:F11
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462620
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 566
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAACTATCTGCAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:G11
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462621
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 567
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAGATCTCATGAATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:H11
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462622
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 568
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTATCATCCAGTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:A12
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462623
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 569
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTGCTACAAGCAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:B12
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462624
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 570
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAATATGCACGTGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:C12
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462625
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 571
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CACTTCTGCGATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:D12
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462626
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 572
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAAGCATATCTAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:E12
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462627
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 573
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAATGACAGCTCGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:F12
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462628
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 574
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:14
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CTGATGAGCTTGATGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:G12
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462629
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 575
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CATATGACCTGAGAT
+- amp_assign_control_bead_tube: SQM430136
+  amp_instrument_name: AMP1
+  bait_name: ~
+  batch_for_opentrons: 131
+  entity_id_lims: 15060892
+  entity_type: library_indexed
+  id_library_lims: SQPU-355266-C:H12
+  id_lims: SQSCP_ST
+  id_pool_lims: NT114848K
+  id_sample_tmp: 5462630
+  id_study_tmp: 42
+  id_useq_wafer_tmp: 576
+  id_wafer_lims: 131_NT114848K_2
+  last_updated: 2025-12-10 15:11:11
+  ot_recipe: Free
+  otr_carrier_expiry: 2026-01-01 00:00:00
+  otr_carrier_lot_number: OTR121YE16094
+  otr_instrument_name: OT1
+  otr_nfw_expiry: 2026-01-31 00:00:00
+  otr_nfw_lot_number: H01YA3101
+  otr_oil_expiry: 2025-12-31 00:00:00
+  otr_oil_lot_number: 316AXL2301
+  otr_pipette_carousel: 8
+  otr_reaction_mix_7_expiry: 2026-02-28 00:00:00
+  otr_reaction_mix_7_lot_number: 497AYB1801
+  pipeline_id_lims: Ultima High Throughput PCR Free 96
+  primer_panel: ~
+  recorded_at: 2025-12-10 15:11:13
+  request_order: 2
+  requested_insert_size_from: 450
+  requested_insert_size_to: 450
+  tag_sequence: CAGCCGATATCAGAT
+

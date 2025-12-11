@@ -1,0 +1,586 @@
+<SampleInfo RunId="430136" Library_Pool="131_NT114848K_2">
+  <Attributes>
+    <Attribute Name="Application" Value="WGS native gDNA" />
+    <Attribute Name="sequencing_recipe" Value="UG_116cycles_Baseline_1.8.5.2" />
+    <Attribute Name="analysis_recipe" Value="wgs1" />
+  </Attributes>
+  <Samples>
+    <Sample Id="97@13STDY243403" Index_Label="Z0001" Index_Sequence="CAGCTCGAATGCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="A1" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="98@13STDY243404" Index_Label="Z0002" Index_Sequence="CATGTGCAGCCATCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="B1" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="99@13STDY243405" Index_Label="Z0003" Index_Sequence="CATCACACATGAATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="C1" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="100@13STDY243406" Index_Label="Z0004" Index_Sequence="CTGTGTAGGCATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="D1" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="101@13STDY243407" Index_Label="Z0005" Index_Sequence="CATGTATCCTCTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="E1" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="102@13STDY243408" Index_Label="Z0006" Index_Sequence="CATATAGCCTATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="F1" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="103@13STDY243409" Index_Label="Z0007" Index_Sequence="CGATTCATGCTCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="G1" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="104@13STDY243410" Index_Label="Z0008" Index_Sequence="CACATCCTGCATGTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="H1" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="105@13STDY243411" Index_Label="Z0009" Index_Sequence="CGCGCATCCTGCATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="A2" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="106@13STDY243412" Index_Label="Z0010" Index_Sequence="CACTGCACGAATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="B2" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="107@13STDY243413" Index_Label="Z0011" Index_Sequence="CACGCACTGCCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="C2" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="108@13STDY243414" Index_Label="Z0012" Index_Sequence="CTGCCATAGCACGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="D2" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="109@13STDY243415" Index_Label="Z0013" Index_Sequence="CAGTTGTGCTGTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="E2" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="110@13STDY243416" Index_Label="Z0014" Index_Sequence="CATGGCGCGATCATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="F2" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="111@13STDY243417" Index_Label="Z0015" Index_Sequence="CTTAGATATCATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="G2" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="112@13STDY243418" Index_Label="Z0016" Index_Sequence="CATCCTGTGCGCATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="H2" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="113@13STDY243419" Index_Label="Z0017" Index_Sequence="CACGTGGCACATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="A3" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="114@13STDY243420" Index_Label="Z0018" Index_Sequence="CATGCGTCCTGTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="B3" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="115@13STDY243421" Index_Label="Z0019" Index_Sequence="CAATGCTCTGCATAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="C3" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="116@13STDY243422" Index_Label="Z0020" Index_Sequence="CTACATTGCACAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="D3" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="117@13STDY243423" Index_Label="Z0021" Index_Sequence="CATAGCGAGCCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="E3" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="118@13STDY243424" Index_Label="Z0022" Index_Sequence="CGGAGTGCATGCATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="F3" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="119@13STDY243425" Index_Label="Z0023" Index_Sequence="CATGGAGATACTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="G3" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="120@13STDY243427" Index_Label="Z0024" Index_Sequence="CTGAGCCTGTCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="H3" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="121@13STDY243428" Index_Label="Z0025" Index_Sequence="CTCGAGATTGATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="A4" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="122@13STDY243429" Index_Label="Z0026" Index_Sequence="CATCCATCTCATCTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="B4" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="123@13STDY243430" Index_Label="Z0027" Index_Sequence="CACTGTCAGCCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="C4" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="124@13STDY243431" Index_Label="Z0028" Index_Sequence="CAGACTTGCTGCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="D4" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="125@13STDY243432" Index_Label="Z0029" Index_Sequence="CATATAGCAGGAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="E4" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="126@13STDY243433" Index_Label="Z0030" Index_Sequence="CATGTCTAAGATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="F4" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="127@13STDY243434" Index_Label="Z0031" Index_Sequence="CATCGCAGCTGAATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="G4" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="128@13STDY243435" Index_Label="Z0032" Index_Sequence="CTCTGTATTGCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="H4" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="129@13STDY243436" Index_Label="Z0033" Index_Sequence="CATCATCGATTCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="A5" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="130@13STDY243437" Index_Label="Z0034" Index_Sequence="CTGTGAATATGCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="B5" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="131@13STDY243438" Index_Label="Z0035" Index_Sequence="CTGAATGATCTCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="C5" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="132@13STDY243439" Index_Label="Z0036" Index_Sequence="CAGAAGCTGCATGAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="D5" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="133@13STDY243440" Index_Label="Z0037" Index_Sequence="CTAGATTGCGCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="E5" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="134@13STDY243441" Index_Label="Z0038" Index_Sequence="CGCATCCTCACAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="F5" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="135@13STDY243442" Index_Label="Z0039" Index_Sequence="CACAACATATCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="G5" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="136@13STDY243444" Index_Label="Z0040" Index_Sequence="CATCCTGCATCGCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="H5" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="137@13STDY243445" Index_Label="Z0041" Index_Sequence="CACATCAGCTCAATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="A6" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="138@13STDY243446" Index_Label="Z0042" Index_Sequence="CATGCATATAATGCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="B6" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="139@13STDY243447" Index_Label="Z0043" Index_Sequence="CTCAATGCATCAGCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="C6" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="140@13STDY243448" Index_Label="Z0044" Index_Sequence="CAATGTGTGCTAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="D6" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="141@13STDY243449" Index_Label="Z0045" Index_Sequence="CTCAGCCTCATGCTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="E6" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="142@13STDY243450" Index_Label="Z0046" Index_Sequence="CTCTCGCATGCAATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="F6" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="143@13STDY243453" Index_Label="Z0047" Index_Sequence="CTAGCAGCCAGCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="G6" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="144@13STDY243454" Index_Label="Z0048" Index_Sequence="CTGCCAGACTGTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="H6" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="145@13STDY243455" Index_Label="Z0049" Index_Sequence="CGCACTGCTCCTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="A7" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="146@13STDY243456" Index_Label="Z0050" Index_Sequence="CACATGGCAGCACAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="B7" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="147@13STDY243457" Index_Label="Z0051" Index_Sequence="CACTTGCAGATCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="C7" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="148@13STDY243458" Index_Label="Z0052" Index_Sequence="CTATGCCACAGCATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="D7" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="149@13STDY243459" Index_Label="Z0053" Index_Sequence="CAACATCAGCATGAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="E7" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="150@13STDY243460" Index_Label="Z0054" Index_Sequence="CTGCAGTGATTCATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="F7" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="151@13STDY243461" Index_Label="Z0055" Index_Sequence="CAGCACCTGCATCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="G7" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="152@13STDY243463" Index_Label="Z0056" Index_Sequence="CTTATGCTATCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="H7" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="153@13STDY243464" Index_Label="Z0057" Index_Sequence="CAATGCGTGCTGCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="A8" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="154@13STDY243465" Index_Label="Z0058" Index_Sequence="CATCTCAGTGCAATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="B8" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="155@13STDY243466" Index_Label="Z0059" Index_Sequence="CATGTGCTTCGCATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="C8" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="156@13STDY243467" Index_Label="Z0060" Index_Sequence="CATGAGTGCAGCCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="D8" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="157@13STDY243468" Index_Label="Z0061" Index_Sequence="CTCAAGCATGTGCTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="E8" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="158@13STDY243471" Index_Label="Z0062" Index_Sequence="CACAGTCAATGTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="F8" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="159@13STDY243472" Index_Label="Z0063" Index_Sequence="CACACTTGATGCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="G8" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="160@13STDY243473" Index_Label="Z0064" Index_Sequence="CATAGAGCCTCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="H8" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="161@13STDY243474" Index_Label="Z0065" Index_Sequence="CTTGTGTCATGAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="A9" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="162@13STDY243475" Index_Label="Z0066" Index_Sequence="CAATGCACTCGAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="B9" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="163@13STDY243476" Index_Label="Z0067" Index_Sequence="CTTATGAGCGCTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="C9" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="164@13STDY243478" Index_Label="Z0068" Index_Sequence="CGTCATTGCACAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="D9" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="165@13STDY243480" Index_Label="Z0069" Index_Sequence="CATCACTGCAACGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="E9" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="166@13STDY243481" Index_Label="Z0070" Index_Sequence="CTTGCATGCGATGCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="F9" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="167@13STDY243482" Index_Label="Z0071" Index_Sequence="CGTGCGCAAGCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="G9" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="168@13STDY243484" Index_Label="Z0072" Index_Sequence="CTATCTCATAATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="H9" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="169@13STDY243485" Index_Label="Z0073" Index_Sequence="CATGGCTATGCACTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="A10" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="170@13STDY243488" Index_Label="Z0074" Index_Sequence="CTATGAATGAGCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="B10" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="171@13STDY243489" Index_Label="Z0075" Index_Sequence="CTATGCACCATCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="C10" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="172@13STDY243490" Index_Label="Z0076" Index_Sequence="CACAATGTGCGCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="D10" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="173@13STDY243492" Index_Label="Z0077" Index_Sequence="CAATGACTATCTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="E10" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="174@13STDY243495" Index_Label="Z0078" Index_Sequence="CAGCCGCTGCTCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="F10" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="175@13STDY243496" Index_Label="Z0079" Index_Sequence="CGCGCGCAGAATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="G10" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="176@13STDY243497" Index_Label="Z0080" Index_Sequence="CAGCCTCAGCGTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="H10" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="177@13STDY243498" Index_Label="Z0081" Index_Sequence="CTTGATCATACAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="A11" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="178@13STDY243500" Index_Label="Z0082" Index_Sequence="CTCTGCTGTGCAATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="B11" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="179@13STDY243501" Index_Label="Z0083" Index_Sequence="CAGTGTATTGCTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="C11" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="180@13STDY243502" Index_Label="Z0084" Index_Sequence="CTGTGCATCTGCCTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="D11" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="181@13STDY243503" Index_Label="Z0085" Index_Sequence="CTCTATGTTGCTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="E11" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="182@13STDY243504" Index_Label="Z0086" Index_Sequence="CAACTATCTGCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="F11" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="183@13STDY243505" Index_Label="Z0087" Index_Sequence="CAGATCTCATGAATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="G11" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="184@13STDY243506" Index_Label="Z0088" Index_Sequence="CTATCATCCAGTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="H11" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="185@13STDY243507" Index_Label="Z0089" Index_Sequence="CTGCTACAAGCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="A12" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="186@13STDY243508" Index_Label="Z0090" Index_Sequence="CAATATGCACGTGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="B12" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="187@13STDY243509" Index_Label="Z0091" Index_Sequence="CACTTCTGCGATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="C12" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="188@13STDY243510" Index_Label="Z0092" Index_Sequence="CAAGCATATCTAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="D12" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="189@13STDY243511" Index_Label="Z0093" Index_Sequence="CAATGACAGCTCGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="E12" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="190@13STDY243512" Index_Label="Z0094" Index_Sequence="CTGATGAGCTTGATGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="F12" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="191@13STDY243513" Index_Label="Z0095" Index_Sequence="CATATGACCTGAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="G12" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+    <Sample Id="192@13STDY243514" Index_Label="Z0096" Index_Sequence="CAGCCGATATCAGAT">
+      <Attribute Name="Barcode_Plate_Num" Value="1" />
+      <Attribute Name="Barcode_Plate_Well" Value="H12" />
+      <Attribute Name="application_type" Value="native" />
+      <Attribute Name="study_id" Value="13" />
+    </Sample>
+  </Samples>
+  <Sequencing />
+  <Analysis_Recipe Name="WGS1" />131_NT114848K_2</SampleInfo>

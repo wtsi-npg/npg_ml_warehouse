@@ -1,0 +1,129 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use FindBin qw($Bin);
+use lib ( -d "$Bin/../lib/perl5" ? "$Bin/../lib/perl5" : "$Bin/../lib" );
+use Log::Log4perl qw(:easy :levels);
+use Try::Tiny;
+
+use npg_warehouse::loader::ultimagen::run;
+
+our $VERSION = '0';
+
+my $layout = '%d %-5p %c - %m%n';
+my $level  = $INFO;
+Log::Log4perl->easy_init({layout => $layout,
+                          level  => $level,
+                          utf8   => 1});
+
+if (defined $ENV{dev} && $ENV{dev}) {
+  INFO(join q[ ], q[Using], $ENV{dev}, q[databases]);
+}
+
+try {
+  npg_warehouse::loader::ultimagen::run->new_with_options()->load();
+} catch {
+  my $error = $_;
+  FATAL($error);
+};
+
+exit 0;
+
+__END__
+
+=head1 NAME
+
+npg_ultimagen_run2mlwarehouse
+
+=head1 SYNOPSIS
+
+Script to load Ultima Genomics run data to C<useq_run_metrics> and
+C<useq_product_metrics> tables of multi-LIMS warehouse database and,
+if appropriate, to link C<useq_product_metrics> rows to C<useq_wafer>
+table rows, i.e. to LIMS data.
+
+=head1 DESCRIPTION
+
+=head1 USAGE
+
+The preferred way of running this loader (data about samples is taken from
+C<[UG_RUN_ID]_Library_Info.xml> file on the top level of the run folder)
+
+ npg_ultimagen_run2mlwarehouse --runfolder_path [RUN_FOLDER_PATH] --id_run [ID_RUN]
+
+When C<[UG_RUN_ID]_Library_Info.xml> contains incorrect sampel data, the
+corrected manifest CSV file can be used:
+
+ npg_ultimagen_run2mlwarehouse --manifest_path [MANIFEST_PATH] --id_run [ID_RUN] 
+
+When neither the manifest file nor the run folder ia available, some of the
+columns in C<useq_product_metrics> table will not be filled in. However,
+provided the QC data for the run is available in the NPG QC database, it is
+still possible to create or update run records in a meaningful way. 
+
+=head1 REQUIRED ARGUMENTS
+
+id_run
+
+=head1 OPTIONS
+
+  --help           brief help message
+  --id_run         NPG tracking run ID
+  --runfolder_path directory path of the Ultima Genomics runfolder
+  --manifest_path  manifest file path
+
+=head1 EXIT STATUS
+
+0 if exited normally
+
+any non-zero if a fatal error occured
+
+=head1 CONFIGURATION
+
+=head1 DIAGNOSTICS
+
+=head1 DEPENDENCIES
+
+=over
+
+=item strict
+
+=item warnings
+
+=item lib
+
+=item FindBin
+
+=item Log::Log4perl
+
+=item Try::Tiny
+
+=item npg_warehouse::loader::ultima::run
+
+=back
+
+=head1 INCOMPATIBILITIES
+
+=head1 BUGS AND LIMITATIONS
+
+=head1 AUTHOR
+
+Marina Gourtovaia E<lt>mg8@sanger.ac.ukE<gt>
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (C) 2026 Genome Research Ltd.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
