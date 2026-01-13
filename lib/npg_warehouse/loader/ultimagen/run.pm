@@ -16,11 +16,14 @@ use npg_qc::autoqc::qc_store;
 use npg_warehouse::loader::illumina::fqc;
 use npg_warehouse::loader::illumina::npg;
 
-extends 'npg_warehouse::loader::base';
+my $parent_class = 'npg_warehouse::loader::base';
+extends $parent_class;
+for my $attr_name (qw/explain lims_fk_repair verbose/) {
+  $parent_class->meta->remove_attribute($attr_name);
+}
 
 with qw/ npg_tracking::glossary::run
-         npg_qc::ultimagen::sample_retriever
-         MooseX::Getopt /;
+         npg_qc::ultimagen::sample_retriever /;
 
 our $VERSION  = '0';
 
@@ -79,12 +82,11 @@ Run folder path, optional. Inherited from C<npg_qc::ultimagen::sample_retriever>
 
 Manifest path, optional. Inherited from C<npg_qc::ultimagen::sample_retriever>.
 
-=cut
+=head2 schema_wh
 
-for my $attr_name (qw/ explain lims_fk_repair verbose
-                       logger schema_wh schema_npg schema_qc /) {
-  has "+${attr_name}" => (metaclass  => 'NoGetopt',);
-}
+=head2 schema_npg
+
+=head2 schema_qc
 
 =head2 BUILD
 
@@ -288,7 +290,7 @@ sub _get_autoqc_results {
 
   my $retriever = npg_qc::autoqc::qc_store->new(
     use_db      => 1,
-    verbose     => $self->verbose,
+    verbose     => 0,
     qc_schema   => $self->schema_qc,
     checks_list => [ qw/tag_metrics qX_yield/ ]
   );
@@ -430,8 +432,6 @@ __END__
 =item Moose
 
 =item MooseX::StrictConstructor
-
-=item MooseX::Getopt
 
 =item npg_warehouse::loader::illumina::fqc
 

@@ -18,8 +18,7 @@ extends $parent_class;
 $parent_class->meta->remove_attribute('schema_npg');
 $parent_class->meta->remove_attribute('explain');
 
-with qw/ MooseX::Getopt
-         npg_warehouse::loader::illumina::product /;
+with qw/ npg_warehouse::loader::illumina::product /;
 
 our $VERSION  = '0';
 
@@ -65,10 +64,6 @@ This loader does not need access to npg_tracking database.
 =head2 schema_wh
 
 =head2 schema_qc
-
-=cut
-
-has [qw/ +schema_wh +schema_qc /] => (metaclass => 'NoGetopt',);
 
 =head2 rpt_list
 
@@ -238,7 +233,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2019 Genome Research Limited
+Copyright (C) 2019, 2026 Genome Research Limited
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

@@ -7,7 +7,8 @@ use WTSI::DNAP::Warehouse::Schema;
 use npg_tracking::Schema;
 use npg_qc::Schema;
 
-with 'WTSI::DNAP::Utilities::Loggable';
+with qw/ WTSI::DNAP::Utilities::Loggable
+         MooseX::Getopt /;
 
 our $VERSION  = '0';
 
@@ -26,6 +27,10 @@ npg_warehouse::loader::base
 A base class for warehouse-related code. Defines common attributes.
 
 =head1 SUBROUTINES/METHODS
+
+=cut
+
+has '+logger' => (metaclass  => 'NoGetopt',);
 
 =head2 lims_fk_repair
 
@@ -70,7 +75,8 @@ has 'verbose'      => ( isa           => 'Bool',
 DBIx schema object for the warehouse database
 
 =cut
-has 'schema_wh'  =>  ( isa        => 'WTSI::DNAP::Warehouse::Schema',
+has 'schema_wh'  =>  ( metaclass  => 'NoGetopt',
+                       isa        => 'WTSI::DNAP::Warehouse::Schema',
                        is         => 'ro',
                        required   => 0,
                        lazy_build => 1,
@@ -84,9 +90,11 @@ sub _build_schema_wh {
 DBIx schema object for the npg database
 
 =cut
-has 'schema_npg' =>  ( isa        => 'npg_tracking::Schema',
+has 'schema_npg' =>  ( metaclass => 'NoGetopt',
+                       isa        => 'npg_tracking::Schema',
                        is         => 'ro',
                        required   => 0,
+                       metaclass  => 'NoGetopt',
                        lazy_build => 1,
 );
 sub _build_schema_npg {
@@ -98,7 +106,8 @@ sub _build_schema_npg {
 DBIx schema object for the NPG QC database
 
 =cut
-has 'schema_qc' =>   ( isa        => 'npg_qc::Schema',
+has 'schema_qc' =>   ( metaclass => 'NoGetopt',
+                       isa        => 'npg_qc::Schema',
                        is         => 'ro',
                        required   => 0,
                        lazy_build => 1,
@@ -124,6 +133,8 @@ __END__
 
 =item namespace::autoclean
 
+=item MooseX::Getopt 
+
 =item WTSI::DNAP::Warehouse::Schema
 
 =item npg_tracking::Schema
@@ -144,7 +155,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2015,2019,2020 Genome Research Ltd
+Copyright (C) 2015,2019,2020,2025,2026 Genome Research Ltd
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
