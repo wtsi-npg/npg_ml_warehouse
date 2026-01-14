@@ -52,7 +52,7 @@ C<[UG_RUN_ID]_Library_Info.xml> file on the top level of the run folder)
 
  npg_ultimagen_run2mlwarehouse --runfolder_path [RUN_FOLDER_PATH] --id_run [ID_RUN]
 
-When C<[UG_RUN_ID]_Library_Info.xml> contains incorrect sampel data, the
+When C<[UG_RUN_ID]_Library_Info.xml> contains incorrect sample data, the
 corrected manifest CSV file can be used:
 
  npg_ultimagen_run2mlwarehouse --manifest_path [MANIFEST_PATH] --id_run [ID_RUN] 

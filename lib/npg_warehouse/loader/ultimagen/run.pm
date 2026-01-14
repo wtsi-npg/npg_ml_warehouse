@@ -27,8 +27,9 @@ with qw/ npg_tracking::glossary::run
 
 our $VERSION  = '0';
 
-Readonly::Scalar my $LANE => 1; # TODO - get from npg_qc?
+Readonly::Scalar my $LANE => 1;
 Readonly::Scalar my $UNASSIGNED_DATA_TAG_INDEX => 0;
+Readonly::Scalar my $HUNDRED => 100;
 
 =head1 NAME
 
@@ -319,9 +320,9 @@ sub _get_autoqc_results {
     # Sample-level data, including tag zero and control.
     foreach my $tag_index (keys %{$tag_metrucs_result->tags()}) {
       $data->{samples}->{$tag_index}->{tag_decode_count} =
-        $tag_metrucs_result->perfect_matches_pf_count->{$tag_index};
+        $tag_metrucs_result->reads_pf_count->{$tag_index};
       $data->{samples}->{$tag_index}->{tag_decode_percent} =
-        $tag_metrucs_result->matches_pf_percent->{$tag_index};
+        $tag_metrucs_result->matches_pf_percent->{$tag_index} * $HUNDRED;
       $data->{samples}->{$tag_index}->{is_sequencing_control} =
         ($tag_index == $tag_metrucs_result->spiked_control_index) ? 1 : 0;
       if ($tag_index) { # Not tag zero.

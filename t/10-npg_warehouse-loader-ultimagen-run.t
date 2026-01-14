@@ -72,12 +72,10 @@ subtest 'Load with no autoqc data' => sub {
   is ($rs->count(), $num_samples, "$num_samples rows in the product table");
   is (scalar (grep { $_->id_useq_wafer_tmp } $rs->all()), $num_samples,
     "$num_samples rows are linked to useq_wafer table");
-  
-  # TODO - expand tests
 };
 
 subtest 'Load with autoqc data' => sub {
-  plan tests => 4;
+  plan tests => 54;
 
   my $ae = Archive::Extract->new(
     archive => 't/data/ultimagen/430136-20251213_0356/51579_autoqc_results.tar.gz'
@@ -99,7 +97,74 @@ subtest 'Load with autoqc data' => sub {
   is (scalar (grep { $_->id_useq_wafer_tmp } $rs->all()), $num_samples,
     $num_samples . ' rows are linked to useq_wafer table');
 
-  # TODO - expand tests
+  my $run_row = $schema_wh->resultset('UseqRunMetric')->find($id_run);
+  is ($run_row->ultimagen_run_id, '430136', 'Ultimagen Run ID');
+  is ($run_row->ultimagen_library_pool, '131_NT114848K_2',
+    'Ultimagen Library_Pool value');
+  is ($run_row->instrument_name, 'UG1', 'instrument name');
+  is ($run_row->instrument_external_name, 'V125', 'instrument external name');
+  is ($run_row->instrument_model, 'UG 100', 'instrument format name');
+  is ($run_row->run_folder_name, '430136-20251213_0356', 'run folder name');
+  is ($run_row->run_priority,3, 'run priority');
+  is ($run_row->cancelled, 0, 'run is not cancelled');
+  is ($run_row->run_in_progress, '2025-12-13T03:56:00',
+    '"run in progress" time stamp');
+  is ($run_row->run_archived, undef, '"run archived" time stamp is undefined');
+  is ($run_row->qc_seq, undef, 'qc_seq is undefined');
+  is ($run_row->num_reads, 12117765442, 'number of reads');
+  is ($run_row->input_num_reads, 16356365456, 'number of input reads');
+  is ($run_row->tags_decode_percent, 96.7570069260629, 'tag decode percent');
+
+  my $row = $schema_wh->resultset('UseqProductMetric')
+    ->search({id_run => $id_run, tag_index => 4})->next();
+  is ($row->id_useq_product,
+    '00e23960e8c6b308dfbfc8859b600ec94567abd7f171f0ec916b886025b2ee63',
+    'product id');
+  is ($row->is_sequencing_control, 0, 'not a sequencing control');
+  is ($row->ultimagen_index_label, 'Z0004', 'index label');
+  is ($row->ultimagen_index_sequence, 'CTGTGTAGGCATGAT', 'index sequence');
+  is ($row->ultimagen_sample_id, '100', 'sample name');
+  is ($row->ultimagen_library_name, '13STDY243406', 'library name');
+  is ($row->qc_seq, undef, 'qc_seq is undefined');
+  is ($row->qc_lib, undef, 'qc_lib is undefined');
+  is ($row->qc, undef, 'qc is undefined');
+  is ($row->tag_decode_count, 98838658, 'sample tag decode count');
+  is ($row->tag_decode_percent, 0.815650859666145, 'sample tag decode percent');
+  is ($row->q20_yield_kb, 22625290, 'q20 yield');
+  is ($row->q30_yield_kb, 18120436, 'q30 yield');
+  is ($row->total_yield_kb, 27302148, 'sample total yield');
+  
+  $row = $schema_wh->resultset('UseqProductMetric')
+    ->search({id_run => $id_run, tag_index => 0})->next();
+  is ($row->id_useq_product,
+    'd298205a9533bd593358cfc858e85408c5f9fdc0a2c646e3af783d7376cdb0e0',
+    'product id');
+  is ($row->is_sequencing_control, 0, 'not a sequencing control');
+  is ($row->ultimagen_index_label, undef, 'index label in undefined');
+  is ($row->ultimagen_index_sequence, undef, 'no index sequence');
+  is ($row->ultimagen_sample_id, undef, 'sample id is not defined');
+  is ($row->ultimagen_library_name, undef, 'library name is not defined');
+  is ($row->tag_decode_count, 392978294, 'tag zero tag decode count');
+  is ($row->tag_decode_percent, 3.24299307393707, 'tag zero tag decode percent');
+  is ($row->q20_yield_kb, undef, 'q20 yield undefined');
+  is ($row->q30_yield_kb, undef, 'q30 yield undefined');
+  is ($row->total_yield_kb, undef, 'total yield undefined');
+  
+  $row = $schema_wh->resultset('UseqProductMetric')
+    ->search({id_run => $id_run, tag_index => 9999})->next();
+  is ($row->id_useq_product,
+    'fb1e997154f73147c4154a42925d3357e6ee630103e3572f5b458a5016d985fb',
+    'product id');
+  is ($row->is_sequencing_control, 1, 'is a sequencing control');
+  is ($row->ultimagen_index_label, undef, 'index label in undefined');
+  is ($row->ultimagen_index_sequence, 'TT', 'correct index sequence');
+  is ($row->ultimagen_sample_id, undef, 'sample id is not defined');
+  is ($row->ultimagen_library_name, undef, 'library name is not defined');
+  is ($row->tag_decode_count, 257587809, 'control tag decode count');
+  is ($row->tag_decode_percent, 2.12570387034564, 'control tag decode percent');
+  is ($row->q20_yield_kb, 66843726, 'control q20 yield');
+  is ($row->q30_yield_kb, 57064907, 'control q30 yield');
+  is ($row->total_yield_kb, 76937990, 'control total yield');
 };
 
 subtest 'No linking without library pool value' => sub {
