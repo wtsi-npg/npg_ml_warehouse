@@ -13,6 +13,7 @@ bin/npg_products2mlwarehouse
 bin/npg_run_info2mlwarehouse
 bin/npg_run_params2mlwarehouse
 bin/npg_runs2mlwarehouse
+bin/npg_ultimagen_run2mlwarehouse
 Build.PL
 Changes
 lib/npg_warehouse/iseq_fk_repair.pm
@@ -33,6 +34,7 @@ lib/npg_warehouse/loader/pacbio/base.pm
 lib/npg_warehouse/loader/pacbio/product.pm
 lib/npg_warehouse/loader/pacbio/qc_state.pm
 lib/npg_warehouse/loader/pacbio/run.pm
+lib/npg_warehouse/loader/ultimagen/run.pm
 MANIFEST			This list of files
 README
 scripts/install_wsi_dependencies.sh
@@ -56,6 +58,7 @@ t/10-npg_warehouse-loader-illumina-run_info.t
 t/10-npg_warehouse-loader-irods-location.t
 t/10-npg_warehouse-loader-pacbio-run-qc_state.t
 t/10-npg_warehouse-loader-pacbio-run.t
+t/10-npg_warehouse-loader-ultimagen-run.t
 t/20-npg_warehouse-loader-illumina-run.t
 t/data/elembio/20231218_AV234003_FluidicsRun_1_A/RunParameters.json
 t/data/elembio/20240216_AV234003_16feb_sge_1x300/RunParameters.json
@@ -104,6 +107,7 @@ t/data/fixtures/wh/000-Sample.yml
 t/data/fixtures/wh/000-Study.yml
 t/data/fixtures/wh/100-EseqFlowcell.yml
 t/data/fixtures/wh/100-IseqFlowcell.yml
+t/data/fixtures/wh/100-UseqWafer.yml
 t/data/fixtures/wh_npg/200-IseqProductMetric.yml
 t/data/fixtures/wh_npg/200-IseqRunLaneMetric.yml
 t/data/fixtures/wh_npg/200-SeqProductIrodsLocation.yml
@@ -431,6 +435,9 @@ t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_
 t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive/lane1/qc/26291_1.ref_match.json
 t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive/lane1/qc/26291_1.tag_metrics.json
 t/data/runfolders/with_merges/Data/Intensities/BAM_basecalls_20180805-013153/no_cal/archive/plex1/qc/26291#1.insert_size.json
+t/data/ultimagen/430136-20251213_0356/430136_LibraryInfo.xml
+t/data/ultimagen/430136-20251213_0356/manifest.csv
+t/data/ultimagen/430136-20251213_0356/51579_autoqc_results.tar.gz
 t/perlcriticrc
 t/scripts/generate_pac_bio_id
 t/util.pm

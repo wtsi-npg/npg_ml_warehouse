@@ -10,7 +10,6 @@ use Carp;
 use npg_warehouse::loader::illumina::run;
 
 extends 'npg_warehouse::loader::base';
-with    'MooseX::Getopt';
 
 our $VERSION = '0';
 
@@ -47,10 +46,6 @@ to repair individual runs.
 =head2 schema_npg
 
 =head2 schema_qc
-
-=cut
-
-has [qw/ +schema_wh +schema_npg +schema_qc /] => (metaclass => 'NoGetopt',);
 
 =head2 loop
 
@@ -249,8 +244,6 @@ __END__
 
 =item MooseX::StrictConstructor
 
-=item MooseX::Getopt
-
 =back
 
 =head1 INCOMPATIBILITIES
@@ -263,7 +256,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2015, 2019 Genome Research Limited
+Copyright (C) 2015, 2019, 2026 Genome Research Limited
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
