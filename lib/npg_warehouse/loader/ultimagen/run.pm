@@ -303,31 +303,31 @@ sub _get_autoqc_results {
   my $collection = $retriever->load($query);
   return $data if $collection->is_empty();
 
-  my $tag_metrucs_result_c = $collection->search({class_name => 'tag_metrics'});
+  my $tag_metrics_result_c = $collection->search({class_name => 'tag_metrics'});
 
-  if (!$tag_metrucs_result_c->is_empty) {
+  if (!$tag_metrics_result_c->is_empty) {
 
-    my $tag_metrucs_result = $tag_metrucs_result_c->pop();
+    my $tag_metrics_result = $tag_metrics_result_c->pop();
 
     # Run-level data.
     $data->{run}->{tags_decode_percent} =
-      $tag_metrucs_result->perfect_matches_percent;
+      $tag_metrics_result->perfect_matches_percent;
     $data->{run}->{num_reads} =
-      $tag_metrucs_result->total_reads_count('reads_pf_count');
+      $tag_metrics_result->total_reads_count('reads_pf_count');
     $data->{run}->{input_num_reads} =
-      $tag_metrucs_result->total_reads_count('reads_count');
+      $tag_metrics_result->total_reads_count('reads_count');
 
     # Sample-level data, including tag zero and control.
-    foreach my $tag_index (keys %{$tag_metrucs_result->tags()}) {
+    foreach my $tag_index (keys %{$tag_metrics_result->tags()}) {
       $data->{samples}->{$tag_index}->{tag_decode_count} =
-        $tag_metrucs_result->reads_pf_count->{$tag_index};
+        $tag_metrics_result->reads_pf_count->{$tag_index};
       $data->{samples}->{$tag_index}->{tag_decode_percent} =
-        $tag_metrucs_result->matches_pf_percent->{$tag_index} * $HUNDRED;
+        $tag_metrics_result->matches_pf_percent->{$tag_index} * $HUNDRED;
       $data->{samples}->{$tag_index}->{is_sequencing_control} =
-        ($tag_index == $tag_metrucs_result->spiked_control_index) ? 1 : 0;
+        ($tag_index == $tag_metrics_result->spiked_control_index) ? 1 : 0;
       if ($tag_index) { # Not tag zero.
         $data->{samples}->{$tag_index}->{ultimagen_index_sequence} =
-          $tag_metrucs_result->tags()->{$tag_index};
+          $tag_metrics_result->tags()->{$tag_index};
       }
     }
   }
