@@ -188,6 +188,10 @@ sub _get_data4loading {
       $ug_sample->library_name;
     $autoqc_results->{samples}->{$tag_index}->{ultimagen_index_sequence} =
       $ug_sample->index_sequence;
+    if ($ug_sample->application_type) { # Do not erase existing value.
+      $autoqc_results->{samples}->{$tag_index}->{ultimagen_application_type} =
+        $ug_sample->application_type;
+    }
   }
   my $mqc_outcomes = exists $autoqc_results->{digests} ?
     $self->_get_product_mqc_outcomes($autoqc_results->{digests}) : {};

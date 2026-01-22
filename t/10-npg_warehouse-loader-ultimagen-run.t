@@ -75,7 +75,7 @@ subtest 'Load with no autoqc data' => sub {
 };
 
 subtest 'Load with autoqc data' => sub {
-  plan tests => 54;
+  plan tests => 57;
 
   my $ae = Archive::Extract->new(
     archive => 't/data/ultimagen/430136-20251213_0356/51579_autoqc_results.tar.gz'
@@ -125,6 +125,7 @@ subtest 'Load with autoqc data' => sub {
   is ($row->ultimagen_index_sequence, 'CTGTGTAGGCATGAT', 'index sequence');
   is ($row->ultimagen_sample_id, '100', 'sample name');
   is ($row->ultimagen_library_name, '13STDY243406', 'library name');
+  is ($row->ultimagen_application_type, 'native', 'application  type');
   is ($row->qc_seq, undef, 'qc_seq is undefined');
   is ($row->qc_lib, undef, 'qc_lib is undefined');
   is ($row->qc, undef, 'qc is undefined');
@@ -144,6 +145,7 @@ subtest 'Load with autoqc data' => sub {
   is ($row->ultimagen_index_sequence, undef, 'no index sequence');
   is ($row->ultimagen_sample_id, undef, 'sample id is not defined');
   is ($row->ultimagen_library_name, undef, 'library name is not defined');
+  is ($row->ultimagen_application_type, undef, 'application  type is not defined');
   is ($row->tag_decode_count, 392978294, 'tag zero tag decode count');
   is ($row->tag_decode_percent, 3.24299307393707, 'tag zero tag decode percent');
   is ($row->q20_yield_kb, undef, 'q20 yield undefined');
@@ -160,6 +162,7 @@ subtest 'Load with autoqc data' => sub {
   is ($row->ultimagen_index_sequence, 'TT', 'correct index sequence');
   is ($row->ultimagen_sample_id, undef, 'sample id is not defined');
   is ($row->ultimagen_library_name, undef, 'library name is not defined');
+  is ($row->ultimagen_application_type, undef, 'application  type is not defined');
   is ($row->tag_decode_count, 257587809, 'control tag decode count');
   is ($row->tag_decode_percent, 2.12570387034564, 'control tag decode percent');
   is ($row->q20_yield_kb, 66843726, 'control q20 yield');
