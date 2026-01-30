@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+ - Extended script npg_mlwarehouse_run_delete to delete data for Elembio and
+   Ultimagen runs.
+
 release 53.4.1 (2025-11-18)
  - Rolled back loading RunStats.json files to eseq_run table. Initially on
    loading a file of 200MB size a database error "Got a packet bigger than

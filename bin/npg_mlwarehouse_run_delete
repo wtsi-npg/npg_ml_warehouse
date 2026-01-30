@@ -18,40 +18,66 @@ GetOptions ('help'     => \$help,
             'id_run=i' => \$id_run,
             'drop_irods_locations' => \$drop_irods_locations,);
 
-if ($help) { pod2usage(0); }
-if (!$id_run) {
-  warn "ERROR: run id is required\n\n";
-  pod2usage(1);
+my $sections = 'NAME|DESCRIPTION|USAGE|REQUIRED ARGUMENTS|OPTIONS';
+
+if($help) {
+  pod2usage(-exitval => 1, -verbose => 99, -sections => $sections);
 }
 
+if (!$id_run) {
+  warn "\nERROR: 'id_run' is required\n\n";
+  pod2usage(-exitval => 1, -verbose => 99, -sections => $sections);
+}
+
+my $illumina_platform = 'Illumina';
+my @platforms = (
+  ['IseqRunLaneMetric', 'IseqProductMetric', $illumina_platform],
+  [qw/EseqRunLaneMetric EseqProductMetric Elembio/],
+  [qw/UseqRunMetric UseqProductMetric Ultimagen/],
+);
+
 my $schema_wh = WTSI::DNAP::Warehouse::Schema->connect();
+my $where = {id_run => $id_run};
 
-my $transaction = sub {
-  my $rs = $schema_wh->resultset(q[IseqRunLaneMetric])
-                     ->search({id_run => $id_run});
-  while (my $rl_row = $rs->next) {
-    my $rsp = $rl_row->iseq_product_metrics();
-    while (my $row = $rsp->next) {
-      my $crow = $row->iseq_product_components();
-      $row->iseq_product_ampliconstats()->delete();
-      $crow->delete();
+for my $names (@platforms) {
+
+  my $transaction = sub {
+    my $rs_name = $names->[0];
+    my $platform = $names->[2];
+    my $rs = $schema_wh->resultset($rs_name)->search($where);
+    if ($rs->count() == 0) {
+      warn "No record for run $id_run in $platform platform tables\n";
+      return 0;
+    } else {
+      warn sprintf "This is $platform platform run $id_run\n";
+      if ($drop_irods_locations && ($platform ne $illumina_platform)) {
+        warn "Dropping iRODS locations is not implemented\n";
+      }
     }
-  }
-  $rs->delete();
-  $rs = $schema_wh->resultset(q[IseqProductMetric])
-                  ->search({id_run => $id_run});
-  for ($rs->all()) {
-    $_->iseq_product_ampliconstats()->delete();
-    if ($drop_irods_locations) {
-      $_->seq_product_irods_locations()->delete();
+
+    $rs_name = $names->[1];
+    my $rs_product = $schema_wh->resultset($rs_name)->search($where);
+    for my $product_row ($rs_product->all()) {
+      if ($platform eq $illumina_platform) {
+        $product_row->iseq_product_ampliconstats()->delete();
+        $product_row->iseq_product_components()->delete();
+        if ($drop_irods_locations) {
+          $product_row->seq_product_irods_locations()->delete();
+        }
+      }
     }
+
+    $rs_product->delete();
+    $rs->delete();
+
+    return 1;
+  };
+
+  if ($schema_wh->txn_do($transaction)) {
+    warn "Run $id_run deleted from ml warehouse\n";
+    last; # Do not try tables for the next sequencing platform.
   }
-  $rs->delete();
-};
-
-$schema_wh->txn_do($transaction);
-
-warn "Run $id_run deleted from ml warehouse\n";
+}
 
 exit 0;
 
@@ -63,12 +89,31 @@ npg_mlwarehouse_run_delete
 
 =head1 SYNOPSIS
 
-Script for deleting Illumina sequencing run metrics data from
+  npg_mlwarehouse_run_delete [options]
+
+=head1 DESCRIPTION
+
+Script for deleting sequencing run metrics data from
 L<multi-lims warehouse|https://github.com/wtsi-npg/ml_warehouse>.
-Deletes rows from iseq_run_lane_metrics, iseq_product_metrics,
-iseq_product_component and iseq_product_ampliconstats
-tables and, optionally, from seq_product_irods_locations
-table.
+
+Examines C<iseq_run_lane_metrics>, C<eseq_run_lane_metrics> and C<useq_run_metrics>
+tables establishing the sequencing platform this run belongs to. If rows for
+the gives C<id_run> are found in any of these tables, the search stops and
+records are deleted for this run from all relevant platform-specific tables.
+
+For Illumina platform the script deletes rows from C<iseq_run_lane_metrics>,
+C<iseq_product_metrics>, C<iseq_product_component> and C<iseq_product_ampliconstats>
+tables.
+
+For Elembio platform the script deletes rows from C<eseq_run_lane_metrics> and
+C<eseq_product_metrics> tables.
+
+For Ultimagen platform the script deletes rows from C<useq_run_metrics> and
+C<useq_product_metrics> tables.
+
+If C<--drop_irods_location> option is enabled, for Illumina platform relevant
+records are deleted from C<seq_product_irods_locations>. For other platforms
+this functionality is not yet implemented (February 2026).
 
 Deletion is performed as a single transaction. If an error
 occurs during the transaction, nothing is deleted.
@@ -76,8 +121,6 @@ occurs during the transaction, nothing is deleted.
 If a product row of this run is a component of some other
 product that does nor belong to this run, this row and the
 run itself cannot be deleted.
-
-npg_mlwarehouse_run_delete [options]
 
 =head1 DESCRIPTION
 
@@ -136,7 +179,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2019,2020,2024 Genome Research Ltd.
+Copyright (C) 2019,2020,2024, 2026 Genome Research Ltd.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
