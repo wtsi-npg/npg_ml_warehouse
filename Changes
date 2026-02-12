@@ -1,5 +1,6 @@
 LIST OF CHANGES
 
+ - Added npg_ultimagen_run2mlwarehouse - a loader for Ultimagen run data.
  - Extended script npg_mlwarehouse_run_delete to delete data for Elembio and
    Ultimagen runs.
 
