@@ -5,6 +5,10 @@ release 53.5.0 (2026-02-19)
  - Extended script npg_mlwarehouse_run_delete to delete data for Elembio and
    Ultimagen runs.
  - CI updates
+ - Dropped a unit test which depends on in-house MySQL dev servers being
+   available. The tests are always skipped in GitHub CI, the accompanying
+   messages are confusing. The test was set up for now very old Illumina
+   runs, the data does not reflect our current concerns.
 
 release 53.4.1 (2025-11-18)
  - Rolled back loading RunStats.json files to eseq_run table. Initially on

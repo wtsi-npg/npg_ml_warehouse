@@ -59,7 +59,6 @@ t/10-npg_warehouse-loader-irods-location.t
 t/10-npg_warehouse-loader-pacbio-run-qc_state.t
 t/10-npg_warehouse-loader-pacbio-run.t
 t/10-npg_warehouse-loader-ultimagen-run.t
-t/20-npg_warehouse-loader-illumina-run.t
 t/data/elembio/20231218_AV234003_FluidicsRun_1_A/RunParameters.json
 t/data/elembio/20240216_AV234003_16feb_sge_1x300/RunParameters.json
 t/data/elembio/20240216_AV234003_16feb_sge_1x300/RunUploaded.json
