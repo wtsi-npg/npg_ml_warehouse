@@ -103,3 +103,51 @@
   study_visibility: Hold
   uuid_study_lims: fe940c60-6ffa-11e4-b9db-68b59977951c
 
+- abbreviation: 13STDY
+  abstract: ~
+  accession_number: ~
+  aligned: 1
+  array_express_accession_number: ~
+  contains_human_dna: 0
+  contaminated_human_data_access_group: ~
+  contaminated_human_dna: 0
+  created: 2025-05-27 10:34:50
+  data_access_group: dag
+  data_deletion_period: ~
+  data_destination: ~
+  data_release_delay_period: ~
+  data_release_delay_reason: ~
+  data_release_sort_of_study: genotyping or cytogenetics
+  data_release_strategy: managed
+  data_release_timing: standard
+  data_release_timing_publication_comment: ~
+  data_share_in_preprint: ~
+  deleted_at: ~
+  description: A study generated for UAT
+  ebi_library_selection: ~
+  ebi_library_source: ~
+  ebi_library_strategy: ~
+  ega_dac_accession_number: ~
+  ega_policy_accession_number: ~
+  ena_project_id: ~
+  ethically_approved: ~
+  faculty_sponsor: UAT Faculty Sponsor
+  hmdmc_number: ~
+  id_lims: SQSCP_ST
+  id_study_lims: 13
+  id_study_tmp: 42
+  last_updated: 2025-07-24 13:16:37
+  name: UAT Study_1
+  prelim_id: ~
+  programme: UAT
+  recorded_at: 2025-07-24 13:16:37
+  reference_genome: ''
+  remove_x_and_autosomes: 0
+  s3_email_list: ~
+  separate_y_chromosome_data: 0
+  state: active
+  study_title: ~
+  study_type: UAT
+  study_visibility: Hold
+  uuid_study_lims: 3813e80e-3ae6-11f0-b65e-02425be301fc
+
