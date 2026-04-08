@@ -1,4 +1,5 @@
 LIST OF CHANGES
+ - Update matrix of CI perl versions, remove 5.26.3 and add 5.38.2
 
 release 53.5.0 (2026-02-19)
  - Added npg_ultimagen_run2mlwarehouse - a loader for Ultimagen run data.
