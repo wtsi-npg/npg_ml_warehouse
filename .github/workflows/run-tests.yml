@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        perl: [ "5.26.3", "5.34.1" ]
+        perl: [ "5.34.1", "5.38.2" ]
         include:
           - id_gen: "5.0.1"
             experimental: false
