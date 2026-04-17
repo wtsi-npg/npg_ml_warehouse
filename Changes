@@ -1,5 +1,9 @@
 LIST OF CHANGES
 
+release 53.5.1 (2026-04-17)
+ - Update matrix of CI perl versions, remove 5.26.3 and add 5.38.2
+ - CI updates
+
 release 53.5.0 (2026-02-19)
  - Added npg_ultimagen_run2mlwarehouse - a loader for Ultimagen run data.
  - Extended script npg_mlwarehouse_run_delete to delete data for Elembio and
