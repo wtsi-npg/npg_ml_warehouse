@@ -1,7 +1,12 @@
 LIST OF CHANGES
 
+
  - Added 3 extra fields related to cell use count for multi-use SMRT cells
    to the pacbio mlwarehouse loader.
+
+release 53.5.1 (2026-04-17)
+ - Update matrix of CI perl versions, remove 5.26.3 and add 5.38.2
+ - CI updates
 
 release 53.5.0 (2026-02-19)
  - Added npg_ultimagen_run2mlwarehouse - a loader for Ultimagen run data.
