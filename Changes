@@ -1,5 +1,8 @@
 LIST OF CHANGES
 
+
+ - Added 3 extra fields related to cell use count for multi-use SMRT cells
+   to the pacbio mlwarehouse loader.
  - Support non-Illumina locations drop
 
 release 53.5.1 (2026-04-17)
