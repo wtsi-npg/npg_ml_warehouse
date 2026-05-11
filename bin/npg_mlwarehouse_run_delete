@@ -50,9 +50,6 @@ for my $names (@platforms) {
       return 0;
     } else {
       warn sprintf "This is $platform platform run $id_run\n";
-      if ($drop_irods_locations && ($platform ne $illumina_platform)) {
-        warn "Dropping iRODS locations is not implemented\n";
-      }
     }
 
     $rs_name = $names->[1];
@@ -61,9 +58,9 @@ for my $names (@platforms) {
       if ($platform eq $illumina_platform) {
         $product_row->iseq_product_ampliconstats()->delete();
         $product_row->iseq_product_components()->delete();
-        if ($drop_irods_locations) {
-          $product_row->seq_product_irods_locations()->delete();
-        }
+      }
+      if ($drop_irods_locations) {
+        $product_row->seq_product_irods_locations()->delete();
       }
     }
 
@@ -98,7 +95,7 @@ L<multi-lims warehouse|https://github.com/wtsi-npg/ml_warehouse>.
 
 Examines C<iseq_run_lane_metrics>, C<eseq_run_lane_metrics> and C<useq_run_metrics>
 tables establishing the sequencing platform this run belongs to. If rows for
-the gives C<id_run> are found in any of these tables, the search stops and
+the given C<id_run> are found in any of these tables, the search stops and
 records are deleted for this run from all relevant platform-specific tables.
 
 For Illumina platform the script deletes rows from C<iseq_run_lane_metrics>,
@@ -111,15 +108,14 @@ C<eseq_product_metrics> tables.
 For Ultimagen platform the script deletes rows from C<useq_run_metrics> and
 C<useq_product_metrics> tables.
 
-If C<--drop_irods_location> option is enabled, for Illumina platform relevant
-records are deleted from C<seq_product_irods_locations>. For other platforms
-this functionality is not yet implemented (February 2026).
+If C<--drop_irods_locations> option is enabled, platform relevant records are
+deleted from C<seq_product_irods_locations>.
 
 Deletion is performed as a single transaction. If an error
 occurs during the transaction, nothing is deleted.
 
 If a product row of this run is a component of some other
-product that does nor belong to this run, this row and the
+product that does not belong to this run, this row and the
 run itself cannot be deleted.
 
 =head1 DESCRIPTION
@@ -128,7 +124,7 @@ run itself cannot be deleted.
 
   npg_mlwarehouse_run_delete --id_run 45
 
-  npg_mlwarehouse_run_delete --id_run 45 --drop_irods_location
+  npg_mlwarehouse_run_delete --id_run 45 --drop_irods_locations
 
 =head1 REQUIRED ARGUMENTS
 
@@ -138,7 +134,7 @@ id_run
 
   --help                  brief help message
   --id_run                ID of the run to delete
-  --drop_irods_location   a boolean option, if true, records in the
+  --drop_irods_locations  a boolean option, if true, records in the
     seq_product_irods_locations table are dropped, false by default
 
 =head1 EXIT STATUS
