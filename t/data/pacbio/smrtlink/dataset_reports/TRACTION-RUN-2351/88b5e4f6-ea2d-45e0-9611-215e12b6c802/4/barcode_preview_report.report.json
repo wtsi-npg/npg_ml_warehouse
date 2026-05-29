@@ -1,0 +1,61 @@
+{
+  "attributes": [{
+    "id": "estimated_hifi_yield",
+    "name": "Estimated HiFi yield"
+  }, {
+    "id": "mean_hifi_quality",
+    "name": "HiFi read quality, median"
+  }, {
+    "id": "mean_length",
+    "name": "HiFi read length, mean",
+    "value": 17038
+  }, {
+    "id": "p1_percent",
+    "name": "P1%",
+    "value": 60.8
+  }, {
+    "id": "time_hours",
+    "name": "Time (Hrs)",
+    "value": 4
+  }, {
+    "id": "workflow",
+    "name": "Workflow",
+    "value": "Basic"
+  }, {
+    "id": "ppid",
+    "name": "Id",
+    "value": "m84309_260321_170053_s1_basic_preview_4hr"
+  }, {
+    "id": "movie_id",
+    "name": "Movie Id",
+    "value": "m84309_260321_170053_s1"
+  }, {
+    "id": "last_update",
+    "name": "Last update timestamp",
+    "value": "2026-03-22T01:49:35.3617384Z"
+  }],
+  "dataset_uuids": ["5d39dabf-ae15-470d-921c-050664be161b", "88b5e4f6-ea2d-45e0-9611-215e12b6c802"],
+  "id": "barcode_preview_report",
+  "plotGroups": [],
+  "tables": [{
+    "columns": [{
+      "header": "Barcode",
+      "id": "barcode",
+      "values": ["bc2001--bc2001", "bc2002--bc2002", "bc2003--bc2003", "bc2004--bc2004", "Other", "Not Barcoded"]
+    }, {
+      "header": "HiFi reads",
+      "id": "counts",
+      "values": ["37.7%", "23.5%", "22.4%", "10.9%", "0.5%", "4.9%"]
+    }, {
+      "header": "HiFi read length (mean, bp)",
+      "id": "length",
+      "values": [16416.0, 17054.0, 17390.0, 18314.0, 13561.0, 17041.0]
+    }],
+    "id": "barcode_preview",
+    "title": "Barcode preview"
+  }],
+  "tags": [],
+  "title": "4hr Run Preview",
+  "uuid": "05dbc3ef-72b1-41f9-ba5b-e6d5df53ff11",
+  "version": "1.0.1"
+}

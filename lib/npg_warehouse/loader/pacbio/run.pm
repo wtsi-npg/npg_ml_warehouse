@@ -172,6 +172,12 @@ sub _build_run_wells {
       $well_info{'ccs_execution_mode'} = $well->{'ccsExecutionMode'};
       $well_info{'created_by'}         = $well->{'createdBy'};
 
+      if(defined $well->{'isMultiUseCell'}){
+          $well_info{'is_cell_multi_use'}  = $well->{'isMultiUseCell'};
+          $well_info{'cell_use_count'}     = $well->{'cellUseCount'};
+          $well_info{'cell_id'}            = $well->{'cellId'};
+      }
+
       if ($self->has_is_multitype) {
         if ($self->get_is_multitype == 1 ){
           my $platenum = $self->_get_plate_number($well->{'collectionPathUri'});

@@ -10,7 +10,7 @@ use Perl6::Slurp;
 use Readonly;
 use Test::Exception;
 use Test::LWP::UserAgent;
-use Test::More tests => 16;
+use Test::More tests => 17;
 
 use npg_testing::db;
 
@@ -388,7 +388,7 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis4' => sub {
 };
 
 subtest 'load_completed_run_on_instrument_deplexing_analysis5' => sub {
-  plan tests => 23;
+  plan tests => 24;
 
   my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
 
@@ -426,7 +426,8 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis5' => sub {
   is ($r->polymerase_read_length_n50, q[151250], 'correct polymerase read length n50 for run TR1764 well A1');
   is ($r->insert_length_mean, q[15801], 'correct insert length mean for run TR1764 well A1');
   is ($r->insert_length_n50, q[16750], 'correct insert length n50 for run TR1764 well A1');
-
+  is ($r->is_cell_multi_use, q[0], 'correct is_cell_multi_use result for run TR1764 well A1 barcode default');
+  
 
   my $id1 = $r->id_pac_bio_rw_metrics_tmp;
   my $pr = $wh_schema->resultset($PRODUCT_TABLE_NAME)->search({id_pac_bio_rw_metrics_tmp => $id1,});
@@ -438,7 +439,7 @@ subtest 'load_completed_run_on_instrument_deplexing_analysis5' => sub {
   is ($p->hifi_read_length_mean, q[10705], 'correct hifi read length mean for run TR1764 well A1 barcode default');
   is ($p->barcode4deplexing, q[bc1016_BAK8B_OA--bc1016_BAK8B_OA], 'correct barcode4deplexing for run TR1764 well A1 barcode default');
   is ($p->barcode_quality_score_mean, q[96.4013574483915], 'correct barcode quality score mean for run TR1764 well A1 barcode default');
-
+  
 };
 
   
@@ -545,7 +546,43 @@ subtest 'load_missing_moviename_run' => sub {
   is ($r2->movie_name, q[m64178e_230614_172701],
       'correct movie name for TRACTION-RUN-624 well B1');
 
-}; 
+};
+
+subtest 'load_cell_reuse_run' => sub {
+  plan tests => 10;
+  
+  my $pb_api = WTSI::NPG::HTS::PacBio::Sequel::APIClient->new(user_agent => $user_agent);
+
+  my @load_args = (dry_run       => '0',
+                   pb_api_client => $pb_api,
+                   mlwh_schema => $wh_schema,
+                   run_uuid => q[c33124a2-5f75-4cbe-9bb4-6ee6071a2fef],
+                   hostname => q[blah.sanger.ac.uk]);
+
+  my $loader = npg_warehouse::loader::pacbio::run->new(@load_args);
+  my ($processed, $loaded, $errors) = $loader->load_run;
+
+  cmp_ok ($loaded, '==', 1, "Loaded 1 run with cell reuse");
+  cmp_ok ($errors, '==', 0, "Loaded 1 run with cell reuse with no errors");
+
+  my $rw_rs = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
+    ({pac_bio_run_name => 'TRACTION-RUN-2351', plate_number => '1', well_label => 'A1'});
+  is ($rw_rs->count, 1, '1 row loaded for run ... well 1-A1 in pac_bio_run_well_metrics');
+
+  my $r = $rw_rs->next;
+  is ($r->is_cell_multi_use, q[1], 'correct is_cell_multi_use result for run TR2351 well 1-A1');
+  is ($r->cell_id, q[EA301631], 'correct cell_id result for run TR2351 well 1-A1');
+  is ($r->cell_use_count, q[1], 'correct cell_us_count result for run TR2351 well 1-A1');
+
+  my $rw_rs2 = $wh_schema->resultset($RUN_WELL_TABLE_NAME)->search
+    ({pac_bio_run_name => 'TRACTION-RUN-2351', plate_number => '2', well_label => 'A1'});
+  is ($rw_rs2->count, 1, '1 row loaded for run ... well 2-A1 in pac_bio_run_well_metrics');
+
+  my $r2 = $rw_rs2->next;
+  is ($r2->is_cell_multi_use, q[1], 'correct is_cell_multi_use result for run TR2351 well 2-A1');
+  is ($r2->cell_id, q[EA301631], 'correct cell_id result for run TR2351 well 2-A1');
+  is ($r2->cell_use_count, q[2], 'correct cell_use_count result for run TR2351 well 2-A1');
+};
 
 subtest 'fail_to_load_non_existent_run' => sub {
   plan tests => 2;
