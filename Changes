@@ -5,6 +5,7 @@ LIST OF CHANGES
    loading to mlwh tables. This is done to facilitate code reuse between
    loaders for different sequencing platforms.
  - Moved genotype check transformation functionality to this role.
+ - Added uploading genotype check results to useq_product_metrics table.
 
 release 53.7.0 (2026-06-01)
  - Added 3 extra fields related to cell use count for multi-use SMRT cells

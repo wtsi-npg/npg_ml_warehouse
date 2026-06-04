@@ -23,13 +23,15 @@ for my $attr_name (qw/explain lims_fk_repair verbose/) {
 }
 
 with qw/ npg_tracking::glossary::run
-         npg_qc::ultimagen::sample_retriever /;
+         npg_qc::ultimagen::sample_retriever
+         npg_warehouse::loader::autoqc_transform /;
 
 our $VERSION  = '0';
 
 Readonly::Scalar my $LANE => 1;
 Readonly::Scalar my $UNASSIGNED_DATA_TAG_INDEX => 0;
 Readonly::Scalar my $HUNDRED => 100;
+Readonly::Array  my @AUTOQC_CHECKS => qw/tag_metrics qX_yield genotype/;
 
 =head1 NAME
 
@@ -297,7 +299,7 @@ sub _get_autoqc_results {
     use_db      => 1,
     verbose     => 0,
     qc_schema   => $self->schema_qc,
-    checks_list => [ qw/tag_metrics qX_yield/ ]
+    checks_list => \@AUTOQC_CHECKS
   );
   my $query = npg_qc::autoqc::qc_store::query->new(
     npg_tracking_schema => $self->schema_npg,
@@ -336,13 +338,21 @@ sub _get_autoqc_results {
     }
   }
 
-  # And qX results for target samples and control.
+  # And qX results for target samples and control and genotype results for
+  # samples (if available);
   foreach my $result ($collection->all()) {
     next if ($result->class_name eq 'tag_metrics');
     my $tag_index = $result->tag_index;
-    $data->{samples}->{$tag_index}->{q20_yield_kb} = $result->yield1_q20;
-    $data->{samples}->{$tag_index}->{q30_yield_kb} = $result->yield1_q30;
-    $data->{samples}->{$tag_index}->{total_yield_kb} = $result->yield1_total;
+    if ($result->class_name eq 'qX_yield') {
+      $data->{samples}->{$tag_index}->{q20_yield_kb} = $result->yield1_q20;
+      $data->{samples}->{$tag_index}->{q30_yield_kb} = $result->yield1_q30;
+      $data->{samples}->{$tag_index}->{total_yield_kb} = $result->yield1_total;
+    } elsif ($result->class_name eq 'genotype') {
+      my $genotype_data = $self->genotype_transform($result);
+      while (my ($column_name, $value) = each %{$genotype_data}) {
+        $data->{samples}->{$tag_index}->{$column_name} = $value;
+      }
+    }
     my $digest = $result->composition->digest();
     $data->{samples}->{$tag_index}->{id_useq_product} = $digest;
     $data->{digests}->{$digest} = $result->composition;
