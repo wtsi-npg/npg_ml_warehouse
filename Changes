@@ -1,7 +1,7 @@
 LIST OF CHANGES
 
  - Created a Moose role npg_warehouse::loader::autoqc_transform for
-   transform functions from autoqc reslt objects to data suitable for
+   transform functions from autoqc result objects to data suitable for
    loading to mlwh tables. This is done to facilitate code reuse between
    loaders for different sequencing platforms.
  - Moved genotype check transformation functionality to this role.
