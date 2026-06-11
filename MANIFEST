@@ -17,6 +17,7 @@ bin/npg_ultimagen_run2mlwarehouse
 Build.PL
 Changes
 lib/npg_warehouse/iseq_fk_repair.pm
+lib/npg_warehouse/loader/autoqc_transform.pm
 lib/npg_warehouse/loader/base.pm
 lib/npg_warehouse/loader/elembio/run.pm
 lib/npg_warehouse/loader/elembio/run_info.pm
@@ -45,6 +46,7 @@ t/00-pod.t
 t/00-podcoverage.t
 t/00-scripts_compile.t
 t/10-npg_warehouse-iseqfkrepair.t
+t/10-npg_warehouse-loader-autoqc_transform.t 
 t/10-npg_warehouse-loader-elembio-run.t
 t/10-npg_warehouse-loader-elembio-run_info.t
 t/10-npg_warehouse-loader-illumina-autoqc.t

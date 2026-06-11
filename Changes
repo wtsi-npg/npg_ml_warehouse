@@ -1,8 +1,15 @@
 LIST OF CHANGES
 
+ - Created a Moose role npg_warehouse::loader::autoqc_transform for
+   transform functions from autoqc result objects to data suitable for
+   loading to mlwh tables. This is done to facilitate code reuse between
+   loaders for different sequencing platforms.
+ - Moved genotype check transformation functionality to this role.
+ - Added uploading genotype check results to useq_product_metrics table.
+
 release 53.7.0 (2026-06-01)
-- Added 3 extra fields related to cell use count for multi-use SMRT cells
-  to the pacbio mlwarehouse loader.
+ - Added 3 extra fields related to cell use count for multi-use SMRT cells
+   to the pacbio mlwarehouse loader.
 
 release 53.6.0 (2026-05-11)
  - Support non-Illumina locations drop

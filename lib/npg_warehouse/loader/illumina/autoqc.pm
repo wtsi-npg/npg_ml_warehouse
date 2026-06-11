@@ -14,6 +14,8 @@ use npg_qc::autoqc::qc_store::options qw/$ALLALL/;
 use npg_qc::autoqc::qc_store::query;
 use npg_qc::autoqc::results::collection;
 
+with 'npg_warehouse::loader::autoqc_transform';
+
 our $VERSION = '0';
 
 ## no critic (ProhibitUnusedPrivateSubroutines)
@@ -469,29 +471,9 @@ sub _genotype {
     my ($self, $result, $composition) = @_;
 
     my $data = $self->_basic_data($composition);
-
-    if (defined $result->sample_name_match) {
-        # Probably, the data can be fixed instead of setting to 0 if false
-        $data->{'genotype_sample_name_match'} = join q[/],
-            $result->sample_name_match->{'match_count'}      || 0,
-            $result->sample_name_match->{'common_snp_count'} || 0;
-    }
-
-    if (defined $result->sample_name_relaxed_match) {
-        $data->{'genotype_sample_name_relaxed_match'} = join q[/],
-            $result->sample_name_relaxed_match->{'match_count'},
-            $result->sample_name_relaxed_match->{'common_snp_count'};
-    }
-
-    my $bam_gt_depths_string = $result->bam_gt_depths_string;
-    if (defined $bam_gt_depths_string) {
-        my $tot = 0;
-        my $c = 0;
-        for my $v (split /;/smx, $bam_gt_depths_string) {
-            $tot += $v;
-            $c++;
-        }
-        $data->{'genotype_mean_depth'} = sprintf '%.02f', ($tot / $c);
+    my $genotype_data = $self->genotype_transform($result);
+    while (my ($column_name, $value) = each %{$genotype_data}) {
+        $data->{$column_name} = $value;
     }
 
     return ($data);
@@ -657,7 +639,7 @@ Marina Gourtovaia
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2018,2019,2020,2021 Genome Research Ltd.
+Copyright (C) 2018,2019,2020,2021,2026 Genome Research Ltd.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

@@ -75,7 +75,7 @@ subtest 'Load with no autoqc data' => sub {
 };
 
 subtest 'Load with autoqc data' => sub {
-  plan tests => 57;
+  plan tests => 63;
 
   my $ae = Archive::Extract->new(
     archive => 't/data/ultimagen/430136-20251213_0356/51579_autoqc_results.tar.gz'
@@ -134,6 +134,19 @@ subtest 'Load with autoqc data' => sub {
   is ($row->q20_yield_kb, 22625290, 'q20 yield');
   is ($row->q30_yield_kb, 18120436, 'q30 yield');
   is ($row->total_yield_kb, 27302148, 'sample total yield');
+  is ($row->genotype_mean_depth, undef, 'genotype_mean_depth is undefined');
+  is ($row->genotype_sample_name_match, undef,
+    'genotype_sample_name_match is undefined');
+  is ($row->genotype_sample_name_relaxed_match, undef,
+    'genotype_sample_name_relaxed_match is undefined');
+
+  $row = $schema_wh->resultset('UseqProductMetric')
+    ->search({id_run => $id_run, tag_index => 10})->next();
+  is ($row->genotype_mean_depth, '50.12', 'genotype_mean_depth is correct');
+  is ($row->genotype_sample_name_match, '23/25',
+    'genotype_sample_name_match is correct');
+  is ($row->genotype_sample_name_relaxed_match, '24/25',
+    'genotype_sample_name_relaxed_match is correct');
   
   $row = $schema_wh->resultset('UseqProductMetric')
     ->search({id_run => $id_run, tag_index => 0})->next();
