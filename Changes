@@ -1,5 +1,7 @@
 LIST OF CHANGES
 
+ - CI updates
+
 release 53.8.0 (2026-06-16)
  - Created a Moose role npg_warehouse::loader::autoqc_transform for
    transform functions from autoqc result objects to data suitable for
