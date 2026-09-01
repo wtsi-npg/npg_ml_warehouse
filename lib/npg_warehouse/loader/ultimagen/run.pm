@@ -23,7 +23,7 @@ for my $attr_name (qw/explain lims_fk_repair verbose/) {
 }
 
 with qw/ npg_tracking::glossary::run
-         npg_qc::ultimagen::sample_retriever
+         npg_tracking::ultimagen::sample_retriever
          npg_warehouse::loader::autoqc_transform /;
 
 our $VERSION  = '0';
@@ -79,11 +79,11 @@ has '+id_run' => (
 
 =head2 runfolder_path
 
-Run folder path, optional. Inherited from C<npg_qc::ultimagen::sample_retriever>.
+Run folder path, optional. Inherited from C<npg_tracking::ultimagen::sample_retriever>.
 
 =head2 manifest_path
 
-Manifest path, optional. Inherited from C<npg_qc::ultimagen::sample_retriever>.
+Manifest path, optional. Inherited from C<npg_tracking::ultimagen::sample_retriever>.
 
 =head2 schema_wh
 
@@ -460,7 +460,7 @@ __END__
 
 =item npg_tracking::glossary::composition::component::illumina
 
-=item npg_qc::ultimagen::sample_retriever
+=item npg_tracking::ultimagen::sample_retriever
 
 =item npg_qc::autoqc::qc_store
 
