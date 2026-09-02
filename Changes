@@ -1,5 +1,12 @@
 LIST OF CHANGES
 
+release 53.8.2 (2026-09-02)
+ - Manifest and LibraryInfo parsers for Ultimagen have been moved to
+   npg_tracking, see
+   https://github.com/wtsi-npg/npg_tracking/pull/1004
+   Updated npg_warehouse::loader::ultimagen::run to reflect the namespace
+   change.
+
 release 53.8.1 (2026-07-22)
  - CI updates
 
