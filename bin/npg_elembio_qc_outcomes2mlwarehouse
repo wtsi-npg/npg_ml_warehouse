@@ -12,10 +12,9 @@ use WTSI::DNAP::Warehouse::Schema;
 our $VERSION = '0';
 
 Readonly::Array  my @FINAL_OUTCOMES => ('Accepted final', 'Rejected final');
-Readonly::Scalar my $MAX_LANE_NUM   => 2;
 
-my $schema = WTSI::DNAP::Warehouse::Schema->connect();
-my $run_lanes_rs = $schema->resultset('EseqRunLaneMetric');
+my $mlwh_schema = WTSI::DNAP::Warehouse::Schema->connect();
+my $run_lanes_rs = $mlwh_schema->resultset('EseqRunLaneMetric');
 my $min_eb_id_run = $run_lanes_rs->search({}, {'order_by' => 'id_run'})
                                  ->first->id_run();
 
@@ -24,7 +23,6 @@ my $min_eb_id_run = $run_lanes_rs->search({}, {'order_by' => 'id_run'})
 my $rs = npg_qc::Schema->connect()->resultset('MqcOutcomeEnt')->search(
   {
     'id_run' => {'>=', $min_eb_id_run},
-    'position' => {'<=', $MAX_LANE_NUM},
     'mqc_outcome.short_desc' => {-in => \@FINAL_OUTCOMES}
   },
   {
@@ -33,7 +31,7 @@ my $rs = npg_qc::Schema->connect()->resultset('MqcOutcomeEnt')->search(
   }
 );
 
-# Create a dictionaly of sequencing (lane) QC outcomes for all runs
+# Create a dictionary of sequencing (lane) QC outcomes for all runs
 # (any platform) with run IDs over $min_eb_id_run. The dictionary will have
 # outcomes for both Elembio and non-Elembio runs.
 my $run_lane_outcomes = {};
@@ -44,7 +42,7 @@ while (my $row = $rs->next) {
 
 # Not all Elembio runs have QC outcomes. Assign QC outcome for lanes and
 # products where the outcome exists. 
-$schema->txn_do( sub {
+$mlwh_schema->txn_do( sub {
 
   while (my $row = $run_lanes_rs->next) {
     my $outcome = $run_lane_outcomes->{$row->id_run}->{$row->lane};
@@ -53,7 +51,7 @@ $schema->txn_do( sub {
     }
   }
 
-  my $product_rs = $schema->resultset('EseqProductMetric')->search({
+  my $product_rs = $mlwh_schema->resultset('EseqProductMetric')->search({
     is_sequencing_control => 0,
     tag_index => {q[!=], 0}
   });
@@ -77,8 +75,8 @@ npg_elembio_qc_outcomes2mlwarehouse
 =head1 SYNOPSIS
 
 Script to load Elembio lane-level QC outcomes from the QC database to
-C<eseq_run_lane_metrics> and C<eseq_product_metrics> tables warehouse database.
-QC outcomes that are already present in these tables might be updated.
+C<eseq_run_lane_metrics> and C<eseq_product_metrics> tables of the warehouse
+database. QC outcomes that are already present in these tables might be updated.
 
 =head1 DESCRIPTION
 
